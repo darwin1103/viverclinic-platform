@@ -1,12 +1,45 @@
-@import 'tailwindcss';
+input,
+textarea,
+select {
+  box-shadow: none !important;
+  background-color: #0e424f !important;
+  border: var(--bs-card-border-width) solid var(--bs-card-border-color) !important;
+}
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source "../**/*.blade.php";
-@source "../**/*.js";
-@source "../**/*.vue";
+input:focus,
+textarea:focus,
+select:focus {
+  box-shadow: none !important;
+  outline: none;
+  border-color: #2e8fa0 !important;
+}
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+.btn-custom {
+  border:1px solid #325e69 !important;
+  border-radius:18px !important;
+  background-color:#0e424f !important;
+  padding-top: .5rem !important;
+  padding-bottom: .5rem !important;
+  font-weight: 700 !important;
+  font-size: 1.75rem !important;
+  width: 100% !important;
+  box-shadow: var(--bs-box-shadow) !important;
+  height: 80px;
+}
+
+.btn-custom:hover {
+  background-color:#125f72 !important;
+}
+
+.btn-schedule-appointment {
+  background-color:#a03731 !important;
+  border-color:#a03731 !important
+}
+
+.btn-schedule-appointment:hover {
+  background-color:#c0504a !important;
+}
+
+.btn-custom-height {
+  height: 130px;
 }

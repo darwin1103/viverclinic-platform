@@ -1,0 +1,20 @@
+$enable-dark-mode: true;
+
+// Body
+$body-bg: #02323c;
+
+:root[data-bs-theme="dark"] {
+    --bs-body-bg: #02323c;
+}
+
+// Typography
+$font-family-sans-serif: 'Nunito', sans-serif;
+$font-size-base: 1rem;
+$line-height-base: 1.6;
+
+$card-border-radius: 18px;
+$card-bg: #0e424f;
+
+$progress-bg: #1d4e5c;
+$progress-bar-bg: #33a1d6;
+$progress-height: 0.7rem;

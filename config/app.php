@@ -13,7 +13,15 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'Viverclinic'),
+
+        /*
+    |--------------------------------------------------------------------------
+    | Application Default Photo Profile
+    |--------------------------------------------------------------------------
+    */
+
+    'app_default_img_profile' => config('app.app_default_img_profile', 'blank-profile-picture.png'),
 
     /*
     |--------------------------------------------------------------------------

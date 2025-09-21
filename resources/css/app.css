@@ -14,6 +14,12 @@ select:focus {
   border-color: #2e8fa0 !important;
 }
 
+table,
+th,
+td {
+  background-color: #0e424f !important;
+}
+
 .btn-custom {
   border:1px solid #325e69 !important;
   border-radius:18px !important;
@@ -25,6 +31,7 @@ select:focus {
   width: 100% !important;
   box-shadow: var(--bs-box-shadow) !important;
   height: 80px;
+  align-content: center;
 }
 
 .btn-custom:hover {
@@ -42,4 +49,13 @@ select:focus {
 
 .btn-custom-height {
   height: 130px;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background-color: #125f72 !important;
+}
+
+.pagination .page-item {
+  background-color: #0e424f !important;
 }

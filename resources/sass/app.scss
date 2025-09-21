@@ -1,8 +1,15 @@
+// fonts
+@import '../css/fonts.css';
+
 // Variables
 @import 'variables';
 
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
+// izitoast
+@import '/node_modules/izitoast/dist/css/iziToast.css';
 
 // Custom
-@import '../css/app.css'
+@import '../css/app.css';

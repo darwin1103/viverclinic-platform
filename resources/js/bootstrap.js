@@ -1,4 +1,12 @@
-import 'bootstrap';
+import * as bootstrap from 'bootstrap';
+window.bootstrap = bootstrap;
+
+import iziToast from 'izitoast';
+window.iziToast = iziToast;
+
+import $ from 'jquery';
+window.$ = $;
+window.jQuery = $;
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests

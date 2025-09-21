@@ -1,2 +1,7 @@
 *
 !.gitignore
+!/fonts
+!/fonts/**
+/fonts/Nunito/OFL.txt
+/fonts/Nunito/README.txt
+!blank-profile-picture.png

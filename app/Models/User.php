@@ -46,4 +46,20 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function adminsBranches()
+    {
+        return $this->belongsToMany(Branch::class, 'admins_branches')->withTimestamps();
+    }
+
+    public function employeesBranches()
+    {
+        return $this->belongsToMany(Branch::class, 'employees_branches')->withTimestamps();
+    }
+
+    public function patientsBranches()
+    {
+        return $this->belongsToMany(Branch::class, 'patients_branches')->withTimestamps();
+    }
+
 }

@@ -37,5 +37,17 @@
     "Associate permissions": "Associate permissions",
     "Add Permissions to": "Add Permissions to",
     "Successful operation": "Successful operation",
-    "Operation failed, try again": "Operation failed, try again"
+    "Operation failed, try again": "Operation failed, try again",
+    "User Management": "User Management",
+    "Branch Management": "Branch Management",
+    "Profile": "Profile",
+    "Users": "Users",
+    "Previous": "Previous",
+    "Next": "Next",
+    "Type here": "Type here",
+    "Select an item": "Select an item",
+    "Assign a role to the user": "Assign a role to the user",
+    "There are no options available": "There are no options available",
+    "Create": "Create",
+    "New User": "New User"
 }

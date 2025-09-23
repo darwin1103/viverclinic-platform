@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -25,7 +26,7 @@ class RoleController extends Controller
      */
     public function index()
     {
-        $roles = Role::paginate(10);
+        $roles = Role::where('id','<>', self::SUPER_ADMIN_ROLE_ID)->paginate(10);
         return view('roles.index', compact('roles'));
     }
 
@@ -81,6 +82,38 @@ class RoleController extends Controller
             $role = Role::where('uuid',$request->roleUUId)->first();
             $permission = Permission::where('uuid',$request->permissionUUId)->first();
             $role->revokePermissionTo($permission);
+            return response()->json();
+        } catch (Exception $e) {
+            logger($e);
+            return response()->json(null,500);
+        }
+    }
+
+    public function assignUser(Request $request) {
+        $request->validate([
+            'roleUUId' => 'required|uuid',
+            'userUUId' => 'required|uuid'
+        ]);
+        try {
+            $role = Role::where('uuid',$request->roleUUId)->first();
+            $user = User::where('uuid',$request->userUUId)->first();
+            $user->assignRole($role);
+            return response()->json();
+        } catch (Exception $e) {
+            logger($e);
+            return response()->json(null,500);
+        }
+    }
+
+    public function removeUser(Request $request) {
+        $request->validate([
+            'roleUUId' => 'required|uuid',
+            'userUUId' => 'required|uuid'
+        ]);
+        try {
+            $role = Role::where('uuid',$request->roleUUId)->first();
+            $user = User::where('uuid',$request->userUUId)->first();
+            $user->removeRole($role);
             return response()->json();
         } catch (Exception $e) {
             logger($e);

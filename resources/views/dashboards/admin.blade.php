@@ -6,6 +6,16 @@
                     {{ __('Role Management') }}
                 </a>
             </div>
+            <div class="col-12 col-md-4 col-lg-3">
+                <a class="btn btn-custom btn-custom-height" href="{{ route('users.index') }}" role="button">
+                    {{ __('User Management') }}
+                </a>
+            </div>
+            <div class="col-12 col-md-4 col-lg-3">
+                <a class="btn btn-custom btn-custom-height" href="{{ route('branches.index') }}" role="button">
+                    {{ __('Branch Management') }}
+                </a>
+            </div>
         </div>
     </div>
 </div>

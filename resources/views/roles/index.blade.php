@@ -13,13 +13,13 @@
         </div>
         <div class="col-12 col-md-5 col-lg-4 text-end" style="align-content: center;">
             <form action="{{ route('roles.store') }}" method="POST">
+                @csrf
                 <div class="input-group mb-3">
-                    @csrf
                     <input type="text" class="form-control" name="roleName"
                         placeholder="{{ __('Name of the new role') }}" 
                         aria-label="{{ __('Name of the new role') }}" 
-                        aria-describedby="addNewRol">
-                    <button class="btn btn-outline-secondary" type="submit" id="addNewRol">
+                        aria-describedby="addNewRole">
+                    <button class="btn btn-outline-secondary" type="submit" id="addNewRole">
                         <i class="bi bi-plus-circle-fill"></i>&nbsp;{{ __('Add') }}
                     </button>
                 </div>
@@ -57,8 +57,9 @@
                                             <td style="min-width: 130px;">{{ $role->updated_at }}</td>
                                             <td style="min-width: 160px;">
                                                 <button class="btn btn-primary add-users-to-role" type="button"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    data-bs-custom-class="custom-tooltip"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top" data-role-name="{{ $role->name }}"
+                                                    data-bs-custom-class="custom-tooltip" data-role-uuid="{{ $role->uuid }}"
+                                                    data-users-url="{{ route('users.list',$role->uuid) }}"
                                                     data-bs-title="{{__('Associate users')}}">
                                                     <i class="bi bi-person-fill-gear"></i>
                                                 </button>
@@ -164,35 +165,35 @@
         $(document).on('click','.add-users-to-role',function(){
             const $roleUUId = $(this).attr('data-role-uuid');
             const $roleName = $(this).attr('data-role-name');
-            const $permissionURL = $(this).attr('data-permission-url');
+            const $usersURL = $(this).attr('data-users-url');
             $.ajax({
-                url: $permissionURL,
+                url: $usersURL,
                 method: 'GET',
                 dataType: 'json',
                 success: function(data) {
-                    if (data.permissions.length>0) {
-                        $('#addPermissionsModal .modal-body').empty();
-                        $('#addPermissionsModal .modal-body').append(`
+                    if (data.users.length>0) {
+                        $('#addUsersToRoleModal .modal-body').empty();
+                        $('#addUsersToRoleModal .modal-body').append(`
                             <ul class="list-group list-group-flush"></ul>
                         `);
-                        data.permissions.forEach((p, index) => {
-                            $('#addPermissionsModal .modal-body .list-group.list-group-flush').append(`
+                        data.users.forEach((p, index) => {
+                            $('#addUsersToRoleModal .modal-body .list-group.list-group-flush').append(`
                                 <li class="list-group-item">
-                                    <input class="form-check-input me-1 add-permission-to-rol" type="checkbox" value="" `+p['contains']+` id="`+p['uuid']+`" data-role-uuid="`+$roleUUId+`">
+                                    <input class="form-check-input me-1 add-user-to-rol" type="checkbox" value="" `+p['contains']+` id="`+p['uuid']+`" data-role-uuid="`+$roleUUId+`">
                                     <label class="form-check-label stretched-link" for="`+p['uuid']+`">`+p['name']+`</label>
                                 </li>
                             `);
                         });
                     } else {
-                        $('#addPermissionsModal .modal-body').html(`
+                        $('#addUsersToRoleModal .modal-body').html(`
                             <p>{{ __('There are no records') }}</p>
                         `);
                     }
-                    $('#addPermissionsModal .modal-header .modal-title').empty();
-                    $('#addPermissionsModal .modal-header .modal-title').html(`
-                        {{ __('Add Permissions to') }}&nbsp;`+$roleName+`
+                    $('#addUsersToRoleModal .modal-header .modal-title').empty();
+                    $('#addUsersToRoleModal .modal-header .modal-title').html(`
+                        {{ __('Add users to') }}&nbsp;`+$roleName+`
                     `);
-                    const modal = new bootstrap.Modal('#addPermissionsModal');
+                    const modal = new bootstrap.Modal('#addUsersToRoleModal');
                     modal.show();
                 },
                 error: function(error) {
@@ -229,6 +230,47 @@
                     data: {
                         roleUUId: $roleUUId,
                         permissionUUId: $permissionUUId
+                    },
+                    success: function(data) {
+                        iziToast.success({
+                            message: "{{ __('Successful operation') }}"
+                        });
+                    },
+                    error: function(error) {
+                        ajaxErrorHandle(error);
+                    }
+                });
+            }
+        });
+        $(document).on('change','.add-user-to-rol',function(){
+            const $roleUUId = $(this).attr('data-role-uuid');
+            const $userUUId = $(this).attr('id');
+            if ($(this).is(':checked')) {
+                $.ajax({
+                    url: "{{ route('roles.assign.user') }}",
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        roleUUId: $roleUUId,
+                        userUUId: $userUUId
+                    },
+                    success: function(data) {
+                        iziToast.success({
+                            message: "{{ __('Successful operation') }}"
+                        });
+                    },
+                    error: function(error) {
+                        ajaxErrorHandle(error);
+                    }
+                });
+            } else {
+                $.ajax({
+                    url: "{{ route('roles.remove.user') }}",
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        roleUUId: $roleUUId,
+                        userUUId: $userUUId
                     },
                     success: function(data) {
                         iziToast.success({

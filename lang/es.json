@@ -37,5 +37,17 @@
     "Associate permissions": "Asociar permisos",
     "Add Permissions to": "Añadir Permisos a",
     "Successful operation": "Operación exitosa",
-    "Operation failed, try again": "Operación fallida, intente nuevamente"
+    "Operation failed, try again": "Operación fallida, intente nuevamente",
+    "User Management": "Gestión de Usuarios",
+    "Branch Management": "Gestión de Sucursales",
+    "Profile": "Perfil",
+    "Users": "Usuarios",
+    "Previous": "Anterior",
+    "Next": "Siguiente",
+    "Type here": "Escribe aquí",
+    "Select an item": "Selecciona un elemento",
+    "Assign a role to the user": "Asignar un rol al usuario",
+    "There are no options available": "No hay opciones disponibles",
+    "Create": "Crear",
+    "New User": "Nuevo Usuario"
 }

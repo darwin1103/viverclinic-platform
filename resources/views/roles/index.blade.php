@@ -16,6 +16,7 @@
                 @csrf
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" name="roleName"
+                        style="border: 1px solid #325e69 !important;"
                         placeholder="{{ __('Name of the new role') }}" 
                         aria-label="{{ __('Name of the new role') }}" 
                         aria-describedby="addNewRole">

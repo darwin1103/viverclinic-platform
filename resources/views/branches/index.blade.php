@@ -12,12 +12,9 @@
             </nav>
         </div>
         <div class="col-12 col-md-5 col-lg-4 text-end" style="align-content: center;">
-            <form action="{{ route('branches.store') }}" method="POST">
-                @csrf
-                <button class="btn btn-primary" type="submit" id="addNewbranch">
-                    <i class="bi bi-plus-circle-fill"></i>&nbsp;{{ __('Add') }}
-                </button>
-            </form>
+            <a class="btn btn-primary" href="{{ route('branches.create') }}" role="button">
+                <i class="bi bi-plus-circle-fill"></i>&nbsp;{{ __('Add') }}
+            </a>
         </div>
     </div>
     <div class="row">
@@ -63,14 +60,14 @@
                                                     data-permission-url="{{ route('permissions.list',$role->uuid) }}"
                                                     data-bs-title="{{__('Associate permissions')}}">
                                                     <i class="bi bi-building-fill-gear"></i>
-                                                </button>
+                                                </button> --}}
                                                 <button class="btn btn-danger" type="button"
                                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                                     data-bs-custom-class="custom-tooltip"
                                                     data-bs-title="{{__('Delete')}}"
-                                                    onclick="showDeleteConfirmation('{{$role->uuid}}')">
+                                                    onclick="showDeleteConfirmation('{{$branch->uuid}}')">
                                                     <i class="bi bi-trash-fill"></i>
-                                                </button> --}}
+                                                </button>
                                             </td>
                                         </tr>
                                     @endforeach

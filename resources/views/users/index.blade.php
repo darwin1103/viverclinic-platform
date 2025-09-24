@@ -60,14 +60,14 @@
                                                     data-permission-url="{{ route('permissions.list',$role->uuid) }}"
                                                     data-bs-title="{{__('Associate permissions')}}">
                                                     <i class="bi bi-building-fill-gear"></i>
-                                                </button>
+                                                </button> --}}
                                                 <button class="btn btn-danger" type="button"
                                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                                     data-bs-custom-class="custom-tooltip"
                                                     data-bs-title="{{__('Delete')}}"
-                                                    onclick="showDeleteConfirmation('{{$role->uuid}}')">
+                                                    onclick="showDeleteConfirmation('{{$user->uuid}}')">
                                                     <i class="bi bi-trash-fill"></i>
-                                                </button> --}}
+                                                </button>
                                             </td>
                                         </tr>
                                     @endforeach

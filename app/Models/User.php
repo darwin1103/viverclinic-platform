@@ -63,4 +63,8 @@ class User extends Authenticatable
         return $this->belongsToMany(Branch::class, 'patients_branches')->withTimestamps();
     }
 
+    public function genre() {
+        return $this->belongsTo(Genre::class);
+    }
+
 }

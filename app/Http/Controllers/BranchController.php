@@ -55,7 +55,7 @@ class BranchController extends Controller
             return redirect()->back()->with('success', 'Successful operation');
         } catch (Exception $e) {
             logger($e);
-            return redirect()->back()->with('error', 'Something went wrong, please try again, if the problem persists, please report it to administrator');
+            return redirect()->back()->with('error', self::ERROR_GENERAL_MSG);
         }
     }
 
@@ -106,7 +106,7 @@ class BranchController extends Controller
             return redirect()->back()->with('success', 'Successful operation');
         } catch (Exception $e) {
             logger($e);
-            return redirect()->back()->with('error', 'Something went wrong, please try again, if the problem persists, please report it to administrator');
+            return redirect()->back()->with('error', self::ERROR_GENERAL_MSG);
         }
     }
 }

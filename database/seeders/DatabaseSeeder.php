@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Genre;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -39,5 +40,16 @@ class DatabaseSeeder extends Seeder
 
         $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'PATIENT_DASHBOARD']));
 
+        Genre::create([
+            'name' => 'Masculine',
+            'code' => 'M',
+            'status' => '1'
+        ]);
+
+        Genre::create([
+            'name' => 'Female',
+            'code' => 'F',
+            'status' => '1'
+        ]);
     }
 }

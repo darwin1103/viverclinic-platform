@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Genre;
+use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class ProfileController extends Controller
 {
@@ -49,16 +54,75 @@ class ProfileController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $uuid)
     {
-        //
+        $r = [
+            'uuid' => $uuid
+        ];
+        $validator = Validator::make($r, [
+            'uuid' => 'required|uuid',
+        ]);
+        if ($validator->fails()) {
+            return redirect()->back()->with('error', 'Invalid value');
+        }
+        $request->validate([
+            'name' => 'required|string',
+            'birthday' => 'nullable|date|before:today',
+            'genreSelect' => 'required|not_in:-1'
+        ]);
+        try {
+            $user = User::where('uuid',$uuid)->first();
+            if (!$user) {
+                return redirect()->back()->with('info', 'Operation failed, try again');
+            }
+            $user->name = $request->input('name');
+            if (isset($request->birthday) && !empty($request->birthday)) {
+                $user->birthday = $request->birthday;
+            }
+            if(isset($request->genreSelect) && !empty($request->genreSelect) && $request->genreSelect != '-1') {
+                $genre = Genre::where('code',$request->genreSelect)->first();
+                $user->genre_id = $genre->id;
+            }
+            $user->save();
+            return redirect()->back()->with('success', 'Successful operation');
+        } catch (Exception $e) {
+            logger($e);
+            return redirect()->back()->with('error', self::ERROR_GENERAL_MSG);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $uuid)
     {
-        //
+        $r = [
+            'uuid' => $uuid
+        ];
+        $validator = Validator::make($r, [
+            'uuid' => 'required|uuid',
+        ]);
+        if ($validator->fails()) {
+            return redirect()->back()->with('error', 'Invalid value');
+        }
+        try {
+            $user = User::where('uuid',$uuid)->first();
+            if (!$user) {
+                return redirect()->back()->with('info', 'Operation failed, try again');
+            }
+            if ($user->hasRole('SUPER_ADMIN')) {
+                return redirect()->back()->with('info', 'Administrator users cannot be deleted from the interface');
+            } else {
+                // if ($user->photo_profile) {
+                //     Storage::disk('public')->delete($user->photo_profile);
+                // }
+                $user->delete();
+                Auth::logout();
+                return redirect('/login')->with('success', 'Account deleted successfully');
+            }
+        } catch (Exception $e) {
+            logger($e);
+            return redirect()->back()->with('error', self::ERROR_GENERAL_MSG);
+        }
     }
 }

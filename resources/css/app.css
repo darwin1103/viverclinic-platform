@@ -39,11 +39,20 @@ td {
 }
 
 .btn-schedule-appointment {
+  background-color:#248ea8 !important;
+  border-color:#248ea8 !important
+}
+
+.btn-schedule-appointment:hover {
+  background-color:#3daeca !important;
+}
+
+.btn-cancel-appointment {
   background-color:#a03731 !important;
   border-color:#a03731 !important
 }
 
-.btn-schedule-appointment:hover {
+.btn-cancel-appointment:hover {
   background-color:#c0504a !important;
 }
 

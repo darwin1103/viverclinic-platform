@@ -11,10 +11,10 @@
                 <button type="button" class="btn btn-custom btn-custom-height">Comprar paquete</button>
             </div>
             <div class="col-12 col-md-4">
-                <button type="button" class="btn btn-custom btn-custom-height">Cancelar cita</button>
+                <button type="button" class="btn btn-custom btn-custom-height">Promociones</button>
             </div>
             <div class="col-12 col-md-4">
-                <button type="button" class="btn btn-custom btn-custom-height btn-schedule-appointment">Agendar cita</button>
+                <button type="button" class="btn btn-custom btn-custom-height">Recomendaciones</button>
             </div>
             <div class="col-12 col-md-4">
                 <button type="button" class="btn btn-custom btn-custom-height">Billetera virtual</button>
@@ -31,10 +31,10 @@
         </div>
         <div class="row gx-3 gy-3 mt-2">
             <div class="col-12 col-md-6">
-                <button type="button" class="btn btn-custom">Recomendaciones</button>
+                <button type="button" class="btn btn-custom btn-schedule-appointment">Agendar cita</button>
             </div>
             <div class="col-12 col-md-6">
-                <button type="button" class="btn btn-custom" style="color:#dc554f;">Promociones</button>
+                <button type="button" class="btn btn-custom btn-cancel-appointment">Cancelar cita</button>
             </div>
         </div>
     </div>

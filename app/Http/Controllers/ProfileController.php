@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Genre;
+use App\Models\Gender;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -68,7 +68,7 @@ class ProfileController extends Controller
         $request->validate([
             'name' => 'required|string',
             'birthday' => 'nullable|date|before:today',
-            'genreSelect' => 'required|not_in:-1'
+            'genderSelect' => 'required|not_in:-1'
         ]);
         try {
             $user = User::where('uuid',$uuid)->first();
@@ -79,9 +79,9 @@ class ProfileController extends Controller
             if (isset($request->birthday) && !empty($request->birthday)) {
                 $user->birthday = $request->birthday;
             }
-            if(isset($request->genreSelect) && !empty($request->genreSelect) && $request->genreSelect != '-1') {
-                $genre = Genre::where('code',$request->genreSelect)->first();
-                $user->genre_id = $genre->id;
+            if(isset($request->genderSelect) && !empty($request->genderSelect) && $request->genderSelect != '-1') {
+                $gender = Gender::where('code',$request->genderSelect)->first();
+                $user->gender_id = $gender->id;
             }
             $user->save();
             return redirect()->back()->with('success', 'Successful operation');

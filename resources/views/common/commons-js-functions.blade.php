@@ -1,3 +1,4 @@
+@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         iziToast.settings({
@@ -51,3 +52,4 @@
         }
     }
 </script>
+@endpush

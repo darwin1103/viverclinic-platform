@@ -23,6 +23,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'informed_consent'
     ];
 
     /**
@@ -31,6 +32,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $hidden = [
+        'id',
         'password',
         'remember_token',
     ];
@@ -63,8 +65,43 @@ class User extends Authenticatable
         return $this->belongsToMany(Branch::class, 'patients_branches')->withTimestamps();
     }
 
-    public function genre() {
-        return $this->belongsTo(Genre::class);
+    public function gender() {
+        return $this->belongsTo(Gender::class);
+    }
+
+    public function documentType()
+    {
+        return $this->belongsTo(DocumentType::class);
+    }
+
+    public function pathologicalCondition()
+    {
+        return $this->belongsTo(PathologicalCondition::class, 'pathological_id');
+    }
+
+    public function toxicologicalCondition()
+    {
+        return $this->belongsTo(ToxicologicalCondition::class, 'toxicological_id');
+    }
+
+    public function gynecoObstetricCondition()
+    {
+        return $this->belongsTo(GynecoObstetricCondition::class, 'gyneco_obstetric_id');
+    }
+
+    public function medicationCondition()
+    {
+        return $this->belongsTo(MedicationCondition::class, 'medication_id');
+    }
+
+    public function dietaryCondition()
+    {
+        return $this->belongsTo(DietaryCondition::class, 'dietary_id');
+    }
+
+    public function treatmentCondition()
+    {
+        return $this->belongsTo(TreatmentCondition::class, 'treatment_id');
     }
 
 }

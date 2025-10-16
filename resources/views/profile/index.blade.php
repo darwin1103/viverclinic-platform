@@ -73,13 +73,13 @@
                                 </div>
                                 <div class="col-12 col-lg-6">
                                     <div class="form-floating">
-                                        <select id="genreSelect" name="genreSelect" class="form-select @error('genreSelect') is-invalid @enderror" aria-label="genreSelect">
-                                            <option value="-1" @if (Auth::user()->genre == null) selected @endif>{{__('Select an option')}}</option>
-                                            <option value="M" @if (Auth::user()->genre != null && Auth::user()->genre->code == 'M') selected @endif>{{__('Masculine')}}</option>
-                                            <option value="F" @if (Auth::user()->genre != null && Auth::user()->genre->code == 'F') selected @endif>{{__('Female')}}</option>
+                                        <select id="genderSelect" name="genderSelect" class="form-select @error('genderSelect') is-invalid @enderror" aria-label="genderSelect">
+                                            <option value="-1" @if (Auth::user()->gender == null) selected @endif>{{__('Select an option')}}</option>
+                                            <option value="M" @if (Auth::user()->gender != null && Auth::user()->gender->code == 'M') selected @endif>{{__('Masculine')}}</option>
+                                            <option value="F" @if (Auth::user()->gender != null && Auth::user()->gender->code == 'F') selected @endif>{{__('Female')}}</option>
                                         </select>
-                                        <label for="genreSelect">{{__('Genre')}}</label>
-                                        @error('genreSelect')
+                                        <label for="genderSelect">{{__('Gender')}}</label>
+                                        @error('genderSelect')
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{$message}}</strong>
                                             </span>
@@ -119,6 +119,7 @@
     </div>
 </div>
 @include('common.deleteConfirmationModal')
+@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
     }, false);
@@ -129,4 +130,5 @@
         modal.show();
     };
 </script>
+@endpush
 @endsection

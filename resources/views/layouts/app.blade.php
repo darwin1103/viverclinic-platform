@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Viverclinic') }}</title>
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    @stack('styles')
 </head>
 <body>
     <div id="app">
@@ -67,5 +68,6 @@
     </div>
     @include('common.login-modal')
     @include('common.commons-js-functions')
+    @stack('scripts')
 </body>
 </html>

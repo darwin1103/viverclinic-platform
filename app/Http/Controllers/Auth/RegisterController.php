@@ -67,10 +67,9 @@ class RegisterController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'informed_consent' => true
         ]);
-
         $user->assignRole('PATIENT');
-
         return $user;
     }
 }

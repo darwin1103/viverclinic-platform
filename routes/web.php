@@ -34,6 +34,7 @@ Route::get('/permissions/getPermissionsList/{roleUUID}',[PermissionController::c
 Route::resource('permissions', PermissionController::class);
 
 Route::get('/users/getUsers/{roleUUID}',[UserController::class,'getusers'])->name('users.list');
+Route::post('/users/save/informed/consent',[UserController::class,'saveInformedConsent'])->name('users.informed.consent');
 Route::resource('users', UserController::class);
 
 Route::resource('branches', BranchController::class);

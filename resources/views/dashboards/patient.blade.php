@@ -2,7 +2,7 @@
     <div class="col-12 col-md-8 mb-3">
         <div class="row gx-3 gy-3 my-2">
             <div class="col-12 col-md-4">
-                <button type="button" class="btn btn-custom btn-custom-height">Historia Clinica</button>
+                <button type="button" class="btn btn-custom btn-custom-height">{{ __('Medical record') }}</button>
             </div>
             <div class="col-12 col-md-4">
                 <button type="button" class="btn btn-custom btn-custom-height">Tratamiento</button>

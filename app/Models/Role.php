@@ -13,4 +13,13 @@ class Role extends SpatieRole
         'created_at',
         'updated_at'
     ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'id'
+    ];
 }

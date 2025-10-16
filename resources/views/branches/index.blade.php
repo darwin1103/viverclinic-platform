@@ -112,6 +112,7 @@
     </div>
 </div> --}}
 @include('common.deleteConfirmationModal')
+@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // $(document).on('click','.add-permissions',function(){
@@ -282,4 +283,5 @@
         modal.show();
     }
 </script>
+@endpush
 @endsection

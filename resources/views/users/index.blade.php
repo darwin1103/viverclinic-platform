@@ -61,6 +61,18 @@
                                                     data-bs-title="{{__('Associate permissions')}}">
                                                     <i class="bi bi-building-fill-gear"></i>
                                                 </button> --}}
+                                                <a class="mx-2"
+                                                    href="{{ route('users.show', $user->uuid) }}"
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    data-bs-custom-class="custom-tooltip"
+                                                    data-bs-title="{{__('Show')}}"><i class="bi bi-eye-fill"></i></a>
+                                                <a class="mx-2"
+                                                    href="{{ route('users.edit', $user->uuid) }}"
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    data-bs-custom-class="custom-tooltip"
+                                                    data-bs-title="{{__('Edit')}}"><i class="bi bi-pencil-square"></i></a>
                                                 <button class="btn btn-danger" type="button"
                                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                                     data-bs-custom-class="custom-tooltip"
@@ -112,6 +124,7 @@
     </div>
 </div> --}}
 @include('common.deleteConfirmationModal')
+@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // $(document).on('click','.add-permissions',function(){
@@ -282,4 +295,5 @@
         modal.show();
     }
 </script>
+@endpush
 @endsection

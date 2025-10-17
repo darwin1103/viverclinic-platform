@@ -331,7 +331,7 @@ class UserController extends Controller
             } else {
                 $user->not_pregnant = false;
             }
-            // $user->informed_consent = false;
+            $user->informed_consent = false;
             $user->save();
             return redirect()->back()->with('success', 'Successful operation');
         } catch (Exception $e) {

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->string('name');
             $table->boolean('status')->default(false);
+            $table->text('terms_conditions')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

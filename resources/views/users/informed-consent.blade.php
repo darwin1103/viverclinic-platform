@@ -246,11 +246,11 @@
                         </div>
                         <div class="col-12 col-lg-6">
                             <div class="form-floating">
-                                <select id="treatment" name="treatment" class="form-select @error('treatment') is-invalid @enderror" aria-label="treatment">
+                                <select id="treatment" name="treatment" class="form-select @error('treatment') is-invalid @enderror load-informed-consent-contract" aria-label="treatment">
                                     <option value="">{{__('Select an option')}}</option>
                                     @if (isset($treatmentConditions)&&count($treatmentConditions)>0)
                                         @foreach ($treatmentConditions as $item)
-                                            <option value={{ $item->id }} @if(Auth::user()->treatmentCondition != null && $item->id == Auth::user()->treatmentCondition->id) selected @endIf>{{ __($item->name) }}</option>
+                                            <option data-contract-text="{{ $item->terms_conditions }}" value={{ $item->id }} @if(Auth::user()->treatmentCondition != null && $item->id == Auth::user()->treatmentCondition->id) selected @endIf>{{ __($item->name) }}</option>
                                         @endforeach
                                     @endif
                                 </select>
@@ -286,7 +286,7 @@
                         </div>
                         <div class="col-12 mt-3">
                             <div class="form-check">
-                                <input class="form-check-input @error('termsConditions') is-invalid @enderror" type="checkbox" id="termsConditions" name="termsConditions" @if(Auth::user()->terms_conditions) checked @endif>
+                                <input class="form-check-input @error('termsConditions') is-invalid @enderror show-terms-conditions-modal" disabled type="checkbox" id="termsConditions" name="termsConditions" @if(Auth::user()->terms_conditions) checked @endif>
                                 <label class="form-check-label" for="termsConditions">
                                     {{ __('I have clearly read the consent I accept terms and conditions') }}
                                 </label>
@@ -306,7 +306,7 @@
                             </div>
                         </div>
                         <div class="d-grid gap-2 d-md-block text-center">
-                            <button type="submit" class="btn btn-primary w-auto mt-2">{{__('Next')}}</button>
+                            <button type="submit" class="btn btn-primary w-auto mt-2" id="nextInformedConsent" disabled>{{__('Next')}}</button>
                         </div>
                     </form>
                 </div>
@@ -314,9 +314,44 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="termsConditionsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="termsConditionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="termsConditionsModalLabel">{{ __('Terms and Conditions') }}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
+                <button type="button" class="btn btn-primary" id="acceptTermsConditions">{{ __('I accept') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        $(".load-informed-consent-contract").on('change',function() {
+            $("#termsConditionsModal").find('.modal-body').empty();
+            $('#termsConditions').prop('checked', false);
+            $('#termsConditions').prop('disabled', true);
+            $("#nextInformedConsent").prop('disabled', true);
+            if ($(this).find('option:selected').val()!='') {
+                $("#termsConditionsModal").find('.modal-body').html($(this).find('option:selected').attr('data-contract-text'));
+                $("#termsConditions").removeAttr('disabled');
+            }
+        });
+        $(".show-terms-conditions-modal").on('click',function() {
+            if ($(this).is(':checked')) {
+                const modal = new bootstrap.Modal('#termsConditionsModal');
+                modal.show();
+            }
+        });
+        $("#acceptTermsConditions").on('click',function() {
+            $("#nextInformedConsent").removeAttr('disabled');
+            bootstrap.Modal.getInstance('#termsConditionsModal').hide();
+        });
     }, false);
 </script>
 @endpush

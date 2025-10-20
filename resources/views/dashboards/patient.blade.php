@@ -1,42 +1,96 @@
 <div class="row justify-content-center my-2">
     <div class="col-12 col-md-8 mb-3">
         <div class="row gx-3 gy-3 my-2">
-            <div class="col-12 col-md-4">
-                <button type="button" class="btn btn-custom btn-custom-height">{{ __('Medical record') }}</button>
-            </div>
-            <div class="col-12 col-md-4">
-                <button type="button" class="btn btn-custom btn-custom-height">{{ __('Qualify staff') }}</button>
-            </div>
-            <div class="col-12 col-md-4">
-                <button type="button" class="btn btn-custom btn-custom-height">{{ __('Treatment') }}</button>
-            </div>
-            <div class="col-12 col-md-4">
-                <button type="button" class="btn btn-custom btn-custom-height">{{ __('Care tips') }}</button>
-            </div>
-            <div class="col-12 col-md-4">
-                <button type="button" class="btn btn-custom btn-custom-height">{{ __('Buy package') }}</button>
-            </div>
-            <div class="col-12 col-md-4">
-                <button type="button" class="btn btn-custom btn-custom-height">{{ __('Virtual wallet') }}</button>
-            </div>
-            <div class="col-12 col-md-4">
-                <button type="button" class="btn btn-custom btn-custom-height">{{ __('Promotions') }}</button>
-            </div>
-            <div class="col-12 col-md-4">
-                <button type="button" class="btn btn-custom btn-custom-height">{{ __('Recommendations') }}</button>
-            </div>
-            
-            <div class="col-12 col-md-4">
-                <button type="button" class="btn btn-custom btn-custom-height">{{ __('Referrals') }}</button>
-            </div>
+            @can('medical-record-home-btn')
+                <div class="col-12 col-md-4">
+                    <a class="btn btn-custom btn-custom-height" role="button"
+                        href="{{ route('medical-record.index') }}">
+                        {{ __('Medical Record') }}
+                    </a>
+                </div>
+            @endcan
+            @can('qualify-staff-home-btn')
+                <div class="col-12 col-md-4">
+                    <a class="btn btn-custom btn-custom-height" role="button"
+                        href="{{ route('qualify-staff.index') }}">
+                        {{ __('Qualify Staff') }}
+                    </a>
+                </div>
+            @endcan
+            @can('treatment-home-btn')
+                <div class="col-12 col-md-4">
+                    <a class="btn btn-custom btn-custom-height" role="button"
+                        href="{{ route('treatment.index') }}">
+                        {{ __('Treatment') }}
+                    </a>
+                </div>
+            @endcan
+            @can('care-tips-home-btn')
+                <div class="col-12 col-md-4">
+                    <a class="btn btn-custom btn-custom-height" role="button"
+                        href="{{ route('care-tips.index') }}">
+                        {{ __('Care Tips') }}
+                    </a>
+                </div>
+            @endcan
+            @can('buy-package-home-btn')
+                <div class="col-12 col-md-4">
+                    <a class="btn btn-custom btn-custom-height" role="button"
+                        href="{{ route('buy-package.index') }}">
+                        {{ __('Buy Package') }}
+                    </a>
+                </div>
+            @endcan
+            @can('virtual-wallet-home-btn')
+                <div class="col-12 col-md-4">
+                    <a class="btn btn-custom btn-custom-height" role="button"
+                        href="{{ route('virtual-wallet.index') }}">
+                        {{ __('Virtual Wallet') }}
+                    </a>
+                </div>
+            @endcan
+            @can('promotions-home-btn')
+                <div class="col-12 col-md-4">
+                    <a class="btn btn-custom btn-custom-height" role="button"
+                        href="{{ route('promotions.index') }}">
+                        {{ __('Promotions') }}
+                    </a>
+                </div>
+            @endcan
+            @can('recomentations-home-btn')
+                <div class="col-12 col-md-4">
+                    <a class="btn btn-custom btn-custom-height" role="button"
+                        href="{{ route('recomentations.index') }}">
+                        {{ __('Recommendations') }}
+                    </a>
+                </div>
+            @endcan
+            @can('referrals-home-btn')
+                <div class="col-12 col-md-4">
+                    <a class="btn btn-custom btn-custom-height" role="button"
+                        href="{{ route('referrals.index') }}">
+                        {{ __('Referrals') }}
+                    </a>
+                </div>
+            @endcan
         </div>
         <div class="row gx-3 gy-3 mt-2">
-            <div class="col-12 col-md-6">
-                <button type="button" class="btn btn-custom btn-schedule-appointment">{{ __('Schedule an appointment') }}</button>
-            </div>
-            <div class="col-12 col-md-6">
-                <button type="button" class="btn btn-custom btn-cancel-appointment">{{ __('Cancel appointment') }}</button>
-            </div>
+            @can('schedule-appointment-home-btn')
+                <div class="col-12 col-md-6">
+                    <a class="btn btn-custom btn-schedule-appointment" role="button"
+                        href="{{ route('schedule-appointment.index') }}">
+                        {{ __('Schedule an Appointment') }}
+                    </a>
+                </div>
+            @endcan
+            @can('cancel-appointment-home-btn')
+                <div class="col-12 col-md-6">
+                    <a class="btn btn-custom btn-cancel-appointment"  role="button"
+                        href="{{ route('cancel-appointment.index') }}">
+                        {{ __('Cancel Appointment') }}
+                    </a>
+                </div>
+            @endcan
         </div>
     </div>
     <div class="col-12 col-md-4">

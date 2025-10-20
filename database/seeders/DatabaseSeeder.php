@@ -38,14 +38,25 @@ class DatabaseSeeder extends Seeder
 
         $user->assignRole('SUPER_ADMIN');
 
-        $adminRole->givePermissionTo(Permission::firstOrCreate(['name' => 'ADMIN_DASHBOARD']));
-        $adminRole->givePermissionTo(Permission::firstOrCreate(['name' => 'ADMIN_DASHBOARD_ROLE_MANAGEMENT']));
-        $adminRole->givePermissionTo(Permission::firstOrCreate(['name' => 'ADMIN_DASHBOARD_USER_MANAGEMENT']));
-        $adminRole->givePermissionTo(Permission::firstOrCreate(['name' => 'ADMIN_DASHBOARD_BRANCH_MANAGEMENT']));
+        $adminRole->givePermissionTo(Permission::firstOrCreate(['name' => 'admin_dashboard']));
+        $adminRole->givePermissionTo(Permission::firstOrCreate(['name' => 'admin_dashboard_role_management']));
+        $adminRole->givePermissionTo(Permission::firstOrCreate(['name' => 'admin_dashboard_user_management']));
+        $adminRole->givePermissionTo(Permission::firstOrCreate(['name' => 'admin_dashboard_branch_management']));
 
-        $employeeRole->givePermissionTo(Permission::firstOrCreate(['name' => 'EMPLOYEE_DASHBOARD']));
+        $employeeRole->givePermissionTo(Permission::firstOrCreate(['name' => 'employee_dashboard']));
 
-        $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'PATIENT_DASHBOARD']));
+        $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'patient_dashboard']));
+        $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'medical-record-home-btn']));
+        $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'qualify-staff-home-btn']));
+        $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'treatment-home-btn']));
+        $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'care-tips-home-btn']));
+        $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'buy-package-home-btn']));
+        $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'virtual-wallet-home-btn']));
+        $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'promotions-home-btn']));
+        $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'recomentations-home-btn']));
+        $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'referrals-home-btn']));
+        $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'schedule-appointment-home-btn']));
+        $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'cancel-appointment-home-btn']));
 
         Gender::create(['name' => 'Masculine','code' => 'M','status' => '1']);
         Gender::create(['name' => 'Female','code' => 'F','status' => '1']);

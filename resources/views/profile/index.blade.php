@@ -1,5 +1,12 @@
 @extends('layouts.app')
 @section('content')
+@push('styles')
+<style>
+    .show-image-selector {
+        cursor: pointer;
+    }
+</style>
+@endpush
 <div class="container">
     <div class="row">
         <div class="col-12">
@@ -16,10 +23,11 @@
                 <div class="card-img-top" 
                     style="height: 180px; background: linear-gradient(135deg, #ff7e5f, #feb47b);">
                 </div>
-                <div style="position: absolute; top: 140px; left: 20px; border: 5px solid white; border-radius: 50%;">
-                    <img id="profilePhoto" alt="user photo" style="width: 100px;" class="rounded-circle" src="{{asset(Storage::url(config('app.app_default_img_profile')))}}">
-                    {{-- <i class="bi bi-camera-fill" style="position: absolute; bottom: 0px; right: 0px; background-color: white; border: 2px solid white; border-radius: 50%; color: #3a3a3a; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center;"></i> --}}
+                <div style="position: absolute; top: 140px; left: 20px; border: 5px solid white; border-radius: 50%;" class="show-image-selector">
+                    <img id="profilePhoto" alt="user photo" width="100" height="100" class="rounded-circle" src="{{asset(Storage::url(Auth::user()->photo_profile?:config('app.app_default_img_profile')))}}">
+                    <i class="bi bi-camera-fill" style="position: absolute; bottom: 0px; right: 0px; background-color: white; border: 2px solid white; border-radius: 50%; color: #3a3a3a; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center;"></i>
                 </div>
+                <input type="file" id="profilePhotoInput" accept="image/png, image/jpeg, image/jpg" style="display:none;">
                 <div style="position: absolute; top: 185px; left: 140px;">
                     <p class="fs-5 fw-semibold text-center mb-0">
                         {{ Auth::user()->name ?? '' }}&nbsp;
@@ -122,6 +130,43 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        $(".show-image-selector").on('click',function(){
+            $("#profilePhotoInput").click();
+        });
+        $("#profilePhotoInput").on('change',function(e){
+            const file = e.target.files[0];
+            if (!file) return;
+            const allowedTypes = ['image/jpeg','image/jpg','image/png'];
+            if (!allowedTypes.includes(file.type)) {
+                alert("{{ __('Format not allowed. JPG, JPEG or PNG only') }}");
+                return;
+            }
+            const formData = new FormData();
+            formData.append('image', file);
+            $.ajax({
+                url: '/profile/uploadProfilePhoto',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response){
+                    console.log(response);
+                    if (response.profileURL) {
+                        $("#profilePhoto").attr('src',response.profileURL);
+                        $(".navbar-photo").attr('src',response.profileURL);
+                    } else {
+                        $("#profilePhoto").attr('src',"{{ asset(Storage::url(config('app.app_default_img_profile'))) }}");
+                        $(".navbar-photo").attr('src',"{{ asset(Storage::url(config('app.app_default_img_profile'))) }}");
+                    }
+                    iziToast.success({
+                        message: "{{ __('Successful operation') }}"
+                    });
+                },
+                error: function(xhr, status, error){
+                    ajaxErrorHandle(error);
+                }
+            });
+        });
     }, false);
     function showDeleteConfirmation(elementUUID) {
         const modal = new bootstrap.Modal('#removeConfirmationModal');

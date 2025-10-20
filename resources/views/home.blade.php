@@ -7,13 +7,13 @@
     @if (Auth::user()->getAllPermissions()->isEmpty() && Auth::user()->roles->isEmpty())
         @include('layouts.no-permissions-assigned')
     @else
-        @can('ADMIN_DASHBOARD')
+        @can('admin_dashboard')
             @include('dashboards.admin')
         @endcan
-        @can('EMPLOYEE_DASHBOARD')
+        @can('employee_dashboard')
             @include('dashboards.employee')
         @endcan
-        @can('PATIENT_DASHBOARD')
+        @can('patient_dashboard')
             @include('dashboards.patient')
         @endcan
     @endif

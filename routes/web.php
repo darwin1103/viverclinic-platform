@@ -1,11 +1,22 @@
 <?php
 
 use App\Http\Controllers\BranchController;
+use App\Http\Controllers\BuyPackageController;
+use App\Http\Controllers\CancelAppointmentController;
+use App\Http\Controllers\CareTipsController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PromotionsController;
+use App\Http\Controllers\QualifyStaffController;
+use App\Http\Controllers\RecomentationsController;
+use App\Http\Controllers\ReferralsController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\ScheduleAppointmentController;
+use App\Http\Controllers\TreatmentController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VirtualWalletController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -39,4 +50,27 @@ Route::resource('users', UserController::class);
 
 Route::resource('branches', BranchController::class);
 
+Route::post('/profile/uploadProfilePhoto',[ProfileController::class,'uploadProfilePhoto']);
 Route::resource('profile', ProfileController::class);
+
+Route::resource('medical-record', MedicalRecordController::class);
+
+Route::resource('qualify-staff', QualifyStaffController::class);
+
+Route::resource('treatment', TreatmentController::class);
+
+Route::resource('care-tips', CareTipsController::class);
+
+Route::resource('buy-package', BuyPackageController::class);
+
+Route::resource('virtual-wallet', VirtualWalletController::class);
+
+Route::resource('promotions', PromotionsController::class);
+
+Route::resource('recomentations', RecomentationsController::class);
+
+Route::resource('referrals', ReferralsController::class);
+
+Route::resource('schedule-appointment', ScheduleAppointmentController::class);
+
+Route::resource('cancel-appointment', CancelAppointmentController::class);

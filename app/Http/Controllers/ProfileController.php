@@ -7,7 +7,9 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class ProfileController extends Controller
 {
@@ -113,9 +115,9 @@ class ProfileController extends Controller
             if ($user->hasRole('SUPER_ADMIN')) {
                 return redirect()->back()->with('info', 'Administrator users cannot be deleted from the interface');
             } else {
-                // if ($user->photo_profile) {
-                //     Storage::disk('public')->delete($user->photo_profile);
-                // }
+                if ($user->photo_profile) {
+                    Storage::disk('public')->delete($user->photo_profile);
+                }
                 $user->delete();
                 Auth::logout();
                 return redirect('/login')->with('success', 'Account deleted successfully');
@@ -123,6 +125,34 @@ class ProfileController extends Controller
         } catch (Exception $e) {
             logger($e);
             return redirect()->back()->with('error', self::ERROR_GENERAL_MSG);
+        }
+    }
+
+    public function uploadProfilePhoto(Request $request) {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,jpg,png|max:2048'
+        ]);
+        try {
+            $user = User::where('uuid',Auth::user()->uuid)->first();
+            if ($request->hasFile('image')) {
+                if (!$user->directory) {
+                    $dirName = Str::uuid()->toString();
+                    Storage::disk('public')->makeDirectory($dirName);
+                    $user->directory = $dirName;
+                    $user->save();
+                }
+                if ($user->photo_profile) {
+                    Storage::disk('public')->delete($user->photo_profile);
+                }
+                $user->photo_profile = $request->file('image')->store($user->directory,'public');
+                $user->save();
+            }
+            return response()->json([
+                'profileURL' => ($user->photo_profile)?asset(Storage::url($user->photo_profile)):null
+            ]);
+        } catch (Exception $e) {
+            logger($e);
+            return response()->json(null,500);
         }
     }
 }

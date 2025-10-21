@@ -1,7 +1,7 @@
 <div class="row justify-content-center my-2">
     <div class="col-12 col-md-8 mb-3">
         <div class="row gx-3 gy-3 my-2">
-            @can('medical-record-home-btn')
+            @can('patient_medical_record_home_btn')
                 <div class="col-12 col-md-4">
                     <a class="btn btn-custom btn-custom-height" role="button"
                         href="{{ route('medical-record.index') }}">
@@ -9,7 +9,7 @@
                     </a>
                 </div>
             @endcan
-            @can('qualify-staff-home-btn')
+            @can('patient_qualify_staff_home_btn')
                 <div class="col-12 col-md-4">
                     <a class="btn btn-custom btn-custom-height" role="button"
                         href="{{ route('qualify-staff.index') }}">
@@ -17,7 +17,7 @@
                     </a>
                 </div>
             @endcan
-            @can('treatment-home-btn')
+            @can('patient_treatment_home_btn')
                 <div class="col-12 col-md-4">
                     <a class="btn btn-custom btn-custom-height" role="button"
                         href="{{ route('treatment.index') }}">
@@ -25,7 +25,7 @@
                     </a>
                 </div>
             @endcan
-            @can('care-tips-home-btn')
+            @can('patient_care_tips_home_btn')
                 <div class="col-12 col-md-4">
                     <a class="btn btn-custom btn-custom-height" role="button"
                         href="{{ route('care-tips.index') }}">
@@ -33,7 +33,7 @@
                     </a>
                 </div>
             @endcan
-            @can('buy-package-home-btn')
+            @can('patient_buy_package_home_btn')
                 <div class="col-12 col-md-4">
                     <a class="btn btn-custom btn-custom-height" role="button"
                         href="{{ route('buy-package.index') }}">
@@ -41,7 +41,7 @@
                     </a>
                 </div>
             @endcan
-            @can('virtual-wallet-home-btn')
+            @can('patient_virtual_wallet_home_btn')
                 <div class="col-12 col-md-4">
                     <a class="btn btn-custom btn-custom-height" role="button"
                         href="{{ route('virtual-wallet.index') }}">
@@ -49,15 +49,15 @@
                     </a>
                 </div>
             @endcan
-            @can('promotions-home-btn')
+            @can('patient_promotions_home_btn')
                 <div class="col-12 col-md-4">
                     <a class="btn btn-custom btn-custom-height" role="button"
-                        href="{{ route('promotions.index') }}">
+                        href="#">
                         {{ __('Promotions') }}
                     </a>
                 </div>
             @endcan
-            @can('recomentations-home-btn')
+            @can('patient_recomentations_home_btn')
                 <div class="col-12 col-md-4">
                     <a class="btn btn-custom btn-custom-height" role="button"
                         href="{{ route('recomentations.index') }}">
@@ -65,7 +65,7 @@
                     </a>
                 </div>
             @endcan
-            @can('referrals-home-btn')
+            @can('patient_referrals_home_btn')
                 <div class="col-12 col-md-4">
                     <a class="btn btn-custom btn-custom-height" role="button"
                         href="{{ route('referrals.index') }}">
@@ -75,7 +75,7 @@
             @endcan
         </div>
         <div class="row gx-3 gy-3 mt-2">
-            @can('schedule-appointment-home-btn')
+            @can('patient_schedule_appointment_home_btn')
                 <div class="col-12 col-md-6">
                     <a class="btn btn-custom btn-schedule-appointment" role="button"
                         href="{{ route('schedule-appointment.index') }}">
@@ -83,7 +83,7 @@
                     </a>
                 </div>
             @endcan
-            @can('cancel-appointment-home-btn')
+            @can('patient_cancel_appointment_home_btn')
                 <div class="col-12 col-md-6">
                     <a class="btn btn-custom btn-cancel-appointment"  role="button"
                         href="{{ route('cancel-appointment.index') }}">

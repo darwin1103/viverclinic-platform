@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\AgendaDayController;
+use App\Http\Controllers\AgendaNewController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\BuyPackageController;
 use App\Http\Controllers\CancelAppointmentController;
 use App\Http\Controllers\CareTipsController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\JobTrailingController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
@@ -74,3 +77,9 @@ Route::resource('referrals', ReferralsController::class);
 Route::resource('schedule-appointment', ScheduleAppointmentController::class);
 
 Route::resource('cancel-appointment', CancelAppointmentController::class);
+
+Route::resource('agenda-day', AgendaDayController::class);
+
+Route::resource('agenda-new', AgendaNewController::class);
+
+Route::resource('job-trailing', JobTrailingController::class);

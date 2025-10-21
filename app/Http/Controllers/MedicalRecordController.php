@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DietaryCondition;
+use App\Models\GynecoObstetricCondition;
+use App\Models\MedicationCondition;
+use App\Models\PathologicalCondition;
+use App\Models\ToxicologicalCondition;
+use App\Models\TreatmentCondition;
 use Illuminate\Http\Request;
 
 class MedicalRecordController extends Controller
@@ -11,7 +17,23 @@ class MedicalRecordController extends Controller
      */
     public function index()
     {
-        return view('medical-record.index');
+        $pathologicalConditions = PathologicalCondition::where('status',PathologicalCondition::ACTIVE_STATUS)->get();
+        $toxicologicalConditions = ToxicologicalCondition::where('status',ToxicologicalCondition::ACTIVE_STATUS)->get();
+        $gynecoObstetricConditions = GynecoObstetricCondition::where('status',GynecoObstetricCondition::ACTIVE_STATUS)->get();
+        $medicationConditions = MedicationCondition::where('status',MedicationCondition::ACTIVE_STATUS)->get();
+        $dietaryConditions = DietaryCondition::where('status',DietaryCondition::ACTIVE_STATUS)->get();
+        $treatmentConditions = TreatmentCondition::where('status',TreatmentCondition::ACTIVE_STATUS)->get();
+        return view(
+            'medical-record.index',
+            compact(
+                'pathologicalConditions',
+                'toxicologicalConditions',
+                'gynecoObstetricConditions',
+                'medicationConditions',
+                'dietaryConditions',
+                'treatmentConditions'
+            )
+        );
     }
 
     /**

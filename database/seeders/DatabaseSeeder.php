@@ -15,6 +15,7 @@ use App\Models\TreatmentCondition;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -31,13 +32,21 @@ class DatabaseSeeder extends Seeder
         $employeeRole = Role::firstOrCreate(['name' => 'EMPLOYEE']);
         $patientRole = Role::firstOrCreate(['name' => 'PATIENT']);
 
-        $user = User::create([
-            'name' => 'Super Admin',
-            'email' => 'super_admin@viverclinic.com',
-            'password' => '$2y$12$e1hOplDQvYp3qsA1Bf/JV.iaFaUXJMieRuxyJm/iwSq/siWiMtA5W'
+        $adminUser1 = User::create([
+            'name' => 'ViverClinic Admin',
+            'email' => 'viverclinicadmin@viverclinic.com',
+            'password' => Hash::make('Yt7C5sj91c51hAQbYMQM'),
         ]);
 
-        $user->assignRole('SUPER_ADMIN');
+        $adminUser1->assignRole('SUPER_ADMIN');
+
+        $adminUser2 = User::create([
+            'name' => 'Xavier',
+            'email' => '1@1.com',
+            'password' => Hash::make('1'),
+        ]);
+
+        $adminUser2->assignRole('SUPER_ADMIN');
 
         $ownerRole->givePermissionTo(Permission::firstOrCreate(['name' => 'owner_dashboard']));
         $ownerRole->givePermissionTo(Permission::firstOrCreate(['name' => 'owner_dashboard_role_management']));

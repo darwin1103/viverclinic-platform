@@ -72,6 +72,7 @@ class UserController extends Controller
                 'password' => bcrypt($password),
                 'informed_consent' => ($request->requestInformedConsent && $request->requestInformedConsent == "on")?true:false
             ]);
+            $user->assignRole('PATIENT');
             $user->notify(new UserCreatedNotification($user->name,$user->email,$password));
             return redirect()->back()->with('success', 'Successful operation');
         } catch (Exception $e) {

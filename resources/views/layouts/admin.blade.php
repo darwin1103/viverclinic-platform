@@ -10,6 +10,8 @@
 </head>
 <body>
     <div id="app">
+        <x-admin.dashboard.header />
+        <x-admin.dashboard.sidebar />
         <main class="py-3">
             @yield('content')
         </main>

@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DietaryCondition;
-use App\Models\DocumentType;
-use App\Models\Gender;
-use App\Models\GynecoObstetricCondition;
-use App\Models\MedicationCondition;
-use App\Models\PathologicalCondition;
-use App\Models\ToxicologicalCondition;
-use App\Models\TreatmentCondition;
+// use App\Models\DietaryCondition;
+// use App\Models\DocumentType;
+// use App\Models\Gender;
+// use App\Models\GynecoObstetricCondition;
+// use App\Models\MedicationCondition;
+// use App\Models\PathologicalCondition;
+// use App\Models\ToxicologicalCondition;
+// use App\Models\TreatmentCondition;
+use App\Models\Branch;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
@@ -35,7 +37,15 @@ class HomeController extends Controller
         $user = Auth::user();
         if($user->hasRole('SUPER_ADMIN')){
 
-            return view('dashboards.admin');
+            $patientCount = User::role('PATIENT')->count();
+            $branches = Branch::select(['id', 'name'])->get();
+
+            $data = [
+                'patientCount' => $patientCount,
+                'branches' => $branches,
+            ];
+
+            return view('dashboards.admin', $data);
 
         }elseif($user->hasRole('EMPLOYEE')){
 

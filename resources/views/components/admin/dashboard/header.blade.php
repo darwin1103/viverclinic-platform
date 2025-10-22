@@ -10,11 +10,13 @@
 
   <div class="ms-auto d-flex align-items-center gap-2">
 
-    <select class="form-select form-select-sm" style="min-width:220px" aria-label="Seleccionar sucursal">
-      <option selected>Sede Central</option>
-      <option>Sucursal Norte</option>
-      <option>Sucursal Sur</option>
-    </select>
+  @if($branches && $branches->count() > 0)
+      <select class="form-select form-select-sm" style="min-width:220px" aria-label="Seleccionar sucursal">
+          @foreach($branches as $branch)
+              <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+          @endforeach
+      </select>
+  @endif
 
     <!-- SOLO ICONO "+" -->
     <button class="btn btn-primary btn-sm btn-icon" aria-label="Crear" title="Crear" data-bs-toggle="modal" data-bs-target="#modalQuickAdd">

@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,11 +22,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
         $this->registerPolicies();
         Gate::before(function (User $user, $ability) {
             if ($user->hasRole('SUPER_ADMIN')) {
                 return true;
             }
         });
+
+        if($this->app->environment('production')) {
+            URL::forceScheme('https');
+        };
+
     }
 }

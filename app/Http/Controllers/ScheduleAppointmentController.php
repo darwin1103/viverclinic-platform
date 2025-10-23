@@ -19,7 +19,62 @@ class ScheduleAppointmentController extends Controller
      */
     public function create()
     {
-        return view('schedule-appointment.create');
+
+
+
+        $packages = [
+            [
+                'id' => 1,
+                'name' => 'Paquete 1',
+                'big_zones' => 1,
+                'mini_zones' => 2,
+                'price' => 149999
+            ],
+            [
+                'id' => 2,
+                'name' => 'Paquete 2',
+                'big_zones' => 2,
+                'mini_zones' => 2,
+                'price' => 249999
+            ],
+            [
+                'id' => 3,
+                'name' => 'Paquete 3',
+                'big_zones' => 4,
+                'mini_zones' => 2,
+                'price' => 349999
+            ],
+        ];
+
+        $additionalZones = [
+            [
+                'id' => 'mini',
+                'name' => '10 sesiones mini zona',
+                'price' => 59999
+            ],
+            [
+                'id' => 'grande',
+                'name' => '10 sesiones una zona',
+                'price' => 129999
+            ],
+        ];
+
+        $bigZones = [
+            'Muslo', 'Media pierna', 'Glúteos', 'Abdomen', 'Pecho', 'Brazos', 'Espalda Alta', 'Espalda Baja'
+        ];
+
+        $smallZones = [
+            'Bikini', 'Axilas', 'Facial o Barba', 'Cuello', 'Linea completa Abdomen'
+        ];
+
+        $miniZones = [
+            'Vellos de los dedos pies', 'Vellos de los dedos mano', 'Empeine', 'Perianal', 'Bigote', 'Patillas', 'Barbilla', 'Orejas', 'Entre cejo', 'Linea alba', 'Pezones', 'Marcación barba'
+        ];
+
+
+
+
+        return view('schedule-appointment.create', compact('packages', 'additionalZones', 'bigZones', 'smallZones', 'miniZones'));
     }
 
     /**

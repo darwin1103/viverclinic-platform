@@ -26,12 +26,12 @@
                         <div class="col-12">
                             <h2 class="section-title">1. Paquete que deseo adquirir</h2>
                             @foreach ($packages as $paquete)
-                                @include('components.appointment.schedule.form.package-item', ['item' => $paquete, 'type' => 'package'])
+                                @include('components.buy-package.form.package-item', ['item' => $paquete, 'type' => 'package'])
                             @endforeach
 
                             <h2 class="section-title mt-4">Añadir una zone adicional</h2>
                             @foreach ($additionalZones as $zone)
-                                @include('components.appointment.schedule.form.package-item', ['item' => $zone, 'type' => 'additional'])
+                                @include('components.buy-package.form.package-item', ['item' => $zone, 'type' => 'additional'])
                             @endforeach
                         </div>
 
@@ -43,13 +43,13 @@
                                     <h3>Zonas Grandes</h3>
                                     <div id="zones-grandes-container">
                                         @foreach ($bigZones as $zone)
-                                            @include('components.appointment.schedule.form.zone-checkbox', ['zone' => $zone, 'type' => 'grande'])
+                                            @include('components.buy-package.form.zone-checkbox', ['zone' => $zone, 'type' => 'grande'])
                                         @endforeach
                                     </div>
                                     <h3>Zonas Pequeñas</h3>
                                     <div id="zones-pequenas-container">
                                         @foreach ($smallZones as $zone)
-                                            @include('components.appointment.schedule.form.zone-checkbox', ['zone' => $zone, 'type' => 'grande'])
+                                            @include('components.buy-package.form.zone-checkbox', ['zone' => $zone, 'type' => 'grande'])
                                         @endforeach
                                     </div>
                                     <div class="form-floating mt-3">
@@ -61,7 +61,7 @@
                                     <h3>Mini Zonas</h3>
                                     <div id="mini-zones-container">
                                         @foreach ($miniZones as $zone)
-                                            @include('components.appointment.schedule.form.zone-checkbox', ['zone' => $zone, 'type' => 'mini'])
+                                            @include('components.buy-package.form.zone-checkbox', ['zone' => $zone, 'type' => 'mini'])
                                         @endforeach
                                     </div>
                                      <div class="form-floating mt-3">

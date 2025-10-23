@@ -56,7 +56,7 @@
                         <div class="col-12 col-md-4">
                             <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
                                 role="button"
-                                href="{{ route('buy-package.index') }}"
+                                href="{{ route('buy-package.create') }}"
                             >
                                 <i class="bi bi-heart-fill"></i>
                                 {{ __('Buy Package') }}

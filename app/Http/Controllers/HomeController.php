@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-// use App\Models\DietaryCondition;
-// use App\Models\DocumentType;
-// use App\Models\Gender;
-// use App\Models\GynecoObstetricCondition;
-// use App\Models\MedicationCondition;
-// use App\Models\PathologicalCondition;
-// use App\Models\ToxicologicalCondition;
-// use App\Models\TreatmentCondition;
+use App\Models\DietaryCondition;
+use App\Models\DocumentType;
+use App\Models\Gender;
+use App\Models\GynecoObstetricCondition;
+use App\Models\MedicationCondition;
+use App\Models\PathologicalCondition;
+use App\Models\ToxicologicalCondition;
+use App\Models\TreatmentCondition;
 use App\Models\Branch;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -53,6 +53,32 @@ class HomeController extends Controller
 
         }elseif($user->hasRole('PATIENT')){
 
+            if (Auth::user()->informed_consent) {
+
+                $genres = Gender::where('status',Gender::ACTIVE_STATUS)->get();
+                $documentTypes = DocumentType::where('status',DocumentType::ACTIVE_STATUS)->get();
+                $pathologicalConditions = PathologicalCondition::where('status',PathologicalCondition::ACTIVE_STATUS)->get();
+                $toxicologicalConditions = ToxicologicalCondition::where('status',ToxicologicalCondition::ACTIVE_STATUS)->get();
+                $gynecoObstetricConditions = GynecoObstetricCondition::where('status',GynecoObstetricCondition::ACTIVE_STATUS)->get();
+                $medicationConditions = MedicationCondition::where('status',MedicationCondition::ACTIVE_STATUS)->get();
+                $dietaryConditions = DietaryCondition::where('status',DietaryCondition::ACTIVE_STATUS)->get();
+                $treatmentConditions = TreatmentCondition::where('status',TreatmentCondition::ACTIVE_STATUS)->get();
+
+                $data = [
+                    'genres' => $genres,
+                    'documentTypes' => $documentTypes,
+                    'pathologicalConditions' => $pathologicalConditions,
+                    'toxicologicalConditions' => $toxicologicalConditions,
+                    'gynecoObstetricConditions' => $gynecoObstetricConditions,
+                    'medicationConditions' => $medicationConditions,
+                    'dietaryConditions' => $dietaryConditions,
+                    'treatmentConditions' => $treatmentConditions,
+                ];
+
+                return view('users.informed-consent', $data);
+
+            }
+
             return view('dashboards.patient');
 
         }
@@ -60,29 +86,7 @@ class HomeController extends Controller
 
 
 
-        // if (Auth::user()->informed_consent) {
-        //     $genres = Gender::where('status',Gender::ACTIVE_STATUS)->get();
-        //     $documentTypes = DocumentType::where('status',DocumentType::ACTIVE_STATUS)->get();
-        //     $pathologicalConditions = PathologicalCondition::where('status',PathologicalCondition::ACTIVE_STATUS)->get();
-        //     $toxicologicalConditions = ToxicologicalCondition::where('status',ToxicologicalCondition::ACTIVE_STATUS)->get();
-        //     $gynecoObstetricConditions = GynecoObstetricCondition::where('status',GynecoObstetricCondition::ACTIVE_STATUS)->get();
-        //     $medicationConditions = MedicationCondition::where('status',MedicationCondition::ACTIVE_STATUS)->get();
-        //     $dietaryConditions = DietaryCondition::where('status',DietaryCondition::ACTIVE_STATUS)->get();
-        //     $treatmentConditions = TreatmentCondition::where('status',TreatmentCondition::ACTIVE_STATUS)->get();
-        //     return view(
-        //         'users.informed-consent',
-        //         compact(
-        //             'genres',
-        //             'documentTypes',
-        //             'pathologicalConditions',
-        //             'toxicologicalConditions',
-        //             'gynecoObstetricConditions',
-        //             'medicationConditions',
-        //             'dietaryConditions',
-        //             'treatmentConditions'
-        //         )
-        //     );
-        // }
+
         // return view('home');
 
     }

@@ -1,15 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 @section('content')
 <div class="container">
     <div class="row">
         <div class="col-12 col-md-7 col-lg-8">
             <h1>{{ __('Roles') }}</h1>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ __('Roles') }}</li>
-                </ol>
-            </nav>
         </div>
         <div class="col-12 col-md-5 col-lg-4 text-end" style="align-content: center;">
             <form action="{{ route('roles.store') }}" method="POST">

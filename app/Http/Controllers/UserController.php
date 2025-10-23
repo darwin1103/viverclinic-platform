@@ -2,6 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DietaryCondition;
+use App\Models\DocumentType;
+use App\Models\Gender;
+use App\Models\GynecoObstetricCondition;
+use App\Models\MedicationCondition;
+use App\Models\PathologicalCondition;
+use App\Models\ToxicologicalCondition;
+use App\Models\TreatmentCondition;
 use App\Models\Role;
 use App\Models\User;
 use App\Notifications\UserCreatedNotification;
@@ -28,10 +36,13 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::select('uuid','name','created_at','updated_at')
+        $users = User::select('id', 'uuid','name','created_at','updated_at')
         ->whereDoesntHave('roles', function ($query) {
             $query->where('id', self::SUPER_ADMIN_ROLE_ID);
-        })->paginate(10);
+        })
+        ->with('roles')
+        ->paginate(10);
+
         return view('users.index', compact('users'));
     }
 
@@ -95,9 +106,31 @@ class UserController extends Controller
         if ($validator->fails()) {
             return redirect()->back()->with('info', 'Invalid value');
         }
-        $user = User::where('uuid',$uuid)->first();
-        $roles = Role::where('id','<>', self::SUPER_ADMIN_ROLE_ID)->get();
-        return view('users.show', compact('user','roles'));
+        $user = User::where('uuid',$uuid)->with('roles')->first();
+
+
+        $genres = Gender::where('status',Gender::ACTIVE_STATUS)->get();
+        $documentTypes = DocumentType::where('status',DocumentType::ACTIVE_STATUS)->get();
+        $pathologicalConditions = PathologicalCondition::where('status',PathologicalCondition::ACTIVE_STATUS)->get();
+        $toxicologicalConditions = ToxicologicalCondition::where('status',ToxicologicalCondition::ACTIVE_STATUS)->get();
+        $gynecoObstetricConditions = GynecoObstetricCondition::where('status',GynecoObstetricCondition::ACTIVE_STATUS)->get();
+        $medicationConditions = MedicationCondition::where('status',MedicationCondition::ACTIVE_STATUS)->get();
+        $dietaryConditions = DietaryCondition::where('status',DietaryCondition::ACTIVE_STATUS)->get();
+        $treatmentConditions = TreatmentCondition::where('status',TreatmentCondition::ACTIVE_STATUS)->get();
+
+        $data = [
+            'user' => $user,
+            'genres' => $genres,
+            'documentTypes' => $documentTypes,
+            'pathologicalConditions' => $pathologicalConditions,
+            'toxicologicalConditions' => $toxicologicalConditions,
+            'gynecoObstetricConditions' => $gynecoObstetricConditions,
+            'medicationConditions' => $medicationConditions,
+            'dietaryConditions' => $dietaryConditions,
+            'treatmentConditions' => $treatmentConditions,
+        ];
+
+        return view('users.show', $data);
     }
 
     /**
@@ -144,7 +177,7 @@ class UserController extends Controller
             }
             $user->name = $request->name;
             $user->email = $request->email;
-            $user->informed_consent = ($request->requestInformedConsent && $request->requestInformedConsent == "on")?true:false;
+            $user->informed_consent = ($request->requestInformedConsent && $request->requestInformedConsent == "on") ? true : false;
             $user->save();
             return redirect()->back()->with('success', 'Successful operation');
         } catch (Exception $e) {

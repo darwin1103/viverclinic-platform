@@ -1,15 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 @section('content')
 <div class="container">
     <div class="row">
         <div class="col-12 col-md-6 col-lg-4">
             <h1>{{ __('Users') }}</h1>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ __('Users') }}</li>
-                </ol>
-            </nav>
         </div>
         <div class="col-12 col-md-6 col-lg-8 text-end" style="align-content: center;">
             <a class="btn btn-primary" href="{{ route('users.create') }}" role="button">
@@ -27,6 +21,7 @@
                                 <tr>
                                     <th scope="col">#</th>
                                     <th scope="col">{{ __('Name') }}</th>
+                                    <th scope="col">Roles</th>
                                     <th scope="col">{{ __('Created') }}</th>
                                     <th scope="col">{{ __('Updated') }}</th>
                                     <th scope="col">{{ __('Actions') }}</th>
@@ -44,23 +39,18 @@
                                         <tr>
                                             <th scope="row">{{ $totalItems }}</th>
                                             <td style="min-width: 160px;">{{ $user->name }}</td>
+                                            <td style="min-width: 160px;">
+                                                @if($user->roles->count() > 0)
+                                                    @foreach($user->roles as $role)
+                                                        <span class="badge bg-secondary me-1">{{ $role->name }}</span>
+                                                    @endforeach
+                                                @else
+                                                    <span class="text-muted">Sin rol asignado</span>
+                                                @endif
+                                            </td>
                                             <td style="min-width: 130px;">{{ $user->created_at }}</td>
                                             <td style="min-width: 130px;">{{ $user->updated_at }}</td>
                                             <td style="min-width: 160px;">
-                                                {{-- <button class="btn btn-primary add-users-to-role" type="button"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top" data-role-name="{{ $role->name }}"
-                                                    data-bs-custom-class="custom-tooltip" data-role-uuid="{{ $role->uuid }}"
-                                                    data-users-url="{{ route('users.list',$role->uuid) }}"
-                                                    data-bs-title="{{__('Associate users')}}">
-                                                    <i class="bi bi-person-fill-gear"></i>
-                                                </button>
-                                                <button class="btn btn-primary add-permissions" type="button"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top" data-role-name="{{ $role->name }}"
-                                                    data-bs-custom-class="custom-tooltip" data-role-uuid="{{ $role->uuid }}"
-                                                    data-permission-url="{{ route('permissions.list',$role->uuid) }}"
-                                                    data-bs-title="{{__('Associate permissions')}}">
-                                                    <i class="bi bi-building-fill-gear"></i>
-                                                </button> --}}
                                                 <a class="mx-2"
                                                     href="{{ route('users.show', $user->uuid) }}"
                                                     data-bs-toggle="tooltip"

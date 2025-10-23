@@ -7,7 +7,8 @@
     <hr class="border-secondary-subtle">
     <ul class="nav nav-pills flex-column gap-1 mb-auto">
       <li>
-        <a href="#" class="nav-link active"><i class="bi bi-speedometer2 me-2"></i>
+        <a href="{{ route('home') }}" class="nav-link @if(Route::is('home')) active @endif">
+          <i class="bi bi-speedometer2 me-2"></i>
             Dashboard
         </a>
       </li>
@@ -21,7 +22,7 @@
         </a>
       </li>
       <li>
-        <a href="{{ route('users.index') }}" class="nav-link">
+        <a href="{{ route('users.index') }}" class="nav-link @if(Route::is('users.*')) active @endif">
             <i class="bi bi-people me-2"></i>
             {{ __('User Management') }}
         </a>
@@ -48,7 +49,7 @@
         </a>
       </li>
       <li>
-        <a href="{{ route('roles.index') }}" class="nav-link">
+        <a href="{{ route('roles.index') }}" class="nav-link @if(Route::is('roles.*')) active @endif">
             <i class="bi bi-shield-lock me-2"></i>
             {{ __('Role Management') }}
         </a>
@@ -57,7 +58,7 @@
         Sucursales
       </li>
       <li>
-        <a href="{{ route('branches.index') }}" class="nav-link">
+        <a href="{{ route('branches.index') }}" class="nav-link @if(Route::is('branches.*')) active @endif">
             <i class="bi bi-building me-2"></i>
             {{ __('Branch Management') }}
         </a>

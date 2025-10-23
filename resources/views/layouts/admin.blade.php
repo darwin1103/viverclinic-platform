@@ -12,7 +12,8 @@
     <div id="app">
         <x-admin.dashboard.header :branches="$branches ?? null" />
         <x-admin.dashboard.sidebar />
-        <main class="py-3">
+        <x-admin.dashboard.modal-quick-add />
+        <main class="content-area">
             @yield('content')
         </main>
     </div>

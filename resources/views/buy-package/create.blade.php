@@ -80,7 +80,7 @@
                         </div>
 
                         <!-- SECCIÓN 4: RESUMEN DE COMPRA -->
-                        <div class="col-12">
+                        <div class="col-12" id="purchase-sumary-container">
                             <h2 class="section-title">Resumen de tu Compra</h2>
                             <div class="table-responsive">
                                 <table class="table">
@@ -96,7 +96,7 @@
                                 </table>
                             </div>
                             <div class="d-grid gap-2">
-                                <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#pagoModal">
+                                <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#pagoModal"  id="payment-button-container">
                                     Pagar
                                 </button>
                             </div>
@@ -160,7 +160,9 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="confirmar-pago">Confirmar Pago</button>
+                <!-- *** -->
+                <!-- <button type="button" class="btn btn-primary" id="confirmar-pago">Confirmar Pago</button> -->
+                <a href="{{route('schedule-appointment.index')}}" class="btn btn-primary" id="confirmar-pago">Confirmar Pago</a>
             </div>
         </div>
     </div>

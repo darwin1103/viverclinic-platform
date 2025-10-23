@@ -367,7 +367,8 @@ class UserController extends Controller
             }
             $user->informed_consent = false;
             $user->save();
-            return redirect()->back()->with('success', 'Successful operation');
+            // return redirect()->back()->with('success', 'Successful operation'); // ***
+            return redirect()->route('buy-package.create')->with('success', 'Successful operation');
         } catch (Exception $e) {
             logger($e);
             return redirect()->back()->with('error', self::ERROR_GENERAL_MSG);

@@ -7,12 +7,36 @@ document.addEventListener('DOMContentLoaded', function () {
     const totalToPay = document.getElementById('total');
     const otherLargeZoneInput = document.getElementById('another-big-zone');
     const otherMiniZoneInput = document.getElementById('another-mini-zone');
+    const purchaseSummaryContainer = document.getElementById('purchase-sumary-container');
+    const paymentButtonContainer = document.getElementById('payment-button-container');
 
     // --- APPLICATION STATE ---
     let allowedLargeZones = 0;
     let allowedMiniZones = 0;
 
     // --- FUNCTIONS ---
+
+    /**
+     * Hides or shows the entire purchase summary section based on whether any package is selected.
+     */
+    function updateSummaryVisibility() {
+        const hasSelectedItems = allowedLargeZones > 0 || allowedMiniZones > 0;
+        purchaseSummaryContainer.style.display = hasSelectedItems ? 'block' : 'none';
+    }
+
+    /**
+     * Hides or shows the payment button.
+     * The button is only visible if the number of selected zones exactly matches the number of allowed zones.
+     */
+    function updatePaymentButtonVisibility() {
+        const selectedLargeZones = document.querySelectorAll('.checkbox-zone[data-type="grande"]:checked').length + (otherLargeZoneInput.value.trim() !== '' ? 1 : 0);
+        const selectedMiniZones = document.querySelectorAll('.checkbox-zone[data-type="mini"]:checked').length + (otherMiniZoneInput.value.trim() !== '' ? 1 : 0);
+
+        const allZonesSelected = selectedLargeZones === allowedLargeZones && selectedMiniZones === allowedMiniZones;
+        const hasAllowedZones = allowedLargeZones > 0 || allowedMiniZones > 0;
+
+        paymentButtonContainer.style.display = (allZonesSelected && hasAllowedZones) ? 'block' : 'none';
+    }
 
     /**
      * Calculates the total cost and the number of allowed zones based on selected packages.
@@ -57,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         purchaseSummary.innerHTML = summaryHtml;
         totalToPay.innerText = `$${total.toLocaleString('es-CL')}`;
-
+        updateSummaryVisibility();
         validateZoneCheckboxes();
     }
 
@@ -94,6 +118,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
         otherMiniZoneInput.disabled = (selectedMiniZones >= allowedMiniZones && otherMiniZoneInput.value.trim() === '');
+
+        updatePaymentButtonVisibility();
     }
 
     // --- EVENT LISTENERS ---

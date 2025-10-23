@@ -1,16 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 @section('content')
 <div class="container">
     <div class="row">
         <div class="col-12">
             <h1>{{ __('Create') }}</h1>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('users.index') }}">{{ __('Users') }}</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ __('User') }}</li>
-                </ol>
-            </nav>
         </div>
     </div>
     <div class="row">

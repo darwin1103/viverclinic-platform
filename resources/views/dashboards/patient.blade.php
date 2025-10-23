@@ -10,72 +10,99 @@
                 <div class="row gx-3 gy-3 my-2">
                     @can('patient_medical_record_home_btn')
                         <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height" role="button"
-                                href="{{ route('medical-record.index') }}">
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
+                                role="button"
+                                href="{{ route('medical-record.index') }}"
+                            >
+                                <i class="bi bi-clipboard-heart-fill"></i>
                                 {{ __('Medical Record') }}
                             </a>
                         </div>
                     @endcan
                     @can('patient_qualify_staff_home_btn')
                         <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height" role="button"
-                                href="{{ route('qualify-staff.index') }}">
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
+                                role="button"
+                                href="{{ route('qualify-staff.index') }}"
+                            >
+                                <i class="bi bi-star-fill"></i>
                                 {{ __('Qualify Staff') }}
                             </a>
                         </div>
                     @endcan
                     @can('patient_treatment_home_btn')
                         <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height" role="button"
-                                href="{{ route('treatment.index') }}">
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
+                                role="button"
+                                href="{{ route('treatment.index') }}"
+                            >
+                                <i class="bi bi-card-checklist"></i>
                                 {{ __('Treatment') }}
                             </a>
                         </div>
                     @endcan
                     @can('patient_care_tips_home_btn')
                         <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height" role="button"
-                                href="{{ route('care-tips.index') }}">
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
+                                role="button"
+                                href="{{ route('care-tips.index') }}"
+                            >
+                                <i class="bi bi-bookmark-star-fill"></i>
                                 {{ __('Care Tips') }}
                             </a>
                         </div>
                     @endcan
                     @can('patient_buy_package_home_btn')
                         <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height" role="button"
-                                href="{{ route('buy-package.index') }}">
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
+                                role="button"
+                                href="{{ route('buy-package.index') }}"
+                            >
+                                <i class="bi bi-heart-fill"></i>
                                 {{ __('Buy Package') }}
                             </a>
                         </div>
                     @endcan
                     @can('patient_virtual_wallet_home_btn')
                         <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height" role="button"
-                                href="{{ route('virtual-wallet.index') }}">
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
+                                role="button"
+                                href="{{ route('virtual-wallet.index') }}"
+                            >
+                                <i class="bi bi-wallet"></i>
                                 {{ __('Virtual Wallet') }}
                             </a>
                         </div>
                     @endcan
                     @can('patient_promotions_home_btn')
                         <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height" role="button"
-                                href="#">
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
+                                role="button"
+                                href="#"
+                            >
+                                <i class="bi bi-list-stars"></i>
                                 {{ __('Promotions') }}
                             </a>
                         </div>
                     @endcan
                     @can('patient_recomentations_home_btn')
                         <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height" role="button"
-                                href="{{ route('recomentations.index') }}">
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
+                                role="button"
+                                href="{{ route('recomentations.index') }}"
+                            >
+                                <i class="bi bi-person-add"></i>
                                 {{ __('Recommendations') }}
                             </a>
                         </div>
                     @endcan
                     @can('patient_referrals_home_btn')
                         <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height" role="button"
-                                href="{{ route('referrals.index') }}">
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
+                                role="button"
+                                href="{{ route('referrals.index') }}"
+                            >
+                                <i class="bi bi-person-hearts"></i>
                                 {{ __('Referrals') }}
                             </a>
                         </div>
@@ -84,16 +111,22 @@
                 <div class="row gx-3 gy-3 mt-2">
                     @can('patient_schedule_appointment_home_btn')
                         <div class="col-12 col-md-6">
-                            <a class="btn btn-custom btn-schedule-appointment" role="button"
-                                href="{{ route('schedule-appointment.index') }}">
+                            <a class="btn btn-custom btn-schedule-appointment d-flex justify-content-evenly align-items-center"
+                                role="button"
+                                href="{{ route('schedule-appointment.index') }}"
+                            >
+                                <i class="bi bi-plus-circle-fill"></i>
                                 {{ __('Schedule an Appointment') }}
                             </a>
                         </div>
                     @endcan
                     @can('patient_cancel_appointment_home_btn')
                         <div class="col-12 col-md-6">
-                            <a class="btn btn-custom btn-cancel-appointment"  role="button"
-                                href="{{ route('cancel-appointment.index') }}">
+                            <a class="btn btn-custom btn-cancel-appointment d-flex justify-content-evenly align-items-center"
+                                role="button"
+                                href="{{ route('cancel-appointment.index') }}"
+                            >
+                                <i class="bi bi-x-circle-fill"></i>
                                 {{ __('Cancel Appointment') }}
                             </a>
                         </div>

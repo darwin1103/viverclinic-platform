@@ -16,6 +16,8 @@
             @yield('content')
         </main>
     </div>
+    @include('common.login-modal')
+    @include('common.commons-js-functions')
     @stack('scripts')
 </body>
 </html>

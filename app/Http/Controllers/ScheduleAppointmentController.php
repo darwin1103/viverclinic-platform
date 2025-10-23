@@ -19,7 +19,7 @@ class ScheduleAppointmentController extends Controller
      */
     public function create()
     {
-        //
+        return view('schedule-appointment.create');
     }
 
     /**

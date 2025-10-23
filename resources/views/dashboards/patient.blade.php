@@ -113,7 +113,7 @@
                         <div class="col-12 col-md-6">
                             <a class="btn btn-custom btn-schedule-appointment d-flex justify-content-evenly align-items-center"
                                 role="button"
-                                href="{{ route('schedule-appointment.index') }}"
+                                href="{{ route('schedule-appointment.create') }}"
                             >
                                 <i class="bi bi-plus-circle-fill"></i>
                                 {{ __('Schedule an Appointment') }}

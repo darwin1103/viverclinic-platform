@@ -10,7 +10,7 @@
                 <div class="row gx-3 gy-3 my-2">
                     @can('patient_medical_record_home_btn')
                         <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
                                 role="button"
                                 href="{{ route('medical-record.index') }}"
                             >
@@ -21,7 +21,7 @@
                     @endcan
                     @can('patient_qualify_staff_home_btn')
                         <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
                                 role="button"
                                 href="{{ route('qualify-staff.index') }}"
                             >
@@ -32,7 +32,7 @@
                     @endcan
                     @can('patient_treatment_home_btn')
                         <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
                                 role="button"
                                 href="{{ route('treatment.index') }}"
                             >
@@ -43,7 +43,7 @@
                     @endcan
                     @can('patient_care_tips_home_btn')
                         <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
                                 role="button"
                                 href="{{ route('care-tips.index') }}"
                             >
@@ -54,7 +54,7 @@
                     @endcan
                     @can('patient_buy_package_home_btn')
                         <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
                                 role="button"
                                 href="{{ route('buy-package.create') }}"
                             >
@@ -65,7 +65,7 @@
                     @endcan
                     @can('patient_virtual_wallet_home_btn')
                         <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
                                 role="button"
                                 href="{{ route('virtual-wallet.index') }}"
                             >
@@ -74,31 +74,9 @@
                             </a>
                         </div>
                     @endcan
-                    @can('patient_promotions_home_btn')
-                        <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
-                                role="button"
-                                href="#"
-                            >
-                                <i class="bi bi-list-stars"></i>
-                                {{ __('Promotions') }}
-                            </a>
-                        </div>
-                    @endcan
-                    @can('patient_recomentations_home_btn')
-                        <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
-                                role="button"
-                                href="{{ route('recomentations.index') }}"
-                            >
-                                <i class="bi bi-person-add"></i>
-                                {{ __('Recommendations') }}
-                            </a>
-                        </div>
-                    @endcan
                     @can('patient_referrals_home_btn')
                         <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height d-flex justify-content-evenly align-items-center"
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
                                 role="button"
                                 href="{{ route('referrals.index') }}"
                             >
@@ -107,11 +85,22 @@
                             </a>
                         </div>
                     @endcan
+                    @can('patient_recomentations_home_btn')
+                        <div class="col-12 col-md-8">
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
+                                role="button"
+                                href="{{ route('recomentations.index') }}"
+                            >
+                                <i class="bi bi-person-add"></i>
+                                {{ __('Recommendations') }}
+                            </a>
+                        </div>
+                    @endcan
                 </div>
                 <div class="row gx-3 gy-3 mt-2">
                     @can('patient_schedule_appointment_home_btn')
                         <div class="col-12 col-md-6">
-                            <a class="btn btn-custom btn-schedule-appointment d-flex justify-content-evenly align-items-center"
+                            <a class="btn btn-custom btn-schedule-appointment d-flex justify-content-start text-start gap-3 align-items-center"
                                 role="button"
                                 href="{{ route('schedule-appointment.index') }}"
                             >
@@ -122,7 +111,7 @@
                     @endcan
                     @can('patient_cancel_appointment_home_btn')
                         <div class="col-12 col-md-6">
-                            <a class="btn btn-custom btn-cancel-appointment d-flex justify-content-evenly align-items-center"
+                            <a class="btn btn-custom btn-cancel-appointment d-flex justify-content-start text-start gap-3 align-items-center"
                                 role="button"
                                 href="{{ route('cancel-appointment.index') }}"
                             >

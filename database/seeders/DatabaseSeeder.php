@@ -66,7 +66,7 @@ class DatabaseSeeder extends Seeder
 
         $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'patient_dashboard']));
         $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'patient_medical_record_home_btn']));
-        $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'patient_qualify_staffhome_btn']));
+        $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'patient_qualify_staff_home_btn']));
         $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'patient_treatment_home_btn']));
         $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'patient_care_tips_home_btn']));
         $patientRole->givePermissionTo(Permission::firstOrCreate(['name' => 'patient_buy_package_home_btn']));

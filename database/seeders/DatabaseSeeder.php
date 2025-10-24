@@ -173,5 +173,34 @@ class DatabaseSeeder extends Seeder
 
         $client01->assignRole('PATIENT');
 
+        $client02 = User::create([
+            'name' => 'cliente02',
+            'email' => 'c02@2.com',
+            'password' => Hash::make('2'),
+            'birthday' => '2025-10-29',
+            'gender_id' => 2,
+            'informed_consent' => 0,
+            'citizenship' => 'test',
+            'document_type_id' => 2,
+            'document_number' => 'test',
+            'profession' => 'test',
+            'phone' => '223456798',
+            'address' => 'test',
+            'surgery' => 'test',
+            'recommendation' => 'test',
+            'terms_conditions' => 2,
+            'directory' => null,
+            'photo_profile' => null,
+            'not_pregnant' => 2,
+            'pathological_id' => 2,
+            'toxicological_id' => 2,
+            'gyneco_obstetric_id' => 2,
+            'medication_id' => 2,
+            'dietary_id' => 2,
+            'treatment_id' => 2,
+        ]);
+
+        $client02->assignRole('PATIENT');
+
     }
 }

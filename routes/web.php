@@ -18,7 +18,7 @@ use App\Http\Controllers\ReferralsController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ScheduleAppointmentController;
 use App\Http\Controllers\TreatmentController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\VirtualWalletController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -47,9 +47,9 @@ Route::resource('roles', RoleController::class);
 Route::get('/permissions/getPermissionsList/{roleUUID}',[PermissionController::class,'getPermissionsList'])->name('permissions.list');
 Route::resource('permissions', PermissionController::class);
 
-Route::get('/users/getUsers/{roleUUID}',[UserController::class,'getusers'])->name('users.list');
-Route::post('/users/save/informed/consent',[UserController::class,'saveInformedConsent'])->name('users.informed.consent');
-Route::resource('users', UserController::class);
+Route::get('/client/getUsers/{roleUUID}',[ClientController::class,'getusers'])->name('client.list');
+Route::post('/client/save/informed/consent',[ClientController::class,'saveInformedConsent'])->name('client.informed.consent');
+Route::resource('client', ClientController::class);
 
 Route::resource('branches', BranchController::class);
 

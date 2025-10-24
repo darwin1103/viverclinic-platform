@@ -11,7 +11,7 @@
             <div class="card" style="width: 30rem;">
                 <div class="card-body m-0 m-lg-3">
                     <h2 class="mb-3">{{__('New User')}}</h2>
-                    <form action="{{ route('users.store') }}" method="POST">
+                    <form action="{{ route('client.store') }}" method="POST">
                         @csrf
                         <div class="form-floating">
                             <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" placeholder="{{ __('Name') }}">

@@ -3,11 +3,11 @@
 <div class="container">
     <div class="row">
         <div class="col-12 col-md-6 col-lg-4">
-            <h1>{{ __('Users') }}</h1>
+            <h1>Clientes</h1>
         </div>
         <div class="col-12 col-md-6 col-lg-8 text-end" style="align-content: center;">
-            <a class="btn btn-primary" href="{{ route('users.create') }}" role="button">
-                <i class="bi bi-plus-circle-fill"></i>&nbsp;{{ __('Add') }}
+            <a class="btn btn-primary" href="{{ route('client.create') }}" role="button">
+                <i class="bi bi-plus-circle-fill"></i>&nbsp;Crear nuevo cliente
             </a>
         </div>
     </div>
@@ -28,37 +28,37 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if ($users && count($users) > 0)
+                                @if ($clients && count($clients) > 0)
                                     @php
                                         $totalItems = 0;
                                     @endphp
-                                    @foreach ($users as $user)
+                                    @foreach ($clients as $client)
                                         @php
                                             $totalItems++;
                                         @endphp
                                         <tr>
                                             <th scope="row">{{ $totalItems }}</th>
-                                            <td style="min-width: 160px;">{{ $user->name }}</td>
+                                            <td style="min-width: 160px;">{{ $client->name }}</td>
                                             <td style="min-width: 160px;">
-                                                @if($user->roles->count() > 0)
-                                                    @foreach($user->roles as $role)
+                                                @if($client->roles->count() > 0)
+                                                    @foreach($client->roles as $role)
                                                         <span class="badge bg-secondary me-1">{{ $role->name }}</span>
                                                     @endforeach
                                                 @else
                                                     <span class="text-muted">Sin rol asignado</span>
                                                 @endif
                                             </td>
-                                            <td style="min-width: 130px;">{{ $user->created_at }}</td>
-                                            <td style="min-width: 130px;">{{ $user->updated_at }}</td>
+                                            <td style="min-width: 130px;">{{ $client->created_at }}</td>
+                                            <td style="min-width: 130px;">{{ $client->updated_at }}</td>
                                             <td style="min-width: 160px;">
                                                 <a class="mx-2"
-                                                    href="{{ route('users.show', $user->uuid) }}"
+                                                    href="{{ route('client.show', $client) }}"
                                                     data-bs-toggle="tooltip"
                                                     data-bs-placement="top"
                                                     data-bs-custom-class="custom-tooltip"
                                                     data-bs-title="{{__('Show')}}"><i class="bi bi-eye-fill"></i></a>
                                                 <a class="mx-2"
-                                                    href="{{ route('users.edit', $user->uuid) }}"
+                                                    href="{{ route('client.edit', $client) }}"
                                                     data-bs-toggle="tooltip"
                                                     data-bs-placement="top"
                                                     data-bs-custom-class="custom-tooltip"
@@ -67,7 +67,7 @@
                                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                                     data-bs-custom-class="custom-tooltip"
                                                     data-bs-title="{{__('Delete')}}"
-                                                    onclick="showDeleteConfirmation('{{$user->uuid}}')">
+                                                    onclick="showDeleteConfirmation('{{$client->id}}')">
                                                     <i class="bi bi-trash-fill"></i>
                                                 </button>
                                             </td>
@@ -82,8 +82,8 @@
                                 @endif
                             </tbody>
                         </table>
-                        @if (isset($users))
-                            {{ $users->links('layouts.numbers-pagination') }}
+                        @if (isset($clients))
+                            {{ $clients->links('layouts.numbers-pagination') }}
                         @endif
                     </div>
                 </div>
@@ -159,9 +159,9 @@
         // $(document).on('click','.add-users-to-role',function(){
         //     const $roleUUId = $(this).attr('data-role-uuid');
         //     const $roleName = $(this).attr('data-role-name');
-        //     const $usersURL = $(this).attr('data-users-url');
+        //     const $clientsURL = $(this).attr('data-users-url');
         //     $.ajax({
-        //         url: $usersURL,
+        //         url: $clientsURL,
         //         method: 'GET',
         //         dataType: 'json',
         //         success: function(data) {
@@ -238,7 +238,7 @@
         // });
         // $(document).on('change','.add-user-to-rol',function(){
         //     const $roleUUId = $(this).attr('data-role-uuid');
-        //     const $userUUId = $(this).attr('id');
+        //     const $clientUUId = $(this).attr('id');
         //     if ($(this).is(':checked')) {
         //         $.ajax({
         //             url: "{{ route('roles.assign.user') }}",
@@ -246,7 +246,7 @@
         //             dataType: 'json',
         //             data: {
         //                 roleUUId: $roleUUId,
-        //                 userUUId: $userUUId
+        //                 userUUId: $clientUUId
         //             },
         //             success: function(data) {
         //                 iziToast.success({
@@ -264,7 +264,7 @@
         //             dataType: 'json',
         //             data: {
         //                 roleUUId: $roleUUId,
-        //                 userUUId: $userUUId
+        //                 userUUId: $clientUUId
         //             },
         //             success: function(data) {
         //                 iziToast.success({
@@ -278,10 +278,10 @@
         //     }
         // });
     }, false);
-    function showDeleteConfirmation(elementUUID) {
+    function showDeleteConfirmation(clientId) {
         const modal = new bootstrap.Modal('#removeConfirmationModal');
-        $('#delete').attr('action','{{url("/users")}}'+'/'+elementUUID);
-        $('#deleteElementBtn').attr('action','{{url("/users")}}'+'/'+elementUUID);
+        $('#delete').attr('action','{{url("/client")}}'+'/'+clientId);
+        $('#deleteElementBtn').attr('action','{{url("/client")}}'+'/'+clientId);
         modal.show();
     }
 </script>

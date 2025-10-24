@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('code');
             $table->boolean('status')->default(false);
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

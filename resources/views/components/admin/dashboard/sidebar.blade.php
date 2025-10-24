@@ -22,9 +22,9 @@
         </a>
       </li>
       <li>
-        <a href="{{ route('users.index') }}" class="nav-link @if(Route::is('users.*')) active @endif">
+        <a href="{{ route('client.index') }}" class="nav-link @if(Route::is('client.*')) active @endif">
             <i class="bi bi-people me-2"></i>
-            {{ __('User Management') }}
+            Clientes
         </a>
       </li>
       <li>
@@ -40,12 +40,12 @@
         </a>
       </li>
       <li class="mt-3 text-uppercase text-secondary small px-2">
-        Personas
+        Personal
       </li>
       <li>
         <a href="#" class="nav-link">
             <i class="bi bi-person-gear me-2"></i>
-            Usuarios
+            Personal
         </a>
       </li>
       <li>

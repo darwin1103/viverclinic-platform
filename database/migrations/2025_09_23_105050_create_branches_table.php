@@ -24,7 +24,6 @@ return new class extends Migration
                 ->on('branches')
                 ->onDelete('set null');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

@@ -58,7 +58,8 @@
                     <x-appointment.schedule.index.sessions-table
                         :sessions="$sessions"
                         :totalSessions="$totalSessions"
-                        :paymentIsUpToDate="$paymentIsUpToDate" />
+                        :paymentIsUpToDate="$paymentIsUpToDate"
+                    />
 
                 </div>
             </div>

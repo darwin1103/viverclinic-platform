@@ -1,0 +1,28 @@
+/* Estilos para hacer la tabla responsive en celulares */
+@media screen and (max-width: 768px) {
+    .table-responsive thead {
+        display: none; /* Oculta la cabecera original en móviles */
+    }
+    .table-responsive tr {
+        display: block;
+        margin-bottom: .625em;
+        border: 1px solid #dee2e6;
+        border-radius: .25rem;
+    }
+    .table-responsive td {
+        display: block;
+        text-align: right; /* Alinea el contenido a la derecha */
+        border-bottom: 1px solid #dee2e6;
+    }
+    .table-responsive td::before {
+        content: attr(data-label); /* Usa el atributo data-label como pseudo-cabecera */
+        float: left;
+        font-weight: bold;
+    }
+    .table-responsive td:last-child {
+        border-bottom: 0;
+    }
+    .table-responsive td.text-center {
+        text-align: right !important; /* Sobrescribe la alineación para la columna de acciones */
+    }
+}

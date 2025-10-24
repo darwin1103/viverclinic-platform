@@ -119,10 +119,39 @@ class StaffController extends Controller
 
         $branches = Branch::all();
 
+
+        $appointments = [
+            [
+                'date' => '05-10-2025',
+                'client_name' => 'Maria Paredes',
+                'treatment' => 'Depilación láser',
+                'branch' => 'Sede Principal'
+            ],
+            [
+                'date' => '08-10-2025',
+                'client_name' => 'Juan Rodriguez',
+                'treatment' => 'Reducción',
+                'branch' => 'Sucursal Norte'
+            ],
+            [
+                'date' => '12-10-2025',
+                'client_name' => 'Ana Garcia',
+                'treatment' => 'Depilación láser',
+                'branch' => 'Sede Principal'
+            ],
+            [
+                'date' => '15-10-2025',
+                'client_name' => 'Carlos Sanchez',
+                'treatment' => 'Reducción',
+                'branch' => 'Sucursal Sur'
+            ],
+        ];
+
         $data = [
             'staff' => $staff,
             'schedules' => $schedules,
             'branches' => $branches,
+            'appointments' => $appointments,
             'daysOfWeek' => WorkSchedule::$daysOfWeek,
         ];
 

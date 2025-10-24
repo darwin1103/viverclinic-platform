@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class StaffController extends Controller
 {
@@ -92,10 +93,12 @@ class StaffController extends Controller
             if (isset($validated['schedules'])) {
                 foreach ($validated['schedules'] as $day => $times) {
                     foreach ($times as $time) {
+                        $adjustedStartTime = $this->adjustTimeToNearestQuarterHour($time['start_time']);
+                        $adjustedEndTime = $this->adjustTimeToNearestQuarterHour($time['end_time']);
                         $staffProfile->workSchedules()->create([
                             'day_of_week' => $day,
-                            'start_time' => $time['start_time'],
-                            'end_time' => $time['end_time'],
+                            'start_time' => $adjustedStartTime,
+                            'end_time' => $adjustedEndTime,
                         ]);
                     }
                 }
@@ -176,10 +179,12 @@ class StaffController extends Controller
             if (isset($validated['schedules'])) {
                 foreach ($validated['schedules'] as $day => $times) {
                     foreach ($times as $time) {
+                        $adjustedStartTime = $this->adjustTimeToNearestQuarterHour($time['start_time']);
+                        $adjustedEndTime = $this->adjustTimeToNearestQuarterHour($time['end_time']);
                         $staff->staffProfile->workSchedules()->create([
                             'day_of_week' => $day,
-                            'start_time' => $time['start_time'],
-                            'end_time' => $time['end_time'],
+                            'start_time' => $adjustedStartTime,
+                            'end_time' => $adjustedEndTime,
                         ]);
                     }
                 }
@@ -200,6 +205,40 @@ class StaffController extends Controller
 
         return redirect()->back()->with('success', 'Successful operation');
 
+    }
+
+    /**
+     * Adjusts a time string to the nearest 15-minute interval.
+     *
+     * @param string $timeString The time in H:i format (e.g., "16:19").
+     * @return string The adjusted time in H:i format (e.g., "16:15").
+     */
+    private function adjustTimeToNearestQuarterHour(string $timeString): string
+    {
+        // 1. Create a Carbon instance from the time string.
+        $time = Carbon::createFromFormat('H:i', $timeString);
+
+        // 2. Calculate the rounded minute.
+        // round(19 / 15) * 15 = round(1.26) * 15 = 1 * 15 = 15
+        // round(55 / 15) * 15 = round(3.66) * 15 = 4 * 15 = 60
+        // round(7 / 15)  * 15 = round(0.46) * 15 = 0 * 15 = 0
+        $roundedMinute = round($time->minute / 15) * 15;
+
+        // 3. Handle the hour rollover case.
+        if ($roundedMinute >= 60) {
+            // If minutes round up to 60, add an hour and reset minutes to 0.
+            $time->addHour();
+            $time->minute(0);
+        } else {
+            // Otherwise, just set the calculated minute.
+            $time->minute($roundedMinute);
+        }
+
+        // 4. Ensure seconds are always 0 for consistency.
+        $time->second(0);
+
+        // 5. Return the formatted time string.
+        return $time->format('H:i');
     }
 
 }

@@ -6,7 +6,7 @@
         <div class="row align-items-center py-2 border-top">
             <div class="col-12 col-md-2 mb-2 mb-md-0">
                 <div class="form-check">
-                    <input class="form-check-input day-checkbox" type="checkbox" id="cb_{{ $day }}" data-day="{{ $day }}" {{ $schedules && $schedules->has($day) ? 'checked' : '' }} required @if (!$enabled) disabled @endif>
+                    <input class="form-check-input day-checkbox" type="checkbox" id="cb_{{ $day }}" data-day="{{ $day }}" {{ $schedules && $schedules->has($day) ? 'checked' : '' }} @if (!$enabled) disabled @endif>
                     <label class="form-check-label" for="cb_{{ $day }}">
                         {{ $day }}
                     </label>

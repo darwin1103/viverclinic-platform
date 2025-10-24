@@ -12,12 +12,13 @@
     <div>
         <label for="quantity-{{ $type }}-{{ $item['id'] }}" class="form-label visually-hidden">Cantidad</label>
         <input type="number"
-               class="form-control item-amount"
-               style="width: 80px;"
-               min="0"
-               value="0"
-               id="quantity-{{ $type }}-{{ $item['id'] }}"
-               data-id="{{ $item['id'] }}"
-               data-type="{{ $type }}">
+           class="form-control item-amount"
+           style="width: 80px;"
+           min="0"
+           value="0"
+           id="quantity-{{ $type }}-{{ $item['id'] }}"
+           data-id="{{ $item['id'] }}"
+           data-type="{{ $type }}"
+        >
     </div>
 </div>

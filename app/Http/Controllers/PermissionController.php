@@ -28,34 +28,26 @@ class PermissionController extends Controller
         //
     }
 
-    public function getPermissionsList(string $roleUUID) {
-        $r = [
-            'roleUUID' => $roleUUID
-        ];
-        $validator = Validator::make($r, [
-            'roleUUID' => 'required|uuid'
+    public function getPermissionsList(string $roleId) {
+
+        $permissions = Permission::with('roles')->get();
+
+        $role = Role::where('id', $roleId)->first();
+
+        $response = [];
+
+        foreach ($permissions as $key => $permission) {
+            $response[] = [
+                'id' => $permission->id,
+                'name' => $permission->name,
+                'contains' => ($permission->roles->contains($role)) ? 'checked' : '',
+            ];
+        }
+
+        return response()->json([
+            'permissions' => $response
         ]);
-        if ($validator->fails()) {
-            return response()->json(null,400);
-        }
-        try {
-            $permissions = Permission::all();
-            $role = Role::where('uuid',$roleUUID)->first();
-            $response = [];
-            foreach ($permissions as $key => $p) {
-                $response[] = [
-                    'uuid' => $p->uuid,
-                    'name' => $p->name,
-                    'contains' => ($p->roles->contains($role))?'checked':''
-                ];
-            }
-            return response()->json([
-                'permissions' => $response
-            ]);
-        } catch (Exception $e) {
-            logger($e);
-            return response()->json(null,500);
-        }
+
     }
 
     /**

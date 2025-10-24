@@ -43,7 +43,7 @@
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="basicInfo">
-                            <form method="POST" class="row g-2" action="{{ route('profile.update',Auth::user()->uuid) }}">
+                            <form method="POST" class="row g-2" action="{{ route('profile.update',Auth::user()->id) }}">
                                 @csrf
                                 @method('PUT')
                                 <div class="col-12 col-lg-6">
@@ -108,7 +108,7 @@
                                     </a>
                                 </div>
                                 <div class="col-12 col-lg-6 my-1">
-                                    <button type="button" onclick="showDeleteConfirmation('{{Auth::user()->uuid}}')"
+                                    <button type="button" onclick="showDeleteConfirmation('{{Auth::user()->id}}')"
                                         @role('SUPER_ADMIN') class="btn btn-danger disabled w-100" @else class="btn btn-danger w-100" @endrole>
                                         <i class="fa-solid fa-trash-can"></i>&nbsp;
                                         @role('SUPER_ADMIN')
@@ -168,10 +168,10 @@
             });
         });
     }, false);
-    function showDeleteConfirmation(elementUUID) {
+    function showDeleteConfirmation(elementID) {
         const modal = new bootstrap.Modal('#removeConfirmationModal');
-        $('#delete').attr('action','{{url("/profile")}}'+'/'+elementUUID);
-        $('#deleteElementBtn').attr('action','{{url("/profile")}}'+'/'+elementUUID);
+        $('#delete').attr('action','{{url("/profile")}}'+'/'+elementID);
+        $('#deleteElementBtn').attr('action','{{url("/profile")}}'+'/'+elementID);
         modal.show();
     };
 </script>

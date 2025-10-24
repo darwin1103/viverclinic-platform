@@ -56,24 +56,14 @@ class ProfileController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $uuid)
+    public function update(Request $request, User $user)
     {
-        $r = [
-            'uuid' => $uuid
-        ];
-        $validator = Validator::make($r, [
-            'uuid' => 'required|uuid',
-        ]);
-        if ($validator->fails()) {
-            return redirect()->back()->with('error', 'Invalid value');
-        }
         $request->validate([
             'name' => 'required|string',
             'birthday' => 'nullable|date|before:today',
             'genderSelect' => 'required|not_in:-1'
         ]);
         try {
-            $user = User::where('uuid',$uuid)->first();
             if (!$user) {
                 return redirect()->back()->with('info', 'Operation failed, try again');
             }
@@ -96,19 +86,10 @@ class ProfileController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $uuid)
+    public function destroy(User $user)
     {
-        $r = [
-            'uuid' => $uuid
-        ];
-        $validator = Validator::make($r, [
-            'uuid' => 'required|uuid',
-        ]);
-        if ($validator->fails()) {
-            return redirect()->back()->with('error', 'Invalid value');
-        }
+
         try {
-            $user = User::where('uuid',$uuid)->first();
             if (!$user) {
                 return redirect()->back()->with('info', 'Operation failed, try again');
             }
@@ -133,7 +114,7 @@ class ProfileController extends Controller
             'image' => 'required|image|mimes:jpeg,jpg,png|max:2048'
         ]);
         try {
-            $user = User::where('uuid',Auth::user()->uuid)->first();
+            $user = Auth::user();
             if ($request->hasFile('image')) {
                 if (!$user->directory) {
                     $dirName = Str::uuid()->toString();

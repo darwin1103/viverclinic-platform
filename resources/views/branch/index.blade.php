@@ -43,15 +43,15 @@
                                             <td style="min-width: 160px;">
                                                 {{-- <button class="btn btn-primary add-users-to-role" type="button"
                                                     data-bs-toggle="tooltip" data-bs-placement="top" data-role-name="{{ $role->name }}"
-                                                    data-bs-custom-class="custom-tooltip" data-role-uuid="{{ $role->uuid }}"
-                                                    data-users-url="{{ route('users.list',$role->uuid) }}"
+                                                    data-bs-custom-class="custom-tooltip" data-role-id="{{ $role->id }}"
+                                                    data-users-url="{{ route('users.list',$role->id) }}"
                                                     data-bs-title="{{__('Associate users')}}">
                                                     <i class="bi bi-person-fill-gear"></i>
                                                 </button>
                                                 <button class="btn btn-primary add-permissions" type="button"
                                                     data-bs-toggle="tooltip" data-bs-placement="top" data-role-name="{{ $role->name }}"
-                                                    data-bs-custom-class="custom-tooltip" data-role-uuid="{{ $role->uuid }}"
-                                                    data-permission-url="{{ route('permissions.list',$role->uuid) }}"
+                                                    data-bs-custom-class="custom-tooltip" data-role-id="{{ $role->id }}"
+                                                    data-permission-url="{{ route('permissions.list',$role->id) }}"
                                                     data-bs-title="{{__('Associate permissions')}}">
                                                     <i class="bi bi-building-fill-gear"></i>
                                                 </button> --}}
@@ -59,7 +59,7 @@
                                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                                     data-bs-custom-class="custom-tooltip"
                                                     data-bs-title="{{__('Delete')}}"
-                                                    onclick="showDeleteConfirmation('{{$branch->uuid}}')">
+                                                    onclick="showDeleteConfirmation('{{$branch->id}}')">
                                                     <i class="bi bi-trash-fill"></i>
                                                 </button>
                                             </td>
@@ -110,7 +110,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // $(document).on('click','.add-permissions',function(){
-        //     const $roleUUId = $(this).attr('data-role-uuid');
+        //     const $roleId = $(this).attr('data-role-id');
         //     const $roleName = $(this).attr('data-role-name');
         //     const $permissionURL = $(this).attr('data-permission-url');
         //     $.ajax({
@@ -126,8 +126,8 @@
         //                 data.permissions.forEach((p, index) => {
         //                     $('#addPermissionsModal .modal-body .list-group.list-group-flush').append(`
         //                         <li class="list-group-item">
-        //                             <input class="form-check-input me-1 add-permission-to-rol" type="checkbox" value="" `+p['contains']+` id="`+p['uuid']+`" data-role-uuid="`+$roleUUId+`">
-        //                             <label class="form-check-label stretched-link" for="`+p['uuid']+`">`+p['name']+`</label>
+        //                             <input class="form-check-input me-1 add-permission-to-rol" type="checkbox" value="" `+p['contains']+` id="`+p['id']+`" data-role-id="`+$roleId+`">
+        //                             <label class="form-check-label stretched-link" for="`+p['id']+`">`+p['name']+`</label>
         //                         </li>
         //                     `);
         //                 });
@@ -149,7 +149,7 @@
         //     });
         // });
         // $(document).on('click','.add-users-to-role',function(){
-        //     const $roleUUId = $(this).attr('data-role-uuid');
+        //     const $roleId = $(this).attr('data-role-id');
         //     const $roleName = $(this).attr('data-role-name');
         //     const $usersURL = $(this).attr('data-users-url');
         //     $.ajax({
@@ -165,8 +165,8 @@
         //                 data.users.forEach((p, index) => {
         //                     $('#addUsersToRoleModal .modal-body .list-group.list-group-flush').append(`
         //                         <li class="list-group-item">
-        //                             <input class="form-check-input me-1 add-user-to-rol" type="checkbox" value="" `+p['contains']+` id="`+p['uuid']+`" data-role-uuid="`+$roleUUId+`">
-        //                             <label class="form-check-label stretched-link" for="`+p['uuid']+`">`+p['name']+`</label>
+        //                             <input class="form-check-input me-1 add-user-to-rol" type="checkbox" value="" `+p['contains']+` id="`+p['id']+`" data-role-id="`+$roleId+`">
+        //                             <label class="form-check-label stretched-link" for="`+p['id']+`">`+p['name']+`</label>
         //                         </li>
         //                     `);
         //                 });
@@ -188,16 +188,16 @@
         //     });
         // });
         // $(document).on('change','.add-permission-to-rol',function(){
-        //     const $roleUUId = $(this).attr('data-role-uuid');
-        //     const $permissionUUId = $(this).attr('id');
+        //     const $roleId = $(this).attr('data-role-id');
+        //     const $permissionId = $(this).attr('id');
         //     if ($(this).is(':checked')) {
         //         $.ajax({
         //             url: "{{ route('roles.assign.permission') }}",
         //             method: 'POST',
         //             dataType: 'json',
         //             data: {
-        //                 roleUUId: $roleUUId,
-        //                 permissionUUId: $permissionUUId
+        //                 roleId: $roleId,
+        //                 permissionId: $permissionId
         //             },
         //             success: function(data) {
         //                 iziToast.success({
@@ -214,8 +214,8 @@
         //             method: 'POST',
         //             dataType: 'json',
         //             data: {
-        //                 roleUUId: $roleUUId,
-        //                 permissionUUId: $permissionUUId
+        //                 roleId: $roleId,
+        //                 permissionId: $permissionId
         //             },
         //             success: function(data) {
         //                 iziToast.success({
@@ -229,16 +229,16 @@
         //     }
         // });
         // $(document).on('change','.add-user-to-rol',function(){
-        //     const $roleUUId = $(this).attr('data-role-uuid');
-        //     const $userUUId = $(this).attr('id');
+        //     const $roleId = $(this).attr('data-role-id');
+        //     const $userId = $(this).attr('id');
         //     if ($(this).is(':checked')) {
         //         $.ajax({
         //             url: "{{ route('roles.assign.user') }}",
         //             method: 'POST',
         //             dataType: 'json',
         //             data: {
-        //                 roleUUId: $roleUUId,
-        //                 userUUId: $userUUId
+        //                 roleId: $roleId,
+        //                 userId: $userId
         //             },
         //             success: function(data) {
         //                 iziToast.success({
@@ -255,8 +255,8 @@
         //             method: 'POST',
         //             dataType: 'json',
         //             data: {
-        //                 roleUUId: $roleUUId,
-        //                 userUUId: $userUUId
+        //                 roleId: $roleId,
+        //                 userId: $userId
         //             },
         //             success: function(data) {
         //                 iziToast.success({
@@ -270,10 +270,10 @@
         //     }
         // });
     }, false);
-    function showDeleteConfirmation(elementUUID) {
+    function showDeleteConfirmation(id) {
         const modal = new bootstrap.Modal('#removeConfirmationModal');
-        $('#delete').attr('action','{{url("/branches")}}'+'/'+elementUUID);
-        $('#deleteElementBtn').attr('action','{{url("/branches")}}'+'/'+elementUUID);
+        $('#delete').attr('action','{{url("/branches")}}'+'/'+id);
+        $('#deleteElementBtn').attr('action','{{url("/branches")}}'+'/'+id);
         modal.show();
     }
 </script>

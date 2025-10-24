@@ -155,36 +155,31 @@ class ClientController extends Controller
 
     }
 
-    public function getusers(string $roleUUID) {
-        $r = [
-            'roleUUID' => $roleUUID
-        ];
-        $validator = Validator::make($r, [
-            'roleUUID' => 'required|uuid'
+    public function getusers(string $roleId) {
+
+        $clients = User::whereDoesntHave('roles', function ($query) {
+            $query->where('id', self::SUPER_ADMIN_ROLE_ID);
+        })
+        ->with('roles')
+        ->get();
+
+        $role = Role::where('id', $roleId)->first();
+
+        $response = [];
+
+        foreach ($clients as $key => $client) {
+
+            $response[] = [
+                'id' => $client->id,
+                'name' => $client->name,
+                'contains' => ($client->roles->contains($role)) ? 'checked' : '',
+            ];
+        }
+
+        return response()->json([
+            'users' => $response
         ]);
-        if ($validator->fails()) {
-            return response()->json(null,400);
-        }
-        try {
-            $clients = User::whereDoesntHave('roles', function ($query) {
-                $query->where('id', self::SUPER_ADMIN_ROLE_ID);
-            })->paginate(10);
-            $role = Role::where('uuid',$roleUUID)->first();
-            $response = [];
-            foreach ($clients as $key => $client) {
-                $response[] = [
-                    'uuid' => $client->uuid,
-                    'name' => $client->name,
-                    'contains' => ($client->roles->contains($role))?'checked':''
-                ];
-            }
-            return response()->json([
-                'clients' => $response
-            ]);
-        } catch (Exception $e) {
-            logger($e);
-            return response()->json(null,500);
-        }
+
     }
 
     public function saveInformedConsent(Request $request) {
@@ -213,7 +208,7 @@ class ClientController extends Controller
         ]);
 
 
-        $client = User::where('uuid',Auth::user()->uuid)->first();
+        $client = User::where('id',Auth::user()->id)->first();
         if (!$client) {
             return redirect()->back()->with('info', 'Operation failed, try again');
         }

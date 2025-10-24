@@ -108,7 +108,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // $(document).on('click','.add-permissions',function(){
-        //     const $roleUUId = $(this).attr('data-role-uuid');
+        //     const $roleId = $(this).attr('data-role-id');
         //     const $roleName = $(this).attr('data-role-name');
         //     const $permissionURL = $(this).attr('data-permission-url');
         //     $.ajax({
@@ -124,8 +124,8 @@
         //                 data.permissions.forEach((p, index) => {
         //                     $('#addPermissionsModal .modal-body .list-group.list-group-flush').append(`
         //                         <li class="list-group-item">
-        //                             <input class="form-check-input me-1 add-permission-to-rol" type="checkbox" value="" `+p['contains']+` id="`+p['uuid']+`" data-role-uuid="`+$roleUUId+`">
-        //                             <label class="form-check-label stretched-link" for="`+p['uuid']+`">`+p['name']+`</label>
+        //                             <input class="form-check-input me-1 add-permission-to-rol" type="checkbox" value="" `+p['contains']+` id="`+p['id']+`" data-role-id="`+$roleId+`">
+        //                             <label class="form-check-label stretched-link" for="`+p['id']+`">`+p['name']+`</label>
         //                         </li>
         //                     `);
         //                 });
@@ -147,7 +147,7 @@
         //     });
         // });
         // $(document).on('click','.add-users-to-role',function(){
-        //     const $roleUUId = $(this).attr('data-role-uuid');
+        //     const $roleId = $(this).attr('data-role-id');
         //     const $roleName = $(this).attr('data-role-name');
         //     const $staffsURL = $(this).attr('data-users-url');
         //     $.ajax({
@@ -163,8 +163,8 @@
         //                 data.users.forEach((p, index) => {
         //                     $('#addUsersToRoleModal .modal-body .list-group.list-group-flush').append(`
         //                         <li class="list-group-item">
-        //                             <input class="form-check-input me-1 add-user-to-rol" type="checkbox" value="" `+p['contains']+` id="`+p['uuid']+`" data-role-uuid="`+$roleUUId+`">
-        //                             <label class="form-check-label stretched-link" for="`+p['uuid']+`">`+p['name']+`</label>
+        //                             <input class="form-check-input me-1 add-user-to-rol" type="checkbox" value="" `+p['contains']+` id="`+p['id']+`" data-role-id="`+$roleId+`">
+        //                             <label class="form-check-label stretched-link" for="`+p['id']+`">`+p['name']+`</label>
         //                         </li>
         //                     `);
         //                 });
@@ -186,16 +186,16 @@
         //     });
         // });
         // $(document).on('change','.add-permission-to-rol',function(){
-        //     const $roleUUId = $(this).attr('data-role-uuid');
-        //     const $permissionUUId = $(this).attr('id');
+        //     const $roleId = $(this).attr('data-role-id');
+        //     const $permissionId = $(this).attr('id');
         //     if ($(this).is(':checked')) {
         //         $.ajax({
         //             url: "{{ route('roles.assign.permission') }}",
         //             method: 'POST',
         //             dataType: 'json',
         //             data: {
-        //                 roleUUId: $roleUUId,
-        //                 permissionUUId: $permissionUUId
+        //                 roleId: $roleId,
+        //                 permissionId: $permissionId
         //             },
         //             success: function(data) {
         //                 iziToast.success({
@@ -212,8 +212,8 @@
         //             method: 'POST',
         //             dataType: 'json',
         //             data: {
-        //                 roleUUId: $roleUUId,
-        //                 permissionUUId: $permissionUUId
+        //                 roleId: $roleId,
+        //                 permissionId: $permissionId
         //             },
         //             success: function(data) {
         //                 iziToast.success({
@@ -227,16 +227,16 @@
         //     }
         // });
         // $(document).on('change','.add-user-to-rol',function(){
-        //     const $roleUUId = $(this).attr('data-role-uuid');
-        //     const $staffUUId = $(this).attr('id');
+        //     const $roleId = $(this).attr('data-role-id');
+        //     const $staffId = $(this).attr('id');
         //     if ($(this).is(':checked')) {
         //         $.ajax({
         //             url: "{{ route('roles.assign.user') }}",
         //             method: 'POST',
         //             dataType: 'json',
         //             data: {
-        //                 roleUUId: $roleUUId,
-        //                 userUUId: $staffUUId
+        //                 roleId: $roleId,
+        //                 userId: $staffId
         //             },
         //             success: function(data) {
         //                 iziToast.success({
@@ -253,8 +253,8 @@
         //             method: 'POST',
         //             dataType: 'json',
         //             data: {
-        //                 roleUUId: $roleUUId,
-        //                 userUUId: $staffUUId
+        //                 roleId: $roleId,
+        //                 userId: $staffId
         //             },
         //             success: function(data) {
         //                 iziToast.success({

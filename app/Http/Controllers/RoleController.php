@@ -59,12 +59,12 @@ class RoleController extends Controller
 
     public function assignPermission(Request $request) {
         $request->validate([
-            'roleUUId' => 'required|uuid',
-            'permissionUUId' => 'required|uuid'
+            'roleId' => 'required',
+            'permissionId' => 'required'
         ]);
         try {
-            $role = Role::where('uuid',$request->roleUUId)->first();
-            $permission = Permission::where('uuid',$request->permissionUUId)->first();
+            $role = Role::where('id',$request->roleId)->first();
+            $permission = Permission::where('id',$request->permissionId)->first();
             $role->givePermissionTo($permission);
             return response()->json();
         } catch (Exception $e) {
@@ -75,12 +75,12 @@ class RoleController extends Controller
 
     public function removePermission(Request $request) {
         $request->validate([
-            'roleUUId' => 'required|uuid',
-            'permissionUUId' => 'required|uuid'
+            'roleId' => 'required',
+            'permissionId' => 'required'
         ]);
         try {
-            $role = Role::where('uuid',$request->roleUUId)->first();
-            $permission = Permission::where('uuid',$request->permissionUUId)->first();
+            $role = Role::where('id',$request->roleId)->first();
+            $permission = Permission::where('id',$request->permissionId)->first();
             $role->revokePermissionTo($permission);
             return response()->json();
         } catch (Exception $e) {
@@ -91,12 +91,12 @@ class RoleController extends Controller
 
     public function assignUser(Request $request) {
         $request->validate([
-            'roleUUId' => 'required|uuid',
-            'userUUId' => 'required|uuid'
+            'roleId' => 'required',
+            'userId' => 'required'
         ]);
         try {
-            $role = Role::where('uuid',$request->roleUUId)->first();
-            $user = User::where('uuid',$request->userUUId)->first();
+            $role = Role::where('id',$request->roleId)->first();
+            $user = User::where('id',$request->userId)->first();
             $user->assignRole($role);
             return response()->json();
         } catch (Exception $e) {
@@ -107,12 +107,12 @@ class RoleController extends Controller
 
     public function removeUser(Request $request) {
         $request->validate([
-            'roleUUId' => 'required|uuid',
-            'userUUId' => 'required|uuid'
+            'roleId' => 'required',
+            'userId' => 'required'
         ]);
         try {
-            $role = Role::where('uuid',$request->roleUUId)->first();
-            $user = User::where('uuid',$request->userUUId)->first();
+            $role = Role::where('id',$request->roleId)->first();
+            $user = User::where('id',$request->userId)->first();
             $user->removeRole($role);
             return response()->json();
         } catch (Exception $e) {
@@ -148,27 +148,12 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $uuid)
+    public function destroy(Role $role)
     {
-        $r = [
-            'uuid' => $uuid
-        ];
-        $validator = Validator::make($r, [
-            'uuid' => 'required|uuid',
-        ]);
-        if ($validator->fails()) {
-            return redirect()->back()->with('info', 'Invalid value');
-        }
-        try {
-            $role = Role::where('uuid',$uuid)->first();
-            if (!$role) {
-                return redirect()->back()->with('info', 'Operation failed, try again');
-            }
-            $role->delete();
-            return redirect()->back()->with('success', 'Successful operation');
-        } catch (Exception $e) {
-            logger($e);
-            return redirect()->back()->with('error', self::ERROR_GENERAL_MSG);
-        }
+
+        $role->delete();
+
+        return redirect()->back()->with('success', 'Successful operation');
+
     }
 }

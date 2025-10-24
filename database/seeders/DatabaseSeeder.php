@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Branch;
 use App\Models\DietaryCondition;
 use App\Models\DocumentType;
 use App\Models\Gender;
@@ -13,7 +14,6 @@ use App\Models\Role;
 use App\Models\ToxicologicalCondition;
 use App\Models\TreatmentCondition;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -175,8 +175,8 @@ class DatabaseSeeder extends Seeder
 
         $client02 = User::create([
             'name' => 'cliente02',
-            'email' => 'c02@2.com',
-            'password' => Hash::make('2'),
+            'email' => 'c02@1.com',
+            'password' => Hash::make('1'),
             'birthday' => '2025-10-29',
             'gender_id' => 2,
             'informed_consent' => 0,
@@ -201,6 +201,47 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $client02->assignRole('PATIENT');
+
+        Branch::create([
+            'name' => 'Sucursal01',
+            'address' => 'Sucursal01',
+            'phone' => 'Sucursal01',
+        ]);
+
+        Branch::create([
+            'name' => 'Sucursal02',
+            'address' => 'Sucursal02',
+            'phone' => 'Sucursal02',
+        ]);
+
+        Branch::create([
+            'name' => 'Sucursal03',
+            'address' => 'Sucursal03',
+            'phone' => 'Sucursal03',
+        ]);
+
+        $staff01 = User::create([
+            'name' => 'staff01',
+            'email' => 's01@1.com',
+            'password' => Hash::make('1'),
+        ]);
+
+        $staff01->assignRole('EMPLOYEE');
+        $staff01->staffProfile()->create([
+            'branch_id' => 1,
+        ]);
+
+        $staff02 = User::create([
+            'name' => 'staff02',
+            'email' => 's02@1.com',
+            'password' => Hash::make('1'),
+        ]);
+
+        $staff02->assignRole('EMPLOYEE');
+        $staff02->staffProfile()->create([
+            'branch_id' => 2,
+        ]);
+
 
     }
 }

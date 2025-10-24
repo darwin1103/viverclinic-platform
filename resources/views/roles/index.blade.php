@@ -54,7 +54,7 @@
                                                 <button class="btn btn-primary add-users-to-role" type="button"
                                                     data-bs-toggle="tooltip" data-bs-placement="top" data-role-name="{{ $role->name }}"
                                                     data-bs-custom-class="custom-tooltip" data-role-uuid="{{ $role->uuid }}"
-                                                    data-users-url="{{ route('users.list',$role->uuid) }}"
+                                                    data-users-url="{{ route('client.list',$role->uuid) }}"
                                                     data-bs-title="{{__('Associate users')}}">
                                                     <i class="bi bi-person-fill-gear"></i>
                                                 </button>

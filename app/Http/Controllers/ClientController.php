@@ -39,7 +39,6 @@ class ClientController extends Controller
 
         $clients = User::select('id','name','created_at','updated_at')
             ->role('PATIENT')
-            ->with('roles')
             ->paginate(10);
 
         return view('client.index', compact('clients'));
@@ -66,39 +65,22 @@ class ClientController extends Controller
             'requestInformedConsent' => 'nullable|string'
         ]);
 
-        // Check if user already exists
-        $existingClient = User::where('email', $request->email)->first();
+        // Create new user with password
+        $password = Str::random(12);
 
-        if ($existingClient) {
-            // Update existing user
-            $existingClient->update([
-                'name' => $request->name,
-                'informed_consent' => ($request->requestInformedConsent && $request->requestInformedConsent == "on") ? true : false,
-            ]);
+        $client = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($password),
+            'informed_consent' => ($request->requestInformedConsent && $request->requestInformedConsent == "on") ? true : false,
+        ]);
 
-            // Ensure the user has the PATIENT role
-            if (!$existingClient->hasRole('PATIENT')) {
-                $existingClient->assignRole('PATIENT');
-            }
+        $client->assignRole('PATIENT');
 
-            return redirect()->back()->with('success', 'User updated successfully');
-        } else {
-            // Create new user with password
-            $password = Str::random(12);
+        $client->notify(new UserCreatedNotification($client->name, $client->email, $password));
 
-            $client = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => bcrypt($password),
-                'informed_consent' => ($request->requestInformedConsent && $request->requestInformedConsent == "on") ? true : false,
-            ]);
+        return redirect()->back()->with('success', 'User created successfully');
 
-            $client->assignRole('PATIENT');
-
-            $client->notify(new UserCreatedNotification($client->name, $client->email, $password));
-
-            return redirect()->back()->with('success', 'User created successfully');
-        }
     }
 
     /**
@@ -106,8 +88,6 @@ class ClientController extends Controller
      */
     public function show(User $client)
     {
-
-        $client->load('roles');
 
         $genres = Gender::where('status',Gender::ACTIVE_STATUS)->get();
         $documentTypes = DocumentType::where('status',DocumentType::ACTIVE_STATUS)->get();

@@ -25,7 +25,7 @@ class BranchController extends Controller
     public function index()
     {
         $branches = Branch::paginate(10);
-        return view('branches.index', compact('branches'));
+        return view('branch.index', compact('branches'));
     }
 
     /**
@@ -33,7 +33,7 @@ class BranchController extends Controller
      */
     public function create()
     {
-        return view('branches.create');
+        return view('branch.create');
     }
 
     /**
@@ -86,27 +86,9 @@ class BranchController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $uuid)
+    public function destroy(Branch $branch)
     {
-        $r = [
-            'uuid' => $uuid
-        ];
-        $validator = Validator::make($r, [
-            'uuid' => 'required|uuid'
-        ]);
-        if ($validator->fails()) {
-            return redirect()->back()->with('info', 'Invalid value');
-        }
-        try {
-            $branch = Branch::where('uuid',$uuid)->first();
-            if (!$branch) {
-                return redirect()->back()->with('info', 'Operation failed, try again');
-            }
-            $branch->delete();
-            return redirect()->back()->with('success', 'Successful operation');
-        } catch (Exception $e) {
-            logger($e);
-            return redirect()->back()->with('error', self::ERROR_GENERAL_MSG);
-        }
+        $branch->delete();
+        return redirect()->back()->with('success', 'Successful operation');
     }
 }

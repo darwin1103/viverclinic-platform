@@ -128,3 +128,5 @@ body{ background: var(--vc-bg); padding-top: var(--header-h); }
 /* Utilidades */
 .btn-icon{ padding: .375rem .5rem; line-height:1; display:inline-flex; align-items:center; justify-content:center; }
 .btn-wide{ min-width: 150px; } /* para evitar salto de línea en “Ver agenda” */
+
+

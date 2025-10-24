@@ -2,12 +2,12 @@
 @section('content')
 <div class="container">
     <div class="row">
-        <div class="col-12 col-md-6 col-lg-4">
-            <h1>Clientes</h1>
+        <div class="col-12 col-md-7 col-lg-8">
+            <h1>{{ __('Branches') }}</h1>
         </div>
-        <div class="col-12 col-md-6 col-lg-8 text-end" style="align-content: center;">
-            <a class="btn btn-primary" href="{{ route('client.create') }}" role="button">
-                <i class="bi bi-plus-circle-fill"></i>&nbsp;Crear nuevo cliente
+        <div class="col-12 col-md-5 col-lg-4 text-end" style="align-content: center;">
+            <a class="btn btn-primary" href="{{ route('branch.create') }}" role="button">
+                <i class="bi bi-plus-circle-fill"></i>&nbsp;{{ __('Add') }}
             </a>
         </div>
     </div>
@@ -27,37 +27,39 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if ($clients && count($clients) > 0)
+                                @if ($branches && count($branches) > 0)
                                     @php
                                         $totalItems = 0;
                                     @endphp
-                                    @foreach ($clients as $client)
+                                    @foreach ($branches as $branch)
                                         @php
                                             $totalItems++;
                                         @endphp
                                         <tr>
                                             <th scope="row">{{ $totalItems }}</th>
-                                            <td style="min-width: 160px;">{{ $client->name }}</td>
-                                            <td style="min-width: 130px;">{{ $client->created_at }}</td>
-                                            <td style="min-width: 130px;">{{ $client->updated_at }}</td>
+                                            <td style="min-width: 160px;">{{ $branch->name }}</td>
+                                            <td style="min-width: 130px;">{{ $branch->created_at }}</td>
+                                            <td style="min-width: 130px;">{{ $branch->updated_at }}</td>
                                             <td style="min-width: 160px;">
-                                                <a class="mx-2"
-                                                    href="{{ route('client.show', $client) }}"
-                                                    data-bs-toggle="tooltip"
-                                                    data-bs-placement="top"
-                                                    data-bs-custom-class="custom-tooltip"
-                                                    data-bs-title="{{__('Show')}}"><i class="bi bi-eye-fill"></i></a>
-                                                <a class="mx-2"
-                                                    href="{{ route('client.edit', $client) }}"
-                                                    data-bs-toggle="tooltip"
-                                                    data-bs-placement="top"
-                                                    data-bs-custom-class="custom-tooltip"
-                                                    data-bs-title="{{__('Edit')}}"><i class="bi bi-pencil-square"></i></a>
+                                                {{-- <button class="btn btn-primary add-users-to-role" type="button"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top" data-role-name="{{ $role->name }}"
+                                                    data-bs-custom-class="custom-tooltip" data-role-uuid="{{ $role->uuid }}"
+                                                    data-users-url="{{ route('users.list',$role->uuid) }}"
+                                                    data-bs-title="{{__('Associate users')}}">
+                                                    <i class="bi bi-person-fill-gear"></i>
+                                                </button>
+                                                <button class="btn btn-primary add-permissions" type="button"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top" data-role-name="{{ $role->name }}"
+                                                    data-bs-custom-class="custom-tooltip" data-role-uuid="{{ $role->uuid }}"
+                                                    data-permission-url="{{ route('permissions.list',$role->uuid) }}"
+                                                    data-bs-title="{{__('Associate permissions')}}">
+                                                    <i class="bi bi-building-fill-gear"></i>
+                                                </button> --}}
                                                 <button class="btn btn-danger" type="button"
                                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                                     data-bs-custom-class="custom-tooltip"
                                                     data-bs-title="{{__('Delete')}}"
-                                                    onclick="showDeleteConfirmation('{{$client->id}}')">
+                                                    onclick="showDeleteConfirmation('{{$branch->uuid}}')">
                                                     <i class="bi bi-trash-fill"></i>
                                                 </button>
                                             </td>
@@ -72,8 +74,8 @@
                                 @endif
                             </tbody>
                         </table>
-                        @if (isset($clients))
-                            {{ $clients->links('layouts.numbers-pagination') }}
+                        @if (isset($branches))
+                            {{ $branches->links('layouts.numbers-pagination') }}
                         @endif
                     </div>
                 </div>
@@ -149,9 +151,9 @@
         // $(document).on('click','.add-users-to-role',function(){
         //     const $roleUUId = $(this).attr('data-role-uuid');
         //     const $roleName = $(this).attr('data-role-name');
-        //     const $clientsURL = $(this).attr('data-users-url');
+        //     const $usersURL = $(this).attr('data-users-url');
         //     $.ajax({
-        //         url: $clientsURL,
+        //         url: $usersURL,
         //         method: 'GET',
         //         dataType: 'json',
         //         success: function(data) {
@@ -228,7 +230,7 @@
         // });
         // $(document).on('change','.add-user-to-rol',function(){
         //     const $roleUUId = $(this).attr('data-role-uuid');
-        //     const $clientUUId = $(this).attr('id');
+        //     const $userUUId = $(this).attr('id');
         //     if ($(this).is(':checked')) {
         //         $.ajax({
         //             url: "{{ route('roles.assign.user') }}",
@@ -236,7 +238,7 @@
         //             dataType: 'json',
         //             data: {
         //                 roleUUId: $roleUUId,
-        //                 userUUId: $clientUUId
+        //                 userUUId: $userUUId
         //             },
         //             success: function(data) {
         //                 iziToast.success({
@@ -254,7 +256,7 @@
         //             dataType: 'json',
         //             data: {
         //                 roleUUId: $roleUUId,
-        //                 userUUId: $clientUUId
+        //                 userUUId: $userUUId
         //             },
         //             success: function(data) {
         //                 iziToast.success({
@@ -268,10 +270,10 @@
         //     }
         // });
     }, false);
-    function showDeleteConfirmation(clientId) {
+    function showDeleteConfirmation(elementUUID) {
         const modal = new bootstrap.Modal('#removeConfirmationModal');
-        $('#delete').attr('action','{{url("/client")}}'+'/'+clientId);
-        $('#deleteElementBtn').attr('action','{{url("/client")}}'+'/'+clientId);
+        $('#delete').attr('action','{{url("/branches")}}'+'/'+elementUUID);
+        $('#deleteElementBtn').attr('action','{{url("/branches")}}'+'/'+elementUUID);
         modal.show();
     }
 </script>

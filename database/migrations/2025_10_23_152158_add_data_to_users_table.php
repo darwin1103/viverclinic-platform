@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
+
             $table->unsignedBigInteger('pathological_id')->nullable();
             $table->foreign('pathological_id')->references('id')->on('pathological_conditions');
             $table->unsignedBigInteger('toxicological_id')->nullable();
@@ -24,12 +25,16 @@ return new class extends Migration
             $table->foreign('dietary_id')->references('id')->on('dietary_conditions');
             $table->unsignedBigInteger('treatment_id')->nullable();
             $table->foreign('treatment_id')->references('id')->on('treatments');
+
+            $table->date('birthday')->nullable();
             $table->string('directory')->nullable();
             $table->string('photo_profile')->nullable();
             $table->string('surgery')->nullable();
             $table->string('recommendation')->nullable();
             $table->boolean('terms_conditions')->default(false);
             $table->boolean('not_pregnant')->default(false);
+
+
         });
     }
 
@@ -49,6 +54,7 @@ return new class extends Migration
 
             // Drop the columns
             $table->dropColumn([
+                'birthday',
                 'pathological_id',
                 'toxicological_id',
                 'gyneco_obstetric_id',

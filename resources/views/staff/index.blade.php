@@ -2,12 +2,12 @@
 @section('content')
 <div class="container">
     <div class="row">
-        <div class="col-12 col-md-7 col-lg-8">
-            <h1>{{ __('Branches') }}</h1>
+        <div class="col-12 col-md-6 col-lg-4">
+            <h1>Personal</h1>
         </div>
-        <div class="col-12 col-md-5 col-lg-4 text-end" style="align-content: center;">
-            <a class="btn btn-primary" href="{{ route('branches.create') }}" role="button">
-                <i class="bi bi-plus-circle-fill"></i>&nbsp;{{ __('Add') }}
+        <div class="col-12 col-md-6 col-lg-8 text-end" style="align-content: center;">
+            <a class="btn btn-primary" href="{{ route('staff.create') }}" role="button">
+                <i class="bi bi-plus-circle-fill"></i>&nbsp;Crear nuevo usuario de personal
             </a>
         </div>
     </div>
@@ -27,39 +27,37 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if ($branches && count($branches) > 0)
+                                @if ($staffs && count($staffs) > 0)
                                     @php
                                         $totalItems = 0;
                                     @endphp
-                                    @foreach ($branches as $branch)
+                                    @foreach ($staffs as $staff)
                                         @php
                                             $totalItems++;
                                         @endphp
                                         <tr>
                                             <th scope="row">{{ $totalItems }}</th>
-                                            <td style="min-width: 160px;">{{ $branch->name }}</td>
-                                            <td style="min-width: 130px;">{{ $branch->created_at }}</td>
-                                            <td style="min-width: 130px;">{{ $branch->updated_at }}</td>
+                                            <td style="min-width: 160px;">{{ $staff->name }}</td>
+                                            <td style="min-width: 130px;">{{ $staff->created_at }}</td>
+                                            <td style="min-width: 130px;">{{ $staff->updated_at }}</td>
                                             <td style="min-width: 160px;">
-                                                {{-- <button class="btn btn-primary add-users-to-role" type="button"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top" data-role-name="{{ $role->name }}"
-                                                    data-bs-custom-class="custom-tooltip" data-role-uuid="{{ $role->uuid }}"
-                                                    data-users-url="{{ route('users.list',$role->uuid) }}"
-                                                    data-bs-title="{{__('Associate users')}}">
-                                                    <i class="bi bi-person-fill-gear"></i>
-                                                </button>
-                                                <button class="btn btn-primary add-permissions" type="button"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top" data-role-name="{{ $role->name }}"
-                                                    data-bs-custom-class="custom-tooltip" data-role-uuid="{{ $role->uuid }}"
-                                                    data-permission-url="{{ route('permissions.list',$role->uuid) }}"
-                                                    data-bs-title="{{__('Associate permissions')}}">
-                                                    <i class="bi bi-building-fill-gear"></i>
-                                                </button> --}}
+                                                <a class="mx-2"
+                                                    href="{{ route('staff.show', $staff) }}"
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    data-bs-custom-class="custom-tooltip"
+                                                    data-bs-title="{{__('Show')}}"><i class="bi bi-eye-fill"></i></a>
+                                                <a class="mx-2"
+                                                    href="{{ route('staff.edit', $staff) }}"
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    data-bs-custom-class="custom-tooltip"
+                                                    data-bs-title="{{__('Edit')}}"><i class="bi bi-pencil-square"></i></a>
                                                 <button class="btn btn-danger" type="button"
                                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                                     data-bs-custom-class="custom-tooltip"
                                                     data-bs-title="{{__('Delete')}}"
-                                                    onclick="showDeleteConfirmation('{{$branch->uuid}}')">
+                                                    onclick="showDeleteConfirmation('{{$staff->id}}')">
                                                     <i class="bi bi-trash-fill"></i>
                                                 </button>
                                             </td>
@@ -74,8 +72,8 @@
                                 @endif
                             </tbody>
                         </table>
-                        @if (isset($branches))
-                            {{ $branches->links('layouts.numbers-pagination') }}
+                        @if (isset($staffs))
+                            {{ $staffs->links('layouts.numbers-pagination') }}
                         @endif
                     </div>
                 </div>
@@ -151,9 +149,9 @@
         // $(document).on('click','.add-users-to-role',function(){
         //     const $roleUUId = $(this).attr('data-role-uuid');
         //     const $roleName = $(this).attr('data-role-name');
-        //     const $usersURL = $(this).attr('data-users-url');
+        //     const $staffsURL = $(this).attr('data-users-url');
         //     $.ajax({
-        //         url: $usersURL,
+        //         url: $staffsURL,
         //         method: 'GET',
         //         dataType: 'json',
         //         success: function(data) {
@@ -230,7 +228,7 @@
         // });
         // $(document).on('change','.add-user-to-rol',function(){
         //     const $roleUUId = $(this).attr('data-role-uuid');
-        //     const $userUUId = $(this).attr('id');
+        //     const $staffUUId = $(this).attr('id');
         //     if ($(this).is(':checked')) {
         //         $.ajax({
         //             url: "{{ route('roles.assign.user') }}",
@@ -238,7 +236,7 @@
         //             dataType: 'json',
         //             data: {
         //                 roleUUId: $roleUUId,
-        //                 userUUId: $userUUId
+        //                 userUUId: $staffUUId
         //             },
         //             success: function(data) {
         //                 iziToast.success({
@@ -256,7 +254,7 @@
         //             dataType: 'json',
         //             data: {
         //                 roleUUId: $roleUUId,
-        //                 userUUId: $userUUId
+        //                 userUUId: $staffUUId
         //             },
         //             success: function(data) {
         //                 iziToast.success({
@@ -270,10 +268,10 @@
         //     }
         // });
     }, false);
-    function showDeleteConfirmation(elementUUID) {
+    function showDeleteConfirmation(staffId) {
         const modal = new bootstrap.Modal('#removeConfirmationModal');
-        $('#delete').attr('action','{{url("/branches")}}'+'/'+elementUUID);
-        $('#deleteElementBtn').attr('action','{{url("/branches")}}'+'/'+elementUUID);
+        $('#delete').attr('action','{{url("/staff")}}'+'/'+staffId);
+        $('#deleteElementBtn').attr('action','{{url("/staff")}}'+'/'+staffId);
         modal.show();
     }
 </script>

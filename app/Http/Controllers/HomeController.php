@@ -75,7 +75,7 @@ class HomeController extends Controller
                     'treatmentConditions' => $treatmentConditions,
                 ];
 
-                return view('users.informed-consent', $data);
+                return view('client.informed-consent', $data);
 
             }
 

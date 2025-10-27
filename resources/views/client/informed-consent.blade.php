@@ -28,7 +28,7 @@
                             </div>
                         </div>
                     </div>
-                    <form method="POST" class="row g-2" action="{{ route('clients.informed.consent') }}">
+                    <form method="POST" class="row g-2" action="{{ route('client.informed.consent') }}">
                         @csrf
                         <div class="col-12 col-lg-6">
                             <div class="form-floating">

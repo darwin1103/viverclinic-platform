@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Branch;
 use App\Models\StaffProfile;
+use App\Models\User;
 use App\Models\WorkSchedule;
+use App\Notifications\UserCreatedNotification;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Support\Str;
-use Carbon\Carbon;
 
 class StaffController extends Controller
 {
@@ -74,17 +75,19 @@ class StaffController extends Controller
 
         DB::transaction(function () use ($validated, $request) {
 
+            $password = Str::random(12);
+
             $staff = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
-                'password' => Hash::make(Str::random(12)),
+                'password' => Hash::make($password),
             ]);
 
             $staff->assignRole('EMPLOYEE');
 
             // custom notification for the EMPLOYEE ***
 
-            // $staff->notify(new UserCreatedNotification($staff->name, $staff->email, $password));
+            $staff->notify(new UserCreatedNotification($staff->name, $staff->email, $password));
 
             $staffProfile = $staff->staffProfile()->create([
                 'branch_id' => $validated['branch_id']

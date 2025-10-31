@@ -8,9 +8,6 @@ class DocumentType extends Model
 {
     protected $table = 'document_types';
 
-    const ACTIVE_STATUS = 1;
-    const INACTIVE_STATUS = 0;
-
     protected $fillable = [
         'id',
         'name',

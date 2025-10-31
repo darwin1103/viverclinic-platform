@@ -41,20 +41,12 @@
                                             <td style="min-width: 130px;">{{ $branch->created_at }}</td>
                                             <td style="min-width: 130px;">{{ $branch->updated_at }}</td>
                                             <td style="min-width: 160px;">
-                                                {{-- <button class="btn btn-primary add-users-to-role" type="button"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top" data-role-name="{{ $role->name }}"
-                                                    data-bs-custom-class="custom-tooltip" data-role-id="{{ $role->id }}"
-                                                    data-users-url="{{ route('users.list',$role->id) }}"
-                                                    data-bs-title="{{__('Associate users')}}">
-                                                    <i class="bi bi-person-fill-gear"></i>
-                                                </button>
-                                                <button class="btn btn-primary add-permissions" type="button"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top" data-role-name="{{ $role->name }}"
-                                                    data-bs-custom-class="custom-tooltip" data-role-id="{{ $role->id }}"
-                                                    data-permission-url="{{ route('permissions.list',$role->id) }}"
-                                                    data-bs-title="{{__('Associate permissions')}}">
-                                                    <i class="bi bi-building-fill-gear"></i>
-                                                </button> --}}
+                                                <a href="{{ route('branch.edit', $branch->id) }}" class="btn btn-warning me-2"
+                                                   data-bs-toggle="tooltip" data-bs-placement="top"
+                                                   data-bs-custom-class="custom-tooltip"
+                                                   data-bs-title="Editar">
+                                                    <i class="bi bi-pencil-fill"></i>
+                                                </a>
                                                 <button class="btn btn-danger" type="button"
                                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                                     data-bs-custom-class="custom-tooltip"

@@ -38,7 +38,9 @@ class StaffController extends Controller
             ->role('EMPLOYEE')
             ->paginate(10);
 
-        return view('staff.index', compact('staffs'));
+        $branches = Branch::all();
+
+        return view('staff.index', compact('staffs', 'branches'));
 
     }
 

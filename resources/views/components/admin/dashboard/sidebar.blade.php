@@ -34,9 +34,9 @@
         </a>
       </li>
       <li>
-        <a href="#" class="nav-link">
+        <a href="{{ route('admin.treatment.index') }}" class="nav-link @if(Route::is('admin.treatment.*')) active @endif">
             <i class="bi bi-bag-check me-2"></i>
-            Paquetes
+            Tratamientos
         </a>
       </li>
       <li class="mt-3 text-uppercase text-secondary small px-2">

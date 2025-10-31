@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Branch;
 use App\Models\DietaryCondition;
 use App\Models\DocumentType;
 use App\Models\Gender;
 use App\Models\GynecoObstetricCondition;
 use App\Models\MedicationCondition;
 use App\Models\PathologicalCondition;
-use App\Models\ToxicologicalCondition;
-use App\Models\TreatmentCondition;
 use App\Models\Role;
+use App\Models\ToxicologicalCondition;
+use App\Models\Treatment;
 use App\Models\User;
 use App\Notifications\UserCreatedNotification;
 use Exception;
@@ -41,7 +42,9 @@ class ClientController extends Controller
             ->role('PATIENT')
             ->paginate(10);
 
-        return view('client.index', compact('clients'));
+        $branches = Branch::all();
+
+        return view('client.index', compact('clients', 'branches'));
 
     }
 
@@ -89,14 +92,14 @@ class ClientController extends Controller
     public function show(User $client)
     {
 
-        $genres = Gender::where('status',Gender::ACTIVE_STATUS)->get();
-        $documentTypes = DocumentType::where('status',DocumentType::ACTIVE_STATUS)->get();
-        $pathologicalConditions = PathologicalCondition::where('status',PathologicalCondition::ACTIVE_STATUS)->get();
-        $toxicologicalConditions = ToxicologicalCondition::where('status',ToxicologicalCondition::ACTIVE_STATUS)->get();
-        $gynecoObstetricConditions = GynecoObstetricCondition::where('status',GynecoObstetricCondition::ACTIVE_STATUS)->get();
-        $medicationConditions = MedicationCondition::where('status',MedicationCondition::ACTIVE_STATUS)->get();
-        $dietaryConditions = DietaryCondition::where('status',DietaryCondition::ACTIVE_STATUS)->get();
-        $treatmentConditions = TreatmentCondition::where('status',TreatmentCondition::ACTIVE_STATUS)->get();
+        $genres = Gender::where('status', true)->get();
+        $documentTypes = DocumentType::where('status', true)->get();
+        $pathologicalConditions = PathologicalCondition::where('status', true)->get();
+        $toxicologicalConditions = ToxicologicalCondition::where('status', true)->get();
+        $gynecoObstetricConditions = GynecoObstetricCondition::where('status', true)->get();
+        $medicationConditions = MedicationCondition::where('status', true)->get();
+        $dietaryConditions = DietaryCondition::where('status', true)->get();
+        $treatments = Treatment::where('active', true)->get();
 
         $data = [
             'client' => $client,
@@ -107,7 +110,7 @@ class ClientController extends Controller
             'gynecoObstetricConditions' => $gynecoObstetricConditions,
             'medicationConditions' => $medicationConditions,
             'dietaryConditions' => $dietaryConditions,
-            'treatmentConditions' => $treatmentConditions,
+            'treatments' => $treatments,
         ];
 
         return view('client.show', $data);

@@ -184,9 +184,9 @@
                             <div class="form-floating mt-2">
                                 <select id="treatment" name="treatment" class="form-select  load-informed-consent-contract" aria-label="treatment" disabled>
                                     <option value="">{{__('Select an option')}}</option>
-                                    @if (isset($treatmentConditions)&&count($treatmentConditions)>0)
-                                        @foreach ($treatmentConditions as $item)
-                                            <option data-contract-text="{{ $item->terms_conditions }}" value={{ $item->id }} @if($client->treatmentCondition != null && $item->id == $client->treatmentCondition->id) selected @endIf>{{ __($item->name) }}</option>
+                                    @if (isset($treatments)&&count($treatments)>0)
+                                        @foreach ($treatments as $item)
+                                            <option data-contract-text="{{ $item->terms_conditions }}" value={{ $item->id }} @if($client->treatment != null && $item->id == $client->treatment->id) selected @endIf>{{ __($item->name) }}</option>
                                         @endforeach
                                     @endif
                                 </select>

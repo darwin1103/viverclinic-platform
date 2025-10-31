@@ -14,7 +14,11 @@ return new class extends Migration
         Schema::create('treatments', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name');
-            $table->boolean('status')->default(false);
+            $table->text('description');
+            $table->boolean('active')->default(true);
+            $table->string('main_image')->nullable();
+            $table->unsignedInteger('sessions');
+            $table->unsignedInteger('days_between_sessions');
             $table->text('terms_conditions')->nullable();
             $table->timestamps();
         });

@@ -15,7 +15,7 @@ class ScheduleAppointmentController extends Controller
         $treatment = (object)['id' => 1, 'name' => 'Tratamiento de Depilación'];
         $branch = (object)['id' => 1, 'name' => 'Sucursal Centro', 'tlf' => '+123456789', 'google_maps_link' => 'https://www.google.com/maps/@48.8458952,2.2850176,11z?entry=ttu&g_ep=EgoyMDI1MTAyMC4wIKXMDSoASAFQAw%3D%3D'];
         $specialist = (object)['id' => 1, 'name' => 'Dra. Ana'];
-        $paymentIsUpToDate = true;
+        $paymentIsUpToDate = false;
         $totalSessionsInTreatment = 10;
 
         $sessionsData = [

@@ -11,7 +11,8 @@
   <div class="ms-auto d-flex align-items-center gap-2">
 
   @if($branches && $branches->count() > 0)
-      <select class="form-select form-select-sm" style="min-width:220px" aria-label="Seleccionar sucursal">
+      <select class="form-select form-select-sm" id="branch-selector" style="min-width:220px" aria-label="Seleccionar sucursal">
+          <option value="">Todos</option>
           @foreach($branches as $branch)
               <option value="{{ $branch->id }}">{{ $branch->name }}</option>
           @endforeach

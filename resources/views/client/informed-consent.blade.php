@@ -248,9 +248,9 @@
                             <div class="form-floating">
                                 <select id="treatment" name="treatment" class="form-select @error('treatment') is-invalid @enderror load-informed-consent-contract" aria-label="treatment">
                                     <option value="">{{__('Select an option')}}</option>
-                                    @if (isset($treatmentConditions)&&count($treatmentConditions)>0)
-                                        @foreach ($treatmentConditions as $item)
-                                            <option data-contract-text="{{ $item->terms_conditions }}" value={{ $item->id }} @if(Auth::user()->treatmentCondition != null && $item->id == Auth::user()->treatmentCondition->id) selected @endIf>{{ __($item->name) }}</option>
+                                    @if (isset($treatments)&&count($treatments)>0)
+                                        @foreach ($treatments as $item)
+                                            <option data-contract-text="{{ $item->terms_conditions }}" value={{ $item->id }} @if(Auth::user()->treatment != null && $item->id == Auth::user()->treatment->id) selected @endIf>{{ __($item->name) }}</option>
                                         @endforeach
                                     @endif
                                 </select>

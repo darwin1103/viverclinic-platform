@@ -104,9 +104,9 @@ class User extends Authenticatable
         return $this->belongsTo(DietaryCondition::class, 'dietary_id');
     }
 
-    public function treatmentCondition()
+    public function treatment()
     {
-        return $this->belongsTo(TreatmentCondition::class, 'treatment_id');
+        return $this->belongsTo(Treatment::class, 'treatment_id');
     }
 
 }

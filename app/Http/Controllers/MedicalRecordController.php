@@ -7,7 +7,7 @@ use App\Models\GynecoObstetricCondition;
 use App\Models\MedicationCondition;
 use App\Models\PathologicalCondition;
 use App\Models\ToxicologicalCondition;
-use App\Models\TreatmentCondition;
+use App\Models\Treatment;
 use Illuminate\Http\Request;
 
 class MedicalRecordController extends Controller
@@ -17,12 +17,12 @@ class MedicalRecordController extends Controller
      */
     public function index()
     {
-        $pathologicalConditions = PathologicalCondition::where('status',PathologicalCondition::ACTIVE_STATUS)->get();
-        $toxicologicalConditions = ToxicologicalCondition::where('status',ToxicologicalCondition::ACTIVE_STATUS)->get();
-        $gynecoObstetricConditions = GynecoObstetricCondition::where('status',GynecoObstetricCondition::ACTIVE_STATUS)->get();
-        $medicationConditions = MedicationCondition::where('status',MedicationCondition::ACTIVE_STATUS)->get();
-        $dietaryConditions = DietaryCondition::where('status',DietaryCondition::ACTIVE_STATUS)->get();
-        $treatmentConditions = TreatmentCondition::where('status',TreatmentCondition::ACTIVE_STATUS)->get();
+        $pathologicalConditions = PathologicalCondition::where('status', true)->get();
+        $toxicologicalConditions = ToxicologicalCondition::where('status', true)->get();
+        $gynecoObstetricConditions = GynecoObstetricCondition::where('status', true)->get();
+        $medicationConditions = MedicationCondition::where('status', true)->get();
+        $dietaryConditions = DietaryCondition::where('status', true)->get();
+        $treatments = Treatment::where('active', true)->get();
         return view(
             'medical-record.index',
             compact(
@@ -31,7 +31,7 @@ class MedicalRecordController extends Controller
                 'gynecoObstetricConditions',
                 'medicationConditions',
                 'dietaryConditions',
-                'treatmentConditions'
+                'treatments'
             )
         );
     }

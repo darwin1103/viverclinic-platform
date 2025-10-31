@@ -19,10 +19,11 @@ use App\Http\Controllers\RecomentationsController;
 use App\Http\Controllers\ReferralsController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ScheduleAppointmentController;
-use App\Http\Controllers\TreatmentController;
 use App\Http\Controllers\VirtualWalletController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\TreatmentController;
+use App\Http\Controllers\Patient\PatientTreatmentController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -86,3 +87,26 @@ Route::resource('agenda-day', AgendaDayController::class);
 Route::resource('agenda-new', AgendaNewController::class);
 
 Route::resource('job-trailing', JobTrailingController::class);
+
+
+
+
+Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+
+    // Proteger el CRUD con el middleware de permisos de Spatie
+    Route::middleware(['can:owner_dashboard_treatment_management,admin_dashboard_treatment_management'])
+        ->resource('treatment', TreatmentController::class);
+
+});
+
+
+// Rutas para Pacientes
+Route::middleware(['auth', 'verified', 'can:patient_treatment_home_btn'])->group(function () {
+
+    // Muestra los tratamientos de una sucursal específica
+    Route::get('/branch/{branch}/treatment', [PatientTreatmentController::class, 'show'])->name('patient.treatment.show');
+
+    // Procesa la selección de un tratamiento por parte del paciente
+    Route::post('/contract-treatment', [PatientTreatmentController::class, 'store'])->name('patient.treatment.contract');
+
+});

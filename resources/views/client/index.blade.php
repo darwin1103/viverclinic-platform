@@ -22,7 +22,7 @@
                                     <th scope="col">#</th>
                                     <th scope="col">{{ __('Name') }}</th>
                                     <th scope="col">{{ __('Created') }}</th>
-                                    <th scope="col">{{ __('Updated') }}</th>
+                                    <th scope="col">Sucursal</th>
                                     <th scope="col">{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
@@ -39,7 +39,9 @@
                                             <th scope="row">{{ $totalItems }}</th>
                                             <td style="min-width: 160px;">{{ $client->name }}</td>
                                             <td style="min-width: 130px;">{{ $client->created_at }}</td>
-                                            <td style="min-width: 130px;">{{ $client->updated_at }}</td>
+                                            <td style="min-width: 130px;">
+                                                {{ $client->patientProfile->branch->name }}
+                                            </td>
                                             <td style="min-width: 160px;">
                                                 <a class="mx-2"
                                                     href="{{ route('client.show', $client) }}"

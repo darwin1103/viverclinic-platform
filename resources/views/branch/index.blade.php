@@ -19,27 +19,19 @@
                         <table class="table table-hover mt-3">
                             <thead>
                                 <tr>
-                                    <th scope="col">#</th>
                                     <th scope="col">{{ __('Name') }}</th>
-                                    <th scope="col">{{ __('Created') }}</th>
-                                    <th scope="col">{{ __('Updated') }}</th>
+                                    <th scope="col">Enlace de registro</th>
                                     <th scope="col">{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @if ($branches && count($branches) > 0)
-                                    @php
-                                        $totalItems = 0;
-                                    @endphp
                                     @foreach ($branches as $branch)
-                                        @php
-                                            $totalItems++;
-                                        @endphp
                                         <tr>
-                                            <th scope="row">{{ $totalItems }}</th>
                                             <td style="min-width: 160px;">{{ $branch->name }}</td>
-                                            <td style="min-width: 130px;">{{ $branch->created_at }}</td>
-                                            <td style="min-width: 130px;">{{ $branch->updated_at }}</td>
+                                            <td style="min-width: 130px;">
+                                                {{ route('registration-by-branch.create', ['branch' => $branch->id]) }}
+                                            </td>
                                             <td style="min-width: 160px;">
                                                 <a href="{{ route('branch.edit', $branch->id) }}" class="btn btn-warning me-2"
                                                    data-bs-toggle="tooltip" data-bs-placement="top"

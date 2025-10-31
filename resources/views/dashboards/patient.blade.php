@@ -34,7 +34,7 @@
                         <div class="col-12 col-md-4">
                             <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
                                 role="button"
-                                href="{{ route('treatment.index') }}"
+                                href="#"
                             >
                                 <i class="bi bi-card-checklist"></i>
                                 {{ __('Treatment') }}
@@ -56,7 +56,7 @@
                         <div class="col-12 col-md-4">
                             <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
                                 role="button"
-                                href="{{ route('buy-package.create') }}"
+                                href="{{ route('patient.buy-treatment.index') }}"
                             >
                                 <i class="bi bi-heart-fill"></i>
                                 {{ __('Buy Package') }}

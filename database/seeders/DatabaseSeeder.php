@@ -161,6 +161,24 @@ class DatabaseSeeder extends Seeder
             'terms_conditions' => '<section><h2>Consentimiento informado — Reducción</h2><ol><li><p><strong>REQUIERO Y AUTORIZO</strong> al centro de estética Viverclinic para que me realicen el tratamiento de reducción de medidas y tonificación corporal. En términos generales, el propósito del procedimiento es mejorar mi apariencia física.</p></li><li><p><strong>CONFIRMO</strong> que el centro de estética Viverclinic me ha explicado detalladamente, en palabras comprensibles para mí, el efecto y la naturaleza del/los tratamiento(s) a efectuar y las molestias que puedo sentir durante el/los procedimiento(s). Con este tratamiento puedo experimentar molestias, dolores corporales leves; si mi piel es muy sensible me pueden salir morados, irritaciones y algunas alteraciones en la piel como enrojecimiento, picazón o sensibilidad o, en caso extremo, algún tipo de quemadura. Se recomienda luego del procedimiento beber buena cantidad de agua, realizar masajes en la zona donde se realiza el tratamiento, hacer ejercicio y no utilizar productos que puedan irritar la piel. Han sido contestadas todas mis preguntas que libremente he formulado acerca del tratamiento.</p></li><li><p><strong>COMPRENDO</strong> que si me voy a realizar algún tipo de tratamiento de reducción soy consciente de que es una ayuda, y que todos los metabolismos son diferentes; para mejores resultados deberé seguir estas indicaciones:</p><ul><li>Hacer cardio 3 días a la semana, mínimo media hora.</li><li>Beber 1 litro de agua diario.</li><li>Seguir la dieta nutricional suministrada.</li><li>Asistir a las citas asignadas del tratamiento.</li></ul><p>Durante el procedimiento puedo sentir un poco de dolor por causa de los masajes que son muy importantes durante los tratamientos.</p></li><li><p>El fin del procedimiento que he solicitado tiene como objetivo mejorar mi apariencia física y mejorar mis hábitos alimenticios.</p></li><li><p><strong>CONSIENTO</strong> en ser fotografiado o filmado antes, durante y después del tratamiento, siendo este material un medio gráfico de diagnóstico y de registro para mi historia clínica, propiedad del centro de estética Viverclinic, pudiendo ser publicado en revistas, publicidad o redes sociales. Se entiende específicamente que en cualquier uso no seré identificado con mi nombre y no se enseñará mi rostro a no ser que sea autorizado. <strong>COMPRENDO</strong> la importancia de asistir 2 veces por semana a las sesiones; de esto dependerán mis resultados. En caso de no poder asistir debo informar y cancelar la cita con 1 día de anticipación; de no ser así se tomará como asistida. El tiempo de los demás es muy valioso, por eso me comprometo a respetar los horarios. Si llego tarde a mi sesión se continuará la cita, pero se dará inicio en el horario en que llegue el paciente y finalizará en el mismo horario establecido desde un inicio. En caso de cancelar la cita el mismo día se tomará como asistida.</p></li><li><p><strong>ME COMPROMETO</strong> a seguir fielmente, en la mejor medida de mis posibilidades, las instrucciones impartidas por Viverclinic para antes, durante y después del tratamiento mencionadas para mejores resultados. <strong>DEBO INFORMAR A LA PROFESIONAL SI PADEZCO ALGÚN PROBLEMA DE ALERGIA EN LA PIEL, ALGUNA ENFERMEDAD HORMONAL O DE BASE</strong>; ESTO SERÁ DE SUMA IMPORTANCIA ANTES, DURANTE Y DESPUÉS DEL PROCEDIMIENTO. ESTO PERMITIRÁ QUE LA PROFESIONAL CUMPLA LOS PROTOCOLOS SEGÚN LA INFORMACIÓN QUE TÚ LE BRINDES. DE NO SER ASÍ, EL CENTRO DE ESTÉTICA NO SE HACE RESPONSABLE, NO GARANTIZA RESULTADOS Y NO HACE DEVOLUCIÓN DEL DINERO.</p></li></ol><p>El centro de estética no garantiza resultados ya que cualquier tratamiento estético corporal depende un 40% del tratamiento y un 60% de los cuidados y hábitos que tenga el paciente posterior a la sesión. Nuestro tratamiento de reducción, tonificación y moldeamiento corporal lo realizamos con tecnologías de última generación no invasivas; realizamos drenajes linfáticos y la cita tiene una duración aproximada de 1 hora.</p><p>Recuerda que para asistir a tus citas deben aparecer en tu perfil los pagos efectuados en sus respectivas fechas o, si separaste alguna promoción, el abono debe aparecer en tu perfil; de no ser así el centro de estética no se hace responsable. Por eso es muy importante que, al momento de abonar dineros, verifiques en tu perfil que dicho pago se efectuó y quedó registrado.</p><p>Bajo ninguna circunstancia puedes ofrecer a nuestras profesionales dinero bajo cuerda para realizarte otras zonas del cuerpo, ya que tenemos un control interno muy exhaustivo; en caso de hacerlo deberás tener presente que estás cometiendo un delito. Este documento es un respaldo legal el cual haremos valer ante las respectivas autoridades. Las acciones legales tomadas por el centro de estética incluyen cárcel, así que por tu bienestar te solicitamos abstenerte de hacerlo.</p><p>En el caso de que algún paciente se sobrepase o insinúe actos sexuales y morbosos con nuestras empleadas, el centro de estética no le prestará más el servicio y la empleada tendrá la libertad de iniciar procesos legales en contra de la persona. Si no asistes a tu cita, si no llegas puntual o si no cancelas con anticipación la cita en caso de no poder asistir, se tomará como asistida.</p><p>Acepto que el centro de estética Viverclinic me realice la depilación láser con sus protocolos y tecnologías.</p><ol start="10"><li><p>El fin del procedimiento que he solicitado tiene como objetivo mejorar mi apariencia física.</p></li><li><p><strong>CONSIENTO</strong> en ser fotografiado o filmado antes, durante y después del tratamiento, siendo este material un medio gráfico de diagnóstico y de registro para mi historia clínica, propiedad del centro de estética Viverclinic, pudiendo ser publicado en revistas, publicidad o redes sociales. Se entiende específicamente que en cualquier uso no seré identificado con mi nombre y no se enseñará mi rostro a no ser que sea autorizado. <strong>ES OBLIGACIÓN</strong> asistir 1 o 2 veces por semana; de esto dependerá que mis resultados sean exitosos. Una vez nos pasamos del tiempo nuestro proceso se daña automáticamente y toca iniciarlo nuevamente o realizar sesiones extras. En caso de no poder asistir a mi cita debo informar y cancelar la cita con 1 día de anticipación. El tiempo de los demás es muy valioso, por eso me comprometo a respetar los horarios. Si llego tarde a mi sesión voy a esperar que el profesional tenga espacio disponible para la atención.</p></li><li><p><strong>ME COMPROMETO</strong> a seguir fielmente, en la mejor medida de mis posibilidades, las instrucciones impartidas por Viverclinic para antes, durante y después del tratamiento mencionadas para mejores resultados.</p></li></ol><p><strong>DECLARO:</strong></p><ul><li>No estar tomando medicación alguna que modere mi estado de inmunidad.</li><li>No encontrarme en estado de embarazo.</li><li>No poseer implantes metálicos en mi cuerpo (prótesis de huesos u otros).</li><li>No poseer marcapasos cardíaco.</li></ul></section>'
          ]);
 
+        Branch::create([
+            'name' => 'Sucursal01',
+            'address' => 'Sucursal01',
+            'phone' => 'Sucursal01',
+        ]);
+
+        Branch::create([
+            'name' => 'Sucursal02',
+            'address' => 'Sucursal02',
+            'phone' => 'Sucursal02',
+        ]);
+
+        Branch::create([
+            'name' => 'Sucursal03',
+            'address' => 'Sucursal03',
+            'phone' => 'Sucursal03',
+        ]);
+
         $client01 = User::create([
             'name' => 'cliente01',
             'email' => 'c01@1.com',
@@ -189,6 +207,10 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $client01->assignRole('PATIENT');
+
+        $client01->patientProfile()->create([
+            'branch_id' => 1,
+        ]);
 
         $client02 = User::create([
             'name' => 'cliente02',
@@ -219,22 +241,8 @@ class DatabaseSeeder extends Seeder
 
         $client02->assignRole('PATIENT');
 
-        Branch::create([
-            'name' => 'Sucursal01',
-            'address' => 'Sucursal01',
-            'phone' => 'Sucursal01',
-        ]);
-
-        Branch::create([
-            'name' => 'Sucursal02',
-            'address' => 'Sucursal02',
-            'phone' => 'Sucursal02',
-        ]);
-
-        Branch::create([
-            'name' => 'Sucursal03',
-            'address' => 'Sucursal03',
-            'phone' => 'Sucursal03',
+        $client02->patientProfile()->create([
+            'branch_id' => 2,
         ]);
 
         $staff01 = User::create([

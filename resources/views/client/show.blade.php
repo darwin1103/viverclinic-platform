@@ -19,6 +19,24 @@
                                 <label for="email">{{ __('Email Address') }}</label>
                             </div>
                         </div>
+
+                        <div class="col-12 col-lg-6">
+                            <div class="form-floating my-3">
+                                <select id="branchId" class="form-control @error('branchId') is-invalid @enderror" name="branchId" value="{{ old('branchId') }}" required autocomplete="branchId" disabled>
+                                    <option value="">Seleccionar</option>
+                                    @foreach($branches as $branch)
+                                        <option value="{{ $branch->id }}" @if ($branch->id == $client->patientProfile->branch->id) selected @endif >{{ $branch->name }}</option>
+                                    @endforeach
+                                </select>
+                                <label for="branchId">Sucursal</label>
+                                @error('branchId')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
                     </div>
                     <div class="form-check mt-3">
                         <input class="form-check-input" type="checkbox" id="requestInformedConsent" name="requestInformedConsent" @if($client->informed_consent) checked @endif disabled>

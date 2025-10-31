@@ -48,11 +48,14 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
+
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'branchId' => ['required'], // ***
         ]);
+
     }
 
     /**
@@ -63,13 +66,22 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'informed_consent' => true
         ]);
+
         $user->assignRole('PATIENT');
+
+        $user->patientProfile()->create([
+            'branch_id' => $data['branchId'],
+        ]);
+
         return $user;
+
     }
+
 }

@@ -40,6 +40,7 @@ class ClientController extends Controller
 
         $clients = User::select('id','name','created_at','updated_at')
             ->role('PATIENT')
+            ->with('patientProfile.branch') // use select ***
             ->paginate(10);
 
         $branches = Branch::all();
@@ -53,7 +54,8 @@ class ClientController extends Controller
      */
     public function create()
     {
-        return view('client.create');
+        $branches = Branch::all();
+        return view('client.create', compact('branches'));
     }
 
     /**
@@ -65,7 +67,8 @@ class ClientController extends Controller
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|string|email|max:255',
-            'requestInformedConsent' => 'nullable|string'
+            'requestInformedConsent' => 'nullable|string',
+            'branchId' => ['required'], // ***
         ]);
 
         // Create new user with password
@@ -80,6 +83,10 @@ class ClientController extends Controller
 
         $client->assignRole('PATIENT');
 
+        $client->patientProfile()->create([
+            'branch_id' => $request->branchId,
+        ]);
+
         $client->notify(new UserCreatedNotification($client->name, $client->email, $password));
 
         return redirect()->back()->with('success', 'User created successfully');
@@ -92,6 +99,8 @@ class ClientController extends Controller
     public function show(User $client)
     {
 
+        $client->load('patientProfile.branch'); // use select ***
+        $branches = Branch::all();
         $genres = Gender::where('status', true)->get();
         $documentTypes = DocumentType::where('status', true)->get();
         $pathologicalConditions = PathologicalCondition::where('status', true)->get();
@@ -103,6 +112,7 @@ class ClientController extends Controller
 
         $data = [
             'client' => $client,
+            'branches' => $branches,
             'genres' => $genres,
             'documentTypes' => $documentTypes,
             'pathologicalConditions' => $pathologicalConditions,
@@ -122,7 +132,11 @@ class ClientController extends Controller
      */
     public function edit(User $client)
     {
-        return view('client.edit', compact('client'));
+        $client->load('patientProfile.branch'); // use select ***
+
+        $branches = Branch::all();
+
+        return view('client.edit', compact('client', 'branches'));
     }
 
     /**
@@ -134,13 +148,17 @@ class ClientController extends Controller
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|string|email|max:255',
-            'requestInformedConsent' => 'nullable|string'
+            'requestInformedConsent' => 'nullable|string',
         ]);
 
         $client->name = $request->name;
         $client->email = $request->email;
         $client->informed_consent = ($request->requestInformedConsent && $request->requestInformedConsent == "on") ? true : false;
         $client->save();
+
+        $client->patientProfile()->update([
+            'branch_id' => $request->branchId,
+        ]);
 
         return redirect()->back()->with('success', 'Successful operation');
 

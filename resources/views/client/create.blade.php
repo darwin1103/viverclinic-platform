@@ -31,6 +31,20 @@
                                 </span>
                             @enderror
                         </div>
+                        <div class="form-floating my-3">
+                            <select id="branchId" class="form-control @error('branchId') is-invalid @enderror" name="branchId" value="{{ old('branchId') }}" required autocomplete="branchId" >
+                                <option value="">Seleccionar</option>
+                                @foreach($branches as $branch)
+                                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                                @endforeach
+                            </select>
+                            <label for="branchId">Sucursal</label>
+                            @error('branchId')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="requestInformedConsent" name="requestInformedConsent">
                             <label class="form-check-label" for="requestInformedConsent">

@@ -8,16 +8,18 @@ use App\Models\ContractedTreatment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class PatientTreatmentController extends Controller
+class PatientBuyTreatmentController extends Controller
 {
     /**
      * Muestra los tratamientos disponibles para una sucursal específica.
      */
-    public function show(Branch $branch)
+    public function index()
     {
         // Cargar solo los tratamientos activos asociados a esta sucursal
+        $user = Auth::user();
+        $branch = $user->patientProfile->branch;
         $treatments = $branch->treatments()->where('active', true)->get();
-        return view('patient.treatment.show', compact('branch', 'treatments'));
+        return view('patient.treatment.index', compact('branch', 'treatments'));
     }
 
     /**
@@ -45,6 +47,6 @@ class PatientTreatmentController extends Controller
         ]);
 
         // Redirigir a una página de confirmación o de pago
-        return redirect()->route('home')->with('success', '¡Has seleccionado tu tratamiento! El siguiente paso es agendar tu cita.');
+        return redirect()->route('buy-package.create')->with('success', '¡Has seleccionado tu tratamiento! El siguiente paso es agendar tu cita.');
     }
 }

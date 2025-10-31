@@ -7,6 +7,7 @@
                 <div class="card-body my-5">
                     <form method="POST" action="{{ route('register') }}">
                         @csrf
+                        <input type="hidden" name="branchId" value="{{ $branchId }}">
                         <div class="row mb-3">
                             <label for="name" class="col-md-4 col-form-label text-md-end">{{ __('Name') }}</label>
                             <div class="col-md-6">
@@ -23,22 +24,6 @@
                             <div class="col-md-6">
                                 <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">
                                 @error('email')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <label for="branchId" class="col-md-4 col-form-label text-md-end">Sucursal</label>
-                            <div class="col-md-6">
-                                <select id="branchId" class="form-control @error('branchId') is-invalid @enderror" name="branchId" value="{{ old('branchId') }}" required autocomplete="branchId" >
-                                    <option value="">Seleccionar</option>
-                                    @foreach(App\Models\Branch::all() as $branch)
-                                        <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                                    @endforeach
-                                </select>
-                                @error('branchId')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>

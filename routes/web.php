@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\StaffController;
+use App\Http\Controllers\Admin\TreatmentController;
 use App\Http\Controllers\AgendaDayController;
 use App\Http\Controllers\AgendaNewController;
 use App\Http\Controllers\BranchController;
@@ -11,6 +11,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JobTrailingController;
 use App\Http\Controllers\MedicalRecordController;
+use App\Http\Controllers\Patient\PatientBuyTreatmentController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PromotionsController;
@@ -19,11 +20,11 @@ use App\Http\Controllers\RecomentationsController;
 use App\Http\Controllers\ReferralsController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ScheduleAppointmentController;
+use App\Http\Controllers\StaffController;
+use App\Http\Controllers\UserRegistrationByBranchController;
 use App\Http\Controllers\VirtualWalletController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\TreatmentController;
-use App\Http\Controllers\Patient\PatientTreatmentController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -31,10 +32,6 @@ Route::get('/', function () {
     }
     return redirect()->route('login');
 });
-
-// Route::get('/welcome', function () {
-//     return view('welcome');
-// });
 
 Auth::routes();
 
@@ -89,6 +86,9 @@ Route::resource('agenda-new', AgendaNewController::class);
 Route::resource('job-trailing', JobTrailingController::class);
 
 
+Route::get('/{branch}/registro',UserRegistrationByBranchController::class)->name('registration-by-branch.create');
+
+
 
 
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
@@ -99,14 +99,13 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
 });
 
-
 // Rutas para Pacientes
 Route::middleware(['auth', 'verified', 'can:patient_treatment_home_btn'])->group(function () {
 
     // Muestra los tratamientos de una sucursal específica
-    Route::get('/branch/{branch}/treatment', [PatientTreatmentController::class, 'show'])->name('patient.treatment.show');
+    Route::get('/branch-treatment', [PatientBuyTreatmentController::class, 'index'])->name('patient.buy-treatment.index');
 
     // Procesa la selección de un tratamiento por parte del paciente
-    Route::post('/contract-treatment', [PatientTreatmentController::class, 'store'])->name('patient.treatment.contract');
+    Route::post('/contract-treatment', [PatientBuyTreatmentController::class, 'store'])->name('patient.treatment.contract');
 
 });

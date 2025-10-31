@@ -55,7 +55,7 @@
 
                             <div class="col-12 col-md-6 text-center">
                                 <p class="mb-1">Vista previa:</p>
-                                <img id="imagePreview" src="https://via.placeholder.com/200" alt="Vista previa" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                                <img id="imagePreview" src="" alt="Vista previa" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
                             </div>
 
                              <div class="col-12">

@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Traits\FileUploadTrait;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class BranchController extends Controller
 {
+
+    use FileUploadTrait;
+
     /**
      * Create a new controller instance.
      *
@@ -41,17 +45,19 @@ class BranchController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string',
             'address' => 'required|string',
-            'telephone' => 'nullable|string'
+            'phone' => 'nullable|string',
+            'google_maps_url' => 'nullable|string',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        Branch::create([
-            'name' => $request->name,
-            'address' => $request->address,
-            'phone' => $request->telephone
-        ]);
+        if ($request->hasFile('logo')) {
+            $validated['logo'] = $this->uploadFile($request->file('logo'), 'branches');
+        }
+
+        Branch::create($validated);
 
         return redirect()->back()->with('success', 'Successful operation');
 
@@ -78,17 +84,19 @@ class BranchController extends Controller
      */
     public function update(Request $request, Branch $branch)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string',
             'address' => 'required|string',
-            'telephone' => 'nullable|string'
+            'phone' => 'nullable|string',
+            'google_maps_url' => 'nullable|string',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        $branch->update([
-            'name' => $request->name,
-            'address' => $request->address,
-            'phone' => $request->telephone
-        ]);
+        if ($request->hasFile('logo')) {
+            $validated['logo'] = $this->uploadFile($request->file('logo'), 'branches', $branch->logo);
+        }
+
+        $branch->update($validated);
 
         return redirect()->route('branch.index')->with('success', 'Branch updated successfully');
     }
@@ -98,6 +106,9 @@ class BranchController extends Controller
      */
     public function destroy(Branch $branch)
     {
+        if ($branch->logo) {
+            Storage::disk('public')->delete($branch->logo);
+        }
         $branch->delete();
         return redirect()->back()->with('success', 'Successful operation');
     }

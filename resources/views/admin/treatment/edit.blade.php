@@ -56,7 +56,7 @@
 
                             <div class="col-12 col-md-6 text-center">
                                 <p class="mb-1">Imagen actual:</p>
-                                <img id="imagePreview" src="{{ $treatment->main_image ? Storage::url($treatment->main_image) : 'https://via.placeholder.com/200' }}" alt="Imagen actual" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                                <img id="imagePreview" src="{{ $treatment->main_image ? Storage::url($treatment->main_image) : '' }}" alt="Imagen actual" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
                             </div>
 
                              <div class="col-12">

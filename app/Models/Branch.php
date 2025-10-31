@@ -14,6 +14,8 @@ class Branch extends Model
         'name',
         'address',
         'phone',
+        'google_maps_url',
+        'logo',
     ];
     
     public function admins(): BelongsToMany

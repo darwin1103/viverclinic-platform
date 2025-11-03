@@ -25,7 +25,6 @@
                         <table class="table table-hover mt-3">
                             <thead>
                                 <tr>
-                                    <th scope="col">#</th>
                                     <th scope="col">Nombre</th>
                                     <th scope="col">Fecha de registro</th>
                                     <th scope="col">Sucursal</th>
@@ -35,11 +34,12 @@
                             <tbody>
                                 @forelse ($clients as $key => $client)
                                     <tr>
-                                        <th scope="row">{{ $clients->firstItem() + $key }}</th>
                                         <td style="min-width: 180px;">{{ $client->name }}</td>
                                         <td style="min-width: 150px;">{{ $client->created_at->format('d/m/Y H:i') }}</td>
                                         <td style="min-width: 140px;">
-                                            {{ $client->patientProfile?->branch?->name ?? 'No asignada' }}
+                                            <span class="badge bg-info text-dark">
+                                                {{ $client->patientProfile?->branch?->name ?? 'No asignada' }}
+                                            </span>
                                         </td>
                                         <td style="min-width: 160px;">
                                             <a class="mx-2" href="{{ route('client.show', $client) }}"

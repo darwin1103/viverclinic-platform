@@ -2,7 +2,13 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="container my-4">
+<div class="container">
+    {{-- HEADER --}}
+    <div class="row mb-3">
+        <div class="col-12 col-lg-5">
+            <h1>Tratamientos</h1>
+        </div>
+    </div>
     <div class="row">
         <div class="col-12">
 
@@ -12,7 +18,7 @@
                     <form action="{{ route('admin.treatment.index') }}" method="GET" id="filter-form">
                         <div class="row g-3 align-items-end">
                             {{-- Campo de búsqueda por nombre --}}
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-md-6">
                                 <label for="search" class="form-label">Buscar por nombre</label>
                                 <input type="text" class="form-control" id="search" name="search" placeholder="Ej: Reducción" value="{{ request('search') }}">
                             </div>
@@ -31,9 +37,9 @@
                             <input type="hidden" name="branch_id" id="branch_id_filter" value="{{ request('branch_id') }}">
 
                             {{-- Botones --}}
-                            <div class="col-12 col-md-5 d-flex gap-2">
+                            <div class="col-12 col-md-3 d-flex gap-2">
                                 <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Filtrar</button>
-                                <a href="{{ route('admin.treatment.index') }}" class="btn btn-secondary">Limpiar</a>
+                                <a href="{{ route('admin.treatment.index') }}" class="btn btn-secondary"><i class="bi bi-eraser-fill"></i> Limpiar</a>
                             </div>
                         </div>
                     </form>

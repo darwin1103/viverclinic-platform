@@ -114,6 +114,13 @@
                             </div>
                         </div>
 
+                        <div class="">
+                            <h4 class="my-3">Terminos y condiciones</h4>
+                            <textarea name="terms_conditions" id="editor">
+                                {!! $treatment->terms_conditions ?? old('terms_conditions') !!}
+                            </textarea>
+                        </div>
+
                         <div class="d-grid gap-2 d-md-block text-center mt-4">
                             <a href="{{ route('admin.treatment.index') }}" class="btn btn-secondary w-auto">Cancelar</a>
                             <button type="submit" class="btn btn-primary w-auto">Guardar Cambios</button>
@@ -144,3 +151,13 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endsection
+
+@push('styles')
+    <link href="{{ asset('ckeditor/use/styles.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/admin/editor.css') }}" rel="stylesheet">
+@endpush
+
+@push('scripts')
+    <script type="text/javascript" src="{{ asset('ckeditor/build/ckeditor.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('ckeditor/use/script.js') }}"></script>
+@endpush

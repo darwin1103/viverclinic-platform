@@ -70,6 +70,7 @@ class TreatmentController extends Controller
             'branches' => 'nullable|array',
             'branches.*.price' => 'required_with:branches.*.attach|nullable|numeric|min:0',
             'branches.*.attach' => 'sometimes|accepted',
+            'terms_conditions' => 'nullable|string',
         ]);
 
         $treatmentData = $request->except(['_token', 'branches']);
@@ -122,6 +123,7 @@ class TreatmentController extends Controller
             'branches' => 'nullable|array',
             'branches.*.price' => 'required_with:branches.*.attach|nullable|numeric|min:0',
             'branches.*.attach' => 'sometimes|accepted',
+            'terms_conditions' => 'nullable|string',
         ]);
 
         $treatmentData = $request->except(['_token', '_method', 'branches']);

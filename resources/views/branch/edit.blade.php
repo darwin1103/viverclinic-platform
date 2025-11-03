@@ -7,7 +7,7 @@
             <div class="card">
                 <div class="card-body m-0 m-lg-3">
                     <h2 class="mb-3">Editar Sucursal</h2>
-                    <form action="{{ route('branch.update', $branch->id) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('branch.update', $branch->slug) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="row">

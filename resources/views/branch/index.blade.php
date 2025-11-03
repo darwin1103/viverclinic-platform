@@ -29,11 +29,11 @@
                                     @foreach ($branches as $branch)
                                         <tr>
                                             <td style="min-width: 160px;">{{ $branch->name }}</td>
-                                            <td style="min-width: 130px;">
-                                                {{ route('registration-by-branch.create', ['branch' => $branch->id]) }}
+                                            <td style="min-width: 130px;" class="copy-url-cell">
+                                                {{ route('registration-by-branch.create', ['branch' => $branch->slug]) }}
                                             </td>
                                             <td style="min-width: 160px;">
-                                                <a href="{{ route('branch.edit', $branch->id) }}" class="btn btn-warning me-2"
+                                                <a href="{{ route('branch.edit', $branch->slug) }}" class="btn btn-warning me-2"
                                                    data-bs-toggle="tooltip" data-bs-placement="top"
                                                    data-bs-custom-class="custom-tooltip"
                                                    data-bs-title="Editar">
@@ -43,7 +43,7 @@
                                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                                     data-bs-custom-class="custom-tooltip"
                                                     data-bs-title="{{__('Delete')}}"
-                                                    onclick="showDeleteConfirmation('{{$branch->id}}')">
+                                                    onclick="showDeleteConfirmation('{{$branch->slug}}')">
                                                     <i class="bi bi-trash-fill"></i>
                                                 </button>
                                             </td>
@@ -91,169 +91,8 @@
 </div> --}}
 @include('common.deleteConfirmationModal')
 @push('scripts')
+<script src="{{ asset('js/admin/branch/index/copy-url.js') }}"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // $(document).on('click','.add-permissions',function(){
-        //     const $roleId = $(this).attr('data-role-id');
-        //     const $roleName = $(this).attr('data-role-name');
-        //     const $permissionURL = $(this).attr('data-permission-url');
-        //     $.ajax({
-        //         url: $permissionURL,
-        //         method: 'GET',
-        //         dataType: 'json',
-        //         success: function(data) {
-        //             if (data.permissions.length>0) {
-        //                 $('#addPermissionsModal .modal-body').empty();
-        //                 $('#addPermissionsModal .modal-body').append(`
-        //                     <ul class="list-group list-group-flush"></ul>
-        //                 `);
-        //                 data.permissions.forEach((p, index) => {
-        //                     $('#addPermissionsModal .modal-body .list-group.list-group-flush').append(`
-        //                         <li class="list-group-item">
-        //                             <input class="form-check-input me-1 add-permission-to-rol" type="checkbox" value="" `+p['contains']+` id="`+p['id']+`" data-role-id="`+$roleId+`">
-        //                             <label class="form-check-label stretched-link" for="`+p['id']+`">`+p['name']+`</label>
-        //                         </li>
-        //                     `);
-        //                 });
-        //             } else {
-        //                 $('#addPermissionsModal .modal-body').html(`
-        //                     <p>{{ __('There are no records') }}</p>
-        //                 `);
-        //             }
-        //             $('#addPermissionsModal .modal-header .modal-title').empty();
-        //             $('#addPermissionsModal .modal-header .modal-title').html(`
-        //                 {{ __('Add Permissions to') }}&nbsp;`+$roleName+`
-        //             `);
-        //             const modal = new bootstrap.Modal('#addPermissionsModal');
-        //             modal.show();
-        //         },
-        //         error: function(error) {
-        //             ajaxErrorHandle(error);
-        //         }
-        //     });
-        // });
-        // $(document).on('click','.add-users-to-role',function(){
-        //     const $roleId = $(this).attr('data-role-id');
-        //     const $roleName = $(this).attr('data-role-name');
-        //     const $usersURL = $(this).attr('data-users-url');
-        //     $.ajax({
-        //         url: $usersURL,
-        //         method: 'GET',
-        //         dataType: 'json',
-        //         success: function(data) {
-        //             if (data.users.length>0) {
-        //                 $('#addUsersToRoleModal .modal-body').empty();
-        //                 $('#addUsersToRoleModal .modal-body').append(`
-        //                     <ul class="list-group list-group-flush"></ul>
-        //                 `);
-        //                 data.users.forEach((p, index) => {
-        //                     $('#addUsersToRoleModal .modal-body .list-group.list-group-flush').append(`
-        //                         <li class="list-group-item">
-        //                             <input class="form-check-input me-1 add-user-to-rol" type="checkbox" value="" `+p['contains']+` id="`+p['id']+`" data-role-id="`+$roleId+`">
-        //                             <label class="form-check-label stretched-link" for="`+p['id']+`">`+p['name']+`</label>
-        //                         </li>
-        //                     `);
-        //                 });
-        //             } else {
-        //                 $('#addUsersToRoleModal .modal-body').html(`
-        //                     <p>{{ __('There are no records') }}</p>
-        //                 `);
-        //             }
-        //             $('#addUsersToRoleModal .modal-header .modal-title').empty();
-        //             $('#addUsersToRoleModal .modal-header .modal-title').html(`
-        //                 {{ __('Add users to') }}&nbsp;`+$roleName+`
-        //             `);
-        //             const modal = new bootstrap.Modal('#addUsersToRoleModal');
-        //             modal.show();
-        //         },
-        //         error: function(error) {
-        //             ajaxErrorHandle(error);
-        //         }
-        //     });
-        // });
-        // $(document).on('change','.add-permission-to-rol',function(){
-        //     const $roleId = $(this).attr('data-role-id');
-        //     const $permissionId = $(this).attr('id');
-        //     if ($(this).is(':checked')) {
-        //         $.ajax({
-        //             url: "{{ route('roles.assign.permission') }}",
-        //             method: 'POST',
-        //             dataType: 'json',
-        //             data: {
-        //                 roleId: $roleId,
-        //                 permissionId: $permissionId
-        //             },
-        //             success: function(data) {
-        //                 iziToast.success({
-        //                     message: "{{ __('Successful operation') }}"
-        //                 });
-        //             },
-        //             error: function(error) {
-        //                 ajaxErrorHandle(error);
-        //             }
-        //         });
-        //     } else {
-        //         $.ajax({
-        //             url: "{{ route('roles.remove.permission') }}",
-        //             method: 'POST',
-        //             dataType: 'json',
-        //             data: {
-        //                 roleId: $roleId,
-        //                 permissionId: $permissionId
-        //             },
-        //             success: function(data) {
-        //                 iziToast.success({
-        //                     message: "{{ __('Successful operation') }}"
-        //                 });
-        //             },
-        //             error: function(error) {
-        //                 ajaxErrorHandle(error);
-        //             }
-        //         });
-        //     }
-        // });
-        // $(document).on('change','.add-user-to-rol',function(){
-        //     const $roleId = $(this).attr('data-role-id');
-        //     const $userId = $(this).attr('id');
-        //     if ($(this).is(':checked')) {
-        //         $.ajax({
-        //             url: "{{ route('roles.assign.user') }}",
-        //             method: 'POST',
-        //             dataType: 'json',
-        //             data: {
-        //                 roleId: $roleId,
-        //                 userId: $userId
-        //             },
-        //             success: function(data) {
-        //                 iziToast.success({
-        //                     message: "{{ __('Successful operation') }}"
-        //                 });
-        //             },
-        //             error: function(error) {
-        //                 ajaxErrorHandle(error);
-        //             }
-        //         });
-        //     } else {
-        //         $.ajax({
-        //             url: "{{ route('roles.remove.user') }}",
-        //             method: 'POST',
-        //             dataType: 'json',
-        //             data: {
-        //                 roleId: $roleId,
-        //                 userId: $userId
-        //             },
-        //             success: function(data) {
-        //                 iziToast.success({
-        //                     message: "{{ __('Successful operation') }}"
-        //                 });
-        //             },
-        //             error: function(error) {
-        //                 ajaxErrorHandle(error);
-        //             }
-        //         });
-        //     }
-        // });
-    }, false);
     function showDeleteConfirmation(id) {
         const modal = new bootstrap.Modal('#removeConfirmationModal');
         $('#delete').attr('action','{{url("/branches")}}'+'/'+id);

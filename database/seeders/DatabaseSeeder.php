@@ -179,6 +179,12 @@ class DatabaseSeeder extends Seeder
             'phone' => 'Sucursal03',
         ]);
 
+        Branch::create([
+            'name' => 'Sucursal03',
+            'address' => 'Sucursal03',
+            'phone' => 'Sucursal03',
+        ]);
+
         $client01 = User::create([
             'name' => 'cliente01',
             'email' => 'c01@1.com',

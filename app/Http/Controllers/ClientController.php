@@ -54,7 +54,9 @@ class ClientController extends Controller
 
         $branches = Branch::all();
 
-        return view('client.index', compact('clients', 'branches'));
+        $selectedBranchID = $request->input('branch_id') ?? '';
+
+        return view('client.index', compact('clients', 'branches', 'selectedBranchID'));
     }
 
 

@@ -14,7 +14,7 @@
       <select class="form-select form-select-sm" id="branch-selector" style="min-width:220px" aria-label="Seleccionar sucursal">
           <option value="">Todos</option>
           @foreach($branches as $branch)
-              <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+              <option value="{{ $branch->id }}" @if($selectedBranchID == $branch->id) selected @endif>{{ $branch->name }}</option>
           @endforeach
       </select>
   @endif

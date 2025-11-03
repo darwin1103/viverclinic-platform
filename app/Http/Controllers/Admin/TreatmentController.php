@@ -47,7 +47,9 @@ class TreatmentController extends Controller
         // Las sucursales se necesitan para el selector del header y los filtros
         $branches = Branch::all();
 
-        return view('admin.treatment.index', compact('treatments', 'branches'));
+        $selectedBranchID = $request->input('branch_id') ?? '';
+
+        return view('admin.treatment.index', compact('treatments', 'branches', 'selectedBranchID'));
     }
 
      public function create()

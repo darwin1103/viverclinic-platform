@@ -11,7 +11,7 @@
 </head>
 <body>
     <div id="app">
-        <x-admin.dashboard.header :branches="$branches ?? null" />
+        <x-admin.dashboard.header :branches="$branches ?? null" :selectedBranchID="$selectedBranchID ?? null" />
         <x-admin.dashboard.sidebar />
         <x-admin.dashboard.modal-quick-add />
         <main class="content-area">

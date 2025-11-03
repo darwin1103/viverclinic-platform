@@ -7,6 +7,7 @@ use App\Models\StaffProfile;
 use App\Models\User;
 use App\Models\WorkSchedule;
 use App\Notifications\UserCreatedNotification;
+use App\Traits\Filterable;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,8 @@ use Illuminate\Validation\Rules\Password;
 
 class StaffController extends Controller
 {
+
+    use Filterable;
 
     /**
      * Create a new controller instance.
@@ -31,16 +34,32 @@ class StaffController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
 
-        $staffs = User::select('id','name','created_at','updated_at')
+        // Query base
+        $query = User::select('id', 'name', 'email', 'created_at')
             ->role('EMPLOYEE')
-            ->paginate(10);
+            ->with('staffProfile.branch'); // use select ***
+
+        // Filter by branch using the relationship
+        if ($request->filled('branch_id')) {
+            $query->whereHas('staffProfile', function ($q) use ($request) {
+                $q->where('branch_id', $request->input('branch_id'));
+            });
+        }
+
+        // Apply filters from the trait and paginate the results
+        $staffs = $this->applyFilters($request, $query)
+                        ->latest() // Opcional: ordenar por los más recientes
+                        ->paginate(10)
+                        ->withQueryString(); // Importante para mantener los filtros en la paginación
 
         $branches = Branch::all();
 
-        return view('staff.index', compact('staffs', 'branches'));
+        $selectedBranchID = $request->input('branch_id') ?? '';
+
+        return view('staff.index', compact('staffs', 'branches', 'selectedBranchID'));
 
     }
 

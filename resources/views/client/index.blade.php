@@ -14,7 +14,7 @@
     </div>
 
     {{-- SECCIÓN DE FILTROS --}}
-    <x-admin.client.client-filter />
+    <x-admin.client.index.filter />
 
     {{-- TABLA DE CLIENTES --}}
     <div class="row">
@@ -52,7 +52,7 @@
                                             </a>
                                             <button class="btn btn-sm btn-danger" type="button"
                                                     data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Eliminar"
-                                                    onclick="showDeleteConfirmation('{{ $client->id }}')">
+                                                    onclick="showDeleteConfirmation('{{ $client->id }}', '{{ url("/client") }}')">
                                                 <i class="bi bi-trash-fill"></i>
                                             </button>
                                         </td>
@@ -81,10 +81,10 @@
 </div>
 
 @include('common.deleteConfirmationModal')
+
 @endsection
 
 @push('scripts')
     <script src="{{ asset('js/admin/client/index/showDeleteConfirmation.js') }}"></script>
     <script src="{{ asset('js/admin/client/index/filter.js') }}"></script>
 @endpush
-

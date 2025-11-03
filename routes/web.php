@@ -46,9 +46,9 @@ Route::resource('roles', RoleController::class);
 Route::get('/permissions/getPermissionsList/{id}',[PermissionController::class,'getPermissionsList'])->name('permissions.list');
 Route::resource('permissions', PermissionController::class);
 
+Route::resource('client', ClientController::class);
 Route::get('/client/getUsers/{id}',[ClientController::class,'getusers'])->name('client.list');
 Route::post('/client/save/informed/consent',[ClientController::class,'saveInformedConsent'])->name('client.informed.consent');
-Route::resource('client', ClientController::class);
 
 Route::resource('branch', BranchController::class);
 

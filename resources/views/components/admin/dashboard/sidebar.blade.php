@@ -45,7 +45,7 @@
       <li>
         <a href="{{ route('staff.index') }}" class="nav-link @if(Route::is('staff.*')) active @endif">
             <i class="bi bi-person-gear me-2"></i>
-            Personal
+            Trabajadores
         </a>
       </li>
       <li>

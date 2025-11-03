@@ -1,8 +1,6 @@
-function showDeleteConfirmation(clientId) {
-    const modal = new bootstrap.Modal(document.getElementById('removeConfirmationModal'));
-    const deleteForm = document.getElementById('deleteForm'); // Asume que tu modal tiene un form con este id
-    if (deleteForm) {
-        deleteForm.action = `{{ url("/client") }}/${clientId}`;
-    }
+function showDeleteConfirmation(clientId, baseUrl) {
+    const modal = new bootstrap.Modal('#removeConfirmationModal');
+    $('#delete').attr('action',baseUrl+'/'+clientId);
+    $('#deleteElementBtn').attr('action',baseUrl+'/'+clientId);
     modal.show();
 }

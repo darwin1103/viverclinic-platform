@@ -42,9 +42,16 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         // Query base
-        $query = User::select('id', 'name', 'email', 'created_at', 'updated_at')
+        $query = User::select('id', 'name', 'email', 'created_at')
             ->role('PATIENT')
-            ->with('patientProfile.branch'); //se select ***
+            ->with('patientProfile.branch'); // use select ***
+
+        // Filter by branch using the relationship
+        if ($request->filled('branch_id')) {
+            $query->whereHas('patientProfile', function ($q) use ($request) {
+                $q->where('branch_id', $request->input('branch_id'));
+            });
+        }
 
         // Apply filters from the trait and paginate the results
         $clients = $this->applyFilters($request, $query)

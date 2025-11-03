@@ -25,13 +25,6 @@ trait Filterable
             });
         }
 
-        // Filter by branch using the relationship
-        if ($request->filled('branch_id')) {
-            $query->whereHas('patientProfile', function ($q) use ($request) {
-                $q->where('branch_id', $request->input('branch_id'));
-            });
-        }
-
         return $query;
     }
 }

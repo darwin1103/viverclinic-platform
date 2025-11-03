@@ -1,16 +1,22 @@
 @extends('layouts.admin')
 @section('content')
 <div class="container">
-    <div class="row">
-        <div class="col-12 col-md-6 col-lg-4">
+    {{-- HEADER --}}
+    <div class="row mb-3">
+        <div class="col-12 col-lg-5">
             <h1>Clientes</h1>
         </div>
-        <div class="col-12 col-md-6 col-lg-8 text-end" style="align-content: center;">
+        <div class="col-12 col-lg-7 d-flex flex-wrap justify-content-lg-end align-items-center gap-2">
             <a class="btn btn-primary" href="{{ route('client.create') }}" role="button">
                 <i class="bi bi-plus-circle-fill"></i>&nbsp;Crear nuevo cliente
             </a>
         </div>
     </div>
+
+    {{-- SECCIÓN DE FILTROS --}}
+    <x-admin.client.client-filter />
+
+    {{-- TABLA DE CLIENTES --}}
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -20,62 +26,52 @@
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
-                                    <th scope="col">{{ __('Name') }}</th>
-                                    <th scope="col">{{ __('Created') }}</th>
+                                    <th scope="col">Nombre</th>
+                                    <th scope="col">Fecha de registro</th>
                                     <th scope="col">Sucursal</th>
-                                    <th scope="col">{{ __('Actions') }}</th>
+                                    <th scope="col">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @if ($clients && count($clients) > 0)
-                                    @php
-                                        $totalItems = 0;
-                                    @endphp
-                                    @foreach ($clients as $client)
-                                        @php
-                                            $totalItems++;
-                                        @endphp
-                                        <tr>
-                                            <th scope="row">{{ $totalItems }}</th>
-                                            <td style="min-width: 160px;">{{ $client->name }}</td>
-                                            <td style="min-width: 130px;">{{ $client->created_at }}</td>
-                                            <td style="min-width: 130px;">
-                                                {{ $client->patientProfile->branch->name }}
-                                            </td>
-                                            <td style="min-width: 160px;">
-                                                <a class="mx-2"
-                                                    href="{{ route('client.show', $client) }}"
-                                                    data-bs-toggle="tooltip"
-                                                    data-bs-placement="top"
-                                                    data-bs-custom-class="custom-tooltip"
-                                                    data-bs-title="{{__('Show')}}"><i class="bi bi-eye-fill"></i></a>
-                                                <a class="mx-2"
-                                                    href="{{ route('client.edit', $client) }}"
-                                                    data-bs-toggle="tooltip"
-                                                    data-bs-placement="top"
-                                                    data-bs-custom-class="custom-tooltip"
-                                                    data-bs-title="{{__('Edit')}}"><i class="bi bi-pencil-square"></i></a>
-                                                <button class="btn btn-danger" type="button"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    data-bs-custom-class="custom-tooltip"
-                                                    data-bs-title="{{__('Delete')}}"
-                                                    onclick="showDeleteConfirmation('{{$client->id}}')">
-                                                    <i class="bi bi-trash-fill"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                @else
+                                @forelse ($clients as $key => $client)
                                     <tr>
-                                        <td colspan="7" class="text-center">
-                                            {{ __('There are no records') }}
+                                        <th scope="row">{{ $clients->firstItem() + $key }}</th>
+                                        <td style="min-width: 180px;">{{ $client->name }}</td>
+                                        <td style="min-width: 150px;">{{ $client->created_at->format('d/m/Y H:i') }}</td>
+                                        <td style="min-width: 140px;">
+                                            {{ $client->patientProfile?->branch?->name ?? 'No asignada' }}
+                                        </td>
+                                        <td style="min-width: 160px;">
+                                            <a class="mx-2" href="{{ route('client.show', $client) }}"
+                                               data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Ver">
+                                               <i class="bi bi-eye-fill"></i>
+                                            </a>
+                                            <a class="mx-2" href="{{ route('client.edit', $client) }}"
+                                               data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Editar">
+                                               <i class="bi bi-pencil-square"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-danger" type="button"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Eliminar"
+                                                    onclick="showDeleteConfirmation('{{ $client->id }}')">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </button>
                                         </td>
                                     </tr>
-                                @endif
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4">
+                                            No se encontraron registros con los filtros aplicados.
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
-                        @if (isset($clients))
-                            {{ $clients->links('layouts.numbers-pagination') }}
+
+                        {{-- PAGINACIÓN --}}
+                        @if ($clients->hasPages())
+                            <div class="d-flex justify-content-center mt-4">
+                                {{ $clients->links('layouts.numbers-pagination') }}
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -83,199 +79,12 @@
         </div>
     </div>
 </div>
-{{-- <div class="modal fade" id="addPermissionsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addPermissionsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="addPermissionsModalLabel"></h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body"></div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="addUsersToRoleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addUsersToRoleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="addUsersToRoleModalLabel"></h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body"></div>
-        </div>
-    </div>
-</div> --}}
+
 @include('common.deleteConfirmationModal')
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // $(document).on('click','.add-permissions',function(){
-        //     const $roleId = $(this).attr('data-role-id');
-        //     const $roleName = $(this).attr('data-role-name');
-        //     const $permissionURL = $(this).attr('data-permission-url');
-        //     $.ajax({
-        //         url: $permissionURL,
-        //         method: 'GET',
-        //         dataType: 'json',
-        //         success: function(data) {
-        //             if (data.permissions.length>0) {
-        //                 $('#addPermissionsModal .modal-body').empty();
-        //                 $('#addPermissionsModal .modal-body').append(`
-        //                     <ul class="list-group list-group-flush"></ul>
-        //                 `);
-        //                 data.permissions.forEach((p, index) => {
-        //                     $('#addPermissionsModal .modal-body .list-group.list-group-flush').append(`
-        //                         <li class="list-group-item">
-        //                             <input class="form-check-input me-1 add-permission-to-rol" type="checkbox" value="" `+p['contains']+` id="`+p['id']+`" data-role-id="`+$roleId+`">
-        //                             <label class="form-check-label stretched-link" for="`+p['id']+`">`+p['name']+`</label>
-        //                         </li>
-        //                     `);
-        //                 });
-        //             } else {
-        //                 $('#addPermissionsModal .modal-body').html(`
-        //                     <p>{{ __('There are no records') }}</p>
-        //                 `);
-        //             }
-        //             $('#addPermissionsModal .modal-header .modal-title').empty();
-        //             $('#addPermissionsModal .modal-header .modal-title').html(`
-        //                 {{ __('Add Permissions to') }}&nbsp;`+$roleName+`
-        //             `);
-        //             const modal = new bootstrap.Modal('#addPermissionsModal');
-        //             modal.show();
-        //         },
-        //         error: function(error) {
-        //             ajaxErrorHandle(error);
-        //         }
-        //     });
-        // });
-        // $(document).on('click','.add-users-to-role',function(){
-        //     const $roleId = $(this).attr('data-role-id');
-        //     const $roleName = $(this).attr('data-role-name');
-        //     const $clientsURL = $(this).attr('data-users-url');
-        //     $.ajax({
-        //         url: $clientsURL,
-        //         method: 'GET',
-        //         dataType: 'json',
-        //         success: function(data) {
-        //             if (data.users.length>0) {
-        //                 $('#addUsersToRoleModal .modal-body').empty();
-        //                 $('#addUsersToRoleModal .modal-body').append(`
-        //                     <ul class="list-group list-group-flush"></ul>
-        //                 `);
-        //                 data.users.forEach((p, index) => {
-        //                     $('#addUsersToRoleModal .modal-body .list-group.list-group-flush').append(`
-        //                         <li class="list-group-item">
-        //                             <input class="form-check-input me-1 add-user-to-rol" type="checkbox" value="" `+p['contains']+` id="`+p['id']+`" data-role-id="`+$roleId+`">
-        //                             <label class="form-check-label stretched-link" for="`+p['id']+`">`+p['name']+`</label>
-        //                         </li>
-        //                     `);
-        //                 });
-        //             } else {
-        //                 $('#addUsersToRoleModal .modal-body').html(`
-        //                     <p>{{ __('There are no records') }}</p>
-        //                 `);
-        //             }
-        //             $('#addUsersToRoleModal .modal-header .modal-title').empty();
-        //             $('#addUsersToRoleModal .modal-header .modal-title').html(`
-        //                 {{ __('Add users to') }}&nbsp;`+$roleName+`
-        //             `);
-        //             const modal = new bootstrap.Modal('#addUsersToRoleModal');
-        //             modal.show();
-        //         },
-        //         error: function(error) {
-        //             ajaxErrorHandle(error);
-        //         }
-        //     });
-        // });
-        // $(document).on('change','.add-permission-to-rol',function(){
-        //     const $roleId = $(this).attr('data-role-id');
-        //     const $permissionId = $(this).attr('id');
-        //     if ($(this).is(':checked')) {
-        //         $.ajax({
-        //             url: "{{ route('roles.assign.permission') }}",
-        //             method: 'POST',
-        //             dataType: 'json',
-        //             data: {
-        //                 roleId: $roleId,
-        //                 permissionId: $permissionId
-        //             },
-        //             success: function(data) {
-        //                 iziToast.success({
-        //                     message: "{{ __('Successful operation') }}"
-        //                 });
-        //             },
-        //             error: function(error) {
-        //                 ajaxErrorHandle(error);
-        //             }
-        //         });
-        //     } else {
-        //         $.ajax({
-        //             url: "{{ route('roles.remove.permission') }}",
-        //             method: 'POST',
-        //             dataType: 'json',
-        //             data: {
-        //                 roleId: $roleId,
-        //                 permissionId: $permissionId
-        //             },
-        //             success: function(data) {
-        //                 iziToast.success({
-        //                     message: "{{ __('Successful operation') }}"
-        //                 });
-        //             },
-        //             error: function(error) {
-        //                 ajaxErrorHandle(error);
-        //             }
-        //         });
-        //     }
-        // });
-        // $(document).on('change','.add-user-to-rol',function(){
-        //     const $roleId = $(this).attr('data-role-id');
-        //     const $clientId = $(this).attr('id');
-        //     if ($(this).is(':checked')) {
-        //         $.ajax({
-        //             url: "{{ route('roles.assign.user') }}",
-        //             method: 'POST',
-        //             dataType: 'json',
-        //             data: {
-        //                 roleId: $roleId,
-        //                 userId: $clientId
-        //             },
-        //             success: function(data) {
-        //                 iziToast.success({
-        //                     message: "{{ __('Successful operation') }}"
-        //                 });
-        //             },
-        //             error: function(error) {
-        //                 ajaxErrorHandle(error);
-        //             }
-        //         });
-        //     } else {
-        //         $.ajax({
-        //             url: "{{ route('roles.remove.user') }}",
-        //             method: 'POST',
-        //             dataType: 'json',
-        //             data: {
-        //                 roleId: $roleId,
-        //                 userId: $clientId
-        //             },
-        //             success: function(data) {
-        //                 iziToast.success({
-        //                     message: "{{ __('Successful operation') }}"
-        //                 });
-        //             },
-        //             error: function(error) {
-        //                 ajaxErrorHandle(error);
-        //             }
-        //         });
-        //     }
-        // });
-    }, false);
-    function showDeleteConfirmation(clientId) {
-        const modal = new bootstrap.Modal('#removeConfirmationModal');
-        $('#delete').attr('action','{{url("/client")}}'+'/'+clientId);
-        $('#deleteElementBtn').attr('action','{{url("/client")}}'+'/'+clientId);
-        modal.show();
-    }
-</script>
-@endpush
 @endsection
+
+@push('scripts')
+    <script src="{{ asset('js/admin/client/index/showDeleteConfirmation.js') }}"></script>
+    <script src="{{ asset('js/admin/client/index/filter.js') }}"></script>
+@endpush
+

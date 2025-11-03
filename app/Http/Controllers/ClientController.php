@@ -14,6 +14,7 @@ use App\Models\ToxicologicalCondition;
 use App\Models\Treatment;
 use App\Models\User;
 use App\Notifications\UserCreatedNotification;
+use App\Traits\Filterable;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +23,9 @@ use Illuminate\Support\Str;
 
 class ClientController extends Controller
 {
+
+    use Filterable;
+
     /**
      * Create a new controller instance.
      *
@@ -35,19 +39,24 @@ class ClientController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-
-        $clients = User::select('id','name','created_at','updated_at')
+        // Query base
+        $query = User::select('id', 'name', 'email', 'created_at', 'updated_at')
             ->role('PATIENT')
-            ->with('patientProfile.branch') // use select ***
-            ->paginate(10);
+            ->with('patientProfile.branch'); //se select ***
+
+        // Apply filters from the trait and paginate the results
+        $clients = $this->applyFilters($request, $query)
+                        ->latest() // Opcional: ordenar por los más recientes
+                        ->paginate(10)
+                        ->withQueryString(); // Importante para mantener los filtros en la paginación
 
         $branches = Branch::all();
 
         return view('client.index', compact('clients', 'branches'));
-
     }
+
 
     /**
      * Show the form for creating a new resource.

@@ -7,7 +7,7 @@
     <hr class="border-secondary-subtle">
     <ul class="nav nav-pills flex-column gap-1 mb-auto">
       <li>
-        <a href="{{ route('home') }}" class="nav-link @if(Route::is('home')) active @endif">
+        <a href="{{ route('dashboard') }}" class="nav-link @if(Route::is('dashboard')) active @endif">
           <i class="bi bi-speedometer2 me-2"></i>
             Dashboard
         </a>

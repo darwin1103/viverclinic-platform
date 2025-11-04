@@ -14,7 +14,7 @@ use App\Models\Branch;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
-class HomeController extends Controller
+class DashboardController extends Controller
 {
     /**
      * Create a new controller instance.

@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 @section('content')
 <div class="container">
-    <h1>Crear nuevo usuario de personal</h1>
+    <h1>Crear nuevo trabajador</h1>
     <div class="row justify-content-center">
         <div class="col-12">
             <div class="card">

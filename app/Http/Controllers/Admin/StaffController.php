@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 
 class StaffController extends Controller
 {
@@ -143,7 +142,6 @@ class StaffController extends Controller
         $schedules = $staff->staffProfile->workSchedules->groupBy('day_of_week');
 
         $branches = Branch::all();
-
 
         $appointments = [
             [

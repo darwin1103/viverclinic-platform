@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 @section('content')
 <div class="container">
-    <h1>Editar trabajador</h1>
+    <h1>Editar propietario</h1>
     <div class="row justify-content-center">
         <div class="col-12">
             <div class="card">
@@ -13,13 +13,13 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('staff.update', $staff->id) }}" class="row g-3">
+                    <form method="POST" action="{{ route('owner.update', $owner->id) }}" class="row g-3">
                         @csrf
                         @method('PUT')
                         <h4>Datos</h4>
                         <div class="col-12 col-md-6">
                             <div class="form-floating">
-                                <input id="name" type="text" placeholder="Nombre Completo" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name', $staff->name) }}" required>
+                                <input id="name" type="text" placeholder="Nombre Completo" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name', $owner->name) }}" required>
                                 <label for="name">Nombre Completo</label>
                                 @error('name')
                                     <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
@@ -29,7 +29,7 @@
 
                         <div class="col-12 col-md-6">
                             <div class="form-floating">
-                                <input id="email" type="email" placeholder="Correo Electrónico" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email', $staff->email) }}" required>
+                                <input id="email" type="email" placeholder="Correo Electrónico" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email', $owner->email) }}" required>
                                 <label for="email">Correo Electrónico</label>
                                 @error('email')
                                     <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
@@ -42,7 +42,7 @@
                                 <select id="branch_id" name="branch_id" class="form-select @error('branch_id') is-invalid @enderror" required>
                                     <option value="">Selecciona una sucursal</option>
                                     @foreach ($branches as $branch)
-                                        <option value="{{ $branch->id }}" {{ old('branch_id', $staff->staffProfile->branch_id) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+                                        <option value="{{ $branch->id }}" {{ old('branch_id', $owner->ownerProfile->branch_id) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
                                     @endforeach
                                 </select>
                                 <label for="branch_id">Sucursal</label>
@@ -50,10 +50,6 @@
                                     <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                 @enderror
                             </div>
-                        </div>
-
-                        <div class="col-12">
-                           <x-admin.staff.form.schedule-form :daysOfWeek="$daysOfWeek" :schedules="$schedules" />
                         </div>
 
                         <div class="col-12 text-center">
@@ -66,7 +62,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-    <script src="{{ asset('js/admin/staff/schedule.js') }}"></script>
-@endpush

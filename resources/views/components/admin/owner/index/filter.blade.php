@@ -1,6 +1,6 @@
 <div class="card mb-4">
     <div class="card-body">
-        <form action="{{ route('staff.index') }}" method="GET" id="filter-form">
+        <form action="{{ route('owner.index') }}" method="GET" id="filter-form">
             <div class="row g-3 align-items-end">
 
                 {{-- Campo de búsqueda por nombre o correo --}}
@@ -14,7 +14,7 @@
 
                 {{-- Botón para limpiar filtros --}}
                 <div class="col-12 col-md-4 d-grid">
-                    <a href="{{ route('staff.index') }}" class="btn btn-secondary"><i class="bi bi-eraser-fill"></i> Limpiar</a>
+                    <a href="{{ route('owner.index') }}" class="btn btn-secondary"><i class="bi bi-eraser-fill"></i> Limpiar</a>
                 </div>
 
             </div>

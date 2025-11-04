@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 @section('content')
 <div class="container">
-    <h1>Datos del usuario</h1>
+    <h1>Datos del trabajador</h1>
 
     <div class="tabset mx-2">
 

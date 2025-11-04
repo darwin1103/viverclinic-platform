@@ -44,8 +44,14 @@
       </li>
       <li>
         <a href="{{ route('staff.index') }}" class="nav-link @if(Route::is('staff.*')) active @endif">
-            <i class="bi bi-person-gear me-2"></i>
+            <i class="bi bi-person-fill-up me-2"></i>
             Trabajadores
+        </a>
+      </li>
+      <li>
+        <a href="{{ route('owner.index') }}" class="nav-link @if(Route::is('owner.*')) active @endif">
+            <i class="bi bi-person-gear me-2"></i>
+            Propietarios
         </a>
       </li>
       <li>

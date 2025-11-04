@@ -6,7 +6,7 @@
             <h1>{{ __('Roles') }}</h1>
         </div>
         <div class="col-12 col-md-5 col-lg-4 text-end" style="align-content: center;">
-            <form action="{{ route('roles.store') }}" method="POST">
+            <form action="{{ route('admin.role.store') }}" method="POST">
                 @csrf
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" name="roleName"
@@ -54,14 +54,14 @@
                                                 <button class="btn btn-primary add-users-to-role" type="button"
                                                     data-bs-toggle="tooltip" data-bs-placement="top" data-role-name="{{ $role->name }}"
                                                     data-bs-custom-class="custom-tooltip" data-role-id="{{ $role->id }}"
-                                                    data-users-url="{{ route('client.list', $role->id) }}"
+                                                    data-users-url="{{ route('admin.client.list', $role->id) }}"
                                                     data-bs-title="{{__('Associate users')}}">
                                                     <i class="bi bi-person-fill-gear"></i>
                                                 </button>
                                                 <button class="btn btn-primary add-permissions" type="button"
                                                     data-bs-toggle="tooltip" data-bs-placement="top" data-role-name="{{ $role->name }}"
                                                     data-bs-custom-class="custom-tooltip" data-role-id="{{ $role->id }}"
-                                                    data-permission-url="{{ route('permissions.list',$role->id) }}"
+                                                    data-permission-url="{{ route('admin.permission.list',$role->id) }}"
                                                     data-bs-title="{{__('Associate permissions')}}">
                                                     <i class="bi bi-building-fill-gear"></i>
                                                 </button>
@@ -202,7 +202,7 @@
             const $permissionId = $(this).attr('id');
             if ($(this).is(':checked')) {
                 $.ajax({
-                    url: "{{ route('roles.assign.permission') }}",
+                    url: "{{ route('admin.role.assign.permission') }}",
                     method: 'POST',
                     dataType: 'json',
                     data: {
@@ -220,7 +220,7 @@
                 });
             } else {
                 $.ajax({
-                    url: "{{ route('roles.remove.permission') }}",
+                    url: "{{ route('admin.role.remove.permission') }}",
                     method: 'POST',
                     dataType: 'json',
                     data: {
@@ -243,7 +243,7 @@
             const $userId = $(this).attr('id');
             if ($(this).is(':checked')) {
                 $.ajax({
-                    url: "{{ route('roles.assign.user') }}",
+                    url: "{{ route('admin.role.assign.user') }}",
                     method: 'POST',
                     dataType: 'json',
                     data: {
@@ -261,7 +261,7 @@
                 });
             } else {
                 $.ajax({
-                    url: "{{ route('roles.remove.user') }}",
+                    url: "{{ route('admin.role.remove.user') }}",
                     method: 'POST',
                     dataType: 'json',
                     data: {
@@ -282,8 +282,8 @@
     }, false);
     function showDeleteConfirmation(id) {
         const modal = new bootstrap.Modal('#removeConfirmationModal');
-        $('#delete').attr('action','{{url("/roles")}}'+'/'+id);
-        $('#deleteElementBtn').attr('action','{{url("/roles")}}'+'/'+id);
+        $('#delete').attr('action','{{url("/admin/roles")}}'+'/'+id);
+        $('#deleteElementBtn').attr('action','{{url("/admin/roles")}}'+'/'+id);
         modal.show();
     }
 </script>

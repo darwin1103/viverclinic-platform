@@ -6,7 +6,7 @@
             <h1>{{ __('Branches') }}</h1>
         </div>
         <div class="col-12 col-md-5 col-lg-4 text-end" style="align-content: center;">
-            <a class="btn btn-primary" href="{{ route('branch.create') }}" role="button">
+            <a class="btn btn-primary" href="{{ route('admin.branch.create') }}" role="button">
                 <i class="bi bi-plus-circle-fill"></i>&nbsp;{{ __('Add') }}
             </a>
         </div>
@@ -33,7 +33,7 @@
                                                 {{ route('registration-by-branch.create', ['branch' => $branch->slug]) }}
                                             </td>
                                             <td style="min-width: 160px;">
-                                                <a href="{{ route('branch.edit', $branch->slug) }}" class="btn btn-warning me-2"
+                                                <a href="{{ route('admin.branch.edit', $branch->slug) }}" class="btn btn-warning me-2"
                                                    data-bs-toggle="tooltip" data-bs-placement="top"
                                                    data-bs-custom-class="custom-tooltip"
                                                    data-bs-title="Editar">
@@ -95,8 +95,8 @@
 <script>
     function showDeleteConfirmation(id) {
         const modal = new bootstrap.Modal('#removeConfirmationModal');
-        $('#delete').attr('action','{{url("/branch")}}'+'/'+id);
-        $('#deleteElementBtn').attr('action','{{url("/branch")}}'+'/'+id);
+        $('#delete').attr('action','{{url("/admin/branch")}}'+'/'+id);
+        $('#deleteElementBtn').attr('action','{{url("/admin/branch")}}'+'/'+id);
         modal.show();
     }
 </script>

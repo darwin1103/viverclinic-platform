@@ -22,7 +22,7 @@
         </a>
       </li>
       <li>
-        <a href="{{ route('client.index') }}" class="nav-link @if(Route::is('client.*')) active @endif">
+        <a href="{{ route('admin.client.index') }}" class="nav-link @if(Route::is('client.*')) active @endif">
             <i class="bi bi-people me-2"></i>
             Clientes
         </a>

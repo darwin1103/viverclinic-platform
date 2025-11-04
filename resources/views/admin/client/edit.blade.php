@@ -11,7 +11,7 @@
             <div class="card" style="width: 30rem;">
                 <div class="card-body m-0 m-lg-3">
                     <h2 class="mb-3">{{__('Edit User')}}</h2>
-                    <form action="{{ route('client.update', ['client' => $client]) }}" method="POST">
+                    <form action="{{ route('admin.client.update', ['client' => $client]) }}" method="POST">
                         @csrf
                         @method('PUT')
                         <div class="form-floating">

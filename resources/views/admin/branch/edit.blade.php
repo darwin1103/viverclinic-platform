@@ -7,7 +7,7 @@
             <div class="card">
                 <div class="card-body m-0 m-lg-3">
                     <h2 class="mb-3">Editar Sucursal</h2>
-                    <form action="{{ route('branch.update', $branch->slug) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('admin.branch.update', $branch->slug) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="row">
@@ -75,7 +75,7 @@
                         </div>
 
                         <div class="mt-3 text-end">
-                            <a href="{{ route('branch.index') }}" class="btn btn-secondary">Cancelar</a>
+                            <a href="{{ route('admin.branch.index') }}" class="btn btn-secondary">Cancelar</a>
                             <button type="submit" class="btn btn-primary">Actualizar</button>
                         </div>
                     </form>

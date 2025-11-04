@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
-use App\Models\OwnerProfile;
+use App\Models\ownerProfile;
 use App\Models\User;
 use App\Models\WorkSchedule;
 use App\Notifications\UserCreatedNotification;
@@ -111,7 +111,7 @@ class OwnerController extends Controller
 
         });
 
-        return redirect()->route('owner.index')->with('success', 'User created successfully');
+        return redirect()->route('admin.owner.index')->with('success', 'User created successfully');
 
     }
 

@@ -7,7 +7,7 @@
             <h1>Clientes</h1>
         </div>
         <div class="col-12 col-lg-7 d-flex flex-wrap justify-content-lg-end align-items-center gap-2">
-            <a class="btn btn-primary" href="{{ route('client.create') }}" role="button">
+            <a class="btn btn-primary" href="{{ route('admin.client.create') }}" role="button">
                 <i class="bi bi-plus-circle-fill"></i>&nbsp;Crear nuevo cliente
             </a>
         </div>
@@ -42,17 +42,17 @@
                                             </span>
                                         </td>
                                         <td style="min-width: 160px;">
-                                            <a class="mx-2" href="{{ route('client.show', $client) }}"
+                                            <a class="mx-2" href="{{ route('admin.client.show', $client) }}"
                                                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Ver">
                                                <i class="bi bi-eye-fill"></i>
                                             </a>
-                                            <a class="mx-2" href="{{ route('client.edit', $client) }}"
+                                            <a class="mx-2" href="{{ route('admin.client.edit', $client) }}"
                                                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Editar">
                                                <i class="bi bi-pencil-square"></i>
                                             </a>
                                             <button class="btn btn-sm btn-danger" type="button"
                                                     data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Eliminar"
-                                                    onclick="showDeleteConfirmation('{{ $client->id }}', '{{ url("/client") }}')">
+                                                    onclick="showDeleteConfirmation('{{ $client->id }}', '{{ url("/admin/client") }}')">
                                                 <i class="bi bi-trash-fill"></i>
                                             </button>
                                         </td>

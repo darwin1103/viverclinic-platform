@@ -14,7 +14,7 @@
               </a>
             </div>
             <div class="col-12 col-sm-6">
-              <a href="{{ route('client.create') }}" class="btn btn-outline-light w-100">
+              <a href="{{ route('admin.client.create') }}" class="btn btn-outline-light w-100">
                 <i class="bi bi-person-plus me-2"></i>
                 Nuevo paciente
               </a>

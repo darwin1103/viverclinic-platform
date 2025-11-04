@@ -13,7 +13,7 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('staff.store') }}" class="row g-3">
+                    <form method="POST" action="{{ route('admin.staff.store') }}" class="row g-3">
                         @csrf
                         <h4>Datos</h4>
                         <div class="col-12 col-md-6">

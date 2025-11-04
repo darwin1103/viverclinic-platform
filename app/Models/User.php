@@ -56,7 +56,7 @@ class User extends Authenticatable
         return $this->hasOne(StaffProfile::class);
     }
 
-    public function OwnerProfile()
+    public function ownerProfile()
     {
         return $this->hasOne(OwnerProfile::class);
     }

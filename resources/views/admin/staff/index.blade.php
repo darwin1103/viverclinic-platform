@@ -6,7 +6,7 @@
             <h1>Trabajadores</h1>
         </div>
         <div class="col-12 col-md-6 col-lg-8 text-end" style="align-content: center;">
-            <a class="btn btn-primary" href="{{ route('staff.create') }}" role="button">
+            <a class="btn btn-primary" href="{{ route('admin.staff.create') }}" role="button">
                 <i class="bi bi-plus-circle-fill"></i>&nbsp;Crear nuevo usuario de personal
             </a>
         </div>
@@ -41,13 +41,13 @@
                                         </td>
                                             <td style="min-width: 160px;">
                                                 <a class="mx-2"
-                                                    href="{{ route('staff.show', $staff) }}"
+                                                    href="{{ route('admin.staff.show', $staff) }}"
                                                     data-bs-toggle="tooltip"
                                                     data-bs-placement="top"
                                                     data-bs-custom-class="custom-tooltip"
                                                     data-bs-title="{{__('Show')}}"><i class="bi bi-eye-fill"></i></a>
                                                 <a class="mx-2"
-                                                    href="{{ route('staff.edit', $staff) }}"
+                                                    href="{{ route('admin.staff.edit', $staff) }}"
                                                     data-bs-toggle="tooltip"
                                                     data-bs-placement="top"
                                                     data-bs-custom-class="custom-tooltip"
@@ -56,7 +56,7 @@
                                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                                     data-bs-custom-class="custom-tooltip"
                                                     data-bs-title="{{__('Delete')}}"
-                                                    onclick="showDeleteConfirmation('{{$staff->id}}', '{{url("/staff")}}')">
+                                                    onclick="showDeleteConfirmation('{{$staff->id}}', '{{url("/admin/staff")}}')">
                                                     <i class="bi bi-trash-fill"></i>
                                                 </button>
                                             </td>

@@ -100,7 +100,7 @@ class BranchController extends Controller
 
         $branch->update($validated);
 
-        return redirect()->route('branch.index')->with('success', 'Branch updated successfully');
+        return redirect()->route('admin.branch.index')->with('success', 'Branch updated successfully');
     }
 
     /**

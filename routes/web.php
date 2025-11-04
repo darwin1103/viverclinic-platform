@@ -38,33 +38,17 @@ Auth::routes();
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-Route::post('/roles/assignPermission',[RoleController::class,'assignPermission'])->name('roles.assign.permission');
-Route::post('/roles/removePermission',[RoleController::class,'removePermission'])->name('roles.remove.permission');
-Route::post('/roles/assignUser',[RoleController::class,'assignUser'])->name('roles.assign.user');
-Route::post('/roles/removeUser',[RoleController::class,'removeUser'])->name('roles.remove.user');
-Route::resource('roles', RoleController::class);
-
-Route::get('/permissions/getPermissionsList/{id}',[PermissionController::class,'getPermissionsList'])->name('permissions.list');
-Route::resource('permissions', PermissionController::class);
-
-Route::resource('client', ClientController::class);
-Route::get('/client/getUsers/{id}',[ClientController::class,'getusers'])->name('client.list');
 Route::post('/client/save/informed/consent',[ClientController::class,'saveInformedConsent'])->name('client.informed.consent');
 
-Route::resource('branch', BranchController::class);
 
 Route::post('/profile/uploadProfilePhoto',[ProfileController::class,'uploadProfilePhoto']);
 Route::resource('profile', ProfileController::class);
 
-Route::resource('staff', StaffController::class);
-
-Route::resource('owner', OwnerController::class);
 
 Route::resource('medical-record', MedicalRecordController::class);
 
 Route::resource('qualify-staff', QualifyStaffController::class);
 
-Route::resource('treatment', TreatmentController::class);
 
 Route::resource('care-tips', CareTipsController::class);
 
@@ -89,7 +73,7 @@ Route::resource('agenda-new', AgendaNewController::class);
 Route::resource('job-trailing', JobTrailingController::class);
 
 
-Route::get('/{branch}/registro',UserRegistrationByBranchController::class)->name('registration-by-branch.create');
+Route::get('/{branch}/registro', UserRegistrationByBranchController::class)->name('registration-by-branch.create');
 
 
 
@@ -99,6 +83,29 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     // Proteger el CRUD con el middleware de permisos de Spatie
     Route::middleware(['can:owner_dashboard_treatment_management,admin_dashboard_treatment_management'])
         ->resource('treatment', TreatmentController::class);
+
+
+
+
+
+Route::post('/role/assignPermission',[RoleController::class,'assignPermission'])->name('role.assign.permission');
+Route::post('/role/removePermission',[RoleController::class,'removePermission'])->name('role.remove.permission');
+Route::post('/role/assignUser',[RoleController::class,'assignUser'])->name('role.assign.user');
+Route::post('/role/removeUser',[RoleController::class,'removeUser'])->name('role.remove.user');
+Route::resource('role', RoleController::class);
+
+Route::get('/permission/getPermissionsList/{id}',[PermissionController::class,'getPermissionsList'])->name('permissions.list');
+Route::resource('permission', PermissionController::class);
+
+Route::resource('client', ClientController::class);
+Route::get('/client/getUsers/{id}',[ClientController::class,'getusers'])->name('client.list');
+
+Route::resource('branch', BranchController::class);
+
+Route::resource('staff', StaffController::class);
+
+Route::resource('owner', OwnerController::class);
+
 
 });
 

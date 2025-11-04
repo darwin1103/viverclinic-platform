@@ -22,7 +22,7 @@
         </a>
       </li>
       <li>
-        <a href="{{ route('client.index') }}" class="nav-link @if(Route::is('client.*')) active @endif">
+        <a href="{{ route('admin.client.index') }}" class="nav-link @if(Route::is('admin.client.*')) active @endif">
             <i class="bi bi-people me-2"></i>
             Clientes
         </a>
@@ -34,7 +34,7 @@
         </a>
       </li>
       <li>
-        <a href="{{ route('admin.treatment.index') }}" class="nav-link @if(Route::is('admin.treatment.*')) active @endif">
+        <a href="{{ route('admin.treatment.index') }}" class="nav-link @if(Route::is('admin.admin.treatment.*')) active @endif">
             <i class="bi bi-bag-check me-2"></i>
             Tratamientos
         </a>
@@ -43,19 +43,19 @@
         Personal
       </li>
       <li>
-        <a href="{{ route('staff.index') }}" class="nav-link @if(Route::is('staff.*')) active @endif">
+        <a href="{{ route('admin.staff.index') }}" class="nav-link @if(Route::is('admin.staff.*')) active @endif">
             <i class="bi bi-person-fill-up me-2"></i>
             Trabajadores
         </a>
       </li>
       <li>
-        <a href="{{ route('owner.index') }}" class="nav-link @if(Route::is('owner.*')) active @endif">
+        <a href="{{ route('admin.owner.index') }}" class="nav-link @if(Route::is('admin.owner.*')) active @endif">
             <i class="bi bi-person-gear me-2"></i>
             Propietarios
         </a>
       </li>
       <li>
-        <a href="{{ route('roles.index') }}" class="nav-link @if(Route::is('roles.*')) active @endif">
+        <a href="{{ route('admin.role.index') }}" class="nav-link @if(Route::is('admin.roles.*')) active @endif">
             <i class="bi bi-shield-lock me-2"></i>
             {{ __('Role Management') }}
         </a>
@@ -64,7 +64,7 @@
         Sucursales
       </li>
       <li>
-        <a href="{{ route('branch.index') }}" class="nav-link @if(Route::is('branch.*')) active @endif">
+        <a href="{{ route('admin.branch.index') }}" class="nav-link @if(Route::is('admin.branch.*')) active @endif">
             <i class="bi bi-building me-2"></i>
             {{ __('Branch Management') }}
         </a>

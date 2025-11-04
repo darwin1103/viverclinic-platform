@@ -129,7 +129,7 @@ class StaffController extends Controller
             }
         });
 
-        return redirect()->route('staff.index')->with('success', 'User created successfully');
+        return redirect()->route('admin.staff.index')->with('success', 'User created successfully');
 
     }
 

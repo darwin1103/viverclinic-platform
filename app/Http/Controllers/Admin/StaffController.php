@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\StaffProfile;
 use App\Models\User;
@@ -59,7 +60,7 @@ class StaffController extends Controller
 
         $selectedBranchID = $request->input('branch_id') ?? '';
 
-        return view('staff.index', compact('staffs', 'branches', 'selectedBranchID'));
+        return view('admin.staff.index', compact('staffs', 'branches', 'selectedBranchID'));
 
     }
 
@@ -75,7 +76,7 @@ class StaffController extends Controller
             'daysOfWeek' => WorkSchedule::$daysOfWeek,
         ];
 
-        return view('staff.create', $data);
+        return view('admin.staff.create', $data);
     }
 
     /**
@@ -179,7 +180,7 @@ class StaffController extends Controller
             'daysOfWeek' => WorkSchedule::$daysOfWeek,
         ];
 
-        return view('staff.show', $data);
+        return view('admin.staff.show', $data);
 
     }
 
@@ -193,7 +194,7 @@ class StaffController extends Controller
         $daysOfWeek = WorkSchedule::$daysOfWeek;
         $schedules = $staff->staffProfile->workSchedules->groupBy('day_of_week');
 
-        return view('staff.edit', compact('staff', 'branches', 'daysOfWeek', 'schedules'));
+        return view('admin.staff.edit', compact('staff', 'branches', 'daysOfWeek', 'schedules'));
 
     }
 

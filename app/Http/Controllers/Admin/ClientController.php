@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\DietaryCondition;
 use App\Models\DocumentType;
@@ -63,7 +64,7 @@ class ClientController extends Controller
 
         $selectedBranchID = $request->input('branch_id') ?? '';
 
-        return view('client.index', compact('clients', 'branches', 'selectedBranchID'));
+        return view('admin.client.index', compact('clients', 'branches', 'selectedBranchID'));
     }
 
 
@@ -73,7 +74,7 @@ class ClientController extends Controller
     public function create()
     {
         $branches = Branch::all();
-        return view('client.create', compact('branches'));
+        return view('admin.client.create', compact('branches'));
     }
 
     /**
@@ -141,7 +142,7 @@ class ClientController extends Controller
             'treatments' => $treatments,
         ];
 
-        return view('client.show', $data);
+        return view('admin.client.show', $data);
 
     }
 
@@ -154,7 +155,7 @@ class ClientController extends Controller
 
         $branches = Branch::all();
 
-        return view('client.edit', compact('client', 'branches'));
+        return view('admin.client.edit', compact('client', 'branches'));
     }
 
     /**

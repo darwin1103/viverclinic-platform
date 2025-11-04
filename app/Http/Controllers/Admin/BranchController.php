@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Traits\FileUploadTrait;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class BranchController extends Controller
 {
@@ -29,7 +31,7 @@ class BranchController extends Controller
     public function index()
     {
         $branches = Branch::paginate(10);
-        return view('branch.index', compact('branches'));
+        return view('admin.branch.index', compact('branches'));
     }
 
     /**
@@ -37,7 +39,7 @@ class BranchController extends Controller
      */
     public function create()
     {
-        return view('branch.create');
+        return view('admin.branch.create');
     }
 
     /**
@@ -76,7 +78,7 @@ class BranchController extends Controller
      */
     public function edit(Branch $branch)
     {
-        return view('branch.edit', compact('branch'));
+        return view('admin.branch.edit', compact('branch'));
     }
 
     /**

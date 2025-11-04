@@ -95,8 +95,8 @@
 <script>
     function showDeleteConfirmation(id) {
         const modal = new bootstrap.Modal('#removeConfirmationModal');
-        $('#delete').attr('action','{{url("/branches")}}'+'/'+id);
-        $('#deleteElementBtn').attr('action','{{url("/branches")}}'+'/'+id);
+        $('#delete').attr('action','{{url("/branch")}}'+'/'+id);
+        $('#deleteElementBtn').attr('action','{{url("/branch")}}'+'/'+id);
         modal.show();
     }
 </script>

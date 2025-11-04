@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -27,7 +28,7 @@ class RoleController extends Controller
     public function index()
     {
         $roles = Role::where('id','<>', self::SUPER_ADMIN_ROLE_ID)->paginate(10);
-        return view('roles.index', compact('roles'));
+        return view('admin.roles.index', compact('roles'));
     }
 
     /**

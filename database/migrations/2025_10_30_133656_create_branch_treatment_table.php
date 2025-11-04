@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('branch_id')->constrained()->onDelete('cascade');
             $table->foreignId('treatment_id')->constrained()->onDelete('cascade');
-            $table->decimal('price', 10, 2)->default(0.00); // Precio específico para esta sucursal
+            $table->string('name');
+            $table->decimal('price', 10, 2)->default(0.00);
+            $table->unsignedSmallInteger('big_zones');
+            $table->unsignedSmallInteger('mini_zones');
             $table->timestamps();
-
-            // Asegurar que la combinación de sucursal y tratamiento sea única
-            $table->unique(['branch_id', 'treatment_id']);
         });
     }
 

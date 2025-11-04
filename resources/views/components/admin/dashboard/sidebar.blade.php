@@ -34,7 +34,7 @@
         </a>
       </li>
       <li>
-        <a href="{{ route('admin.treatment.index') }}" class="nav-link @if(Route::is('admin.admin.treatment.*')) active @endif">
+        <a href="{{ route('admin.treatment.index') }}" class="nav-link @if(Route::is('admin.treatment.*')) active @endif">
             <i class="bi bi-bag-check me-2"></i>
             Tratamientos
         </a>

@@ -8,6 +8,7 @@ use App\Traits\Treatment\RemoveEmptyParagraph;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Treatment extends Model
 {
@@ -26,14 +27,9 @@ class Treatment extends Model
         'terms_conditions',
     ];
 
-    /**
-     * The branches that offer this treatment.
-     */
-    public function branches(): BelongsToMany
+    public function packages(): HasMany
     {
-        return $this->belongsToMany(Branch::class, 'branch_treatment')
-            ->withPivot('price') // Importante para acceder al precio
-            ->withTimestamps();
+        return $this->hasMany(BranchTreatment::class);
     }
 
     /**

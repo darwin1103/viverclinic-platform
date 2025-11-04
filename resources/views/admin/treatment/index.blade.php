@@ -3,12 +3,16 @@
 
 @section('content')
 <div class="container">
-    {{-- HEADER --}}
-    <div class="row mb-3">
-        <div class="col-12 col-lg-5">
+
+    <div class="row">
+        <div class="col-12 col-md-6 col-lg-4">
             <h1>Tratamientos</h1>
         </div>
+        <div class="col-12 col-md-6 col-lg-8 text-end" style="align-content: center;">
+            <a href="{{ route('admin.treatment.create') }}" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Nuevo Tratamiento</a>
+        </div>
     </div>
+
     <div class="row">
         <div class="col-12">
 
@@ -48,10 +52,7 @@
 
             {{-- TABLA DE RESULTADOS --}}
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="card-title mb-0">Gestión de Tratamientos</h4>
-                    <a href="{{ route('admin.treatment.create') }}" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Nuevo Tratamiento</a>
-                </div>
+
                 <div class="card-body">
                     @if (session('success'))
                         <div class="alert alert-success" role="alert">
@@ -77,14 +78,19 @@
                                             <img src="{{ $treatment->main_image ? Storage::url($treatment->main_image) : '' }}" alt="{{ $treatment->name }}" class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
                                         </td>
                                         <td>{{ $treatment->name }}</td>
-                                        {{-- Celda para mostrar las sucursales --}}
                                         <td>
-                                            @forelse($treatment->branches as $branch)
-                                                <div><span class="badge bg-info text-dark">{{ $branch->name }}</span></div>
-                                            @empty
+                                            @php
+                                                $uniqueBranches = $treatment->packages->pluck('branch')->unique('id')->sortBy('name');
+                                            @endphp
+
+                                            @if ($uniqueBranches->isNotEmpty())
+                                                <div><span class="badge bg-info text-dark">{!! $uniqueBranches->pluck('name')->implode('<br>') !!}</span></div>
+                                            @else
                                                 <span class="badge bg-secondary">Ninguna</span>
-                                            @endforelse
+                                            @endif
                                         </td>
+
+
                                         <td>{{ $treatment->sessions }}</td>
                                         <td>
                                             @if ($treatment->active)

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\SlugTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Branch extends Model
 {
@@ -51,14 +52,15 @@ class Branch extends Model
         return $this->belongsToMany(User::class, 'patients_branches')->withTimestamps();
     }
 
-    /**
-     * The treatments available at this branch.
-     */
-    public function treatments(): BelongsToMany
+    public function packages(): HasMany
     {
+        return $this->hasMany(BranchTreatment::class);
+    }
+
+    public function treatments(): BelongsToMany{
         return $this->belongsToMany(Treatment::class, 'branch_treatment')
-                    ->withPivot('price') // Importante para acceder al precio
-                    ->withTimestamps();
+        ->withPivot('price', 'name', 'big_zones', 'mini_zones')
+        ->withTimestamps();
     }
 
 }

@@ -8,6 +8,7 @@ use App\Models\Branch;
 use Illuminate\Http\Request;
 use App\Traits\FileUploadTrait;
 use Illuminate\Support\Facades\Storage;
+use App\Models\BranchTreatment;
 
 class TreatmentController extends Controller
 {
@@ -16,7 +17,7 @@ class TreatmentController extends Controller
     public function index(Request $request)
     {
         // Iniciar la consulta base con eager loading para optimizar
-        $query = Treatment::with('branches');
+        $query = Treatment::with('packages.branch');
 
         // 1. Filtro de búsqueda por nombre
         if ($request->filled('search')) {
@@ -68,46 +69,51 @@ class TreatmentController extends Controller
             'active' => 'sometimes|boolean',
             'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'branches' => 'nullable|array',
-            'branches.*.price' => 'required_with:branches.*.attach|nullable|numeric|min:0',
-            'branches.*.attach' => 'sometimes|accepted',
+            'branches.*.packages' => 'nullable|array',
+            'branches.*.packages.*.name' => 'required|string|max:255',
+            'branches.*.packages.*.price' => 'required|numeric|min:0',
+            'branches.*.packages.*.big_zones' => 'required|integer|min:0',
+            'branches.*.packages.*.mini_zones' => 'required|integer|min:0',
             'terms_conditions' => 'nullable|string',
         ]);
 
         $treatmentData = $request->except(['_token', 'branches']);
         $treatmentData['active'] = $request->has('active');
-
         if ($request->hasFile('main_image')) {
             $treatmentData['main_image'] = $this->uploadFile($request->file('main_image'), 'treatments');
         }
 
         $treatment = Treatment::create($treatmentData);
 
-        // Sincronizar las relaciones con sucursales
-        $syncData = [];
+        // Guardar los paquetes
         if (isset($validated['branches'])) {
-            foreach ($validated['branches'] as $branchId => $data) {
-                // Solo sincronizar si el checkbox 'attach' está marcado
-                if (isset($data['attach'])) {
-                    $syncData[$branchId] = ['price' => $data['price'] ?? 0];
+            foreach ($validated['branches'] as $branchId => $branchData) {
+                if (isset($branchData['packages'])) {
+                    foreach ($branchData['packages'] as $packageData) {
+                        $treatment->packages()->create([
+                            'branch_id' => $branchId,
+                            'name' => $packageData['name'],
+                            'price' => $packageData['price'],
+                            'big_zones' => $packageData['big_zones'],
+                            'mini_zones' => $packageData['mini_zones'],
+                        ]);
+                    }
                 }
             }
         }
-
-        $treatment->branches()->sync($syncData);
 
         return redirect()->route('admin.treatment.index')->with('success', 'Tratamiento creado con éxito.');
     }
 
     public function show(Treatment $treatment)
     {
-        return redirect()->route('admin.treatment.edit', $treatment);
+        //
     }
 
     public function edit(Treatment $treatment)
     {
         $branches = Branch::all();
-        // Cargar las sucursales asociadas para un acceso fácil en la vista
-        $treatment->load('branches');
+        $treatment->load('packages.branch');
         return view('admin.treatment.edit', compact('treatment', 'branches'));
     }
 
@@ -121,8 +127,11 @@ class TreatmentController extends Controller
             'active' => 'sometimes|boolean',
             'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'branches' => 'nullable|array',
-            'branches.*.price' => 'required_with:branches.*.attach|nullable|numeric|min:0',
-            'branches.*.attach' => 'sometimes|accepted',
+            'branches.*.packages' => 'nullable|array',
+            'branches.*.packages.*.name' => 'required|string|max:255',
+            'branches.*.packages.*.price' => 'required|numeric|min:0',
+            'branches.*.packages.*.big_zones' => 'required|integer|min:0',
+            'branches.*.packages.*.mini_zones' => 'required|integer|min:0',
             'terms_conditions' => 'nullable|string',
         ]);
 
@@ -132,20 +141,26 @@ class TreatmentController extends Controller
         if ($request->hasFile('main_image')) {
             $treatmentData['main_image'] = $this->uploadFile($request->file('main_image'), 'treatments', $treatment->main_image);
         }
-
         $treatment->update($treatmentData);
 
-        // Sincronizar las relaciones con sucursales
-        $syncData = [];
+        // La forma más sencilla de sincronizar: borrar los antiguos y crear los nuevos.
+        $treatment->packages()->delete();
+
         if (isset($validated['branches'])) {
-            foreach ($validated['branches'] as $branchId => $data) {
-                // Solo sincronizar si el checkbox 'attach' está marcado
-                if (isset($data['attach'])) {
-                    $syncData[$branchId] = ['price' => $data['price'] ?? 0];
+            foreach ($validated['branches'] as $branchId => $branchData) {
+                if (isset($branchData['packages'])) {
+                    foreach ($branchData['packages'] as $packageData) {
+                        $treatment->packages()->create([
+                            'branch_id' => $branchId,
+                            'name' => $packageData['name'],
+                            'price' => $packageData['price'],
+                            'big_zones' => $packageData['big_zones'],
+                            'mini_zones' => $packageData['mini_zones'],
+                        ]);
+                    }
                 }
             }
         }
-        $treatment->branches()->sync($syncData);
 
         return redirect()->route('admin.treatment.index')->with('success', 'Tratamiento actualizado con éxito.');
     }

@@ -70,9 +70,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     const additionalZone = additionalZones.find(p => p.id == input.dataset.id);
                     total += additionalZone.price * quantity;
                     if (additionalZone.id === 'grande') {
-                        allowedLargeZones += 10 * quantity;
+                        allowedLargeZones += 1 * quantity;
                     } else {
-                        allowedMiniZones += 10 * quantity;
+                        allowedMiniZones += 1 * quantity;
                     }
                     summaryHtml += `<tr><td>${quantity} x ${additionalZone.name}</td><td class="text-end">$${(additionalZone.price * quantity).toLocaleString('es-CL')}</td></tr>`;
                 }

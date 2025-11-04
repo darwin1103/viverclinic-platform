@@ -22,7 +22,7 @@ use App\Http\Controllers\ReferralsController;
 use App\Http\Controllers\ScheduleAppointmentController;
 use App\Http\Controllers\UserRegistrationByBranchController;
 use App\Http\Controllers\VirtualWalletController;
-use App\Http\Controllers\Patient\BuyTreatmentController;
+use App\Http\Controllers\Client\BuyTreatmentController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 

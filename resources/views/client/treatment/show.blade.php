@@ -3,7 +3,7 @@
 <div class="container">
     <div class="row">
         <div class="col-12 col-md-7 col-lg-8">
-            <h1>{{ __('Schedule Appointment') }}</h1>
+            <h1>Comprar paquete</h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a></li>
@@ -20,18 +20,18 @@
             <div class="card w-100">
                 <div class="card-body m-0 m-lg-3">
 
-                    <form id="formularioDepilacion" class="row g-4">
+                    <form class="row g-4">
 
                         <!-- SECCIÓN 1: ESCOGER PAQUETES Y ZONeS ADICIONALES -->
                         <div class="col-12">
                             <h2 class="section-title">1. Paquete que deseo adquirir</h2>
                             @foreach ($packages as $paquete)
-                                @include('components.buy-package.form.package-item', ['item' => $paquete, 'type' => 'package'])
+                                @include('components.client.index.form.package-item', ['item' => $paquete, 'type' => 'package'])
                             @endforeach
 
                             <h2 class="section-title mt-4">Añadir una zona adicional</h2>
                             @foreach ($additionalZones as $zone)
-                                @include('components.buy-package.form.package-item', ['item' => $zone, 'type' => 'additional'])
+                                @include('components.client.index.form.package-item', ['item' => $zone, 'type' => 'additional'])
                             @endforeach
                         </div>
 
@@ -43,13 +43,13 @@
                                     <h3>Zonas Grandes</h3>
                                     <div id="zones-grandes-container">
                                         @foreach ($bigZones as $zone)
-                                            @include('components.buy-package.form.zone-checkbox', ['zone' => $zone, 'type' => 'grande'])
+                                            @include('components.client.index.form.zone-checkbox', ['zone' => $zone, 'type' => 'grande'])
                                         @endforeach
                                     </div>
                                     <h3>Zonas Pequeñas</h3>
                                     <div id="zones-pequenas-container">
                                         @foreach ($smallZones as $zone)
-                                            @include('components.buy-package.form.zone-checkbox', ['zone' => $zone, 'type' => 'grande'])
+                                            @include('components.client.index.form.zone-checkbox', ['zone' => $zone, 'type' => 'grande'])
                                         @endforeach
                                     </div>
                                     <div class="form-floating mt-3">
@@ -61,7 +61,7 @@
                                     <h3>Mini Zonas</h3>
                                     <div id="mini-zones-container">
                                         @foreach ($miniZones as $zone)
-                                            @include('components.buy-package.form.zone-checkbox', ['zone' => $zone, 'type' => 'mini'])
+                                            @include('components.client.index.form.zone-checkbox', ['zone' => $zone, 'type' => 'mini'])
                                         @endforeach
                                     </div>
                                      <div class="form-floating mt-3">
@@ -110,10 +110,10 @@
 </div>
 
 <!-- Modal Instructivo -->
-<x-buy-package.form.body-modal />
+<x-client.index.form.body-modal />
 
 <!-- Modal de Pago -->
-<x-buy-package.form.payment-modal />
+<x-client.index.form.payment-modal />
 @endsection
 
 @push('scripts')
@@ -121,5 +121,5 @@
         const packages = @json($packages);
         const additionalZones = @json($additionalZones);
     </script>
-    <script type="text/javascript" src="{{ asset('js/client/buy-package/form.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/client/treatment/show/form.js') }}"></script>
 @endpush

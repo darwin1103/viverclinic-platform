@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Patient;
+namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
@@ -24,7 +24,7 @@ class BuyTreatmentController extends Controller
                 $query->where('branch_id', $branch->id);
             })
             ->get();
-        return view('patient.treatment.index', compact('branch', 'treatments'));
+        return view('client.treatment.index', compact('branch', 'treatments'));
     }
 
 
@@ -64,7 +64,7 @@ class BuyTreatmentController extends Controller
         $smallZones = Treatment::$smallZones;
         $miniZones = Treatment::$miniZones;
 
-        return view('buy-package.show', compact('packages', 'additionalZones', 'bigZones', 'smallZones', 'miniZones'));
+        return view('client.treatment.show', compact('packages', 'additionalZones', 'bigZones', 'smallZones', 'miniZones'));
 
     }
 

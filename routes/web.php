@@ -27,6 +27,8 @@ use App\Http\Controllers\Patient\PatientBuyTreatmentController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+Auth::routes();
+
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
@@ -34,9 +36,9 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Auth::routes();
-
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+Route::get('/{branch}/registro', UserRegistrationByBranchController::class)->name('registration-by-branch.create');
 
 Route::post('/client/save/informed/consent',[ClientController::class,'saveInformedConsent'])->name('client.informed.consent');
 
@@ -44,36 +46,18 @@ Route::post('/profile/uploadProfilePhoto',[ProfileController::class,'uploadProfi
 Route::resource('profile', ProfileController::class);
 
 Route::resource('medical-record', MedicalRecordController::class);
-
 Route::resource('qualify-staff', QualifyStaffController::class);
-
 Route::resource('care-tips', CareTipsController::class);
-
 Route::resource('buy-package', BuyPackageController::class);
-
 Route::resource('virtual-wallet', VirtualWalletController::class);
-
 Route::resource('promotions', PromotionsController::class);
-
 Route::resource('recomentations', RecomentationsController::class);
-
 Route::resource('referrals', ReferralsController::class);
-
 Route::resource('schedule-appointment', ScheduleAppointmentController::class);
-
 Route::resource('cancel-appointment', CancelAppointmentController::class);
-
 Route::resource('agenda-day', AgendaDayController::class);
-
 Route::resource('agenda-new', AgendaNewController::class);
-
 Route::resource('job-trailing', JobTrailingController::class);
-
-
-Route::get('/{branch}/registro', UserRegistrationByBranchController::class)->name('registration-by-branch.create');
-
-
-
 
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
 

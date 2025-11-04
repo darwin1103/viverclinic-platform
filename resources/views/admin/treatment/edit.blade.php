@@ -18,7 +18,7 @@
 
                         {{-- Datos del Tratamiento --}}
                         <div class="row g-3">
-                            <div class="col-12 col-md-3">
+                            <div class="col-12 col-md-6">
                                 <div class="form-floating">
                                     <input id="name" type="text" placeholder="Nombre del Tratamiento" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name', $treatment->name) }}" required>
                                     <label for="name">Título del Tratamiento</label>
@@ -48,13 +48,13 @@
                                 </div>
                             </div>
 
-                            <div class="col-12 col-md-3">
+                            <div class="col-12 col-md-6">
                                 <label for="main_image" class="form-label">Imagen de Portada</label>
                                 <input class="form-control @error('main_image') is-invalid @enderror" type="file" id="main_image" name="main_image" accept="image/*">
                                 @error('main_image')<span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>@enderror
                             </div>
 
-                            <div class="col-12 col-md-3 text-center">
+                            <div class="col-12 col-md-6 text-center">
                                 <p class="mb-1">Imagen actual:</p>
                                 <img id="imagePreview" src="{{ $treatment->main_image ? Storage::url($treatment->main_image) : '' }}" alt="Imagen actual" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
                             </div>
@@ -114,6 +114,22 @@
                                         </div>
                                     @endforeach
                                 </div>
+                            </div>
+                            <div class="row">
+                                <h4 class="my-4">Zonas adicionales</h4>
+
+                                <div class="col-12 col-md-6">
+                                    <label for="price_additional_zone" class="form-label">Precio por 10 zonas adicionales</label>
+                                    <input class="form-control @error('price_additional_zone') is-invalid @enderror" type="number" min="0" step="0.01" id="price_additional_zone" name="price_additional_zone" value="{{ old('price_additional_zone', $treatment->price_additional_zone) }}">
+                                    @error('price_additional_zone')<span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>@enderror
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label for="price_additional_mini_zone" class="form-label">Precio por 10 mini zonas adicionales</label>
+                                    <input class="form-control @error('price_additional_mini_zone') is-invalid @enderror" type="number" min="0" step="0.01" id="price_additional_mini_zone" name="price_additional_mini_zone" value="{{ old('price_additional_mini_zone', $treatment->price_additional_mini_zone) }}">
+                                    @error('price_additional_mini_zone')<span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>@enderror
+                                </div>
+
                             </div>
                         </div>
 

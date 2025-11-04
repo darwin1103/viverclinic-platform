@@ -20,6 +20,8 @@ return new class extends Migration
             $table->unsignedInteger('sessions');
             $table->unsignedInteger('days_between_sessions');
             $table->text('terms_conditions')->nullable();
+            $table->decimal('price_additional_zone', 10, 2)->default(0.00);
+            $table->decimal('price_additional_mini_zone', 10, 2)->default(0.00);
             $table->timestamps();
         });
     }

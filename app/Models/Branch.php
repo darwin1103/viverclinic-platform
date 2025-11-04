@@ -6,6 +6,8 @@ use App\Traits\SlugTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+
 
 class Branch extends Model
 {
@@ -57,10 +59,19 @@ class Branch extends Model
         return $this->hasMany(BranchTreatment::class);
     }
 
-    public function treatments(): BelongsToMany{
-        return $this->belongsToMany(Treatment::class, 'branch_treatment')
-        ->withPivot('price', 'name', 'big_zones', 'mini_zones')
-        ->withTimestamps();
+    /**
+     * Obtiene los tratamientos asociados a la sucursal a través de los paquetes.
+     */
+    public function treatments(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Treatment::class,       // El modelo final al que queremos acceder
+            BranchTreatment::class, // El modelo intermedio (nuestro "paquete")
+            'branch_id',            // La clave foránea en la tabla intermedia (`branch_treatment`)
+            'id',                   // La clave foránea en la tabla final (`treatments`)
+            'id',                   // La clave local en este modelo (`branches`)
+            'treatment_id'          // La clave local en la tabla intermedia (`branch_treatment`)
+        );
     }
 
 }

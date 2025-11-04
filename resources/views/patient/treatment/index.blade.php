@@ -12,11 +12,8 @@
         @forelse ($treatments as $treatment)
             <div class="col-12 col-md-6 col-lg-4">
                 <div class="card h-100 shadow-sm treatment-card">
-                    {{-- Formulario que envuelve la tarjeta --}}
-                    <form action="{{ route('patient.treatment.contract') }}" method="POST" class="d-flex flex-column h-100">
-                        @csrf
-                        <input type="hidden" name="treatment_id" value="{{ $treatment->id }}">
-                        <input type="hidden" name="branch_id" value="{{ $branch->id }}">
+
+                    <a href="{{ route('patient.buy-treatment.show', ['treatment' => $treatment->id]) }}" class="text-decoration-none d-flex flex-column h-100">
 
                         <img src="{{ $treatment->main_image ? Storage::url($treatment->main_image) : 'https://via.placeholder.com/400x250' }}" class="card-img-top" alt="{{ $treatment->name }}" style="height: 250px; object-fit: cover;">
 
@@ -32,11 +29,11 @@
                             </ul>
                         </div>
                         <div class="card-footer bg-transparent border-0 p-3">
-                           <button type="submit" class="btn btn-primary w-100">
-                               <i class="bi bi-cart-plus"></i> ${{ number_format($treatment->pivot->price, 2) }}
-                           </button>
+                           <div class="btn btn-primary w-100">
+                               Ver detalles
+                           </div>
                         </div>
-                    </form>
+                    </a>
                 </div>
             </div>
         @empty

@@ -25,6 +25,42 @@ class Treatment extends Model
         'sessions',
         'days_between_sessions',
         'terms_conditions',
+        'price_additional_zone',
+        'price_additional_mini_zone',
+    ];
+
+    public static $bigZones = [
+        'Muslo',
+        'Media pierna',
+        'Glúteos',
+        'Abdomen',
+        'Pecho',
+        'Brazos',
+        'Espalda Alta',
+        'Espalda Baja',
+    ];
+
+    public static $smallZones = [
+        'Bikini',
+        'Axilas',
+        'Facial o Barba',
+        'Cuello',
+        'Linea completa Abdomen',
+    ];
+
+    public static $miniZones = [
+        'Vellos de los dedos pies',
+        'Vellos de los dedos mano',
+        'Empeine',
+        'Perianal',
+        'Bigote',
+        'Patillas',
+        'Barbilla',
+        'Orejas',
+        'Entre cejo',
+        'Linea alba',
+        'Pezones',
+        'Marcación barba',
     ];
 
     public function packages(): HasMany

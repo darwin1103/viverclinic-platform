@@ -9,7 +9,6 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\AgendaDayController;
 use App\Http\Controllers\AgendaNewController;
-use App\Http\Controllers\BuyPackageController;
 use App\Http\Controllers\CancelAppointmentController;
 use App\Http\Controllers\CareTipsController;
 use App\Http\Controllers\DashboardController;
@@ -23,7 +22,7 @@ use App\Http\Controllers\ReferralsController;
 use App\Http\Controllers\ScheduleAppointmentController;
 use App\Http\Controllers\UserRegistrationByBranchController;
 use App\Http\Controllers\VirtualWalletController;
-use App\Http\Controllers\Patient\PatientBuyTreatmentController;
+use App\Http\Controllers\Patient\BuyTreatmentController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -48,7 +47,6 @@ Route::resource('profile', ProfileController::class);
 Route::resource('medical-record', MedicalRecordController::class);
 Route::resource('qualify-staff', QualifyStaffController::class);
 Route::resource('care-tips', CareTipsController::class);
-Route::resource('buy-package', BuyPackageController::class);
 Route::resource('virtual-wallet', VirtualWalletController::class);
 Route::resource('promotions', PromotionsController::class);
 Route::resource('recomentations', RecomentationsController::class);
@@ -86,12 +84,11 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 });
 
 // Rutas para Pacientes
-Route::middleware(['auth', 'verified', 'can:patient_treatment_home_btn'])->group(function () {
+Route::middleware(['auth', 'verified', 'can:patient_treatment_home_btn'])->name('patient.')->group(function () {
 
     // Muestra los tratamientos de una sucursal específica
-    Route::get('/branch-treatment', [PatientBuyTreatmentController::class, 'index'])->name('patient.buy-treatment.index');
+    Route::get('/buy-treatment', [BuyTreatmentController::class, 'index'])->name('buy-treatment.index');
 
-    // Procesa la selección de un tratamiento por parte del paciente
-    Route::post('/contract-treatment', [PatientBuyTreatmentController::class, 'store'])->name('patient.treatment.contract');
+    Route::get('/buy-treatment/{treatment}', [BuyTreatmentController::class, 'show'])->name('buy-treatment.show');
 
 });

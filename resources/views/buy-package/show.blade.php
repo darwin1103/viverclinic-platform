@@ -29,7 +29,7 @@
                                 @include('components.buy-package.form.package-item', ['item' => $paquete, 'type' => 'package'])
                             @endforeach
 
-                            <h2 class="section-title mt-4">Añadir una zone adicional</h2>
+                            <h2 class="section-title mt-4">Añadir una zona adicional</h2>
                             @foreach ($additionalZones as $zone)
                                 @include('components.buy-package.form.package-item', ['item' => $zone, 'type' => 'additional'])
                             @endforeach
@@ -75,7 +75,7 @@
                         <!-- SECCIÓN 3: BOTÓN INSTRUCTIVO -->
                         <div class="col-12 text-center">
                              <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#instructivoModal">
-                                Ver Imagen de Zonas
+                                Ver Imagen de zonas
                             </button>
                         </div>
 

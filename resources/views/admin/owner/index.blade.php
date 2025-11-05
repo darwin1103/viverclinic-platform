@@ -25,7 +25,6 @@
                                 <tr>
                                     <th scope="col">{{ __('Name') }}</th>
                                     <th scope="col">{{ __('Created') }}</th>
-                                    <th scope="col">Sucursal</th>
                                     <th scope="col">{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
@@ -34,11 +33,7 @@
                                     @foreach ($owners as $owner)
                                         <tr>
                                             <td style="min-width: 160px;">{{ $owner->name }}</td>
-                                            <td style="min-width: 130px;">{{ $owner->created_at }}</td><td style="min-width: 140px;">
-                                            <span class="badge bg-info text-dark">
-                                                {{ $owner->ownerProfile?->branch?->name ?? 'No asignada' }}
-                                            </span>
-                                        </td>
+                                            <td style="min-width: 130px;">{{ $owner->created_at }}</td>
                                             <td style="min-width: 160px;">
                                                 <a class="mx-2"
                                                     href="{{ route('admin.owner.show', $owner) }}"

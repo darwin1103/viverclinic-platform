@@ -37,21 +37,6 @@
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-6">
-                           <div class="form-floating">
-                                <select id="branch_id" name="branch_id" class="form-select @error('branch_id') is-invalid @enderror" required>
-                                    <option value="">Selecciona una sucursal</option>
-                                    @foreach ($branches as $branch)
-                                        <option value="{{ $branch->id }}" {{ old('branch_id', $owner->ownerProfile->branch_id) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
-                                    @endforeach
-                                </select>
-                                <label for="branch_id">Sucursal</label>
-                                @error('branch_id')
-                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                                @enderror
-                            </div>
-                        </div>
-
                         <div class="col-12 text-center">
                             <button type="submit" class="btn btn-primary w-auto mt-2">Actualizar Usuario</button>
                         </div>

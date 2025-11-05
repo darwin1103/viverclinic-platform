@@ -58,11 +58,9 @@ Route::resource('agenda-day', AgendaDayController::class);
 Route::resource('agenda-new', AgendaNewController::class);
 Route::resource('job-trailing', JobTrailingController::class);
 
-Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified', 'role:SUPER_ADMIN|OWNER'])->prefix('admin')->name('admin.')->group(function () {
 
-    // Proteger el CRUD con el middleware de permisos de Spatie
-    Route::middleware(['can:owner_dashboard_treatment_management,admin_dashboard_treatment_management'])
-        ->resource('treatment', TreatmentController::class);
+    Route::resource('treatment', TreatmentController::class);
 
     Route::post('/role/assignPermission',[RoleController::class,'assignPermission'])->name('role.assign.permission');
     Route::post('/role/removePermission',[RoleController::class,'removePermission'])->name('role.remove.permission');
@@ -87,14 +85,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 });
 
 // Rutas para Pacientes
-Route::middleware(['auth', 'verified', 'can:patient_treatment_home_btn'])->name('client.')->group(function () {
-
-    // Muestra los tratamientos de una sucursal específica
-    // Route::get('/buy-treatment', [TreatmentController::class, 'index'])->name('buy-treatment.index');
-    // Route::get('/buy-treatment', [TreatmentController::class, 'store'])->name('buy-treatment.store');
+Route::middleware(['auth', 'verified', 'role:PATIENT'])->name('client.')->group(function () {
 
     Route::resource('/treatment', ClientTreatmentController::class);
-
-    // Route::get('/buy-treatment/{treatment}', [TreatmentController::class, 'show'])->name('buy-treatment.show');
 
 });

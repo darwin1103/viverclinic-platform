@@ -56,11 +56,6 @@ class User extends Authenticatable
         return $this->hasOne(StaffProfile::class);
     }
 
-    public function ownerProfile()
-    {
-        return $this->hasOne(OwnerProfile::class);
-    }
-
     public function adminsBranches()
     {
         return $this->belongsToMany(Branch::class, 'admins_branches')->withTimestamps();

@@ -126,9 +126,6 @@ class UserSeeder extends Seeder
         ]);
 
         $owner01->assignRole('OWNER');
-        $owner01->ownerProfile()->create([
-            'branch_id' => 1,
-        ]);
 
         $owner02 = User::create([
             'name' => 'owner02',
@@ -137,9 +134,6 @@ class UserSeeder extends Seeder
         ]);
 
         $owner02->assignRole('OWNER');
-        $owner02->ownerProfile()->create([
-            'branch_id' => 2,
-        ]);
 
     }
 

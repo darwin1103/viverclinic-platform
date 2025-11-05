@@ -52,12 +52,12 @@ class TreatmentController extends Controller
         $additionalZones = [
             [
                 'id' => 'mini',
-                'name' => '10 sesiones una mini zona',
+                'name' => 'Mini zona adicional',
                 'price' => $treatment->price_additional_mini_zone,
             ],
             [
                 'id' => 'big',
-                'name' => '10 sesiones una zona grande',
+                'name' => 'Zona grande adicional',
                 'price' => $treatment->price_additional_zone,
             ],
         ];
@@ -149,7 +149,7 @@ class TreatmentController extends Controller
         // Calculate from additional zones (assuming prices are fixed or in a config)
         // For this example, let's use the prices from your original code.
         $additionalPrices = ['mini' => $treatment->price_additional_mini_zone, 'big' => $treatment->price_additional_zone];
-        $additionalNames = ['mini' => '10 sesiones adicionales mini zona', 'big' => '10 sesiones adicionales zona grande'];
+        $additionalNames = ['mini' => 'Mini zona adicional', 'big' => 'Zona grande adicional'];
 
         foreach (($validatedData['additional'] ?? []) as $type => $quantity) {
             $priceAtPurchase = $additionalPrices[$type] * $quantity;

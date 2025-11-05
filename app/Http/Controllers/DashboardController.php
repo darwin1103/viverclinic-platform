@@ -35,7 +35,7 @@ class DashboardController extends Controller
     {
 
         $user = Auth::user();
-        if($user->hasRole('SUPER_ADMIN')){
+        if($user->hasRole(['SUPER_ADMIN', 'OWNER'])){
 
             $patientCount = User::role('PATIENT')->count();
             $branches = Branch::select(['id', 'name'])->get();

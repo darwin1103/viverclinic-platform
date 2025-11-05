@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
-use App\Models\ownerProfile;
 use App\Models\User;
 use App\Models\WorkSchedule;
 use App\Notifications\UserCreatedNotification;
@@ -39,15 +38,7 @@ class OwnerController extends Controller
 
         // Query base
         $query = User::select('id', 'name', 'email', 'created_at')
-            ->role('OWNER')
-            ->with('ownerProfile.branch'); // use select ***
-
-        // Filter by branch using the relationship
-        if ($request->filled('branch_id')) {
-            $query->whereHas('ownerProfile', function ($q) use ($request) {
-                $q->where('branch_id', $request->input('branch_id'));
-            });
-        }
+            ->role('OWNER');
 
         // Apply filters from the trait and paginate the results
         $owners = $this->applyFilters($request, $query)
@@ -55,11 +46,7 @@ class OwnerController extends Controller
                         ->paginate(10)
                         ->withQueryString(); // Importante para mantener los filtros en la paginación
 
-        $branches = Branch::all();
-
-        $selectedBranchID = $request->input('branch_id') ?? '';
-
-        return view('admin.owner.index', compact('owners', 'branches', 'selectedBranchID'));
+        return view('admin.owner.index', compact('owners'));
 
     }
 
@@ -101,13 +88,9 @@ class OwnerController extends Controller
 
             $owner->assignRole('OWNER');
 
-            // custom notification for the EMPLOYEE ***
+            // custom notification for the owner ***
 
             $owner->notify(new UserCreatedNotification($owner->name, $owner->email, $password));
-
-            $ownerProfile = $owner->ownerProfile()->create([
-                'branch_id' => $validated['branch_id']
-            ]);
 
         });
 
@@ -164,10 +147,6 @@ class OwnerController extends Controller
             ];
 
             $owner->update($ownerData);
-
-            $owner->ownerProfile()->update([
-                'branch_id' => $validated['branch_id']
-            ]);
 
         });
 

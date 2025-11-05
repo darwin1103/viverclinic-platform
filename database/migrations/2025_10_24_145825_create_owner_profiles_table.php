@@ -13,11 +13,7 @@ return new class extends Migration
     {
         Schema::create('owner_profiles', function (Blueprint $table) {
             $table->id();
-
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->unsignedBigInteger('branch_id');
-            $table->foreign('branch_id')->references('id')->on('branches');
-
             $table->timestamps();
         });
     }

@@ -13,8 +13,25 @@ class ContractedTreatment extends Model
         'user_id',
         'branch_id',
         'treatment_id',
-        'price',
+        'contracted_packages',
+        'contracted_additionals',
+        'selected_zones',
+        'total_price',
         'status',
+        'sessions',
+        'days_between_sessions',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        // Automatically encode/decode these JSON columns to/from arrays
+        'contracted_packages' => 'array',
+        'contracted_additionals' => 'array',
+        'selected_zones' => 'array',
     ];
 
     public function user(): BelongsTo

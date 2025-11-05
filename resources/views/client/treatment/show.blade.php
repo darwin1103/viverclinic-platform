@@ -20,9 +20,22 @@
             <div class="card w-100">
                 <div class="card-body m-0 m-lg-3">
 
-                    <form class="row g-4">
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
 
-                        <!-- SECCIÓN 1: ESCOGER PAQUETES Y ZONeS ADICIONALES -->
+                    <form method="POST" class="row g-4" action="{{ route('client.treatment.store') }}">
+                        @csrf
+
+                        <input type="hidden" name="treatment_id" value="{{ $treatmentId }}">
+
+                        <!-- SECCIÓN 1: ESCOGER PAQUETES Y ZONAS ADICIONALES -->
                         <div class="col-12">
                             <h2 class="section-title">1. Paquete que deseo adquirir</h2>
                             @foreach ($packages as $paquete)
@@ -37,23 +50,23 @@
 
                         <!-- SECCIÓN 2: SELECCIONAR ZONeS -->
                         <div class="col-12">
-                            <h2 class="section-title">2. Selecciona las zones deseadas a realizarte</h2>
+                            <h2 class="section-title">2. Selecciona las zonas deseadas a realizarte</h2>
                             <div class="row">
                                 <div class="col-md-6">
                                     <h3>Zonas Grandes</h3>
                                     <div id="zones-grandes-container">
                                         @foreach ($bigZones as $zone)
-                                            @include('components.client.index.form.zone-checkbox', ['zone' => $zone, 'type' => 'grande'])
+                                            @include('components.client.index.form.zone-checkbox', ['zone' => $zone, 'type' => 'big'])
                                         @endforeach
                                     </div>
                                     <h3>Zonas Pequeñas</h3>
                                     <div id="zones-pequenas-container">
                                         @foreach ($smallZones as $zone)
-                                            @include('components.client.index.form.zone-checkbox', ['zone' => $zone, 'type' => 'grande'])
+                                            @include('components.client.index.form.zone-checkbox', ['zone' => $zone, 'type' => 'big'])
                                         @endforeach
                                     </div>
                                     <div class="form-floating mt-3">
-                                        <input type="text" class="form-control" id="another-big-zone" placeholder="Otra zone cual:">
+                                        <input type="text" class="form-control" id="another-big-zone" name="another_big_zone" placeholder="Otra zona cual:">
                                         <label for="another-big-zone">Otra zona grande (opcional):</label>
                                     </div>
                                 </div>
@@ -65,7 +78,7 @@
                                         @endforeach
                                     </div>
                                      <div class="form-floating mt-3">
-                                        <input type="text" class="form-control" id="another-mini-zone" placeholder="Otra zone cual:">
+                                        <input type="text" class="form-control" id="another-mini-zone" name="another_mini_zone" placeholder="Otra mini zona cual:">
                                         <label for="another-mini-zone">Otra mini zona (opcional):</label>
                                     </div>
                                 </div>
@@ -96,7 +109,7 @@
                                 </table>
                             </div>
                             <div class="d-grid gap-2">
-                                <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#pagoModal"  id="payment-button-container">
+                                <button type="submit" class="btn btn-primary btn-lg" id="payment-button-container">
                                     Pagar
                                 </button>
                             </div>
@@ -112,8 +125,6 @@
 <!-- Modal Instructivo -->
 <x-client.index.form.body-modal />
 
-<!-- Modal de Pago -->
-<x-client.index.form.payment-modal />
 @endsection
 
 @push('scripts')

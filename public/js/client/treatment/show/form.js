@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
      * The button is only visible if the number of selected zones exactly matches the number of allowed zones.
      */
     function updatePaymentButtonVisibility() {
-        const selectedLargeZones = document.querySelectorAll('.checkbox-zone[data-type="grande"]:checked').length + (otherLargeZoneInput.value.trim() !== '' ? 1 : 0);
+        const selectedLargeZones = document.querySelectorAll('.checkbox-zone[data-type="big"]:checked').length + (otherLargeZoneInput.value.trim() !== '' ? 1 : 0);
         const selectedMiniZones = document.querySelectorAll('.checkbox-zone[data-type="mini"]:checked').length + (otherMiniZoneInput.value.trim() !== '' ? 1 : 0);
 
         const allZonesSelected = selectedLargeZones === allowedLargeZones && selectedMiniZones === allowedMiniZones;
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     total += pkg.price * quantity;
                     allowedLargeZones += pkg.big_zones * quantity;
                     allowedMiniZones += pkg.mini_zones * quantity;
-                    summaryHtml += `<tr><td>${quantity} x ${pkg.name}</td><td class="text-end">$${(pkg.price * quantity).toLocaleString('es-CL')}</td></tr>`;
+                    summaryHtml += `<tr><td>${quantity} x ${pkg.name} ($${(pkg.price).toLocaleString('es-CL')})</td><td class="text-end">$${(pkg.price * quantity).toLocaleString('es-CL')}</td></tr>`;
                 }
             }
         });
@@ -69,12 +69,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (quantity > 0) {
                     const additionalZone = additionalZones.find(p => p.id == input.dataset.id);
                     total += additionalZone.price * quantity;
-                    if (additionalZone.id === 'grande') {
+                    if (additionalZone.id === 'big') {
                         allowedLargeZones += 1 * quantity;
                     } else {
                         allowedMiniZones += 1 * quantity;
                     }
-                    summaryHtml += `<tr><td>${quantity} x ${additionalZone.name}</td><td class="text-end">$${(additionalZone.price * quantity).toLocaleString('es-CL')}</td></tr>`;
+                    summaryHtml += `<tr><td>${quantity} x ${additionalZone.name} ($${(additionalZone.price).toLocaleString('es-CL')})</td><td class="text-end">$${(additionalZone.price * quantity).toLocaleString('es-CL')}</td></tr>`;
                 }
             }
         });
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
      * Validates and disables/enables zone checkboxes based on the number of allowed selections.
      */
     function validateZoneCheckboxes() {
-        let selectedLargeZones = document.querySelectorAll('.checkbox-zone[data-type="grande"]:checked').length;
+        let selectedLargeZones = document.querySelectorAll('.checkbox-zone[data-type="big"]:checked').length;
         if (otherLargeZoneInput.value.trim() !== '') {
             selectedLargeZones++;
         }
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Enable/disable large zone checkboxes
-        document.querySelectorAll('.checkbox-zone[data-type="grande"]').forEach(checkbox => {
+        document.querySelectorAll('.checkbox-zone[data-type="big"]').forEach(checkbox => {
             if (!checkbox.checked && selectedLargeZones >= allowedLargeZones) {
                 checkbox.disabled = true;
             } else {

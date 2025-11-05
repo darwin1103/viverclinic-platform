@@ -13,6 +13,7 @@
         <label for="quantity-{{ $type }}-{{ $item['id'] }}" class="form-label visually-hidden">Cantidad</label>
         <input type="number"
            class="form-control item-amount"
+           name="{{ $type === 'package' ? 'package' : 'additional' }}[{{ $item['id'] }}]"
            style="width: 80px;"
            min="0"
            value="0"

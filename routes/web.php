@@ -22,7 +22,7 @@ use App\Http\Controllers\ReferralsController;
 use App\Http\Controllers\ScheduleAppointmentController;
 use App\Http\Controllers\UserRegistrationByBranchController;
 use App\Http\Controllers\VirtualWalletController;
-use App\Http\Controllers\Client\BuyTreatmentController;
+use App\Http\Controllers\Client\TreatmentController as ClientTreatmentController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -84,11 +84,14 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 });
 
 // Rutas para Pacientes
-Route::middleware(['auth', 'verified', 'can:patient_treatment_home_btn'])->name('patient.')->group(function () {
+Route::middleware(['auth', 'verified', 'can:patient_treatment_home_btn'])->name('client.')->group(function () {
 
     // Muestra los tratamientos de una sucursal específica
-    Route::get('/buy-treatment', [BuyTreatmentController::class, 'index'])->name('buy-treatment.index');
+    // Route::get('/buy-treatment', [TreatmentController::class, 'index'])->name('buy-treatment.index');
+    // Route::get('/buy-treatment', [TreatmentController::class, 'store'])->name('buy-treatment.store');
 
-    Route::get('/buy-treatment/{treatment}', [BuyTreatmentController::class, 'show'])->name('buy-treatment.show');
+    Route::resource('/treatment', ClientTreatmentController::class);
+
+    // Route::get('/buy-treatment/{treatment}', [TreatmentController::class, 'show'])->name('buy-treatment.show');
 
 });

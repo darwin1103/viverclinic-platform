@@ -13,7 +13,7 @@
             <div class="col-12 col-md-6 col-lg-4">
                 <div class="card h-100 shadow-sm treatment-card">
 
-                    <a href="{{ route('patient.buy-treatment.show', ['treatment' => $treatment->id]) }}" class="text-decoration-none d-flex flex-column h-100">
+                    <a href="{{ route('client.treatment.show', ['treatment' => $treatment->id]) }}" class="text-decoration-none d-flex flex-column h-100">
 
                         <img src="{{ $treatment->main_image ? Storage::url($treatment->main_image) : 'https://via.placeholder.com/400x250' }}" class="card-img-top" alt="{{ $treatment->name }}" style="height: 250px; object-fit: cover;">
 

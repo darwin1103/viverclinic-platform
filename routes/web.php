@@ -1,16 +1,18 @@
 <?php
 
-use App\Http\Controllers\Admin\TreatmentController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\ClientController;
+use App\Http\Controllers\Admin\ContractedTreatmentController;
 use App\Http\Controllers\Admin\OwnerController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\TreatmentController;
 use App\Http\Controllers\AgendaDayController;
 use App\Http\Controllers\AgendaNewController;
 use App\Http\Controllers\CancelAppointmentController;
 use App\Http\Controllers\CareTipsController;
+use App\Http\Controllers\Client\TreatmentController as ClientTreatmentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JobTrailingController;
 use App\Http\Controllers\MedicalRecordController;
@@ -22,7 +24,6 @@ use App\Http\Controllers\ReferralsController;
 use App\Http\Controllers\ScheduleAppointmentController;
 use App\Http\Controllers\UserRegistrationByBranchController;
 use App\Http\Controllers\VirtualWalletController;
-use App\Http\Controllers\Client\TreatmentController as ClientTreatmentController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -80,6 +81,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::resource('staff', StaffController::class);
 
     Route::resource('owner', OwnerController::class);
+
+    Route::resource('contracted-treatment', ContractedTreatmentController::class);
 
 });
 

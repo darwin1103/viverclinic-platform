@@ -39,6 +39,12 @@
             Tratamientos
         </a>
       </li>
+      <li>
+        <a href="{{ route('admin.contracted-treatment.index') }}" class="nav-link @if(Route::is('admin.contracted-treatment.*')) active @endif">
+            <i class="bi bi-bag-check me-2"></i>
+            Paquetes contratados
+        </a>
+      </li>
       <li class="mt-3 text-uppercase text-secondary small px-2">
         Personal
       </li>

@@ -34,7 +34,7 @@
                         <div class="col-12 col-md-4">
                             <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
                                 role="button"
-                                href="#"
+                                href="{{ route('client.contracted-treatment.index') }}"
                             >
                                 <i class="bi bi-card-checklist"></i>
                                 {{ __('Treatment') }}

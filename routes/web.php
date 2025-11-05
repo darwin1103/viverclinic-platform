@@ -13,6 +13,7 @@ use App\Http\Controllers\AgendaNewController;
 use App\Http\Controllers\CancelAppointmentController;
 use App\Http\Controllers\CareTipsController;
 use App\Http\Controllers\Client\TreatmentController as ClientTreatmentController;
+use App\Http\Controllers\Client\ContractedTreatmentController as ClientContractedTreatmentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JobTrailingController;
 use App\Http\Controllers\MedicalRecordController;
@@ -88,5 +89,6 @@ Route::middleware(['auth', 'verified', 'role:SUPER_ADMIN|OWNER'])->prefix('admin
 Route::middleware(['auth', 'verified', 'role:PATIENT'])->name('client.')->group(function () {
 
     Route::resource('/treatment', ClientTreatmentController::class);
+    Route::resource('/contracted-treatment', ClientContractedTreatmentController::class);
 
 });

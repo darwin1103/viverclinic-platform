@@ -282,8 +282,8 @@
     }, false);
     function showDeleteConfirmation(id) {
         const modal = new bootstrap.Modal('#removeConfirmationModal');
-        $('#delete').attr('action','{{url("/admin/roles")}}'+'/'+id);
-        $('#deleteElementBtn').attr('action','{{url("/admin/roles")}}'+'/'+id);
+        $('#delete').attr('action','{{url("/admin/role")}}'+'/'+id);
+        $('#deleteElementBtn').attr('action','{{url("/admin/role")}}'+'/'+id);
         modal.show();
     }
 </script>

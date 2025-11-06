@@ -119,13 +119,13 @@
                                 <h4 class="my-4">Zonas adicionales</h4>
 
                                 <div class="col-12 col-md-6">
-                                    <label for="price_additional_zone" class="form-label">Precio por 10 zonas adicionales</label>
+                                    <label for="price_additional_zone" class="form-label">Precio por 1 zonas adicional</label>
                                     <input class="form-control @error('price_additional_zone') is-invalid @enderror" type="number" min="0" step="0.01" id="price_additional_zone" name="price_additional_zone" value="{{ old('price_additional_zone', $treatment->price_additional_zone) }}">
                                     @error('price_additional_zone')<span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>@enderror
                                 </div>
 
                                 <div class="col-12 col-md-6">
-                                    <label for="price_additional_mini_zone" class="form-label">Precio por 10 mini zonas adicionales</label>
+                                    <label for="price_additional_mini_zone" class="form-label">Precio por 1 mini zonas adicional</label>
                                     <input class="form-control @error('price_additional_mini_zone') is-invalid @enderror" type="number" min="0" step="0.01" id="price_additional_mini_zone" name="price_additional_mini_zone" value="{{ old('price_additional_mini_zone', $treatment->price_additional_mini_zone) }}">
                                     @error('price_additional_mini_zone')<span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>@enderror
                                 </div>

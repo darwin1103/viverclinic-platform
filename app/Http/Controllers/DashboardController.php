@@ -2,13 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DietaryCondition;
-use App\Models\DocumentType;
-use App\Models\Gender;
-use App\Models\GynecoObstetricCondition;
-use App\Models\MedicationCondition;
-use App\Models\PathologicalCondition;
-use App\Models\ToxicologicalCondition;
 use App\Models\Treatment;
 use App\Models\Branch;
 use App\Models\User;
@@ -59,27 +52,7 @@ class DashboardController extends Controller
 
             }
 
-            $genres = Gender::where('status', true)->get();
-            $documentTypes = DocumentType::where('status', true)->get();
-            $pathologicalConditions = PathologicalCondition::where('status', true)->get();
-            $toxicologicalConditions = ToxicologicalCondition::where('status', true)->get();
-            $gynecoObstetricConditions = GynecoObstetricCondition::where('status', true)->get();
-            $medicationConditions = MedicationCondition::where('status', true)->get();
-            $dietaryConditions = DietaryCondition::where('status', true)->get();
-            $treatments = Treatment::where('active', true)->get();
-
-            $data = [
-                'genres' => $genres,
-                'documentTypes' => $documentTypes,
-                'pathologicalConditions' => $pathologicalConditions,
-                'toxicologicalConditions' => $toxicologicalConditions,
-                'gynecoObstetricConditions' => $gynecoObstetricConditions,
-                'medicationConditions' => $medicationConditions,
-                'dietaryConditions' => $dietaryConditions,
-                'treatments' => $treatments,
-            ];
-
-            return view('client.informed-consent', $data);
+            return redirect()->route('client.informed-consent.create');
 
         }
 

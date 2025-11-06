@@ -12,8 +12,9 @@ use App\Http\Controllers\AgendaDayController;
 use App\Http\Controllers\AgendaNewController;
 use App\Http\Controllers\CancelAppointmentController;
 use App\Http\Controllers\CareTipsController;
-use App\Http\Controllers\Client\TreatmentController as ClientTreatmentController;
 use App\Http\Controllers\Client\ContractedTreatmentController as ClientContractedTreatmentController;
+use App\Http\Controllers\Client\SaveInformedConsentController;
+use App\Http\Controllers\Client\TreatmentController as ClientTreatmentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JobTrailingController;
 use App\Http\Controllers\MedicalRecordController;
@@ -41,8 +42,6 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
 Route::get('/{branch}/registro', UserRegistrationByBranchController::class)->name('registration-by-branch.create');
 
-Route::post('/client/save/informed/consent',[ClientController::class,'saveInformedConsent'])->name('client.informed.consent');
-
 Route::post('/profile/uploadProfilePhoto',[ProfileController::class,'uploadProfilePhoto']);
 Route::resource('profile', ProfileController::class);
 
@@ -69,7 +68,7 @@ Route::middleware(['auth', 'verified', 'role:SUPER_ADMIN|OWNER'])->prefix('admin
     Route::post('/role/removeUser',[RoleController::class,'removeUser'])->name('role.remove.user');
     Route::resource('role', RoleController::class);
 
-    Route::get('/permission/getPermissionsList/{id}',[PermissionController::class,'getPermissionsList'])->name('permissions.list');
+    Route::get('/permission/getPermissionsList/{id}',[PermissionController::class,'getPermissionsList'])->name('permission.list');
     Route::resource('permission', PermissionController::class);
 
     Route::resource('client', ClientController::class);
@@ -90,5 +89,6 @@ Route::middleware(['auth', 'verified', 'role:PATIENT'])->name('client.')->group(
 
     Route::resource('/treatment', ClientTreatmentController::class);
     Route::resource('/contracted-treatment', ClientContractedTreatmentController::class);
+    Route::resource('/informed-consent', SaveInformedConsentController::class);
 
 });

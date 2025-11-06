@@ -6,13 +6,13 @@
             <table class="table table-hover table-striped align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Cliente</th>
-                        <th>Tratamiento</th>
-                        <th>Paquete Contratado</th>
-                        <th>Fecha de Contratación</th>
-                        <th class="text-end">Total</th>
-                        <th>Estado</th>
-                        <th class="text-center">Acciones</th>
+                        <th class="text-white">Cliente</th>
+                        <th class="text-white">Tratamiento</th>
+                        <th class="text-white">Paquete Contratado</th>
+                        <th class="text-white">Fecha de Contratación</th>
+                        <th class="text-end text-white">Total</th>
+                        <th class="text-white">Estado</th>
+                        <th class="text-center text-white">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>

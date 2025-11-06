@@ -32,7 +32,6 @@
                                     <th scope="col">#</th>
                                     <th scope="col">{{ __('Name') }}</th>
                                     <th scope="col">{{ __('Created') }}</th>
-                                    <th scope="col">{{ __('Updated') }}</th>
                                     <th scope="col">{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
@@ -48,8 +47,12 @@
                                         <tr>
                                             <th scope="row">{{ $totalItems }}</th>
                                             <td style="min-width: 160px;">{{ $role->name }}</td>
-                                            <td style="min-width: 130px;">{{ $role->created_at }}</td>
-                                            <td style="min-width: 130px;">{{ $role->updated_at }}</td>
+                                            <td style="min-width: 160px;">
+                                                @php
+                                                    \Carbon\Carbon::setLocale('es');
+                                                    echo \Carbon\Carbon::parse( $role->created_at)->isoFormat('D \d\e MMMM, YYYY');
+                                                @endphp
+                                            </td>
                                             <td style="min-width: 160px;">
                                                 <button class="btn btn-primary add-users-to-role" type="button"
                                                     data-bs-toggle="tooltip" data-bs-placement="top" data-role-name="{{ $role->name }}"

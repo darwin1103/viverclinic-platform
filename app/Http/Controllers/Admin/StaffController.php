@@ -271,10 +271,7 @@ class StaffController extends Controller
         $time = Carbon::createFromFormat('H:i', $timeString);
 
         // 2. Calculate the rounded minute.
-        // round(19 / 15) * 15 = round(1.26) * 15 = 1 * 15 = 15
-        // round(55 / 15) * 15 = round(3.66) * 15 = 4 * 15 = 60
-        // round(7 / 15)  * 15 = round(0.46) * 15 = 0 * 15 = 0
-        $roundedMinute = round($time->minute / 15) * 15;
+        $roundedMinute = round($time->minute / 20) * 20;
 
         // 3. Handle the hour rollover case.
         if ($roundedMinute >= 60) {

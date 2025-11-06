@@ -35,7 +35,12 @@
                                 @forelse ($clients as $key => $client)
                                     <tr>
                                         <td style="min-width: 180px;">{{ $client->name }}</td>
-                                        <td style="min-width: 150px;">{{ $client->created_at->format('d/m/Y H:i') }}</td>
+                                        <td style="min-width: 150px;">
+                                            @php
+                                                \Carbon\Carbon::setLocale('es');
+                                                echo \Carbon\Carbon::parse( $client->created_at)->isoFormat('D \d\e MMMM, YYYY');
+                                            @endphp
+                                        </td>
                                         <td style="min-width: 140px;">
                                             <span class="badge bg-info text-dark">
                                                 {{ $client->patientProfile?->branch?->name ?? 'No asignada' }}

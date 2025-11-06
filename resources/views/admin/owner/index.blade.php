@@ -33,7 +33,12 @@
                                     @foreach ($owners as $owner)
                                         <tr>
                                             <td style="min-width: 160px;">{{ $owner->name }}</td>
-                                            <td style="min-width: 130px;">{{ $owner->created_at }}</td>
+                                            <td style="min-width: 160px;">
+                                                @php
+                                                    \Carbon\Carbon::setLocale('es');
+                                                    echo \Carbon\Carbon::parse( $owner->created_at)->isoFormat('D \d\e MMMM, YYYY');
+                                                @endphp
+                                            </td>
                                             <td style="min-width: 160px;">
                                                 <a class="mx-2"
                                                     href="{{ route('admin.owner.show', $owner) }}"

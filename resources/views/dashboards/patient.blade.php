@@ -19,17 +19,6 @@
                             </a>
                         </div>
                     @endcan
-                    @can('patient_qualify_staff_home_btn')
-                        <div class="col-12 col-md-4">
-                            <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
-                                role="button"
-                                href="{{ route('qualify-staff.index') }}"
-                            >
-                                <i class="bi bi-star-fill"></i>
-                                {{ __('Qualify Staff') }}
-                            </a>
-                        </div>
-                    @endcan
                     @can('patient_treatment_home_btn')
                         <div class="col-12 col-md-4">
                             <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
@@ -52,6 +41,17 @@
                             </a>
                         </div>
                     @endcan
+                    @can('patient_care_tips_home_btn')
+                        <div class="col-12 col-md-4">
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
+                                role="button"
+                                href="{{ route('care-tips.index') }}"
+                            >
+                                <i class="bi bi-bag-check"></i>
+                                Tienda
+                            </a>
+                        </div>
+                    @endcan
                     @can('patient_buy_package_home_btn')
                         <div class="col-12 col-md-4">
                             <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
@@ -70,7 +70,7 @@
                                 href="{{ route('virtual-wallet.index') }}"
                             >
                                 <i class="bi bi-wallet"></i>
-                                {{ __('Virtual Wallet') }}
+                                Pagos
                             </a>
                         </div>
                     @endcan

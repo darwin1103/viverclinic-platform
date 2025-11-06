@@ -34,11 +34,17 @@
                                     @foreach ($staffs as $staff)
                                         <tr>
                                             <td style="min-width: 160px;">{{ $staff->name }}</td>
-                                            <td style="min-width: 130px;">{{ $staff->created_at }}</td><td style="min-width: 140px;">
-                                            <span class="badge bg-info text-dark">
-                                                {{ $staff->staffProfile?->branch?->name ?? 'No asignada' }}
-                                            </span>
-                                        </td>
+                                            <td style="min-width: 130px;">
+                                                @php
+                                                    \Carbon\Carbon::setLocale('es');
+                                                    echo \Carbon\Carbon::parse( $staff->created_at)->isoFormat('D \d\e MMMM, YYYY');
+                                                @endphp
+                                            </td>
+                                            <td style="min-width: 140px;">
+                                                <span class="badge bg-info text-dark">
+                                                    {{ $staff->staffProfile?->branch?->name ?? 'No asignada' }}
+                                                </span>
+                                            </td>
                                             <td style="min-width: 160px;">
                                                 <a class="mx-2"
                                                     href="{{ route('admin.staff.show', $staff) }}"

@@ -69,8 +69,6 @@ class SaveInformedConsentController extends Controller
             'treatment' => 'nullable|exists:treatments,id',
             'surgery' => 'nullable|string',
             'recommendation' => 'nullable|string',
-            'termsConditions' => 'required|string',
-            'notPregnant' => 'nullable|string'
         ]);
 
 
@@ -159,16 +157,6 @@ class SaveInformedConsentController extends Controller
             $client->recommendation = $request->recommendation;
         } else {
             $client->recommendation = null;
-        }
-        if (isset($request->termsConditions) && $request->termsConditions=='on') {
-            $client->terms_conditions = true;
-        } else {
-            $client->terms_conditions = false;
-        }
-        if (isset($request->notPregnant) && $request->notPregnant=='on') {
-            $client->not_pregnant = true;
-        } else {
-            $client->not_pregnant = false;
         }
         $client->informed_consent = false;
         $client->save();

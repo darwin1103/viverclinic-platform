@@ -66,7 +66,7 @@ class TreatmentController extends Controller
         $smallZones = Treatment::$smallZones;
         $miniZones = Treatment::$miniZones;
 
-        $treatmentId = $treatment->id;
+        $treatment = $treatment;
 
         return view('client.treatment.show', compact(
             'packages',
@@ -74,7 +74,7 @@ class TreatmentController extends Controller
             'bigZones',
             'smallZones',
             'miniZones',
-            'treatmentId'
+            'treatment'
         ));
 
     }
@@ -176,6 +176,8 @@ class TreatmentController extends Controller
             'status' => 'Pending', // Default status
             'sessions' => $treatment->sessions,
             'days_between_sessions' => $treatment->days_between_sessions,
+            'terms_acepted' => ($validatedData['termsConditions'] == 1) ? true : false,
+            'is_pregnant' => (isset($validatedData['notPregnant']) && $validatedData['notPregnant'] == 1) ? true : false,
         ]);
 
 

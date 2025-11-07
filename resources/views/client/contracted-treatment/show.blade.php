@@ -79,6 +79,13 @@
                                         echo \Carbon\Carbon::parse($contractedTreatment->created_at)->isoFormat('D \d\e MMMM, YYYY');
                                     @endphp
                                 </dd>
+
+                                <dt class="col-sm-5">Términos y condiciones:</dt>
+                                <dd class="col-sm-7">{{ $contractedTreatment->terms_acepted ? 'Aceptado' : 'No aceptado' }}</dd>
+
+                                <dt class="col-sm-5">Esta en embarazo:</dt>
+                                <dd class="col-sm-7">{{ $contractedTreatment->is_pregnant ? 'Si' : 'No' }}</dd>
+
                             </dl>
                         </div>
 

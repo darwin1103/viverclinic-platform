@@ -31,9 +31,6 @@ return new class extends Migration
             $table->string('photo_profile')->nullable();
             $table->string('surgery')->nullable();
             $table->string('recommendation')->nullable();
-            $table->boolean('terms_conditions')->default(false);
-            $table->boolean('not_pregnant')->default(false);
-
 
         });
     }
@@ -65,8 +62,6 @@ return new class extends Migration
                 'photo_profile',
                 'surgery',
                 'recommendation',
-                'terms_conditions',
-                'not_pregnant'
             ]);
         });
     }

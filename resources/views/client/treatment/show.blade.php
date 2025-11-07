@@ -33,7 +33,7 @@
                     <form method="POST" class="row g-4" action="{{ route('client.treatment.store') }}">
                         @csrf
 
-                        <input type="hidden" name="treatment_id" value="{{ $treatmentId }}">
+                        <input type="hidden" name="treatment_id" value="{{ $treatment->id }}">
 
                         <!-- SECCIÓN 1: ESCOGER PAQUETES Y ZONAS ADICIONALES -->
                         <div class="col-12">
@@ -108,6 +108,30 @@
                                     </tfoot>
                                 </table>
                             </div>
+
+                            <div class="col-12 mt-3">
+                                <div class="form-check">
+                                    <input class="form-check-input @error('termsConditions') is-invalid @enderror show-terms-conditions-modal" type="checkbox" value="1" id="termsConditions" name="termsConditions" required>
+                                    <label class="form-check-label" for="termsConditions">
+                                        {{ __('I have clearly read the consent I accept terms and conditions') }}
+                                    </label>
+                                    @error('termsConditions')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{$message}}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="notPregnant" name="notPregnant" value="1" >
+                                    <label class="form-check-label" for="notPregnant">
+                                        {{ __('Im not pregnant') }}
+                                    </label>
+                                </div>
+                            </div>
+
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-primary btn-lg" id="payment-button-container">
                                     Pagar
@@ -125,6 +149,24 @@
 <!-- Modal Instructivo -->
 <x-client.index.form.body-modal />
 
+<div class="modal fade" id="termsConditionsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="termsConditionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="termsConditionsModalLabel">{{ __('Terms and Conditions') }}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {!! $treatment->terms_conditions !!}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
+                <button type="button" class="btn btn-primary" id="acceptTermsConditions">{{ __('I accept') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -132,5 +174,21 @@
         const packages = @json($packages);
         const additionalZones = @json($additionalZones);
     </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            $(".show-terms-conditions-modal").on('click',function() {
+                if ($(this).is(':checked')) {
+                    const modal = new bootstrap.Modal('#termsConditionsModal');
+                    modal.show();
+                }
+            });
+            $("#acceptTermsConditions").on('click',function() {
+                $("#nextInformedConsent").removeAttr('disabled');
+                bootstrap.Modal.getInstance('#termsConditionsModal').hide();
+            });
+        }, false);
+    </script>
+
     <script type="text/javascript" src="{{ asset('js/client/treatment/show/form.js') }}"></script>
 @endpush

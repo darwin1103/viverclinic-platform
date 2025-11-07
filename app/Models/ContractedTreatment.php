@@ -20,6 +20,8 @@ class ContractedTreatment extends Model
         'status',
         'sessions',
         'days_between_sessions',
+        'terms_acepted',
+        'is_pregnant',
     ];
 
     /**

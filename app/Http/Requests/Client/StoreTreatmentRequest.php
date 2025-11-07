@@ -69,6 +69,9 @@ class StoreTreatmentRequest extends FormRequest
             // Usar 'numeric' en lugar de 'integer' para los VALORES
             'package.*' => ['numeric', 'min:0'],
 
+            'termsConditions' => ['required', 'accepted'],
+            'notPregnant' => ['nullable'],
+
             'additional' => [
                 'required_without:package',
                 'nullable',

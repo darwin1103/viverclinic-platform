@@ -36,6 +36,9 @@ return new class extends Migration
             $table->smallInteger('sessions');
             $table->smallInteger('days_between_sessions');
 
+            $table->boolean('terms_acepted');
+            $table->boolean('is_pregnant');
+
             $table->timestamps();
         });
     }

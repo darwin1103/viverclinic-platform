@@ -55,7 +55,7 @@
                     @endif
 
                     {{-- Blade Component for the sessions table --}}
-                    <x-appointment.schedule.index.sessions-table
+                    <x-client.appointment.schedule.index.sessions-table
                         :sessions="$sessions"
                         :totalSessions="$totalSessions"
                         :paymentIsUpToDate="$paymentIsUpToDate"
@@ -68,7 +68,7 @@
 </div>
 
 {{-- Blade Component for the modal --}}
-<x-appointment.schedule.index.appointment-modal />
+<x-client.appointment.schedule.index.appointment-modal />
 @endsection
 
 @push('scripts')

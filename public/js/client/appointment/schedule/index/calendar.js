@@ -233,16 +233,29 @@ const CalendarModule = (function() {
         }
     }
 
-    function renderSlotsForDate(date) {
+    async function renderSlotsForDate(date) { // 1. Marcar la función como async
         if (!elements.slotsContainer) return;
 
-        elements.slotsContainer.innerHTML = '';
-        const slots = generateSlotsFor(date);
+        // (Opcional pero recomendado) Mostrar un estado de carga
+        elements.slotsContainer.innerHTML = `
+            <div class="text-secondary text-center py-4">
+                Cargando horarios...
+            </div>`;
+        if (elements.btnConfirm) {
+            elements.btnConfirm.disabled = true;
+        }
 
-        if (!slots.length) {
+        // 2. Usar await para esperar a que la promesa se resuelva
+        const slots = await generateSlotsFor(date);
+
+        // A partir de aquí, el resto de tu código funciona perfectamente
+        // porque 'slots' ahora sí es el array que esperabas.
+        elements.slotsContainer.innerHTML = ''; // Limpiar el mensaje de "Cargando..."
+
+        if (!slots || !slots.length) { // Añadida una comprobación extra por si algo sale mal
             elements.slotsContainer.innerHTML = `
                 <div class="text-secondary text-center py-4">
-                    No hay horarios disponibles para este día
+                    No hay horarios disponibles para este día.
                 </div>`;
             if (elements.btnConfirm) {
                 elements.btnConfirm.disabled = true;
@@ -296,46 +309,53 @@ const CalendarModule = (function() {
         }
     }
 
-    function generateSlotsFor(date) {
-        const day = date.getDay();
+    /**
+     * Fetches available appointment slots from the backend for a given date.
+     * @param {Date} date The selected date.
+     * @returns {Promise<string[]>} A promise that resolves to an array of available time slots.
+     */
+    async function generateSlotsFor(date) {
+        const formattedDate = formatDateISO(date);
+        const branchId = document.getElementById('branchIdInput').value;
+        // The URL for our API endpoint. It's better to get this from Blade if possible.
+        const apiUrl = '/api/appointments/available-slots';
 
-        // No slots for Sundays
-        if (day === 0) return [];
+        // Get the CSRF token from the meta tag in the head
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-        const start = new Date(date);
-        start.setHours(9, 0, 0, 0);
-
-        const end = new Date(date);
-        end.setHours(17, 0, 0, 0);
-
-        // Blocked times (lunch break, etc.)
-        const blocked = ['12:30', '13:00', '13:30', '14:00', '14:30', '15:00'];
-
-        const slots = [];
-        const currentTime = new Date(start);
-
-        while (currentTime < end) {
-            const timeStr = currentTime.toLocaleTimeString('es-ES', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({
+                    date: formattedDate,
+                    branch_id: branchId
+                })
             });
 
-            // Skip if it's today and time has passed
-            if (sameYMD(date, today) && currentTime < new Date()) {
-                currentTime.setMinutes(currentTime.getMinutes() + 30);
-                continue;
+            if (!response.ok) {
+                // Handle HTTP errors like 404, 500, etc.
+                const errorData = await response.json();
+                console.error('Error fetching slots:', response.status, errorData);
+                // You might want to show an error message to the user here
+                return []; // Return an empty array on failure
             }
 
-            // Skip blocked times
-            if (!blocked.includes(timeStr)) {
-                slots.push(timeStr);
-            }
+            const data = await response.json();
 
-            currentTime.setMinutes(currentTime.getMinutes() + 30);
+            // The controller returns { slots: [...] }, so we return data.slots
+            return data.slots || []; // Return slots or an empty array if not present
+
+        } catch (error) {
+            // Handle network errors or other exceptions
+            console.error('An unexpected error occurred:', error);
+            // You might want to show an error message to the user here
+            return []; // Return an empty array on failure
         }
-
-        return slots;
     }
 
     function clearSlots() {
@@ -357,8 +377,17 @@ const CalendarModule = (function() {
             date1.getDate() === date2.getDate();
     }
 
+    /**
+     * Formats a Date object into a 'YYYY-MM-DD' string.
+     * @param {Date} date The date to format.
+     * @returns {string}
+     */
     function formatDateISO(date) {
-        return date.toISOString().split('T')[0];
+        // A robust way to get YYYY-MM-DD in the local timezone
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
 
     function showToast(message) {

@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContractedTreatment;
+use App\Traits\CalculatesAvailableSlots;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ScheduleAppointmentController extends Controller
 {
+    use CalculatesAvailableSlots;
+
     /**
      * Display the appointment scheduling page
      */
@@ -66,7 +69,7 @@ class ScheduleAppointmentController extends Controller
 
         Carbon::setLocale('es');
 
-        return view('schedule-appointment.index', [
+        return view('client.schedule-appointment.index', [
             'contracted_treatment' => $contracted_treatment,
             'paymentIsUpToDate' => $paymentIsUpToDate,
             'totalSessions' => $contracted_treatment->sessions,
@@ -175,63 +178,34 @@ class ScheduleAppointmentController extends Controller
     }
 
     /**
-     * Get available time slots for a specific date (AJAX endpoint)
+     * Find available appointment slots based on a given date and branch.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function availableSlots(Request $request)
     {
         $validated = $request->validate([
-            'date' => 'required|date|after_or_equal:today',
-            'specialist_id' => 'required|integer',
-            'branch_id' => 'required|integer',
+            'date' => 'required|date_format:Y-m-d|after_or_equal:today',
+            'branch_id' => 'required|integer|exists:branches,id',
         ]);
 
-        $date = Carbon::parse($validated['date']);
+        try {
+            $date = Carbon::parse($validated['date']);
+            $branchId = (int)$validated['branch_id'];
 
-        // Don't allow Sundays
-        if ($date->isSunday()) {
-            return response()->json(['slots' => []]);
+            // Call the method from our trait to get the available slots
+            // You can also pass custom values for slot duration and additional capacity if needed
+            $slots = $this->calculateAvailableSlots($date, $branchId);
+\Log::info(print_r($slots,true));
+            return response()->json(['slots' => $slots]);
+
+        } catch (\Exception $e) {
+            // It's good practice to log errors
+            \Log::error('Error calculating available slots: ' . $e->getMessage());
+
+            // Return a generic error message to the user
+            return response()->json(['error' => 'Could not retrieve available slots.'], 500);
         }
-
-        // Generate time slots (9:00 AM to 5:00 PM, every 30 minutes)
-        $slots = [];
-        $start = $date->copy()->setTime(9, 0);
-        $end = $date->copy()->setTime(17, 0);
-
-        // Blocked times (lunch break)
-        $blockedTimes = ['12:30', '13:00', '13:30', '14:00', '14:30', '15:00'];
-
-        // TODO: Get already booked slots from database
-        $bookedSlots = []; // Example: ['09:00', '10:30', '14:00']
-
-        while ($start < $end) {
-            $timeStr = $start->format('H:i');
-
-            // Skip if time has passed (for today)
-            if ($date->isToday() && $start < now()) {
-                $start->addMinutes(30);
-                continue;
-            }
-
-            // Skip blocked times
-            if (in_array($timeStr, $blockedTimes)) {
-                $start->addMinutes(30);
-                continue;
-            }
-
-            // Skip already booked slots
-            if (in_array($timeStr, $bookedSlots)) {
-                $start->addMinutes(30);
-                continue;
-            }
-
-            $slots[] = [
-                'time' => $timeStr,
-                'available' => true
-            ];
-
-            $start->addMinutes(30);
-        }
-
-        return response()->json(['slots' => $slots]);
     }
 }

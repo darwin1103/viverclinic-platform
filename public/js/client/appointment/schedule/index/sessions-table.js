@@ -41,7 +41,8 @@ const SessionsTableModule = (function() {
         const btnScheduler = target.closest('.btn-open-scheduler');
         if (btnScheduler) {
             const sessionNumber = btnScheduler.getAttribute('data-session');
-            openSchedulerModal(sessionNumber);
+            const branchId = btnScheduler.getAttribute('data-branch-id');
+            openSchedulerModal(sessionNumber, branchId);
             return;
         }
 
@@ -67,7 +68,8 @@ const SessionsTableModule = (function() {
         const btnReschedule = target.closest('.btn-resched');
         if (btnReschedule) {
             const sessionNumber = btnReschedule.getAttribute('data-session');
-            openSchedulerModal(sessionNumber);
+            const branchId = btnReschedule.getAttribute('data-branch-id');
+            openSchedulerModal(sessionNumber, branchId);
             return;
         }
 
@@ -80,7 +82,7 @@ const SessionsTableModule = (function() {
         }
     }
 
-    function openSchedulerModal(sessionNumber) {
+    function openSchedulerModal(sessionNumber, branchId) {
         if (!elements.modalAgendar) return;
 
         const modal = new bootstrap.Modal(elements.modalAgendar);
@@ -88,9 +90,11 @@ const SessionsTableModule = (function() {
         // Set session number in modal
         const sessionSpan = elements.modalAgendar.querySelector('#modalSessionNumber');
         const sessionInput = elements.modalAgendar.querySelector('#sessionNumberInput');
+        const branchIdInput = elements.modalAgendar.querySelector('#branchIdInput');
 
         if (sessionSpan) sessionSpan.textContent = sessionNumber;
         if (sessionInput) sessionInput.value = sessionNumber;
+        if (branchIdInput) branchIdInput.value = branchId;
 
         modal.show();
     }

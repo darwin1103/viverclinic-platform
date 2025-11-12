@@ -43,9 +43,13 @@ class Branch extends Model
         return $this->belongsToMany(User::class, 'admins_branches')->withTimestamps();
     }
 
-    public function employees(): BelongsToMany
+    /**
+     * Get the staff profiles associated with the branch.
+     */
+    public function staff(): HasMany
     {
-        return $this->belongsToMany(User::class, 'employees_branches')->withTimestamps();
+        // Asegurate de que el namespace de StaffProfile es correcto
+        return $this->hasMany(StaffProfile::class);
     }
 
     public function patients(): BelongsToMany

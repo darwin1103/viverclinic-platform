@@ -16,6 +16,7 @@
                 <input type="hidden" name="session_number" id="sessionNumberInput">
                 <input type="hidden" name="appointment_date" id="appointmentDateInput">
                 <input type="hidden" name="appointment_time" id="appointmentTimeInput">
+                <input type="hidden" name="branch_id" id="branchIdInput">
 
                 <div class="modal-body">
                     <div class="row g-4">

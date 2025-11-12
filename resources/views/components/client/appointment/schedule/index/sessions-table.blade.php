@@ -1,4 +1,4 @@
-@props(['sessions', 'totalSessions', 'paymentIsUpToDate'])
+@props(['sessions', 'totalSessions', 'paymentIsUpToDate', 'branchId'])
 
 @php
     // Find if there's already a future appointment scheduled
@@ -112,7 +112,7 @@
                                     <i class="bi bi-check2"></i>
                                     <span class="d-none d-lg-inline ms-1">Confirmar</span>
                                 </button>
-                                <button class="btn btn-warning btn-resched" data-session="{{ $i }}" title="Reagendar">
+                                <button class="btn btn-warning btn-resched" data-branch-id="{{ $branchId }}" data-session="{{ $i }}" title="Reagendar">
                                     <i class="bi bi-arrow-repeat"></i>
                                     <span class="d-none d-lg-inline ms-1">Reagendar</span>
                                 </button>
@@ -122,7 +122,7 @@
                                 </button>
                             </div>
                         @elseif ($canSchedule && $paymentIsUpToDate)
-                            <button class="btn btn-sm btn-primary btn-open-scheduler" data-session="{{ $i }}">
+                            <button class="btn btn-sm btn-primary btn-open-scheduler" data-branch-id="{{ $branchId }}" data-session="{{ $i }}">
                                 <i class="bi bi-calendar-plus me-1"></i>
                                 <span class="d-none d-sm-inline">Agendar Cita</span>
                             </button>

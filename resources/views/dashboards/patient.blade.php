@@ -102,7 +102,7 @@
                         <div class="col-12 col-md-6">
                             <a class="btn btn-custom btn-schedule-appointment d-flex justify-content-start text-start gap-3 align-items-center"
                                 role="button"
-                                href="{{ route('schedule-appointment.index') }}"
+                                href="{{ route('client.contracted-treatment.index') }}"
                             >
                                 <i class="bi bi-plus-circle-fill"></i>
                                 {{ __('Schedule an Appointment') }}

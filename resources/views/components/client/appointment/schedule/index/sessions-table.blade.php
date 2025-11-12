@@ -1,76 +1,142 @@
 @props(['sessions', 'totalSessions', 'paymentIsUpToDate'])
 
 @php
-    // LÓGICA CLAVE:
-    // 1. Encontrar si ya existe una cita futura agendada en la colección.
-    //    Esto es crucial para saber si debemos mostrar un botón de "Agendar" o de "Reprogramar".
-    $futureAppointment = $sessions->where('attended', null)->firstWhere('date', '!=', null);
+    // Find if there's already a future appointment scheduled
+    $futureAppointment = $sessions->first(function ($session) {
+        return is_null($session['attended']) &&
+               isset($session['date']) &&
+               Illuminate\Support\Carbon::parse($session['date'])->isFuture();
+    });
 
-    // 2. Determinar cuál es la siguiente sesión que TOCA.
-    //    Es la que sigue inmediatamente a la última sesión que ya fue marcada como 'asistida' o 'perdida'.
-    //    Si ninguna se ha completado, empezamos por la 1.
+    // Determine the next session in sequence
     $lastCompletedSessionNumber = $sessions->whereNotNull('attended')->max('session_number') ?? 0;
     $nextSessionInSequence = $lastCompletedSessionNumber + 1;
 @endphp
 
 <div class="table-responsive">
-    <table class="table table-hover align-middle text-center">
-        <thead class="table-light">
+    <table class="table align-middle" id="sessionsTable">
+        <thead>
             <tr>
-                <th scope="col" class="text-white">Sesión</th>
-                <th scope="col" class="text-white">Asistencia</th>
-                <th scope="col" class="text-white">Fecha de Cita</th>
+                <th>Sesión</th>
+                <th class="text-center">Asistencia / Estado</th>
+                <th class="text-center d-none d-md-table-cell">Fecha</th>
+                <th class="text-center d-none d-lg-table-cell">Hora</th>
+                <th class="text-end">Acción</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="sessionTableBody">
             @for ($i = 1; $i <= $totalSessions; $i++)
                 @php
-                    // Obtenemos los datos de la sesión para la fila actual ($i).
                     $session = $sessions->firstWhere('session_number', $i);
+                    $isPast = isset($session) && $session['attended'] !== null;
+                    $isNextSession = isset($session) && $session['date'] !== null && $session['attended'] === null;
+                    $canSchedule = $i === $nextSessionInSequence && !$futureAppointment && $paymentIsUpToDate;
+                    $isDisabled = !$isPast && !$isNextSession && !$canSchedule;
                 @endphp
-                <tr>
-                    <td class="fw-bold">{{ $i }}</td>
-                    <td>
-                        {{-- Iconos de asistencia (esta parte no cambia) --}}
-                        @if (isset($session) && $session['attended'] === true)
-                            <i class="bi bi-check-circle-fill fs-4 text-success" title="Asistió"></i>
-                        @elseif (isset($session) && $session['attended'] === false)
-                            <i class="bi bi-x-circle-fill fs-4 text-danger" title="No Asistió"></i>
+                <tr data-session="{{ $i }}"
+                    data-status="{{ $isPast ? ($session['attended'] ? 'ok' : 'bad') : ($isNextSession ? 'scheduled' : 'pending') }}"
+                    data-date="{{ $session['date'] ?? '' }}"
+                    data-time="{{ $session['time'] ?? '' }}"
+                    data-review-score="{{ $session['review_score'] ?? '' }}"
+                    data-can-schedule="{{ $canSchedule ? 'true' : 'false' }}"
+                    data-is-disabled="{{ $isDisabled ? 'true' : 'false' }}">
+
+                    <td class="fw-semibold">{{ $i }}</td>
+
+                    <td class="text-center">
+                        @if ($isPast && $session['attended'])
+                            <span class="badge-assist text-bg-success">
+                                <i class="bi bi-check-lg"></i>
+                                <span class="d-none d-sm-inline">Asistida</span>
+                            </span>
+                        @elseif ($isPast && !$session['attended'])
+                            <span class="badge-assist text-bg-danger">
+                                <i class="bi bi-x-lg"></i>
+                                <span class="d-none d-sm-inline">No asistida</span>
+                            </span>
+                        @elseif ($isNextSession)
+                            <span class="badge-assist text-bg-info">
+                                <i class="bi bi-clock"></i>
+                                <span class="d-none d-sm-inline">Agendada</span>
+                            </span>
+                        @elseif ($canSchedule)
+                            <span class="badge-assist badge-available">
+                                <i class="bi bi-plus-circle-dotted"></i>
+                                <span class="d-none d-sm-inline">Disponible</span>
+                            </span>
+                        @elseif ($isDisabled)
+                            <span class="badge-assist badge-upcoming">
+                                <i class="bi bi-arrow-90deg-right"></i>
+                                <span class="d-none d-sm-inline">Próxima</span>
+                            </span>
+                        @else
+                            <span class="badge-assist text-bg-secondary">
+                                <i class="bi bi-question-square"></i>
+                                <span class="d-none d-sm-inline">Pendiente</span>
+                            </span>
                         @endif
                     </td>
-                    <td>
-                        @if (isset($session) && $session['attended'] !== null)
-                            {{-- CASO 1: Sesión pasada (asistida o perdida). Mostramos su fecha. --}}
-                            {{ \Carbon\Carbon::parse($session['date'])->format('d-m-Y') }}
 
-                        @elseif (isset($session) && $session['date'] !== null)
-                            {{-- CASO 2: Es una cita futura YA AGENDADA. Mostramos fecha y botón "Reprogramar". --}}
-                            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                                <span class="fw-bold align-self-center me-2 d-none d-sm-block">{{ \Carbon\Carbon::parse($session['date'])->format('d-m-Y') }}</span>
-                                @if($paymentIsUpToDate)
-                                <button class="btn btn-outline-primary btn-sm"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#scheduleAppointmentModal"
-                                    data-bs-session-number="{{ $i }}"
-                                    data-bs-date="{{ $session['date'] }}">
-                                    <i class="bi bi-pencil-square me-1"></i> Reprogramar
+                    <td class="text-center d-none d-md-table-cell">
+                        @if (isset($session) && $session['date'])
+                            <span class="session-date">
+                                {{ Illuminate\Support\Carbon::parse($session['date'])->isoFormat('D \d\e MMMM, YYYY') }}
+                            </span>
+                        @endif
+                    </td>
+
+                    <td class="text-center d-none d-lg-table-cell">
+                        @if (isset($session) && $session['time'])
+                            <span class="session-time">
+                            {{ Illuminate\Support\Carbon::parse($session['time'])->isoFormat('hh:mm a') }}
+                        </span>
+                        @endif
+                    </td>
+
+                    <td class="text-end">
+                        @if ($isPast)
+                            @if (isset($session['review_score']) && $session['review_score'] > 0)
+                                <button class="btn btn-sm btn-outline-secondary" disabled>
+                                    <i class="bi bi-star-fill me-1"></i>
+                                    <span class="d-none d-sm-inline">Calificado</span>
                                 </button>
-                                @endif
-                            </div>
-
-                        @elseif ($i === $nextSessionInSequence && $futureAppointment)
-                            {{-- CASO 3: ESTA es la siguiente sesión que TOCA agendar. --}}
-                            {{-- Solo se muestra si NO hay otra cita futura ya agendada. --}}
-                            @if($paymentIsUpToDate)
-                                <button class="btn btn-primary btn-sm"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#scheduleAppointmentModal"
-                                    data-bs-session-number="{{ $i }}">
-                                    <i class="bi bi-calendar-plus me-1"></i> Agendar Cita
+                            @else
+                                <button class="btn btn-sm btn-outline-info btn-rate" data-session="{{ $i }}">
+                                    <i class="bi bi-emoji-smile me-1"></i>
+                                    <span class="d-none d-sm-inline">Calificar</span>
                                 </button>
                             @endif
+                        @elseif ($isNextSession)
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button class="btn btn-success btn-confirm" data-session="{{ $i }}" title="Confirmar">
+                                    <i class="bi bi-check2"></i>
+                                    <span class="d-none d-lg-inline ms-1">Confirmar</span>
+                                </button>
+                                <button class="btn btn-warning btn-resched" data-session="{{ $i }}" title="Reagendar">
+                                    <i class="bi bi-arrow-repeat"></i>
+                                    <span class="d-none d-lg-inline ms-1">Reagendar</span>
+                                </button>
+                                <button class="btn btn-danger btn-cancel" data-session="{{ $i }}" title="Cancelar">
+                                    <i class="bi bi-x-lg"></i>
+                                    <span class="d-none d-lg-inline ms-1">Cancelar</span>
+                                </button>
+                            </div>
+                        @elseif ($canSchedule && $paymentIsUpToDate)
+                            <button class="btn btn-sm btn-primary btn-open-scheduler" data-session="{{ $i }}">
+                                <i class="bi bi-calendar-plus me-1"></i>
+                                <span class="d-none d-sm-inline">Agendar Cita</span>
+                            </button>
+                        @elseif ($canSchedule)
+                            <button class="btn btn-sm btn-primary" disabled>
+                                <i class="bi bi-calendar-plus me-1"></i>
+                                <span class="d-none d-sm-inline">Agendar Cita</span>
+                            </button>
+                        @elseif ($isDisabled)
+                            <button class="btn btn-sm btn-primary" disabled>
+                                <i class="bi bi-calendar-plus me-1"></i>
+                                <span class="d-none d-sm-inline">Agendar Cita</span>
+                            </button>
                         @endif
-                        {{-- Para el resto de casos (sesiones futuras que aún no tocan), la celda queda vacía. --}}
                     </td>
                 </tr>
             @endfor

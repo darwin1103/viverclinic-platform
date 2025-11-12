@@ -184,6 +184,6 @@ class TreatmentController extends Controller
         // --- 4. Redirect with a Success Message ---
 
         // Redirigir a una página de confirmación o de pago
-        return redirect()->route('schedule-appointment.index')->with('success', '¡Has seleccionado tu tratamiento! El siguiente paso es agendar tu cita.');
+        return redirect()->route('client.contracted-treatment.index')->with('success', '¡Has seleccionado tu tratamiento! El siguiente paso es agendar tu cita.');
     }
 }

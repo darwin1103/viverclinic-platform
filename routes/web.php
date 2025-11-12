@@ -15,6 +15,7 @@ use App\Http\Controllers\CareTipsController;
 use App\Http\Controllers\Client\ContractedTreatmentController as ClientContractedTreatmentController;
 use App\Http\Controllers\Client\SaveInformedConsentController;
 use App\Http\Controllers\Client\TreatmentController as ClientTreatmentController;
+use App\Http\Controllers\Client\ScheduleAppointmentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JobTrailingController;
 use App\Http\Controllers\MedicalRecordController;
@@ -23,7 +24,6 @@ use App\Http\Controllers\PromotionsController;
 use App\Http\Controllers\QualifyStaffController;
 use App\Http\Controllers\RecomentationsController;
 use App\Http\Controllers\ReferralsController;
-use App\Http\Controllers\ScheduleAppointmentController;
 use App\Http\Controllers\UserRegistrationByBranchController;
 use App\Http\Controllers\VirtualWalletController;
 use Illuminate\Support\Facades\Auth;
@@ -52,7 +52,6 @@ Route::resource('virtual-wallet', VirtualWalletController::class);
 Route::resource('promotions', PromotionsController::class);
 Route::resource('recomentations', RecomentationsController::class);
 Route::resource('referrals', ReferralsController::class);
-Route::resource('schedule-appointment', ScheduleAppointmentController::class);
 Route::resource('cancel-appointment', CancelAppointmentController::class);
 Route::resource('agenda-day', AgendaDayController::class);
 Route::resource('agenda-new', AgendaNewController::class);
@@ -90,5 +89,26 @@ Route::middleware(['auth', 'verified', 'role:PATIENT'])->name('client.')->group(
     Route::resource('/treatment', ClientTreatmentController::class);
     Route::resource('/contracted-treatment', ClientContractedTreatmentController::class);
     Route::resource('/informed-consent', SaveInformedConsentController::class);
+
+    Route::get('/contrated_treatment/{contracted_treatment}/schedule-appointment', [ScheduleAppointmentController::class, 'index'])
+        ->name('schedule-appointment.index');
+
+    Route::put('/schedule-appointment/store', [ScheduleAppointmentController::class, 'store'])
+        ->name('schedule-appointment.store');
+
+    Route::post('/schedule-appointment/rate', [ScheduleAppointmentController::class, 'rate'])
+        ->name('schedule-appointment.rate');
+
+    Route::post('/schedule-appointment/confirm/{session}', [ScheduleAppointmentController::class, 'confirm'])
+        ->name('schedule-appointment.confirm');
+
+    Route::post('/schedule-appointment/cancel/{session}', [ScheduleAppointmentController::class, 'cancel'])
+        ->name('schedule-appointment.cancel');
+
+    // Optional: AJAX endpoint for dynamic slots
+    Route::post('/api/appointments/available-slots', [ScheduleAppointmentController::class, 'availableSlots'])
+        ->name('schedule-appointment.available-slots');
+
+
 
 });

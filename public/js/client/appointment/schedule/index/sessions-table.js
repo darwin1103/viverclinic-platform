@@ -62,7 +62,8 @@ const SessionsTableModule = (function() {
         if (btnConfirm) {
             const sessionNumber = btnConfirm.getAttribute('data-session');
             const appointmentId = btnConfirm.getAttribute('data-appointment-id');
-            confirmSession(sessionNumber, appointmentId);
+            const confirmUrl = btnConfirm.getAttribute('data-confirm-url-template');
+            confirmSession(sessionNumber, appointmentId, confirmUrl);
             return;
         }
 
@@ -109,14 +110,36 @@ const SessionsTableModule = (function() {
         modal.show();
     }
 
-    function confirmSession(sessionNumber, appointmentId) {
-        if (!confirm('¿Confirmar que asistra a esta cita?')) return;
+    function confirmSession(sessionNumber, appointmentId, confirmUrl) {
 
-        // Here you would make an AJAX call to update the backend ***
+        if (!confirm('¿Confirma que asistra a esta cita?')) return;
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        fetch(confirmUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Your controller handles the redirect, but this is a good fallback.
+                window.location.reload();
+            } else {
+                alert('Error al confirmar la cita.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ocurrió un error de red.');
+        });
 
     }
 
     function cancelSession(sessionNumber, appointmentId, cancelUrl) {
+
         if (!confirm('¿Estás seguro de cancelar esta cita?')) return;
 
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -144,6 +167,7 @@ const SessionsTableModule = (function() {
     }
 
     function updateSessionRating(sessionNumber, ratingValue) {
+
         const row = elements.tableBody.querySelector(`tr[data-session="${sessionNumber}"]`);
         if (!row) return;
 
@@ -159,6 +183,7 @@ const SessionsTableModule = (function() {
                 </button>
             `;
         }
+
     }
 
     function reloadSessionsTable() {

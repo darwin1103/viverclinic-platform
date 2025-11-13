@@ -72,6 +72,7 @@ class ScheduleAppointmentController extends Controller
             'contracted_treatment_id' => $contractedTreatmentId,
             'schedule' => $schedule,
             'session_number' => $validated['session_number'],
+            'status' => 'Por confirmar',
         ]);
 
         return redirect()
@@ -145,22 +146,21 @@ class ScheduleAppointmentController extends Controller
     /**
      * Confirm a scheduled appointment (mark as attended)
      */
-    public function confirm($sessionNumber)
+    public function confirm(Appointment $appointment)
     {
 
-        // check user belong to contracted treatment ***
+        $appointment->load('contractedTreatment');
 
-        // TODO: Update appointment status
-        // Example:
-        // Appointment::where('treatment_id', $treatmentId)
-        //     ->where('session_number', $sessionNumber)
-        //     ->update([
-        //         'attended' => true,
-        //         'confirmed_at' => now()
-        //     ]);
+        // verify if the user is the owner of contracted treatment ***
+
+        $contractedTreatmentId = $appointment->contractedTreatment->id;
+
+        $appointment->update([
+            'status' => 'Confirmada',
+        ]);
 
         return redirect()
-            ->route('schedule-appointment.index')
+            ->route('client.schedule-appointment.index', ['contracted_treatment' => $contractedTreatmentId])
             ->with('success', 'Cita confirmada como asistida');
     }
 
@@ -174,12 +174,12 @@ class ScheduleAppointmentController extends Controller
 
         // verify if the user is the owner of contracted treatment ***
 
-        $contractedTreatment = $appointment->contractedTreatment->id;
+        $contractedTreatmentId = $appointment->contractedTreatment->id;
 
         $appointment->delete();
 
         return redirect()
-            ->route('client.schedule-appointment.index', ['contracted_treatment' => $contractedTreatment])
+            ->route('client.schedule-appointment.index', ['contracted_treatment' => $contractedTreatmentId])
             ->with('success', 'Cita cancelada exitosamente');
     }
 

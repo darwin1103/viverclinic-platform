@@ -19,6 +19,7 @@ class Appointment extends Model
         'contracted_treatment_id',
         'schedule',
         'attended',
+        'status',
         'session_number',
         'staff_user_id',
         'review',

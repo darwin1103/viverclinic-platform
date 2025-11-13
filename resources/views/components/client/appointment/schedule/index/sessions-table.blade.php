@@ -33,7 +33,7 @@
                     $canSchedule = $i === $nextSessionInSequence && !$futureAppointment && $paymentIsUpToDate;
                     $isDisabled = !$isPast && !$isNextSession && !$canSchedule;
                     $canManageOptions = $isNextSession && Illuminate\Support\Carbon::parse($session['schedule'])->gt(Illuminate\Support\Carbon::now()->addHours(24));
-                    $isConfirmed = false;
+                    $isConfirmed = isset($session) && $session['status'] === 'Confirmada';
                 @endphp
                 <tr data-session="{{ $i }}"
                     data-status="{{ $isPast ? ($session['attended'] ? 'ok' : 'bad') : ($isNextSession ? 'scheduled' : 'pending') }}"
@@ -110,7 +110,13 @@
                             @endif
                         @elseif ($canManageOptions && !$isConfirmed)
                             <div class="btn-group btn-group-sm" role="group">
-                                <button class="btn btn-success btn-confirm" data-session="{{ $i }}" data-appointment-id="{{ $session['id'] }}" title="Confirmar">
+                                <button
+                                class="btn btn-success btn-confirm"
+                                data-session="{{ $i }}"
+                                data-appointment-id="{{ $session['id'] }}"
+                                data-confirm-url-template="{{ route('client.schedule-appointment.confirm', ['appointment' => $session['id']]) }}"
+                                title="Confirmar"
+                                >
                                     <i class="bi bi-check2"></i>
                                     <span class="d-none d-lg-inline ms-1">Confirmar</span>
                                 </button>

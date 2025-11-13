@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('contracted_treatment_id')->constrained()->onDelete('cascade');
 
             $table->timestamp('schedule');
+            $table->tinyText('status');
             $table->smallInteger('session_number');
 
             $table->unsignedBigInteger('staff_user_id')->nullable();

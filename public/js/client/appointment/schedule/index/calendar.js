@@ -64,10 +64,6 @@ const CalendarModule = (function() {
             elements.modal.addEventListener('show.bs.modal', handleModalShow);
             elements.modal.addEventListener('hidden.bs.modal', handleModalHidden);
         }
-
-        if (elements.form) {
-            elements.form.addEventListener('submit', handleFormSubmit);
-        }
     }
 
     function navigateToPreviousMonth() {
@@ -106,32 +102,6 @@ const CalendarModule = (function() {
 
     function handleModalHidden() {
         resetSelection();
-    }
-
-    function handleFormSubmit(e) {
-        e.preventDefault();
-
-        if (!selectedDate || !selectedSlot) {
-            showToast('Por favor selecciona una fecha y hora');
-            return;
-        }
-
-        // Here you would normally submit the form
-        // For now, we'll simulate it with a toast
-        const formData = new FormData(elements.form);
-
-        showToast('Cita agendada exitosamente');
-
-        // Close modal
-        const modal = bootstrap.Modal.getInstance(elements.modal);
-        if (modal) {
-            modal.hide();
-        }
-
-        // Reload table (this would be handled by the sessions-table.js)
-        if (window.reloadSessionsTable) {
-            window.reloadSessionsTable();
-        }
     }
 
     function resetSelection() {
@@ -388,15 +358,6 @@ const CalendarModule = (function() {
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
-    }
-
-    function showToast(message) {
-        const toast = document.createElement('div');
-        toast.className = 'position-fixed bottom-0 end-0 m-3 p-2 px-3 rounded bg-dark border border-secondary-subtle';
-        toast.style.zIndex = '2000';
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 1800);
     }
 
     return {

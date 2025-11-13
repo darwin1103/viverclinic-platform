@@ -16,9 +16,9 @@ class Appointment extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'contracted_treatments_id',
+        'contracted_treatment_id',
         'schedule',
-        'status',
+        'attended',
         'session_number',
         'staff_user_id',
         'review',
@@ -39,9 +39,7 @@ class Appointment extends Model
      */
     public function contractedTreatment(): BelongsTo
     {
-        // El 'contracted_treatments_id' en la tabla 'appointments'
-        // enlaza con el 'id' de la tabla 'contracted_treatments'.
-        return $this->belongsTo(ContractedTreatment::class, 'contracted_treatments_id');
+        return $this->belongsTo(ContractedTreatment::class);
     }
 
     /**

@@ -37,7 +37,7 @@
                                             <td style="min-width: 130px;">
                                                 @php
                                                     \Carbon\Carbon::setLocale('es');
-                                                    echo \Carbon\Carbon::parse( $staff->created_at)->isoFormat('D \d\e MMMM, YYYY');
+                                                    echo \Carbon\Carbon::parse( $staff->created_at)->isoFormat('dddd, D \d\e MMMM, YYYY');
                                                 @endphp
                                             </td>
                                             <td style="min-width: 140px;">

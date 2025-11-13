@@ -11,12 +11,13 @@
 
             <form method="POST" action="{{ route('client.schedule-appointment.store') }}" id="appointmentForm">
                 @csrf
-                @method('PUT')
 
                 <input type="hidden" name="session_number" id="sessionNumberInput">
                 <input type="hidden" name="appointment_date" id="appointmentDateInput">
                 <input type="hidden" name="appointment_time" id="appointmentTimeInput">
                 <input type="hidden" name="branch_id" id="branchIdInput">
+                <input type="hidden" name="appointment_id" id="appointmentIdInput">
+                <input type="hidden" name="contracted_treatment_id" id="contractedTreatmentIdInput">
 
                 <div class="modal-body">
                     <div class="row g-4">

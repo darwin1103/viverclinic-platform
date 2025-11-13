@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Client\StoreAppointmentRequest;
+use App\Models\Appointment;
 use App\Models\ContractedTreatment;
 use App\Traits\CalculatesAvailableSlots;
 use Carbon\Carbon;
@@ -20,51 +22,19 @@ class ScheduleAppointmentController extends Controller
 
         // validate user is owner of the contrated_treatment ***
 
-        $contracted_treatment->load(['branch', 'treatment']);
-// dd($contracted_treatment);
+        $contracted_treatment->load(['branch', 'treatment', 'appointments']);
 
-        // Check payment status
+        // Check payment status ***
         $paymentIsUpToDate = true;
 
-        // Sessions data - This should come from database
-        // Each session should have: session_number, date, time, attended (bool|null), review_score (int|null)
-        $sessionsData = [
-            [
-                'session_number' => 1,
-                'date' => '2025-10-05',
-                'time' => '09:00',
-                'attended' => true,
-                'review_score' => 3
-            ],
-            [
-                'session_number' => 2,
-                'date' => '2025-10-06',
-                'time' => '09:40',
-                'attended' => false,
-                'review_score' => null
-            ],
-            [
-                'session_number' => 3,
-                'date' => '2025-10-07',
-                'time' => '11:40',
-                'attended' => true,
-                'review_score' => null // Not rated yet
-            ],
-            // [
-            //     'session_number' => 4,
-            //     'date' => '2025-11-15',
-            //     'time' => '10:00',
-            //     'attended' => null, // Future appointment
-            //     'review_score' => null
-            // ],
-            // Sessions 5-10 have no date yet (not scheduled)
-        ];
-
-        $sessions = collect($sessionsData);
+        $contracted_treatment->appointments->each(function($appointment){
+            $appointment->date = Carbon::parse($appointment->schedule)->isoFormat('YYYY-MM-DD');
+            $appointment->time = Carbon::parse($appointment->schedule)->isoFormat('hh:mm a');
+        });
 
         // Calculate statistics
-        $attendedCount = $sessions->where('attended', true)->count();
-        $missedCount = $sessions->whereStrict('attended', false)->count();
+        $attendedCount = $contracted_treatment->appointments->where('attended', true)->count();
+        $missedCount = $contracted_treatment->appointments->whereStrict('attended', false)->count();
         $pendingCount = $contracted_treatment->sessions - ($attendedCount + $missedCount);
 
         Carbon::setLocale('es');
@@ -73,7 +43,7 @@ class ScheduleAppointmentController extends Controller
             'contracted_treatment' => $contracted_treatment,
             'paymentIsUpToDate' => $paymentIsUpToDate,
             'totalSessions' => $contracted_treatment->sessions,
-            'sessions' => $sessions,
+            'sessions' => $contracted_treatment->appointments,
             'attendedCount' => $attendedCount,
             'missedCount' => $missedCount,
             'pendingCount' => $pendingCount,
@@ -83,12 +53,45 @@ class ScheduleAppointmentController extends Controller
     /**
      * Store a new appointment
      */
-    public function store(Request $request)
+    public function store(StoreAppointmentRequest $request)
     {
+
+        // check appointment_date and appointment_time are available ***
+        // check user belong to contracted treatment ***
+
+        $validated = $request->validated();
+
+        $date = $validated['appointment_date'];
+        $time = $validated['appointment_time'];
+
+        $schedule = Carbon::parse($date . ' ' . $time)->toDateTimeString();
+
+        $contractedTreatmentId = $validated['contracted_treatment_id'];
+
+        Appointment::create([
+            'contracted_treatment_id' => $contractedTreatmentId,
+            'schedule' => $schedule,
+            'session_number' => $validated['session_number'],
+        ]);
+
+        return redirect()
+            ->route('client.schedule-appointment.index', ['contracted_treatment' => $contractedTreatmentId])
+            ->with('success', 'Cita agendada exitosamente');
+    }
+
+    /**
+     * Store a new appointment
+     */
+    public function resched(Request $request)
+    {
+
+        //check appointment_date and appointment_time are available ***
+        // check user belong to contracted treatment ***
+
         $validated = $request->validate([
-            'session_number' => 'required|integer|min:1',
             'appointment_date' => 'required|date|after_or_equal:today',
-            'appointment_time' => 'required|date_format:H:i',
+            'appointment_time' => 'required|date_format:hh:mm a',
+            'appointment_id' => 'required|exists:appointments,id',
         ]);
 
         // TODO: Save appointment to database
@@ -117,8 +120,10 @@ class ScheduleAppointmentController extends Controller
      */
     public function rate(Request $request)
     {
+
+        // check user belong to contracted treatment ***
+
         $validated = $request->validate([
-            'session_number' => 'required|integer|min:1',
             'rating_value' => 'required|integer|min:1|max:5',
             'comment' => 'nullable|string|max:500',
         ]);
@@ -142,6 +147,9 @@ class ScheduleAppointmentController extends Controller
      */
     public function confirm($sessionNumber)
     {
+
+        // check user belong to contracted treatment ***
+
         // TODO: Update appointment status
         // Example:
         // Appointment::where('treatment_id', $treatmentId)
@@ -159,21 +167,19 @@ class ScheduleAppointmentController extends Controller
     /**
      * Cancel a scheduled appointment
      */
-    public function cancel($sessionNumber)
+    public function cancel(Appointment $appointment)
     {
-        // TODO: Update appointment status
-        // Example:
-        // Appointment::where('treatment_id', $treatmentId)
-        //     ->where('session_number', $sessionNumber)
-        //     ->update([
-        //         'date' => null,
-        //         'time' => null,
-        //         'status' => 'cancelled',
-        //         'cancelled_at' => now()
-        //     ]);
+
+        $appointment->load('contractedTreatment');
+
+        // verify if the user is the owner of contracted treatment ***
+
+        $contractedTreatment = $appointment->contractedTreatment->id;
+
+        $appointment->delete();
 
         return redirect()
-            ->route('schedule-appointment.index')
+            ->route('client.schedule-appointment.index', ['contracted_treatment' => $contractedTreatment])
             ->with('success', 'Cita cancelada exitosamente');
     }
 
@@ -197,7 +203,7 @@ class ScheduleAppointmentController extends Controller
             // Call the method from our trait to get the available slots
             // You can also pass custom values for slot duration and additional capacity if needed
             $slots = $this->calculateAvailableSlots($date, $branchId);
-\Log::info(print_r($slots,true));
+
             return response()->json(['slots' => $slots]);
 
         } catch (\Exception $e) {

@@ -63,7 +63,7 @@
                                 <dd class="col-sm-7">
                                     @php
                                         \Carbon\Carbon::setLocale('es');
-                                        echo \Carbon\Carbon::parse($contractedTreatment->created_at)->isoFormat('D \d\e MMMM, YYYY');
+                                        echo \Carbon\Carbon::parse($contractedTreatment->created_at)->isoFormat('dddd, D \d\e MMMM, YYYY');
                                     @endphp
                                 </dd>
 

@@ -39,7 +39,7 @@
                                 @php
                                     \Carbon\Carbon::setLocale('es');
                                     $formattedDate = \Carbon\Carbon::parse($contract->created_at)
-                                        ->isoFormat('D \d\e MMMM, YYYY');
+                                        ->isoFormat('dddd, D \d\e MMMM, YYYY');
                                 @endphp
                                 {{ $formattedDate }}
                             </td>

@@ -42,7 +42,8 @@ const SessionsTableModule = (function() {
         if (btnScheduler) {
             const sessionNumber = btnScheduler.getAttribute('data-session');
             const branchId = btnScheduler.getAttribute('data-branch-id');
-            openSchedulerModal(sessionNumber, branchId);
+            const contractedTreatmentId = btnScheduler.getAttribute('data-contracted-treatment-id');
+            openSchedulerModal(sessionNumber, branchId, '', contractedTreatmentId);
             return;
         }
 
@@ -60,7 +61,8 @@ const SessionsTableModule = (function() {
         const btnConfirm = target.closest('.btn-confirm');
         if (btnConfirm) {
             const sessionNumber = btnConfirm.getAttribute('data-session');
-            confirmSession(sessionNumber);
+            const appointmentId = btnConfirm.getAttribute('data-appointment-id');
+            confirmSession(sessionNumber, appointmentId);
             return;
         }
 
@@ -69,7 +71,9 @@ const SessionsTableModule = (function() {
         if (btnReschedule) {
             const sessionNumber = btnReschedule.getAttribute('data-session');
             const branchId = btnReschedule.getAttribute('data-branch-id');
-            openSchedulerModal(sessionNumber, branchId);
+            const appointmentId = btnReschedule.getAttribute('data-appointment-id');
+            const contractedTreatmentId = btnReschedule.getAttribute('data-contracted-treatment-id');
+            openSchedulerModal(sessionNumber, branchId, appointmentId, contractedTreatmentId);
             return;
         }
 
@@ -77,12 +81,14 @@ const SessionsTableModule = (function() {
         const btnCancel = target.closest('.btn-cancel');
         if (btnCancel) {
             const sessionNumber = btnCancel.getAttribute('data-session');
-            cancelSession(sessionNumber);
+            const appointmentId = btnCancel.getAttribute('data-appointment-id');
+            const cancelUrl = btnCancel.getAttribute('data-cancel-url-template');
+            cancelSession(sessionNumber, appointmentId, cancelUrl);
             return;
         }
     }
 
-    function openSchedulerModal(sessionNumber, branchId) {
+    function openSchedulerModal(sessionNumber, branchId, appointmentId, contractedTreatmentId) {
         if (!elements.modalAgendar) return;
 
         const modal = new bootstrap.Modal(elements.modalAgendar);
@@ -91,55 +97,50 @@ const SessionsTableModule = (function() {
         const sessionSpan = elements.modalAgendar.querySelector('#modalSessionNumber');
         const sessionInput = elements.modalAgendar.querySelector('#sessionNumberInput');
         const branchIdInput = elements.modalAgendar.querySelector('#branchIdInput');
+        const appointmentIdInput = elements.modalAgendar.querySelector('#appointmentIdInput');
+        const contractedTreatmentIdInput = elements.modalAgendar.querySelector('#contractedTreatmentIdInput');
 
         if (sessionSpan) sessionSpan.textContent = sessionNumber;
         if (sessionInput) sessionInput.value = sessionNumber;
         if (branchIdInput) branchIdInput.value = branchId;
+        if (appointmentIdInput) appointmentIdInput.value = appointmentId;
+        if (contractedTreatmentIdInput) contractedTreatmentIdInput.value = contractedTreatmentId;
 
         modal.show();
     }
 
-    function confirmSession(sessionNumber) {
-        if (!confirm('¿Confirmar que asistió a esta cita?')) return;
+    function confirmSession(sessionNumber, appointmentId) {
+        if (!confirm('¿Confirmar que asistra a esta cita?')) return;
 
-        // Here you would make an AJAX call to update the backend
-        // For now, we'll simulate it
-        updateSessionInDOM(sessionNumber, {
-            attended: true,
-            status: 'ok'
-        });
+        // Here you would make an AJAX call to update the backend ***
 
-        showToast('Cita confirmada como asistida');
     }
 
-    function cancelSession(sessionNumber) {
+    function cancelSession(sessionNumber, appointmentId, cancelUrl) {
         if (!confirm('¿Estás seguro de cancelar esta cita?')) return;
 
-        // Here you would make an AJAX call to update the backend
-        // For now, we'll simulate it
-        updateSessionInDOM(sessionNumber, {
-            date: null,
-            time: null,
-            status: 'pending'
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        fetch(cancelUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Your controller handles the redirect, but this is a good fallback.
+                window.location.reload();
+            } else {
+                alert('Error al cancelar la cita.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ocurrió un error de red.');
         });
 
-        showToast('Cita cancelada exitosamente');
-    }
-
-    function updateSessionInDOM(sessionNumber, updates) {
-        const row = elements.tableBody.querySelector(`tr[data-session="${sessionNumber}"]`);
-        if (!row) return;
-
-        // Update row attributes
-        if (updates.status) row.setAttribute('data-status', updates.status);
-        if (updates.date !== undefined) row.setAttribute('data-date', updates.date || '');
-        if (updates.time !== undefined) row.setAttribute('data-time', updates.time || '');
-
-        // Reload the table to reflect changes
-        // In a real application, you would reload from the server
-        setTimeout(() => {
-            window.location.reload();
-        }, 1000);
     }
 
     function updateSessionRating(sessionNumber, ratingValue) {
@@ -166,15 +167,6 @@ const SessionsTableModule = (function() {
         setTimeout(() => {
             window.location.reload();
         }, 1000);
-    }
-
-    function showToast(message) {
-        const toast = document.createElement('div');
-        toast.className = 'position-fixed bottom-0 end-0 m-3 p-2 px-3 rounded bg-dark border border-secondary-subtle';
-        toast.style.zIndex = '2000';
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 1800);
     }
 
     // Public API

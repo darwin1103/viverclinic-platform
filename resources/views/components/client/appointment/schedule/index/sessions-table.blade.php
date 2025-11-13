@@ -1,4 +1,4 @@
-@props(['sessions', 'totalSessions', 'paymentIsUpToDate', 'branchId'])
+@props(['sessions', 'totalSessions', 'paymentIsUpToDate', 'branchId', 'contractedTreatmentId'])
 
 @php
     // Find if there's already a future appointment scheduled
@@ -32,6 +32,8 @@
                     $isNextSession = isset($session) && $session['date'] !== null && $session['attended'] === null;
                     $canSchedule = $i === $nextSessionInSequence && !$futureAppointment && $paymentIsUpToDate;
                     $isDisabled = !$isPast && !$isNextSession && !$canSchedule;
+                    $canManageOptions = $isNextSession && Illuminate\Support\Carbon::parse($session['schedule'])->gt(Illuminate\Support\Carbon::now()->addHours(24));
+                    $isConfirmed = false;
                 @endphp
                 <tr data-session="{{ $i }}"
                     data-status="{{ $isPast ? ($session['attended'] ? 'ok' : 'bad') : ($isNextSession ? 'scheduled' : 'pending') }}"
@@ -80,7 +82,7 @@
                     <td class="text-center d-none d-md-table-cell">
                         @if (isset($session) && $session['date'])
                             <span class="session-date">
-                                {{ Illuminate\Support\Carbon::parse($session['date'])->isoFormat('D \d\e MMMM, YYYY') }}
+                                {{ Illuminate\Support\Carbon::parse($session['date'])->isoFormat('dddd, D \d\e MMMM, YYYY') }}
                             </span>
                         @endif
                     </td>
@@ -101,28 +103,39 @@
                                     <span class="d-none d-sm-inline">Calificado</span>
                                 </button>
                             @else
-                                <button class="btn btn-sm btn-outline-info btn-rate" data-session="{{ $i }}">
+                                <button class="btn btn-sm btn-outline-info btn-rate" data-session="{{ $i }}" data-appointment-id="{{ $session['id'] }}">
                                     <i class="bi bi-emoji-smile me-1"></i>
                                     <span class="d-none d-sm-inline">Calificar</span>
                                 </button>
                             @endif
-                        @elseif ($isNextSession)
+                        @elseif ($canManageOptions && !$isConfirmed)
                             <div class="btn-group btn-group-sm" role="group">
-                                <button class="btn btn-success btn-confirm" data-session="{{ $i }}" title="Confirmar">
+                                <button class="btn btn-success btn-confirm" data-session="{{ $i }}" data-appointment-id="{{ $session['id'] }}" title="Confirmar">
                                     <i class="bi bi-check2"></i>
                                     <span class="d-none d-lg-inline ms-1">Confirmar</span>
                                 </button>
-                                <button class="btn btn-warning btn-resched" data-branch-id="{{ $branchId }}" data-session="{{ $i }}" title="Reagendar">
+                                <button class="btn btn-warning btn-resched" data-branch-id="{{ $branchId }}" data-session="{{ $i }}" data-appointment-id="{{ $session['id'] }}" title="Reagendar">
                                     <i class="bi bi-arrow-repeat"></i>
                                     <span class="d-none d-lg-inline ms-1">Reagendar</span>
                                 </button>
-                                <button class="btn btn-danger btn-cancel" data-session="{{ $i }}" title="Cancelar">
+                                <button
+                                    class="btn btn-danger btn-cancel"
+                                    data-session="{{ $i }}"
+                                    data-appointment-id="{{ $session['id'] }}"
+                                    data-cancel-url-template="{{ route('client.schedule-appointment.cancel', ['appointment' => $session['id']]) }}"
+                                    title="Cancelar"
+                                >
                                     <i class="bi bi-x-lg"></i>
                                     <span class="d-none d-lg-inline ms-1">Cancelar</span>
                                 </button>
                             </div>
                         @elseif ($canSchedule && $paymentIsUpToDate)
-                            <button class="btn btn-sm btn-primary btn-open-scheduler" data-branch-id="{{ $branchId }}" data-session="{{ $i }}">
+                            <button
+                                class="btn btn-sm btn-primary btn-open-scheduler"
+                                data-branch-id="{{ $branchId }}"
+                                data-contracted-treatment-id="{{ $contractedTreatmentId }}"
+                                data-session="{{ $i }}"
+                            >
                                 <i class="bi bi-calendar-plus me-1"></i>
                                 <span class="d-none d-sm-inline">Agendar Cita</span>
                             </button>

@@ -99,15 +99,12 @@ const RatingModule = (function() {
         e.preventDefault();
 
         if (!selectedFace) {
-            showToast('Por favor selecciona una calificación');
             return;
         }
 
         // Here you would normally submit the form via AJAX
         // For now, we'll simulate it with a toast
         const formData = new FormData(elements.form);
-
-        showToast('¡Gracias por tu calificación!');
 
         // Close modal
         const modal = bootstrap.Modal.getInstance(elements.modal);
@@ -157,15 +154,6 @@ const RatingModule = (function() {
         if (elements.ratingValueInput) {
             elements.ratingValueInput.value = '';
         }
-    }
-
-    function showToast(message) {
-        const toast = document.createElement('div');
-        toast.className = 'position-fixed bottom-0 end-0 m-3 p-2 px-3 rounded bg-dark border border-secondary-subtle';
-        toast.style.zIndex = '2000';
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 1800);
     }
 
     return {

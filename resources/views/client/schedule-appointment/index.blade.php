@@ -35,6 +35,7 @@
                     :totalSessions="$totalSessions"
                     :paymentIsUpToDate="$paymentIsUpToDate"
                     :branchId="$contracted_treatment->branch->id"
+                    :contractedTreatmentId="$contracted_treatment->id"
                 />
             </div>
         </div>

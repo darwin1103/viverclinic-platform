@@ -64,6 +64,7 @@ const CalendarModule = (function() {
             elements.modal.addEventListener('show.bs.modal', handleModalShow);
             elements.modal.addEventListener('hidden.bs.modal', handleModalHidden);
         }
+
     }
 
     function navigateToPreviousMonth() {
@@ -148,12 +149,6 @@ const CalendarModule = (function() {
             // Highlight today
             if (date.getTime() === today.getTime()) {
                 cell.classList.add('cell-today');
-            }
-
-            // Disable Sundays
-            if (date.getDay() === 0) {
-                cell.classList.add('cell-muted');
-                cell.style.pointerEvents = 'none';
             }
 
             // Highlight selected date
@@ -288,7 +283,7 @@ const CalendarModule = (function() {
         const formattedDate = formatDateISO(date);
         const branchId = document.getElementById('branchIdInput').value;
         // The URL for our API endpoint. It's better to get this from Blade if possible.
-        const apiUrl = '/api/appointments/available-slots';
+        const apiUrl = '/appointments/available-slots';
 
         // Get the CSRF token from the meta tag in the head
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');

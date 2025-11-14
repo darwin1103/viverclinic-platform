@@ -103,7 +103,10 @@
                                     <span class="d-none d-sm-inline">Calificado</span>
                                 </button>
                             @else
-                                <button class="btn btn-sm btn-outline-info btn-rate" data-session="{{ $i }}" data-appointment-id="{{ $session['id'] }}">
+                                <button class="btn btn-sm btn-outline-info btn-rate"
+                                    data-session="{{ $i }}"
+                                    data-rate-url-template="{{ route('client.schedule-appointment.rate', ['appointment' => $session['id']]) }}"
+                                >
                                     <i class="bi bi-emoji-smile me-1"></i>
                                     <span class="d-none d-sm-inline">Calificar</span>
                                 </button>
@@ -113,21 +116,24 @@
                                 <button
                                 class="btn btn-success btn-confirm"
                                 data-session="{{ $i }}"
-                                data-appointment-id="{{ $session['id'] }}"
                                 data-confirm-url-template="{{ route('client.schedule-appointment.confirm', ['appointment' => $session['id']]) }}"
                                 title="Confirmar"
                                 >
                                     <i class="bi bi-check2"></i>
                                     <span class="d-none d-lg-inline ms-1">Confirmar</span>
                                 </button>
-                                <button class="btn btn-warning btn-resched" data-branch-id="{{ $branchId }}" data-session="{{ $i }}" data-appointment-id="{{ $session['id'] }}" title="Reagendar">
+                                <button
+                                    class="btn btn-warning btn-resched"
+                                    data-session="{{ $i }}"
+                                    data-branch-id="{{ $branchId }}"
+                                    data-resched-url-template="{{ route('client.schedule-appointment.resched', ['appointment' => $session['id']]) }}"
+                                    title="Reagendar"
+                                >
                                     <i class="bi bi-arrow-repeat"></i>
                                     <span class="d-none d-lg-inline ms-1">Reagendar</span>
                                 </button>
                                 <button
                                     class="btn btn-danger btn-cancel"
-                                    data-session="{{ $i }}"
-                                    data-appointment-id="{{ $session['id'] }}"
                                     data-cancel-url-template="{{ route('client.schedule-appointment.cancel', ['appointment' => $session['id']]) }}"
                                     title="Cancelar"
                                 >
@@ -135,22 +141,22 @@
                                     <span class="d-none d-lg-inline ms-1">Cancelar</span>
                                 </button>
                             </div>
+                        @elseif ($isConfirmed)
+                            <div class="fw-bold">
+                                Cita confirmada
+                            </div>
                         @elseif ($canSchedule && $paymentIsUpToDate)
                             <button
                                 class="btn btn-sm btn-primary btn-open-scheduler"
                                 data-branch-id="{{ $branchId }}"
                                 data-contracted-treatment-id="{{ $contractedTreatmentId }}"
+                                data-store-url-template="{{ route('client.schedule-appointment.store') }}"
                                 data-session="{{ $i }}"
                             >
                                 <i class="bi bi-calendar-plus me-1"></i>
                                 <span class="d-none d-sm-inline">Agendar Cita</span>
                             </button>
-                        @elseif ($canSchedule)
-                            <button class="btn btn-sm btn-primary" disabled>
-                                <i class="bi bi-calendar-plus me-1"></i>
-                                <span class="d-none d-sm-inline">Agendar Cita</span>
-                            </button>
-                        @elseif ($isDisabled)
+                        @else
                             <button class="btn btn-sm btn-primary" disabled>
                                 <i class="bi bi-calendar-plus me-1"></i>
                                 <span class="d-none d-sm-inline">Agendar Cita</span>

@@ -96,10 +96,10 @@ Route::middleware(['auth', 'verified', 'role:PATIENT'])->name('client.')->group(
     Route::post('/schedule-appointment/store', [ScheduleAppointmentController::class, 'store'])
         ->name('schedule-appointment.store');
 
-    Route::post('/schedule-appointment/rate', [ScheduleAppointmentController::class, 'rate'])
+    Route::post('/schedule-appointment/{appointment}/rate', [ScheduleAppointmentController::class, 'rate'])
         ->name('schedule-appointment.rate');
 
-    Route::post('/schedule-appointment/resched', [ScheduleAppointmentController::class, 'resched'])
+    Route::post('/schedule-appointment/{appointment}/resched', [ScheduleAppointmentController::class, 'resched'])
         ->name('schedule-appointment.resched');
 
     Route::post('/schedule-appointment/{appointment}/confirm', [ScheduleAppointmentController::class, 'confirm'])
@@ -108,8 +108,7 @@ Route::middleware(['auth', 'verified', 'role:PATIENT'])->name('client.')->group(
     Route::post('/schedule-appointment/{appointment}/cancel', [ScheduleAppointmentController::class, 'cancel'])
         ->name('schedule-appointment.cancel');
 
-    // Optional: AJAX endpoint for dynamic slots
-    Route::post('/api/appointments/available-slots', [ScheduleAppointmentController::class, 'availableSlots'])
+    Route::post('/appointments/available-slots', [ScheduleAppointmentController::class, 'availableSlots'])
         ->name('schedule-appointment.available-slots');
 
 

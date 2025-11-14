@@ -37,16 +37,6 @@ const SessionsTableModule = (function() {
     function handleTableClick(e) {
         const target = e.target;
 
-        // Open scheduler modal
-        const btnScheduler = target.closest('.btn-open-scheduler');
-        if (btnScheduler) {
-            const sessionNumber = btnScheduler.getAttribute('data-session');
-            const branchId = btnScheduler.getAttribute('data-branch-id');
-            const contractedTreatmentId = btnScheduler.getAttribute('data-contracted-treatment-id');
-            openSchedulerModal(sessionNumber, branchId, '', contractedTreatmentId);
-            return;
-        }
-
         // Rate session
         const btnRate = target.closest('.btn-rate');
         if (btnRate) {
@@ -60,36 +50,42 @@ const SessionsTableModule = (function() {
         // Confirm session
         const btnConfirm = target.closest('.btn-confirm');
         if (btnConfirm) {
-            const sessionNumber = btnConfirm.getAttribute('data-session');
-            const appointmentId = btnConfirm.getAttribute('data-appointment-id');
             const confirmUrl = btnConfirm.getAttribute('data-confirm-url-template');
-            confirmSession(sessionNumber, appointmentId, confirmUrl);
-            return;
-        }
-
-        // Reschedule session
-        const btnReschedule = target.closest('.btn-resched');
-        if (btnReschedule) {
-            const sessionNumber = btnReschedule.getAttribute('data-session');
-            const branchId = btnReschedule.getAttribute('data-branch-id');
-            const appointmentId = btnReschedule.getAttribute('data-appointment-id');
-            const contractedTreatmentId = btnReschedule.getAttribute('data-contracted-treatment-id');
-            openSchedulerModal(sessionNumber, branchId, appointmentId, contractedTreatmentId);
+            confirmSession(confirmUrl);
             return;
         }
 
         // Cancel session
         const btnCancel = target.closest('.btn-cancel');
         if (btnCancel) {
-            const sessionNumber = btnCancel.getAttribute('data-session');
-            const appointmentId = btnCancel.getAttribute('data-appointment-id');
             const cancelUrl = btnCancel.getAttribute('data-cancel-url-template');
-            cancelSession(sessionNumber, appointmentId, cancelUrl);
+            cancelSession(cancelUrl);
+            return;
+        }
+
+        // Open scheduler modal
+        const btnScheduler = target.closest('.btn-open-scheduler');
+        if (btnScheduler) {
+            const sessionNumber = btnScheduler.getAttribute('data-session');
+            const branchId = btnScheduler.getAttribute('data-branch-id');
+            const contractedTreatmentId = btnScheduler.getAttribute('data-contracted-treatment-id');
+            const storeUrl = btnScheduler.getAttribute('data-store-url-template');
+            openSchedulerModal(sessionNumber, branchId, storeUrl, contractedTreatmentId);
+            return;
+        }
+
+        // Reschedule session
+        const btnReschedule = target.closest('.btn-resched');
+        if (btnReschedule) {
+            const branchId = btnReschedule.getAttribute('data-branch-id');
+            const sessionNumber = btnReschedule.getAttribute('data-session');
+            const reschedUrl = btnReschedule.getAttribute('data-resched-url-template');
+            openSchedulerModal(sessionNumber, branchId, reschedUrl, '');
             return;
         }
     }
 
-    function openSchedulerModal(sessionNumber, branchId, appointmentId, contractedTreatmentId) {
+    function openSchedulerModal(sessionNumber, branchId, url, contractedTreatmentId) {
         if (!elements.modalAgendar) return;
 
         const modal = new bootstrap.Modal(elements.modalAgendar);
@@ -98,19 +94,23 @@ const SessionsTableModule = (function() {
         const sessionSpan = elements.modalAgendar.querySelector('#modalSessionNumber');
         const sessionInput = elements.modalAgendar.querySelector('#sessionNumberInput');
         const branchIdInput = elements.modalAgendar.querySelector('#branchIdInput');
-        const appointmentIdInput = elements.modalAgendar.querySelector('#appointmentIdInput');
+        const appointmentForm = elements.modalAgendar.querySelector('#appointmentForm');
         const contractedTreatmentIdInput = elements.modalAgendar.querySelector('#contractedTreatmentIdInput');
 
         if (sessionSpan) sessionSpan.textContent = sessionNumber;
         if (sessionInput) sessionInput.value = sessionNumber;
         if (branchIdInput) branchIdInput.value = branchId;
-        if (appointmentIdInput) appointmentIdInput.value = appointmentId;
+        if (appointmentForm) appointmentForm.action = url;
         if (contractedTreatmentIdInput) contractedTreatmentIdInput.value = contractedTreatmentId;
+
+        setTimeout(()=>{
+            document.querySelector('#calendarDays .cell-today').click();
+        },500);
 
         modal.show();
     }
 
-    function confirmSession(sessionNumber, appointmentId, confirmUrl) {
+    function confirmSession(confirmUrl) {
 
         if (!confirm('¿Confirma que asistra a esta cita?')) return;
 
@@ -138,7 +138,7 @@ const SessionsTableModule = (function() {
 
     }
 
-    function cancelSession(sessionNumber, appointmentId, cancelUrl) {
+    function cancelSession(cancelUrl) {
 
         if (!confirm('¿Estás seguro de cancelar esta cita?')) return;
 

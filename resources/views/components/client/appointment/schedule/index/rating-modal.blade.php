@@ -9,7 +9,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
 
-            <form method="POST" action="{{ route('client.schedule-appointment.rate') }}" id="ratingForm">
+            <form method="POST" action="{{ route('client.schedule-appointment.rate', ['appointment' => 1]) }}" id="ratingForm">
                 @csrf
 
                 <input type="hidden" name="session_number" id="ratingSessionNumber">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\StoreAppointmentRequest;
+use App\Http\Requests\Client\UpdateAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\ContractedTreatment;
 use App\Traits\CalculatesAvailableSlots;
@@ -57,22 +58,26 @@ class ScheduleAppointmentController extends Controller
     {
 
         // check appointment_date and appointment_time are available ***
-        // check user belong to contracted treatment ***
+        // verify if the user is the owner of contracted treatment ***
 
         $validated = $request->validated();
 
         $date = $validated['appointment_date'];
         $time = $validated['appointment_time'];
 
-        $schedule = Carbon::parse($date . ' ' . $time)->toDateTimeString();
+        $now = Carbon::now();
+        $next24Hours = $now->copy()->addHours(24);
+        $schedule = Carbon::parse($date . ' ' . $time);
+
+        $status = ($schedule->between($now, $next24Hours)) ? 'Confirmada' : 'Por confirmar';
 
         $contractedTreatmentId = $validated['contracted_treatment_id'];
 
         Appointment::create([
             'contracted_treatment_id' => $contractedTreatmentId,
-            'schedule' => $schedule,
+            'schedule' => $schedule->toDateTimeString(),
             'session_number' => $validated['session_number'],
-            'status' => 'Por confirmar',
+            'status' => $status,
         ]);
 
         return redirect()
@@ -83,46 +88,42 @@ class ScheduleAppointmentController extends Controller
     /**
      * Store a new appointment
      */
-    public function resched(Request $request)
+    public function resched(Appointment $appointment, UpdateAppointmentRequest $request)
     {
 
         //check appointment_date and appointment_time are available ***
-        // check user belong to contracted treatment ***
+        // verify if the user is the owner of contracted treatment ***
 
-        $validated = $request->validate([
-            'appointment_date' => 'required|date|after_or_equal:today',
-            'appointment_time' => 'required|date_format:hh:mm a',
-            'appointment_id' => 'required|exists:appointments,id',
+        $validated = $request->validated();
+
+        $date = $validated['appointment_date'];
+        $time = $validated['appointment_time'];
+
+        $now = Carbon::now();
+        $next24Hours = $now->copy()->addHours(24);
+        $schedule = Carbon::parse($date . ' ' . $time);
+
+        $status = ($schedule->between($now, $next24Hours)) ? 'Confirmada' : 'Por confirmar';
+
+        $appointment->update([
+            'schedule' => $schedule->toDateTimeString(),
+            'status' => $status,
         ]);
 
-        // TODO: Save appointment to database
-        // Example:
-        // Appointment::updateOrCreate(
-        //     [
-        //         'treatment_id' => $treatmentId,
-        //         'session_number' => $validated['session_number']
-        //     ],
-        //     [
-        //         'date' => $validated['appointment_date'],
-        //         'time' => $validated['appointment_time'],
-        //         'specialist_id' => $specialistId,
-        //         'branch_id' => $branchId,
-        //         'status' => 'scheduled'
-        //     ]
-        // );
+        $contractedTreatmentId = $appointment->contracted_treatment_id;
 
         return redirect()
-            ->route('schedule-appointment.index')
-            ->with('success', 'Cita agendada exitosamente');
+            ->route('client.schedule-appointment.index', ['contracted_treatment' => $contractedTreatmentId])
+            ->with('success', 'Cita re-agendada exitosamente');
     }
 
     /**
      * Rate a completed session
      */
-    public function rate(Request $request)
+    public function rate(Appointment $appointment, Request $request)
     {
 
-        // check user belong to contracted treatment ***
+        // verify if the user is the owner of contracted treatment ***
 
         $validated = $request->validate([
             'rating_value' => 'required|integer|min:1|max:5',

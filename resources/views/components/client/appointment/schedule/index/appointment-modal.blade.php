@@ -9,14 +9,13 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
 
-            <form method="POST" action="{{ route('client.schedule-appointment.store') }}" id="appointmentForm">
+            <form method="POST" action="" id="appointmentForm">
                 @csrf
 
                 <input type="hidden" name="session_number" id="sessionNumberInput">
                 <input type="hidden" name="appointment_date" id="appointmentDateInput">
                 <input type="hidden" name="appointment_time" id="appointmentTimeInput">
                 <input type="hidden" name="branch_id" id="branchIdInput">
-                <input type="hidden" name="appointment_id" id="appointmentIdInput">
                 <input type="hidden" name="contracted_treatment_id" id="contractedTreatmentIdInput">
 
                 <div class="modal-body">
@@ -74,7 +73,7 @@
                                             Cancelar
                                         </button>
                                         <button type="submit" id="btnConfirm" class="btn btn-primary flex-fill" disabled>
-                                            Confirmar cita
+                                            Agendar cita
                                         </button>
                                     </div>
                                 </div>

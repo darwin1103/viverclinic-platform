@@ -16,7 +16,7 @@
         Operación
       </li>
       <li>
-        <a href="#" class="nav-link">
+        <a href="{{ route('admin.appointments.index') }}" class="nav-link">
             <i class="bi bi-calendar-week me-2"></i>
             Agenda
         </a>

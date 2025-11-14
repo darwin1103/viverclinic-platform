@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminAppointmentController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\ContractedTreatmentController;
@@ -14,8 +15,8 @@ use App\Http\Controllers\CancelAppointmentController;
 use App\Http\Controllers\CareTipsController;
 use App\Http\Controllers\Client\ContractedTreatmentController as ClientContractedTreatmentController;
 use App\Http\Controllers\Client\SaveInformedConsentController;
-use App\Http\Controllers\Client\TreatmentController as ClientTreatmentController;
 use App\Http\Controllers\Client\ScheduleAppointmentController;
+use App\Http\Controllers\Client\TreatmentController as ClientTreatmentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JobTrailingController;
 use App\Http\Controllers\MedicalRecordController;
@@ -80,6 +81,65 @@ Route::middleware(['auth', 'verified', 'role:SUPER_ADMIN|OWNER'])->prefix('admin
     Route::resource('owner', OwnerController::class);
 
     Route::resource('contracted-treatment', ContractedTreatmentController::class);
+
+
+
+
+
+    // Appointments Management
+    Route::controller(AdminAppointmentController::class)->group(function () {
+        // Main view
+        Route::get('/appointments', 'index')->name('appointments.index');
+
+        // Fetch appointments for date range (AJAX)
+        Route::post('/appointments/fetch', 'fetch')->name('appointments.fetch');
+
+        // Mark as attended
+        Route::post('/appointments/{appointment}/mark-attended', 'markAsAttended')
+            ->name('appointments.mark-attended');
+
+        // Confirm appointment
+        Route::post('/appointments/{appointment}/confirm', 'confirm')
+            ->name('appointments.confirm');
+
+        // Reschedule appointment
+        Route::post('/appointments/{appointment}/reschedule', 'reschedule')
+            ->name('appointments.reschedule');
+
+        // Cancel appointment
+        Route::post('/appointments/{appointment}/cancel', 'cancel')
+            ->name('appointments.cancel');
+
+        // Get available slots (for rescheduling)
+        Route::post('/appointments/available-slots', 'availableSlots')
+            ->name('appointments.available-slots');
+
+        // Update appointment (generic endpoint)
+        Route::put('/appointments/{appointment}', 'update')
+            ->name('appointments.update');
+
+        // Update appointment (generic endpoint)
+        Route::put('/appointments/{appointment}', 'assignStaffSequentially')
+            ->name('appointments.assign-staff');
+    });
+
+    // Staff list for filters
+    Route::get('/staff/list', [AdminAppointmentController::class, 'getStaffList'])
+        ->name('staff.list');
+
+    // Treatments list for filters
+    Route::get('/treatments/list', [AdminAppointmentController::class, 'getTreatmentsList'])
+        ->name('treatments.list');
+
+
+
+
+
+
+
+
+
+
 
 });
 

@@ -12,6 +12,7 @@ use App\Traits\CalculatesAvailableSlots;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\Admin\UpdateAppointmentRequest;
 
 class AdminAppointmentController extends Controller
 {
@@ -22,15 +23,10 @@ class AdminAppointmentController extends Controller
      */
     public function index()
     {
-        // Get current user's branch (assume admin is associated with a branch)
-        $currentBranch = auth()->user()->staffProfile->branch ?? Branch::first();
-
-
 
         $branches = Branch::all();
 
         return view('admin.appointments.index', [
-            'currentBranch' => $currentBranch,
             'branches' => $branches,
         ]);
     }
@@ -241,12 +237,9 @@ class AdminAppointmentController extends Controller
     /**
      * Reschedule appointment
      */
-    public function reschedule(Appointment $appointment, Request $request)
+    public function reschedule(Appointment $appointment, UpdateAppointmentRequest $request)
     {
-        $validated = $request->validate([
-            'appointment_date' => 'required|date|after_or_equal:today',
-            'appointment_time' => 'required|date_format:H:i',
-        ]);
+        $validated = $request->validated();
 
         $date = $validated['appointment_date'];
         $time = $validated['appointment_time'];

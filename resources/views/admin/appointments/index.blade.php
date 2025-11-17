@@ -10,7 +10,7 @@
     <div class="container-fluid">
 
         <!-- Toolbar Component -->
-        <x-admin.appointment.toolbar :branch="$currentBranch" />
+        <x-admin.appointment.toolbar />
 
         <!-- Calendar View Component -->
         <x-admin.appointment.calendar />

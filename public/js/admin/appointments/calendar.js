@@ -69,7 +69,6 @@ const AdminCalendarModule = (function() {
         mobileTotalCount: document.getElementById('mobileTotalCount'),
         mobileDateLabel: document.getElementById('mobileDateLabel'),
         loadingState: document.getElementById('loadingState'),
-        emptyState: document.getElementById('emptyState'),
         btnPrev5: document.getElementById('btnPrev5'),
         btnNext5: document.getElementById('btnNext5'),
         btnPrevMobile: document.getElementById('btnPrevMobile'),
@@ -152,7 +151,6 @@ const AdminCalendarModule = (function() {
     }
 
     async function loadAppointments() {
-        showLoading(true);
 
         const startDate = formatYmd(currentStart);
         const endDate = new Date(currentStart);
@@ -173,7 +171,6 @@ const AdminCalendarModule = (function() {
                 body: JSON.stringify({
                     start_date: startDate,
                     end_date: endDateStr,
-                    branch_id: window.branchId,
                     ...filters
                 })
             });
@@ -191,7 +188,7 @@ const AdminCalendarModule = (function() {
             appointments = [];
             renderCalendar();
         } finally {
-            showLoading(false);
+
         }
     }
 
@@ -252,11 +249,6 @@ const AdminCalendarModule = (function() {
                 body.appendChild(card);
             });
         });
-
-        // Show/hide empty state
-        if (elements.emptyState) {
-            elements.emptyState.classList.toggle('d-none', hasAppointments);
-        }
     }
 
     function renderMobileView() {
@@ -345,18 +337,6 @@ const AdminCalendarModule = (function() {
         };
         const [variant, label] = map[status] || ['secondary', status];
         return `<span class="badge text-bg-${variant} badge-state">${label}</span>`;
-    }
-
-    function showLoading(show) {
-        if (elements.loadingState) {
-            elements.loadingState.classList.toggle('d-none', !show);
-        }
-        if (elements.fiveGrid) {
-            elements.fiveGrid.style.opacity = show ? '0.5' : '1';
-        }
-        if (elements.mobileList) {
-            elements.mobileList.style.opacity = show ? '0.5' : '1';
-        }
     }
 
     function showToast(message, type = 'info') {

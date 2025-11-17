@@ -4,7 +4,7 @@
     <div class="card mb-3">
         <div class="card-body">
             <!-- Desktop Layout -->
-            <div class="d-none d-lg-flex flex-row flex-wrap align-items-center gap-3">
+            <div class="d-none d-lg-flex flex-row flex-wrap align-items-center justify-content-between gap-3 mb-3">
                 <!-- Navigation Buttons -->
                 <div class="btn-group" role="group">
                     <button id="btnPrev5" class="btn btn-outline-light" title="Semana anterior">
@@ -32,27 +32,28 @@
                         placeholder="Buscar paciente…"
                     />
                 </div>
-
+            </div>
+            <div class="d-none d-lg-flex flex-row flex-wrap align-items-center justify-content-between gap-3">
                 <!-- Filters -->
-                <div>
-                <select id="filterStaff" class="form-control">
-                    <option value="">Todos los profesionales</option>
-                </select>
-            </div>
-                <div>
-                <select id="filterTreatment" class="form-control">
-                    <option value="">Todos los tratamientos</option>
-                </select>
-            </div>
-                <div>
-                <select id="filterStatus" class="form-control">
-                    <option value="">Todos los estados</option>
-                    <option value="Por confirmar">Pendiente</option>
-                    <option value="Confirmada">Confirmada</option>
-                    <option value="Atendida">Atendida</option>
-                    <option value="Cancelada">Cancelada</option>
-                </select>
-            </div>
+                <div class="flex-grow-1">
+                    <select id="filterStaff" class="form-control">
+                        <option value="">Todos los profesionales</option>
+                    </select>
+                </div>
+                <div class="flex-grow-1">
+                    <select id="filterTreatment" class="form-control">
+                        <option value="">Todos los tratamientos</option>
+                    </select>
+                </div>
+                <div class="flex-grow-1">
+                    <select id="filterStatus" class="form-control">
+                        <option value="">Todos los estados</option>
+                        <option value="Por confirmar">Pendiente</option>
+                        <option value="Confirmada">Confirmada</option>
+                        <option value="Atendida">Atendida</option>
+                        <option value="Cancelada">Cancelada</option>
+                    </select>
+                </div>
 
                 <button id="btnClearFilters" class="btn btn-outline-secondary btn-sm" title="Limpiar filtros">
                     <i class="bi bi-x-circle"></i>

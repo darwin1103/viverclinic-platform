@@ -369,7 +369,7 @@ const AdminActionsModule = (function() {
 
         try {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            const response = await fetch('/appointments/available-slots', {
+            const response = await fetch('appointments/available-slots', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -377,7 +377,7 @@ const AdminActionsModule = (function() {
                 },
                 body: JSON.stringify({
                     date: formatYmd(date),
-                    branch_id: window.branchId
+                    branch_id: currentAppointment.branch_id,
                 })
             });
 

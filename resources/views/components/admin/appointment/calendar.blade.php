@@ -27,20 +27,3 @@
         </div>
     </div>
 </div>
-
-<!-- Loading State -->
-<div id="loadingState" class="text-center py-5 d-none">
-    <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Cargando...</span>
-    </div>
-    <div class="mt-3 text-secondary">Cargando citas...</div>
-</div>
-
-<!-- Empty State -->
-<div id="emptyState" class="card d-none">
-    <div class="card-body text-center py-5">
-        <i class="bi bi-calendar-x display-1 text-secondary opacity-25"></i>
-        <h5 class="mt-3 text-secondary">No hay citas programadas</h5>
-        <p class="text-secondary">No se encontraron citas para los filtros seleccionados</p>
-    </div>
-</div>

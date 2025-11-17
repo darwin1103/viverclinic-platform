@@ -25,7 +25,6 @@
 @push('scripts')
 <script>
     // Pass data to JavaScript
-    window.branchId = {{ $currentBranch->id }};
     window.apiEndpoints = {
         fetchAppointments: '{{ route('admin.appointments.fetch') }}',
         confirmAppointment: '{{ route('admin.appointments.confirm', ['appointment' => ':id']) }}',

@@ -25,8 +25,13 @@ class AdminAppointmentController extends Controller
         // Get current user's branch (assume admin is associated with a branch)
         $currentBranch = auth()->user()->staffProfile->branch ?? Branch::first();
 
+
+
+        $branches = Branch::all();
+
         return view('admin.appointments.index', [
             'currentBranch' => $currentBranch,
+            'branches' => $branches,
         ]);
     }
 
@@ -38,7 +43,7 @@ class AdminAppointmentController extends Controller
         $validated = $request->validate([
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'branch_id' => 'required|exists:branches,id',
+            'branch_id' => 'nullable|exists:branches,id',
             'staff_id' => 'nullable|exists:users,id',
             'treatment_id' => 'nullable|exists:treatments,id',
             'status' => 'nullable|string',
@@ -56,7 +61,9 @@ class AdminAppointmentController extends Controller
             'staff'
         ])
         ->whereHas('contractedTreatment', function ($q) use ($branchId) {
-            $q->where('branch_id', $branchId);
+            if(!empty($branchId)){
+                $q->where('branch_id', $branchId);
+            }
         })
         ->whereBetween('schedule', [$startDate, $endDate]);
 
@@ -99,6 +106,7 @@ class AdminAppointmentController extends Controller
                 'start' => $schedule->format('h:i a'),
                 'duration' => $duration,
                 'patient' => $appointment->contractedTreatment->user->name,
+                'branch_id' => $appointment->contractedTreatment->branch_id,
                 'patient_email' => $appointment->contractedTreatment->user->email,
                 'professional' => $appointment->staff ? $appointment->staff->name : 'Sin asignar',
                 'treatment' => $appointment->contractedTreatment->treatment->name,
@@ -118,13 +126,7 @@ class AdminAppointmentController extends Controller
     public function getStaffList()
     {
 
-        $branchId = request()->get('branch_id');
-
-        $staff = User::whereHas('staffProfile', function ($q) use ($branchId) {
-            if ($branchId) {
-                $q->where('branch_id', $branchId);
-            }
-        })->select('id', 'name')->get();
+        $staff = User::whereHas('staffProfile')->select('id', 'name')->get();
 
         return response()->json(['staff' => $staff]);
 
@@ -295,12 +297,18 @@ class AdminAppointmentController extends Controller
             $date = Carbon::parse($validated['date']);
             $branchId = (int)$validated['branch_id'];
 
+            // Call the method from our trait to get the available slots
+            // You can also pass custom values for slot duration and additional capacity if needed
             $slots = $this->calculateAvailableSlots($date, $branchId);
 
             return response()->json(['slots' => $slots]);
+
         } catch (\Exception $e) {
+            // It's good practice to log errors
             \Log::error('Error calculating available slots: ' . $e->getMessage());
-            return response()->json(['error' => 'No se pudieron obtener los horarios disponibles.'], 500);
+
+            // Return a generic error message to the user
+            return response()->json(['error' => 'Could not retrieve available slots.'], 500);
         }
     }
 }

@@ -4,7 +4,8 @@ const AdminFiltersModule = (function() {
         staff_id: '',
         treatment_id: '',
         status: '',
-        search: ''
+        search: '',
+        branch_id: '',
     };
 
     let searchTimeout = null;
@@ -28,7 +29,8 @@ const AdminFiltersModule = (function() {
         rangePreview: document.getElementById('rangePreview'),
         rangeApply: document.getElementById('rangeApply'),
         rangePrevMonth: document.getElementById('rangePrevMonth'),
-        rangeNextMonth: document.getElementById('rangeNextMonth')
+        rangeNextMonth: document.getElementById('rangeNextMonth'),
+        branchSelector: document.getElementById('branch-selector'),
     };
 
     let rangeMonthRef = new Date();
@@ -104,6 +106,14 @@ const AdminFiltersModule = (function() {
             });
         }
 
+        if (elements.branchSelector) {
+            elements.branchSelector.addEventListener('input', (e) => {
+                currentFilters.branch_id = e.target.value;
+                if (elements.branchSelector) elements.branchSelector.value = e.target.value;
+                debounceSearch();
+            });
+        }
+
         // Clear filters
         if (elements.btnClearFilters) {
             elements.btnClearFilters.addEventListener('click', clearFilters);
@@ -137,7 +147,7 @@ const AdminFiltersModule = (function() {
 
     async function loadStaffList() {
         try {
-            const response = await fetch(window.apiEndpoints.getStaffList + `?branch_id=${window.branchId}`);
+            const response = await fetch(window.apiEndpoints.getStaffList);
             const data = await response.json();
             const staff = data.staff || [];
 
@@ -191,7 +201,8 @@ const AdminFiltersModule = (function() {
             staff_id: '',
             treatment_id: '',
             status: '',
-            search: ''
+            search: '',
+            branch_id: '',
         };
 
         // Clear desktop filters

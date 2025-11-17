@@ -12,7 +12,7 @@
           <div class="d-flex justify-content-between align-items-start">
             <div>
               <div class="text-secondary small">Citas de hoy</div>
-              <div class="kpi-value mt-1">24</div>
+              <div class="kpi-value mt-1">{{ $todayAppointments }}</div>
             </div>
             <i class="bi bi-calendar-week fs-3 text-info"></i>
           </div>
@@ -75,58 +75,34 @@
         <div class="card-header d-flex align-items-center justify-content-between">
           <div class="fw-semibold"><i class="bi bi-clock me-2"></i>Agenda del día</div>
           <div class="d-flex gap-2">
-            <select class="form-select form-select-sm">
-              <option>Todos los profesionales</option>
-              <option>Dra. Pérez</option>
-              <option>Dr. Gómez</option>
-            </select>
             <!-- Botón ancho para evitar salto -->
-            <button class="btn btn-sm btn-outline-light btn-wide">Ver agenda</button>
+            <a href="{{ route('admin.appointments.index') }}" class="btn btn-sm btn-outline-light btn-wide">Ver agenda</a>
           </div>
         </div>
         <div class="card-body p-0">
           <div class="list-group list-group-flush scroll-area">
-            <!-- Ejemplos -->
-            <div class="list-group-item">
-              <div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-3">
-                  <div class="text-secondary small" style="width:64px"><i class="bi bi-clock"></i> 08:00</div>
-                  <div><div class="fw-semibold">Ana Ramírez</div><div class="small text-secondary">Dra. Pérez</div></div>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                  <span class="chip state-confirmed"><i class="bi bi-circle-fill" style="font-size:.55rem"></i> Confirmada</span>
-                  <button class="btn btn-sm btn-outline-light"><i class="bi bi-arrow-repeat me-1"></i>Reprogramar</button>
-                  <button class="btn btn-sm btn-primary"><i class="bi bi-cash-coin me-1"></i>Cobrar</button>
-                </div>
-              </div>
-            </div>
-            <div class="list-group-item">
-              <div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-3">
-                  <div class="text-secondary small" style="width:64px"><i class="bi bi-clock"></i> 08:30</div>
-                  <div><div class="fw-semibold">Luis Falcón</div><div class="small text-secondary">Dr. Gómez</div></div>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                  <span class="chip state-inroom"><i class="bi bi-circle-fill" style="font-size:.55rem"></i> En sala</span>
-                  <button class="btn btn-sm btn-outline-light"><i class="bi bi-arrow-repeat me-1"></i>Reprogramar</button>
-                  <button class="btn btn-sm btn-primary"><i class="bi bi-cash-coin me-1"></i>Cobrar</button>
+
+            @if(count($todayAppointmentsList) > 0)
+
+              @foreach($todayAppointmentsList as $appointment)
+              <div class="list-group-item">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="text-secondary small" style="width:100px"><i class="bi bi-clock"></i> {{ Illuminate\Support\Carbon::parse($appointment->schedule)->isoFormat('hh:mm a')}}</div>
+                    <div>
+                      <div class="fw-semibold">{{ $appointment->contractedTreatment->user->name }}</div>
+                      <div class="fw-semibold">{{ $appointment->contractedTreatment->treatment->name }}</div>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="chip"><i class="bi bi-circle-fill" style="font-size:.55rem"></i> {{ $appointment->status }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="list-group-item">
-              <div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-3">
-                  <div class="text-secondary small" style="width:64px"><i class="bi bi-clock"></i> 09:00</div>
-                  <div><div class="fw-semibold">María Díaz</div><div class="small text-secondary">Dra. Pérez</div></div>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                  <span class="chip state-noshow"><i class="bi bi-circle-fill" style="font-size:.55rem"></i> No asistió</span>
-                  <button class="btn btn-sm btn-outline-light"><i class="bi bi-arrow-repeat me-1"></i>Reprogramar</button>
-                  <button class="btn btn-sm btn-primary" disabled><i class="bi bi-cash-coin me-1"></i>Cobrar</button>
-                </div>
-              </div>
-            </div>
-            <!-- /Ejemplos -->
+              @endforeach
+            @else
+              <div class="fw-semibold text-center my-3 h4">No hay citas para hoy</div>
+            @endif
           </div>
         </div>
       </div>
@@ -219,9 +195,14 @@
         <div class="card-header fw-semibold"><i class="bi bi-person-plus me-2"></i>Nuevos pacientes (7d)</div>
         <div class="card-body scroll-area">
           <ul class="list-group list-group-flush">
-            <li class="list-group-item d-flex justify-content-between align-items-center"><span>María Camargo</span><span class="badge rounded-pill text-bg-primary">Agendó</span></li>
-            <li class="list-group-item d-flex justify-content-between align-items-center"><span>Óscar Nieto</span><span class="badge rounded-pill text-bg-secondary">Pendiente</span></li>
-            <li class="list-group-item d-flex justify-content-between align-items-center"><span>Laura Vélez</span><span class="badge rounded-pill text-bg-primary">Agendó</span></li>
+
+            @if(count($patientList) > 0)
+              @foreach($patientList as $patient)
+              <li class="list-group-item d-flex justify-content-between align-items-center"><span>{{ $patient->name }}</span></li>
+              @endforeach
+            @else
+              <div class="fw-semibold text-center my-3 h4">No hay nuevos pacientes</div>
+            @endif
           </ul>
         </div>
       </div>

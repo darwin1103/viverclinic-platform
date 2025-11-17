@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Treatment;
+use App\Models\Appointment;
 use App\Models\Branch;
+use App\Models\Treatment;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -30,11 +31,38 @@ class DashboardController extends Controller
         $user = Auth::user();
         if($user->hasRole(['SUPER_ADMIN', 'OWNER'])){
 
-            $patientCount = User::role('PATIENT')->count();
+            $patientCount = User::role('PATIENT')
+                ->whereDate('created_at', '>=', now()->subDays(7))
+                ->count();
+
+            $patientList = User::role('PATIENT')
+                ->whereDate('created_at', '>=', now()->subDays(7))
+                ->select(['id', 'name'])
+                ->get();
+
+            $todayAppointments = Appointment::whereBetween('schedule', [
+                today()->startOfDay(),
+                today()->endOfDay(),
+            ])
+            ->count();
+
+            $todayAppointmentsList = Appointment::whereBetween('schedule', [
+                today()->startOfDay(),
+                today()->endOfDay(),
+            ])
+            ->with([
+                'contractedTreatment.user',
+                'contractedTreatment.treatment'
+            ])
+            ->get();
+
             $branches = Branch::select(['id', 'name'])->get();
 
             $data = [
+                'todayAppointments' => $todayAppointments,
+                'todayAppointmentsList' => $todayAppointmentsList,
                 'patientCount' => $patientCount,
+                'patientList' => $patientList,
                 'branches' => $branches,
             ];
 

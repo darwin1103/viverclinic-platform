@@ -63,6 +63,14 @@
             </div>
         </nav>
         <main class="py-3">
+            @if(!Route::is('dashboard'))
+            <div class="container">
+                <a href="{{ route('dashboard') }}" class="text-decoration-none">
+                    <i class="bi bi-arrow-left"></i>
+                    Volver al dashboard
+                </a>
+            </div>
+            @endif
             @yield('content')
         </main>
     </div>

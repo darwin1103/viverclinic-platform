@@ -160,6 +160,9 @@ class AdminAppointmentController extends Controller
             if (!$appointment->staff_user_id && $validated['attended']) {
                 $staffId = $this->assignStaffSequentially($appointment);
                 $appointment->staff_user_id = $staffId;
+                StaffProfile::where('user_id', $staffId)->update([
+                    'last_appointment_assigned' => Carbon::now(),
+                ]);
             }
 
             $appointment->save();
@@ -185,38 +188,32 @@ class AdminAppointmentController extends Controller
      */
     private function assignStaffSequentially(Appointment $appointment)
     {
+
+        // que no sea de esta manera que sea secuencial ***
+
         $branchId = $appointment->contractedTreatment->branch_id;
         $appointmentTime = Carbon::parse($appointment->schedule);
 
         // Get staff members who work at this branch
-        $staffMembers = User::whereHas('staffProfile', function ($q) use ($branchId) {
-            $q->where('branch_id', $branchId);
-        })
+        $staffMember = User::select('users.*') // 1. Selecciona solo las columnas de la tabla de usuarios para evitar conflictos.
+        ->join('staff_profiles', 'users.id', '=', 'staff_profiles.user_id') // 2. Une la tabla de perfiles.
+        ->where('staff_profiles.branch_id', $branchId) // 3. Filtra por branch_id directamente en la tabla unida.
         ->whereHas('staffProfile.workSchedules', function ($q) use ($appointmentTime) {
-            $dayOfWeek = $appointmentTime->locale('es')->dayName; // e.g., 'Lunes', 'Martes'
+            $dayOfWeek = $appointmentTime->locale('es')->dayName;
             $time = $appointmentTime->format('H:i:s');
 
             $q->where('day_of_week', $dayOfWeek)
               ->where('start_time', '<=', $time)
               ->where('end_time', '>=', $time);
         })
-        ->withCount(['appointments as appointments_count' => function ($q) {
-            $q->whereNotNull('attended')
-              ->where('attended', true);
-        }])
-        ->orderBy('appointments_count', 'asc')
+        ->orderBy('staff_profiles.last_appointment_assigned', 'asc') // 4. Ordena por la columna deseada de forma ascendente.
         ->first();
 
-        if ($staffMembers) {
-            return $staffMembers->id;
+        if ($staffMember) {
+            return $staffMember->id;
         }
 
-        // Fallback: return any staff member from the branch
-        $fallbackStaff = User::whereHas('staffProfile', function ($q) use ($branchId) {
-            $q->where('branch_id', $branchId);
-        })->first();
-
-        return $fallbackStaff ? $fallbackStaff->id : null;
+        return null;
     }
 
     /**

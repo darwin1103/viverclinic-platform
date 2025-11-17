@@ -14,6 +14,7 @@ class StaffProfile extends Model
     protected $fillable = [
         'user_id',
         'branch_id',
+        'last_appointment_assigned',
     ];
 
     public function user(): BelongsTo

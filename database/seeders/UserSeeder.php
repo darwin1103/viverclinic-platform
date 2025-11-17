@@ -37,7 +37,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('1'),
             'birthday' => '2025-10-29',
             'gender_id' => 1,
-            'informed_consent' => 0,
+            'informed_consent' => 1,
             'citizenship' => 'test',
             'document_type_id' => 1,
             'document_number' => 'test',
@@ -68,7 +68,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('1'),
             'birthday' => '2025-10-29',
             'gender_id' => 2,
-            'informed_consent' => 0,
+            'informed_consent' => 1,
             'citizenship' => 'test',
             'document_type_id' => 2,
             'document_number' => 'test',
@@ -90,7 +90,38 @@ class UserSeeder extends Seeder
         $client02->assignRole('PATIENT');
 
         $client02->patientProfile()->create([
-            'branch_id' => 2,
+            'branch_id' => 1,
+        ]);
+
+        $client03 = User::create([
+            'name' => 'cliente03',
+            'email' => 'c03@1.com',
+            'password' => Hash::make('1'),
+            'birthday' => '2025-10-29',
+            'gender_id' => 2,
+            'informed_consent' => 1,
+            'citizenship' => 'test',
+            'document_type_id' => 2,
+            'document_number' => 'test',
+            'profession' => 'test',
+            'phone' => '223456798',
+            'address' => 'test',
+            'surgery' => 'test',
+            'recommendation' => 'test',
+            'directory' => null,
+            'photo_profile' => null,
+            'pathological_id' => 2,
+            'toxicological_id' => 2,
+            'gyneco_obstetric_id' => 2,
+            'medication_id' => 2,
+            'dietary_id' => 2,
+            'treatment_id' => 2,
+        ]);
+
+        $client03->assignRole('PATIENT');
+
+        $client03->patientProfile()->create([
+            'branch_id' => 1,
         ]);
 
         $staff01 = User::create([
@@ -112,7 +143,18 @@ class UserSeeder extends Seeder
 
         $staff02->assignRole('EMPLOYEE');
         $staff02->staffProfile()->create([
-            'branch_id' => 2,
+            'branch_id' => 1,
+        ]);
+
+        $staff03 = User::create([
+            'name' => 'staff03',
+            'email' => 's03@1.com',
+            'password' => Hash::make('1'),
+        ]);
+
+        $staff03->assignRole('EMPLOYEE');
+        $staff03->staffProfile()->create([
+            'branch_id' => 1,
         ]);
 
         $owner01 = User::create([

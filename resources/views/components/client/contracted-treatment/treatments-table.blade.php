@@ -11,7 +11,7 @@
                         <th class="text-white">Paquete Contratado</th>
                         <th class="text-white">Fecha de Contratación</th>
                         <th class="text-end text-white">Total</th>
-                        <th class="text-white">Estado</th>
+                        <th class="text-white">Pago</th>
                         <th class="text-center text-white">Acciones</th>
                     </tr>
                 </thead>

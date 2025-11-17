@@ -63,7 +63,12 @@
             </div>
         </nav>
         <main class="py-3">
-            @if(!Route::is('dashboard'))
+            @if(
+                !Route::is('dashboard') &&
+                !Route::is('login') &&
+                !Route::is('register') &&
+                !Route::is('registration-by-branch.create')
+            )
             <div class="container">
                 <a href="{{ route('dashboard') }}" class="text-decoration-none">
                     <i class="bi bi-arrow-left"></i>

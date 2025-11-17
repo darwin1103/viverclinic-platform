@@ -96,7 +96,7 @@ class AdminAppointmentController extends Controller
             return [
                 'id' => $appointment->id,
                 'date' => $schedule->format('Y-m-d'),
-                'start' => $schedule->format('H:i'),
+                'start' => $schedule->format('h:i a'),
                 'duration' => $duration,
                 'patient' => $appointment->contractedTreatment->user->name,
                 'patient_email' => $appointment->contractedTreatment->user->email,
@@ -117,6 +117,7 @@ class AdminAppointmentController extends Controller
      */
     public function getStaffList()
     {
+
         $branchId = request()->get('branch_id');
 
         $staff = User::whereHas('staffProfile', function ($q) use ($branchId) {
@@ -126,6 +127,7 @@ class AdminAppointmentController extends Controller
         })->select('id', 'name')->get();
 
         return response()->json(['staff' => $staff]);
+
     }
 
     /**

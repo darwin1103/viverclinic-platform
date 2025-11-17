@@ -124,11 +124,11 @@ Route::middleware(['auth', 'verified', 'role:SUPER_ADMIN|OWNER'])->prefix('admin
     });
 
     // Staff list for filters
-    Route::get('/staff/list', [AdminAppointmentController::class, 'getStaffList'])
+    Route::get('/users-staff/list', [AdminAppointmentController::class, 'getStaffList'])
         ->name('staff.list');
 
     // Treatments list for filters
-    Route::get('/treatments/list', [AdminAppointmentController::class, 'getTreatmentsList'])
+    Route::get('/all-treatments/list', [AdminAppointmentController::class, 'getTreatmentsList'])
         ->name('treatments.list');
 
 

@@ -28,14 +28,28 @@ const AdminCalendarModule = (function() {
         return date.toLocaleDateString('es-ES', options);
     }
 
-    function endTime(start, duration) {
-        const [h, m] = start.split(':').map(Number);
-        const d = new Date();
-        d.setHours(h, m, 0, 0);
-        d.setMinutes(d.getMinutes() + duration);
-console.log(h)
-console.log(m)
-        return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    function endTime(start12, duration) {
+      // 1. pull the pieces apart
+      const [, h12, m, ap] = start12.match(/^(\d{1,2}):(\d{2})\s*(am|pm)$/i);
+
+      // 2. turn it into 24-hour
+      let h24 = +h12 % 12;
+      if (/pm/i.test(ap)) h24 += 12;
+
+      // 3. do the math
+      const d = new Date();
+      d.setHours(h24, +m, 0, 0);
+      d.setMinutes(d.getMinutes() + duration);
+
+      // 4. convert back to 12-hour with AM/PM
+      let hEnd = d.getHours();
+      const mEnd = d.getMinutes();
+      const suffix = hEnd >= 12 ? 'pm' : 'am';
+
+      hEnd = hEnd % 12 || 12;          // 0 → 12
+      const pad = n => n.toString().padStart(2, '0');
+
+      return `${hEnd}:${pad(mEnd)} ${suffix}`;
     }
 
     // State
@@ -294,11 +308,11 @@ console.log(m)
         card.innerHTML = `
             <div class="title">${appointment.patient}</div>
             <div class="meta">
-                <span>${appointment.professional}</span>
-                <span>${appointment.start}${appointment.duration ? `–${endTime(appointment.start, appointment.duration)}` : ''}</span>
+                <div>${appointment.professional}</div>
+                <div>${appointment.start}${appointment.duration ? `–${endTime(appointment.start, appointment.duration)}` : ''}</div>
             </div>
-            <div class="mt-1 d-flex justify-content-between align-items-center">
-                <span class="small text-secondary">${appointment.treatment}</span>
+            <div class="">
+                <div class="">${appointment.treatment}</div>
                 ${getStatusBadge(appointment.status)}
             </div>
         `;

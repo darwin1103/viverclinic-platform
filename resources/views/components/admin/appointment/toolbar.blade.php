@@ -1,6 +1,6 @@
 @props(['branch'])
 
-<div class="sticky-toolbar">
+<div class="">
     <div class="card mb-3">
         <div class="card-body">
             <!-- Desktop Layout -->

@@ -151,15 +151,10 @@
 
 .appt-card .title {
     font-weight: 700;
-    margin-bottom: 0.25rem;
 }
 
 .appt-card .meta {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: space-between;
     font-size: 0.85rem;
-    opacity: 0.9;
 }
 
 .appt-card.confirmed {

@@ -49,35 +49,76 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // --- Modal Logic ---
-    const appointmentModal = document.getElementById('appointmentActionModal');
-    if (appointmentModal) {
-        appointmentModal.addEventListener('show.bs.modal', function (event) {
-            // Button that triggered the modal
-            const button = event.relatedTarget;
+// --- Modal Logic ---
+const appointmentModal = document.getElementById('appointmentActionModal');
 
-            // Extract info from data-* attributes
-            const appointmentId = button.getAttribute('data-appointment-id');
-            const patientName = button.getAttribute('data-patient-name');
+if (appointmentModal) {
+    appointmentModal.addEventListener('show.bs.modal', function (event) {
+        // Botón que disparó el modal
+        const button = event.relatedTarget;
 
-            // Update the modal's content.
-            const modalTitle = appointmentModal.querySelector('.modal-title');
-            const modalAppointmentIdElement = appointmentModal.querySelector('#modalAppointmentId');
+        // Extraer información de los atributos data-*
+        const patientName = button.getAttribute('data-patient-name');
 
-            modalTitle.textContent = `Detalles de la Cita de: ${patientName}`;
-
-            if(modalAppointmentIdElement) {
-                modalAppointmentIdElement.textContent = appointmentId;
+        // Parsear los objetos JSON de los atributos
+        const details = JSON.parse(button.getAttribute('data-appointment-details'));
+        const zonesString = button.getAttribute('data-zones');
+        let zones = null;
+        if (zonesString) {
+            try {
+                zones = JSON.parse(zonesString);
+            } catch (e) {
+                console.error("Error al parsear las zonas:", e);
             }
+        }
 
-            // Here you would typically make an AJAX call (e.g., using fetch)
-            // to get the appointment details and populate your form inside the modal body.
-            // Example:
-            // fetch(`/staff/appointment/${appointmentId}/details`)
-            //     .then(response => response.json())
-            //     .then(data => {
-            //         // Populate form fields with 'data'
-            //     });
-        });
-    }
+        // Seleccionar los elementos del modal
+        const modalTitle = appointmentModal.querySelector('.modal-title');
+        const modalBody = appointmentModal.querySelector('.modal-body');
+
+        // Actualizar el título del modal
+        modalTitle.textContent = `Detalles de la Cita de: ${patientName}`;
+
+        // Generar HTML para las zonas (si existen)
+        const bigZonesHtml = (zones?.big?.length > 0) ? `
+            <div>
+                <strong>Zonas grandes:</strong>
+                <div class="d-flex flex-wrap gap-1 mt-1">
+                    ${zones.big.map(zone => `<span class="badge bg-secondary">${zone}</span>`).join('')}
+                </div>
+            </div>
+        ` : '';
+
+        const miniZonesHtml = (zones?.mini?.length > 0) ? `
+            <div>
+                <strong>Mini zonas:</strong>
+                <div class="d-flex flex-wrap gap-1 mt-1">
+                    ${zones.mini.map(zone => `<span class="badge bg-light text-dark">${zone}</span>`).join('')}
+                </div>
+            </div>
+        ` : '';
+
+        // Construir el cuerpo completo del modal
+        modalBody.innerHTML = `
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="card bg-transparent">
+                        <div class="card-body">
+                            <h6 class="text-secondary small text-uppercase mb-3">Detalles de la Cita</h6>
+                            <div class="vstack gap-2">
+                                <div><strong>Tratamiento:</strong> ${details.treatment}</div>
+                                <div><strong>Sesión:</strong> #${details.session_number}</div>
+                                <div><strong>Fecha:</strong> ${details.date}</div>
+                                <div><strong>Hora:</strong> ${details.time}</div>
+                                <div><strong>Estado:</strong> <span class="badge text-bg-info">${details.status}</span></div>
+                                ${bigZonesHtml}
+                                ${miniZonesHtml}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+}
 });

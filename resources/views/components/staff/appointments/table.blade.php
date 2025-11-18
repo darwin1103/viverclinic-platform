@@ -22,10 +22,18 @@
                     <td>{{ \Carbon\Carbon::parse($appointment->schedule)->isoFormat('hh:mm a') }}</td>
                     <td class="text-center">
                         <button type="button" class="btn btn-sm btn-primary"
-                                data-bs-toggle="modal"
-                                data-bs-target="#appointmentActionModal"
-                                data-appointment-id="{{ $appointment->id }}"
-                                data-patient-name="{{ $appointment->contractedTreatment->user->name }}">
+                            data-bs-toggle="modal"
+                            data-bs-target="#appointmentActionModal"
+                            data-appointment-id="{{ $appointment->id }}"
+                            data-patient-name="{{ $appointment->contractedTreatment->user->name }}"
+                            data-appointment-details="{{ json_encode([
+                                'treatment' => $appointment->contractedTreatment->treatment->name,
+                                'session_number' => $appointment->session_number,
+                                'date' => \Carbon\Carbon::parse($appointment->schedule)->isoFormat('dddd, D \d\e MMMM, YYYY'),
+                                'time' => \Carbon\Carbon::parse($appointment->schedule)->isoFormat('hh:mm a'),
+                                'status' => $appointment->status
+                            ]) }}"
+                            data-zones='@json($appointment->contractedTreatment->selected_zones)'
                             <i class="bi bi-eye"></i> Ver
                         </button>
                     </td>

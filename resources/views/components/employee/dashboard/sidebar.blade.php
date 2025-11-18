@@ -16,7 +16,7 @@
         Operación
       </li>
       <li>
-        <a href="{{ route('agenda-day.index') }}" class="nav-link @if(Route::is('agenda-day.*')) active @endif">
+        <a href="{{ route('staff.appointment.index') }}" class="nav-link @if(Route::is('staff.appointment.*')) active @endif">
             <i class="bi bi-calendar-week me-2"></i>
             Agenda
         </a>

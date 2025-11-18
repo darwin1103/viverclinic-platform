@@ -59,15 +59,12 @@ Route::resource('agenda-day', AgendaDayController::class);
 Route::resource('agenda-new', AgendaNewController::class);
 Route::resource('job-trailing', JobTrailingController::class);
 
-Route::middleware(['auth', 'verified', 'role:EMPLOYER'])->prefix('staff')->name('staff.')->group(function () {
+Route::middleware(['auth', 'verified', 'role:EMPLOYEE'])->prefix('staff')->name('staff.')->group(function () {
 
     Route::controller(StaffAppointmentController::class)->group(function () {
 
         // Main view
-        Route::get('/appointments', 'index')->name('appointments.index');
-
-        // Fetch appointments for date range (AJAX)
-        Route::post('/appointments/fetch', 'fetch')->name('appointments.fetch');
+        Route::get('/appointment', 'index')->name('appointment.index');
 
     });
 

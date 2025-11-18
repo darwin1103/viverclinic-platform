@@ -10,11 +10,6 @@
 
   <div class="ms-auto d-flex align-items-center gap-2">
 
-    <!-- SOLO ICONO "+" -->
-    <button class="btn btn-primary btn-sm btn-icon" aria-label="Crear" title="Crear" data-bs-toggle="modal" data-bs-target="#modalQuickAdd">
-      <i class="bi bi-plus-lg"></i>
-    </button>
-
     <span class="nav-item dropdown">
         <a id="navbarDropdown" class="nav-link fw-bold" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
             <img alt="photo profile" width="32px" height="32px" class="rounded-circle navbar-photo me-2" src="{{asset(Storage::url(Auth::user()->photo_profile?:config('app.app_default_img_profile')))}}">

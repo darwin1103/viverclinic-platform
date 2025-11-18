@@ -11,9 +11,8 @@
 </head>
 <body>
     <div id="app">
-        <x-employee.dashboard.header :branches="$branches ?? null" />
+        <x-employee.dashboard.header />
         <x-employee.dashboard.sidebar />
-        <x-employee.dashboard.modal-quick-add />
         <main class="content-area">
             @yield('content')
         </main>

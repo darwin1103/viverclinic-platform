@@ -1,0 +1,50 @@
+@props(['appointments'])
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th scope="col" class="text-white">Tratamiento</th>
+                <th scope="col" class="text-white">Paciente</th>
+                <th scope="col" class="text-white">Sesión</th>
+                <th scope="col" class="text-white">Fecha</th>
+                <th scope="col" class="text-white">Hora</th>
+                <th scope="col" class="text-white" class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($appointments as $appointment)
+                <tr>
+                    <td>{{ $appointment->contractedTreatment->treatment->name }}</td>
+                    <td>{{ $appointment->contractedTreatment->user->name }}</td>
+                    <td><span class="badge bg-primary rounded-pill">{{ $appointment->session_number }}</span></td>
+                    <td>{{ \Carbon\Carbon::parse($appointment->schedule)->isoFormat('dddd, D \d\e MMMM, YYYY') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($appointment->schedule)->isoFormat('hh:mm a') }}</td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-primary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#appointmentActionModal"
+                                data-appointment-id="{{ $appointment->id }}"
+                                data-patient-name="{{ $appointment->contractedTreatment->user->name }}">
+                            <i class="bi bi-eye"></i> Ver
+                        </button>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        <p class="mb-1"><i class="bi bi-calendar-x fs-2"></i></p>
+                        No se encontraron citas con los filtros actuales.
+                    </td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+</div>
+
+{{-- Pagination Links --}}
+@if ($appointments->hasPages())
+    <div class="d-flex justify-content-center mt-4">
+        {{ $appointments->links() }}
+    </div>
+@endif

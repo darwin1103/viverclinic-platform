@@ -94,7 +94,7 @@ class AdminAppointmentController extends Controller
         // Format appointments for frontend
         $formatted = $appointments->map(function ($appointment) {
             $schedule = Carbon::parse($appointment->schedule);
-            $duration = 20; // Default duration in minutes, adjust as needed
+            $duration = 20; // Default duration in minutes
 
             return [
                 'id' => $appointment->id,

@@ -25,6 +25,7 @@ class Appointment extends Model
         'review',
         'review_score',
         'notification_reminder_sent',
+        'uses_of_hair_removal_shots',
     ];
 
     /**

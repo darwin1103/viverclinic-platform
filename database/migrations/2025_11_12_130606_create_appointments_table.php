@@ -23,6 +23,7 @@ return new class extends Migration
             $table->boolean('notification_reminder_sent')->default(false);
             $table->string('review')->nullable();
             $table->smallInteger('review_score')->nullable();
+            $table->smallInteger('uses_of_hair_removal_shots')->nullable();
             $table->timestamps();
         });
     }

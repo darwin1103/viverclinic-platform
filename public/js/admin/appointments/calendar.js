@@ -231,12 +231,23 @@ const AdminCalendarModule = (function() {
             byDay[a.date].push(a);
         });
 
+        // MODIFICACIÓN: Ordenar las citas por hora 'start' dentro de cada día
+        for (const dateKey in byDay) {
+            byDay[dateKey].sort((a, b) => {
+                // Se crea un objeto Date para comparar las horas correctamente (am/pm)
+                const timeA = new Date(`01/01/2000 ${a.start}`);
+                const timeB = new Date(`01/01/2000 ${b.start}`);
+                return timeA - timeB;
+            });
+        }
+
         // Render appointments in each column
         let hasAppointments = false;
         cols.forEach(col => {
             const dateKey = col.dataset.date;
             const body = col.querySelector('.day-body');
-            const items = (byDay[dateKey] || []).sort((a, b) => a.start.localeCompare(b.start));
+            // Los items ya vienen ordenados desde el objeto byDay
+            const items = byDay[dateKey] || [];
 
             if (items.length === 0) {
                 body.innerHTML = '<div class="empty-state small">Sin citas</div>';

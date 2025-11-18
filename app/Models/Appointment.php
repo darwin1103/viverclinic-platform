@@ -24,6 +24,7 @@ class Appointment extends Model
         'staff_user_id',
         'review',
         'review_score',
+        'notification_reminder_sent',
     ];
 
     /**

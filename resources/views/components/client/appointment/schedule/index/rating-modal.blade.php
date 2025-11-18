@@ -9,7 +9,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
 
-            <form method="POST" action="{{ route('client.schedule-appointment.rate', ['appointment' => 1]) }}" id="ratingForm">
+            <form method="POST" action="" id="ratingForm">
                 @csrf
 
                 <input type="hidden" name="session_number" id="ratingSessionNumber">
@@ -33,10 +33,10 @@
                     <div class="mb-3">
                         <label class="form-label">¿Cómo fue tu experiencia?</label>
                         <div class="faces justify-content-center" id="faces">
-                            <div class="face good" data-value="5" title="Excelente 😊">
+                            <div class="face good" data-value="3" title="Excelente 😊">
                                 😊
                             </div>
-                            <div class="face neu" data-value="3" title="Normal 😐">
+                            <div class="face neu" data-value="2" title="Normal 😐">
                                 😐
                             </div>
                             <div class="face bad" data-value="1" title="Mala 😞">

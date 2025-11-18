@@ -38,16 +38,13 @@ const RatingModule = (function() {
             elements.modal.addEventListener('hidden.bs.modal', handleModalHidden);
         }
 
-        if (elements.form) {
-            elements.form.addEventListener('submit', handleFormSubmit);
-        }
-
         // Listen for rating button clicks from the table
         document.addEventListener('click', function(e) {
             const btnRate = e.target.closest('.btn-rate');
             if (btnRate) {
                 const sessionNumber = btnRate.getAttribute('data-session');
-                openRatingModal(sessionNumber);
+                const rateUrl = btnRate.getAttribute('data-rate-url-template');
+                openRatingModal(sessionNumber, rateUrl);
             }
         });
     }
@@ -95,35 +92,14 @@ const RatingModule = (function() {
         currentRatedSession = null;
     }
 
-    function handleFormSubmit(e) {
-        e.preventDefault();
-
-        if (!selectedFace) {
-            return;
-        }
-
-        // Here you would normally submit the form via AJAX
-        // For now, we'll simulate it with a toast
-        const formData = new FormData(elements.form);
-
-        // Close modal
-        const modal = bootstrap.Modal.getInstance(elements.modal);
-        if (modal) {
-            modal.hide();
-        }
-
-        // Update table to show rating was submitted
-        if (window.updateSessionRating) {
-            window.updateSessionRating(currentRatedSession, selectedFace);
-        }
-    }
-
-    function openRatingModal(sessionNumber) {
+    function openRatingModal(sessionNumber, url) {
         currentRatedSession = sessionNumber;
 
         if (elements.sessionNumberInput) {
             elements.sessionNumberInput.value = sessionNumber;
         }
+
+        elements.form.action = url;
 
         resetRating();
 

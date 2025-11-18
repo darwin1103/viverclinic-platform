@@ -41,8 +41,9 @@ const SessionsTableModule = (function() {
         const btnRate = target.closest('.btn-rate');
         if (btnRate) {
             const sessionNumber = btnRate.getAttribute('data-session');
+            const rateUrl = btnRate.getAttribute('data-rate-url-template');
             if (window.RatingModule) {
-                window.RatingModule.openRatingModal(sessionNumber);
+                window.RatingModule.openRatingModal(sessionNumber, rateUrl);
             }
             return;
         }

@@ -126,21 +126,21 @@ class ScheduleAppointmentController extends Controller
         // verify if the user is the owner of contracted treatment ***
 
         $validated = $request->validate([
-            'rating_value' => 'required|integer|min:1|max:5',
+            'rating_value' => 'required|integer|min:1|max:3',
             'comment' => 'nullable|string|max:500',
         ]);
 
-        // TODO: Save rating to database
-        // Example:
-        // Appointment::where('treatment_id', $treatmentId)
-        //     ->where('session_number', $validated['session_number'])
-        //     ->update([
-        //         'review_score' => $validated['rating_value'],
-        //         'review_comment' => $validated['comment']
-        //     ]);
+        // verify the appointment is completed ***
+
+        $appointment->update([
+            'review' => $validated['comment'],
+            'review_score' => $validated['rating_value'],
+        ]);
+
+        $contractedTreatmentId = $appointment->contractedTreatment->id;
 
         return redirect()
-            ->route('schedule-appointment.index')
+            ->route('client.schedule-appointment.index', ['contracted_treatment' => $contractedTreatmentId])
             ->with('success', '¡Gracias por tu calificación!');
     }
 

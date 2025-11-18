@@ -28,7 +28,6 @@ class ContractedTreatmentController extends Controller
     {
 
         $contractedTreatment->load(['user', 'branch', 'treatment']);
-
         return view('client.contracted-treatment.show', compact('contractedTreatment'));
 
     }

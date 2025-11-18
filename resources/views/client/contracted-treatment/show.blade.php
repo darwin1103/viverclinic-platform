@@ -94,32 +94,52 @@
                             <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-receipt-cutoff me-2"></i>Desglose del Contrato</h5>
 
                             {{-- Paquetes Contratados --}}
-                            @if($contractedTreatment->contracted_packages && count($contractedTreatment->contracted_packages) > 0)
+                            @php
+                                // Aseguramos que los paquetes sean un array.
+                                $packagesData = $contractedTreatment->contracted_packages;
+                                if (is_string($packagesData)) {
+                                    $packagesData = json_decode($packagesData, true);
+                                }
+
+                                // Filtramos la colección para quedarnos solo con los paquetes que tienen cantidad > 0.
+                                $visiblePackages = collect($packagesData)->where('quantity', '>', 0);
+                            @endphp
+
+                            {{-- Solo mostramos el bloque si la colección filtrada no está vacía. --}}
+                            @if($visiblePackages->isNotEmpty())
                                 <p class="fw-bold mb-1">Paquetes Contratados:</p>
                                 <ul class="list-group list-group-flush mb-3">
-                                    @foreach($contractedTreatment->contracted_packages as $package)
-                                        @if($package['quantity'] == 0)
-                                            @continue
-                                        @endif
+                                    {{-- Hacemos el bucle sobre la colección ya filtrada. --}}
+                                    @foreach($visiblePackages as $package)
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            {{ $package['quantity'] ?? 1 }}x {{ $package['name'] ?? 'N/A' }}
-                                            <span class="badge bg-primary rounded-pill">${{ number_format($package['price_at_purchase'] ?? 0, 2) }} c/u</span>
+                                            {{ $package['quantity'] }}x {{ $package['name'] }}
+                                            <span class="badge bg-primary rounded-pill">${{ number_format($package['price_at_purchase'], 2) }} c/u</span>
                                         </li>
                                     @endforeach
                                 </ul>
                             @endif
 
-                             {{-- Adicionales Contratados --}}
-                            @if($contractedTreatment->contracted_additionals && count($contractedTreatment->contracted_additionals) > 0)
+                            {{-- Adicionales Contratados --}}
+                            @php
+                                // Primero, nos aseguramos de que los adicionales sean un array y no un string JSON.
+                                $additionalsData = $contractedTreatment->contracted_additionals;
+                                if (is_string($additionalsData)) {
+                                    $additionalsData = json_decode($additionalsData, true);
+                                }
+
+                                // Luego, creamos una colección de Laravel y filtramos para quedarnos solo con los que tienen cantidad > 0.
+                                $visibleAdditionals = collect($additionalsData)->where('quantity', '>', 0);
+                            @endphp
+
+                            {{-- Ahora la condición principal es muy simple: solo mostramos el bloque si la colección filtrada no está vacía. --}}
+                            @if($visibleAdditionals->isNotEmpty())
                                 <p class="fw-bold mb-1">Adicionales:</p>
                                 <ul class="list-group list-group-flush mb-3">
-                                    @foreach($contractedTreatment->contracted_additionals as $additional)
-                                        @if($additional['quantity'] == 0)
-                                            @continue
-                                        @endif
+                                    {{-- Hacemos el bucle sobre la colección ya filtrada. --}}
+                                    @foreach($visibleAdditionals as $additional)
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            {{ $additional['quantity'] ?? 1 }}x {{ $additional['name'] ?? 'N/A' }}
-                                            <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">${{ number_format($additional['price_at_purchase'] ?? 0, 2) }} c/u</span>
+                                            {{ $additional['quantity'] }}x {{ $additional['name'] }}
+                                            <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">${{ number_format($additional['price_at_purchase'], 2) }} c/u</span>
                                         </li>
                                     @endforeach
                                 </ul>

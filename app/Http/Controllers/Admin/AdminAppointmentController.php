@@ -106,6 +106,7 @@ class AdminAppointmentController extends Controller
                 'patient_email' => $appointment->contractedTreatment->user->email,
                 'professional' => $appointment->staff ? $appointment->staff->name : 'Sin asignar',
                 'treatment' => $appointment->contractedTreatment->treatment->name,
+                'zones' => $appointment->contractedTreatment->selected_zones,
                 'status' => $appointment->status,
                 'attended' => $appointment->attended,
                 'session_number' => $appointment->session_number,

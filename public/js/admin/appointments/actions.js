@@ -107,36 +107,55 @@ const AdminActionsModule = (function() {
         });
 
         elements.modalBody.innerHTML = `
-            <div class="row g-3">
-                <div class="col-12">
-                    <div class="card bg-transparent">
-                        <div class="card-body">
-                            <h6 class="text-secondary small text-uppercase mb-3">Información del Paciente</h6>
-                            <div class="vstack gap-2">
-                                <div><strong>Nombre:</strong> ${currentAppointment.patient}</div>
-                                <div><strong>Email:</strong> ${currentAppointment.patient_email}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div class="card bg-transparent">
-                        <div class="card-body">
-                            <h6 class="text-secondary small text-uppercase mb-3">Detalles de la Cita</h6>
-                            <div class="vstack gap-2">
-                                <div><strong>Tratamiento:</strong> ${currentAppointment.treatment}</div>
-                                <div><strong>Sesión:</strong> #${currentAppointment.session_number}</div>
-                                <div><strong>Profesional:</strong> ${currentAppointment.professional}</div>
-                                <div><strong>Fecha:</strong> ${formattedDate}</div>
-                                <div><strong>Hora:</strong> ${currentAppointment.start} ${currentAppointment.duration ? `(${currentAppointment.duration} min)` : ''}</div>
-                                <div><strong>Estado:</strong> <span class="badge text-bg-${getStatusVariant(currentAppointment.status)}">${currentAppointment.status}</span></div>
-                                ${currentAppointment.attended !== null ? `<div><strong>Asistencia:</strong> <span class="badge text-bg-${currentAppointment.attended ? 'success' : 'danger'}">${currentAppointment.attended ? 'Asistió' : 'No asistió'}</span></div>` : ''}
-                            </div>
+        <div class="row g-3">
+            <div class="col-12">
+                <div class="card bg-transparent">
+                    <div class="card-body">
+                        <h6 class="text-secondary small text-uppercase mb-3">Información del Paciente</h6>
+                        <div class="vstack gap-2">
+                            <div><strong>Nombre:</strong> ${currentAppointment.patient}</div>
+                            <div><strong>Email:</strong> ${currentAppointment.patient_email}</div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div class="col-12">
+                <div class="card bg-transparent">
+                    <div class="card-body">
+                        <h6 class="text-secondary small text-uppercase mb-3">Detalles de la Cita</h6>
+                        <div class="vstack gap-2">
+                            <div><strong>Tratamiento:</strong> ${currentAppointment.treatment}</div>
+                            <div><strong>Sesión:</strong> #${currentAppointment.session_number}</div>
+                            <div><strong>Profesional:</strong> ${currentAppointment.professional}</div>
+                            <div><strong>Fecha:</strong> ${formattedDate}</div>
+                            <div><strong>Hora:</strong> ${currentAppointment.start} ${currentAppointment.duration ? `(${currentAppointment.duration} min)` : ''}</div>
+                            <div><strong>Estado:</strong> <span class="badge text-bg-${getStatusVariant(currentAppointment.status)}">${currentAppointment.status}</span></div>
+
+                            ${(currentAppointment.zones?.big?.length > 0) ? `
+                                <div>
+                                    <strong>Zonas grandes:</strong>
+                                    <div class="d-flex flex-wrap gap-1 mt-1">
+                                        ${currentAppointment.zones.big.map(zone => `<span class="badge bg-secondary">${zone}</span>`).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            ${(currentAppointment.zones?.mini?.length > 0) ? `
+                                <div>
+                                    <strong>Mini zonas:</strong>
+                                    <div class="d-flex flex-wrap gap-1 mt-1">
+                                        ${currentAppointment.zones.mini.map(zone => `<span class="badge bg-light text-dark">${zone}</span>`).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            ${currentAppointment.attended !== null ? `<div><strong>Asistencia:</strong> <span class="badge text-bg-${currentAppointment.attended ? 'success' : 'danger'}">${currentAppointment.attended ? 'Asistió' : 'No asistió'}</span></div>` : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         `;
 
         // Show/hide action buttons based on status

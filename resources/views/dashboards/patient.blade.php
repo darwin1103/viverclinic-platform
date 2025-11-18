@@ -97,30 +97,33 @@
                         </div>
                     @endcan
                 </div>
-                <div class="row gx-3 gy-3 mt-2">
-                    @can('patient_schedule_appointment_home_btn')
-                        <div class="col-12 col-md-6">
-                            <a class="btn btn-custom btn-schedule-appointment d-flex justify-content-start text-start gap-3 align-items-center"
-                                role="button"
-                                href="{{ route('client.contracted-treatment.index') }}"
-                            >
-                                <i class="bi bi-plus-circle-fill"></i>
-                                {{ __('Schedule an Appointment') }}
-                            </a>
-                        </div>
-                    @endcan
-                    @can('patient_cancel_appointment_home_btn')
-                        <div class="col-12 col-md-6">
-                            <a class="btn btn-custom btn-cancel-appointment d-flex justify-content-start text-start gap-3 align-items-center"
-                                role="button"
-                                href="{{ route('cancel-appointment.index') }}"
-                            >
-                                <i class="bi bi-x-circle-fill"></i>
-                                {{ __('Cancel Appointment') }}
-                            </a>
-                        </div>
-                    @endcan
-                </div>
+                @if($createAppointmentUrl)
+                    <div class="row gx-3 gy-3 mt-2">
+                        @can('patient_schedule_appointment_home_btn')
+                            <div class="col-12 col-md-6">
+                                <a class="btn btn-custom btn-schedule-appointment d-flex justify-content-start text-start gap-3 align-items-center"
+                                    role="button"
+                                    href="{{ $createAppointmentUrl }}"
+                                >
+                                    <i class="bi bi-plus-circle-fill"></i>
+                                    {{ __('Schedule an Appointment') }}
+                                </a>
+                            </div>
+                        @endcan
+                        @can('patient_cancel_appointment_home_btn')
+                            <div class="col-12 col-md-6">
+                                <a class="btn btn-custom btn-cancel-appointment d-flex justify-content-start text-start gap-3 align-items-center"
+                                    role="button"
+                                    href="{{ route('cancel-appointment.index') }}"
+                                >
+                                    <i class="bi bi-x-circle-fill"></i>
+                                    {{ __('Cancel Appointment') }}
+                                </a>
+                            </div>
+                        @endcan
+                    </div>
+                @endif
+
             </div>
             <div class="col-12 col-md-4">
                 <div class="col-12">

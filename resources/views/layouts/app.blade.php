@@ -67,7 +67,8 @@
                 !Route::is('dashboard') &&
                 !Route::is('login') &&
                 !Route::is('register') &&
-                !Route::is('registration-by-branch.create')
+                !Route::is('registration-by-branch.create') &&
+                !Route::is('client.informed-consent.create')
             )
             <div class="container">
                 <a href="{{ route('dashboard') }}" class="text-decoration-none">

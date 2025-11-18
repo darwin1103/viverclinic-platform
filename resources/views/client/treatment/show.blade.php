@@ -4,12 +4,6 @@
     <div class="row">
         <div class="col-12 col-md-7 col-lg-8">
             <h1>Comprar paquete</h1>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ __('Buy Package') }}</li>
-                </ol>
-            </nav>
         </div>
     </div>
 </div>

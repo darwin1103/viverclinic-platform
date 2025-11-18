@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Appointment;
 use App\Models\Branch;
+use App\Models\ContractedTreatment;
 use App\Models\Treatment;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -76,7 +77,25 @@ class DashboardController extends Controller
 
             if (!Auth::user()->informed_consent) {
 
-                return view('dashboards.patient');
+                $user = Auth::user();
+
+                $contractedTreatments = ContractedTreatment::where('user_id', $user->id)
+                    ->select(['id'])
+                    ->get();
+
+                if($contractedTreatments->count() > 1){
+                    $createAppointmentUrl = route('client.contracted-treatment.index');
+                }elseif($contractedTreatments->count() == 1){
+                    $createAppointmentUrl = route('client.schedule-appointment.index', ['contracted_treatment' =>  $contractedTreatments[0]->id]);
+                }else{
+                    $createAppointmentUrl = null;
+                }
+
+                $data = [
+                    'createAppointmentUrl' => $createAppointmentUrl,
+                ];
+
+                return view('dashboards.patient',  $data);
 
             }
 

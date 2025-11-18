@@ -11,12 +11,6 @@
     <div class="row">
         <div class="col-12">
             <h1>{{ __('Profile') }}</h1>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ __('Profile') }}</li>
-                </ol>
-            </nav>
         </div>
         <div class="col-12 d-flex justify-content-center align-items-center">
             <div class="card shadow-sm" style="position: relative; width: 60%;">

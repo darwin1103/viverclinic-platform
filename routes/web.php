@@ -94,10 +94,6 @@ Route::middleware(['auth', 'verified', 'role:SUPER_ADMIN|OWNER'])->prefix('admin
 
     Route::resource('contracted-treatment', ContractedTreatmentController::class);
 
-
-
-
-
     // Appointments Management
     Route::controller(AdminAppointmentController::class)->group(function () {
         // Main view
@@ -142,16 +138,6 @@ Route::middleware(['auth', 'verified', 'role:SUPER_ADMIN|OWNER'])->prefix('admin
     // Treatments list for filters
     Route::get('/all-treatments/list', [AdminAppointmentController::class, 'getTreatmentsList'])
         ->name('treatments.list');
-
-
-
-
-
-
-
-
-
-
 
 });
 

@@ -19,9 +19,6 @@
             </div>
 
             <div class="modal-footer" id="modalFooterAppointment">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    Cerrar
-                </button>
                 <button type="button" id="btnMarkAttended" class="btn btn-success d-none">
                     <i class="bi bi-check2-circle me-1"></i>
                     Marcar como atendida
@@ -37,6 +34,9 @@
                 <button type="button" id="btnCancelAppointment" class="btn btn-danger d-none">
                     <i class="bi bi-x-octagon me-1"></i>
                     Cancelar
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cerrar
                 </button>
             </div>
         </div>

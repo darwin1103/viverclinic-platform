@@ -309,7 +309,7 @@ const AdminCalendarModule = (function() {
         card.dataset.id = appointment.id;
 
         card.innerHTML = `
-            <div class="title">${appointment.patient}</div>
+            <div class="title" style="word-wrap: break-word;">${appointment.patient}</div>
             <div class="meta">
                 <div>${appointment.professional}</div>
                 <div>${appointment.start}${appointment.duration ? `–${endTime(appointment.start, appointment.duration)}` : ''}</div>

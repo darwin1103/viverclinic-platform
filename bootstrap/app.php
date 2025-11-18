@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Illuminate\Console\Scheduling\Schedule;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -34,4 +35,11 @@ return Application::configure(basePath: dirname(__DIR__))
             }
             return null;
         });
+    })
+    ->withSchedule(function (Schedule $schedule) {
+        // Ejecuta la tarea para marcar citas como "No asistida" cada hora.
+        $schedule->command('appointments:mark-as-no-show')->everyFifteenMinutes();
+
+        // Ejecuta la tarea para enviar recordatorios cada hora.
+        $schedule->command('appointments:send-reminders')->everyFifteenMinutes();
     })->create();

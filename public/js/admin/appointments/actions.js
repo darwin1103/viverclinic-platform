@@ -173,10 +173,10 @@ const AdminActionsModule = (function() {
     function updateActionButtons() {
         if (!currentAppointment) return;
 
-        const canMarkAttended = currentAppointment.status === 'Confirmada' && currentAppointment.attended === null;
-        const canConfirm = currentAppointment.status === 'Por confirmar';
-        const canReschedule = ['Por confirmar', 'Confirmada'].includes(currentAppointment.status);
-        const canCancel = currentAppointment.status !== 'Cancelada' && currentAppointment.status !== 'Atendida';
+        const canMarkAttended = (currentAppointment.status === 'Confirmada' && currentAppointment.attended === null) || currentAppointment.status === 'No asistida';
+        const canConfirm = currentAppointment.status === 'Por confirmar' || currentAppointment.status === 'No asistida';
+        const canReschedule = ['Por confirmar', 'Confirmada', 'No asistida'].includes(currentAppointment.status);
+        const canCancel = currentAppointment.status !== 'Cancelada' && currentAppointment.status !== 'Atendida' &&  currentAppointment.status !== 'No asistida';
 
         if (elements.btnMarkAttended) {
             elements.btnMarkAttended.classList.toggle('d-none', !canMarkAttended);

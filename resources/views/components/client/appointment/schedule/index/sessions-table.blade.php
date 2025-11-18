@@ -51,7 +51,7 @@
                                 <i class="bi bi-check-lg"></i>
                                 <span class="d-none d-sm-inline">Asistida</span>
                             </span>
-                        @elseif ($isPast && !$session['attended'])
+                        @elseif (($isPast && !$session['attended']) || (isset($session) && $session['status'] === 'No asistida'))
                             <span class="badge-assist text-bg-danger">
                                 <i class="bi bi-x-lg"></i>
                                 <span class="d-none d-sm-inline">No asistida</span>
@@ -90,7 +90,7 @@
                     <td class="text-center d-none d-lg-table-cell">
                         @if (isset($session) && $session['time'])
                             <span class="session-time">
-                            {{ Illuminate\Support\Carbon::parse($session['time'])->isoFormat('hh:mm a') }}
+                                {{$session['time']}}
                         </span>
                         @endif
                     </td>
@@ -156,6 +156,8 @@
                                 <i class="bi bi-calendar-plus me-1"></i>
                                 <span class="d-none d-sm-inline">Agendar Cita</span>
                             </button>
+                        @elseif (($isPast && !$session['attended']) || (isset($session) && $session['status'] === 'No asistida'))
+                            <span></span>
                         @else
                             <button class="btn btn-sm btn-primary" disabled>
                                 <i class="bi bi-calendar-plus me-1"></i>

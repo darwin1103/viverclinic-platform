@@ -4,57 +4,6 @@
     --vc-bg: #081e22;
     --vc-card: #0f2a30;
     --sidebar-w: 280px;
-    --header-h: 64px;
-}
-
-/* ===== Header ===== */
-.topbar-fixed {
-    position: fixed;
-    inset: 0 0 auto 0;
-    height: var(--header-h);
-    z-index: 1030;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    backdrop-filter: blur(6px);
-    background: rgba(8, 30, 34, 0.75);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    padding: 0 16px;
-}
-
-.brand {
-    font-weight: 700;
-    letter-spacing: 0.3px;
-}
-
-/* ===== Sidebar ===== */
-.sidebar {
-    position: fixed;
-    top: var(--header-h);
-    left: 0;
-    width: var(--sidebar-w);
-    height: calc(100vh - var(--header-h));
-    overflow: auto;
-    background: #0b2429;
-    padding: 1rem;
-    z-index: 1020;
-}
-
-.sidebar .nav-link {
-    color: #bfe5ea;
-    border-radius: 0.5rem;
-    padding: 0.6rem 1rem;
-    margin-bottom: 0.25rem;
-    transition: all 0.2s ease;
-}
-
-.sidebar .nav-link:hover {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.sidebar .nav-link.active {
-    background: var(--vc-primary-600);
-    color: #fff;
 }
 
 /* ===== Cards ===== */
@@ -172,13 +121,6 @@
     border-color: rgba(255, 155, 155, 0.35);
 }
 
-/* ===== Sticky Toolbar ===== */
-.sticky-toolbar {
-    position: sticky;
-    top: calc(var(--header-h) + 8px);
-    z-index: 5;
-}
-
 .range-button {
     cursor: pointer;
     text-decoration: none;
@@ -272,6 +214,35 @@
     transform: translateX(4px);
 }
 
+.face {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.08s ease, border-color 0.08s ease, background 0.08s ease;
+}
+
+.face:hover {
+  transform: translateY(-1px);
+}
+
+.face.good {
+  background: #0d3a2f;
+}
+
+.face.neu {
+  background: #2b2b12;
+}
+
+.face.bad {
+  background: #3a1a1a;
+}
+
 /* ===== Responsive Design ===== */
 @media (max-width: 991.98px) {
     .sidebar {
@@ -294,10 +265,6 @@
 
     .mobile-day-view {
         display: block !important;
-    }
-
-    .sticky-toolbar {
-        top: calc(var(--header-h) + 4px);
     }
 }
 

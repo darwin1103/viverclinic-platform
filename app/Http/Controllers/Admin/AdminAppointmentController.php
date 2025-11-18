@@ -110,6 +110,7 @@ class AdminAppointmentController extends Controller
                 'status' => $appointment->status,
                 'attended' => $appointment->attended,
                 'session_number' => $appointment->session_number,
+                'review' => $appointment->review,
                 'review_score' => $appointment->review_score,
             ];
         });

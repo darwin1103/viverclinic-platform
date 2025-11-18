@@ -106,6 +106,12 @@ const AdminActionsModule = (function() {
             year: 'numeric'
         });
 
+        const reviewValues = {
+            '3': '<span class="face good" data-value="3" title="Excelente 😊">😊</span>',
+            '2': '<span class="face neu" data-value="2" title="Normal 😐">😐</span>',
+            '1': '<span class="face bad" data-value="1" title="Mala 😞">😞</span>',
+        };
+
         elements.modalBody.innerHTML = `
         <div class="row g-3">
             <div class="col-12">
@@ -149,6 +155,8 @@ const AdminActionsModule = (function() {
                                     </div>
                                 </div>
                             ` : ''}
+
+                            <div><strong>Calificacion del cliente:</strong> ${currentAppointment.review_score ? (reviewValues[currentAppointment.review_score] + (currentAppointment.review ? (' - ' + currentAppointment.review) : '')) : 'Sin calificación.'}</div>
 
                             ${currentAppointment.attended !== null ? `<div><strong>Asistencia:</strong> <span class="badge text-bg-${currentAppointment.attended ? 'success' : 'danger'}">${currentAppointment.attended ? 'Asistió' : 'No asistió'}</span></div>` : ''}
                         </div>

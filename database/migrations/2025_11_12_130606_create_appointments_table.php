@@ -20,7 +20,9 @@ return new class extends Migration
             $table->unsignedBigInteger('staff_user_id')->nullable();
             $table->foreign('staff_user_id')->references('id')->on('users');
             $table->boolean('attended')->nullable();
-            $table->boolean('notification_reminder_sent')->default(false);
+            $table->boolean('notification_reminder_sent_48')->default(false);
+            $table->boolean('notification_reminder_sent_36')->default(false);
+            $table->boolean('notification_reminder_sent_26')->default(false);
             $table->string('review')->nullable();
             $table->smallInteger('review_score')->nullable();
             $table->smallInteger('uses_of_hair_removal_shots')->nullable();

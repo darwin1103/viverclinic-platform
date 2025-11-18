@@ -8,21 +8,21 @@ use App\Mail\AppointmentReminderMail;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Mail;
 
-class SendAppointmentReminders extends Command
+class SendAppointmentReminders36h extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'appointments:send-reminders';
+    protected $signature = 'appointments:send-reminders-36';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Sends email reminders for appointments scheduled between 24 and 48 hours from now.';
+    protected $description = 'Sends email reminders for appointments scheduled between 26 and 36 hours from now.';
 
     /**
      * Execute the console command.
@@ -30,8 +30,8 @@ class SendAppointmentReminders extends Command
     public function handle()
     {
         $now = Date::now();
-        $startWindow = $now->copy()->addHours(24);
-        $endWindow = $now->copy()->addHours(48);
+        $startWindow = $now->copy()->addHours(26);
+        $endWindow = $now->copy()->addHours(36);
 
         $appointmentsToSendReminder = Appointment::with([
             'contractedTreatment.user',
@@ -39,7 +39,7 @@ class SendAppointmentReminders extends Command
             'contractedTreatment.treatment'
         ])
         ->where('status', 'Por confirmar')
-        ->where('notification_reminder_sent', false) // Evita enviar correos duplicados
+        ->where('notification_reminder_sent_36', false) // Evita enviar correos duplicados
         ->where('schedule', '>=', $startWindow)
         ->where('schedule', '<=', $endWindow)
         ->get();

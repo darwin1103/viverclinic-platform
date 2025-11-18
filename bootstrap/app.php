@@ -41,5 +41,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('appointments:mark-as-no-show')->everyFifteenMinutes();
 
         // Ejecuta la tarea para enviar recordatorios cada hora.
-        $schedule->command('appointments:send-reminders')->everyFifteenMinutes();
+        $schedule->command('appointments:send-reminders-48')->everyFifteenMinutes();
+        $schedule->command('appointments:send-reminders-36')->everyFifteenMinutes();
+        $schedule->command('appointments:send-reminders-26')->everyFifteenMinutes();
     })->create();

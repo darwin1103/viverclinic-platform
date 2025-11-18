@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description');
             $table->boolean('active')->default(true);
+            $table->boolean('needs_report_shots')->default(false);
             $table->string('main_image')->nullable();
             $table->unsignedInteger('sessions');
             $table->unsignedInteger('days_between_sessions');

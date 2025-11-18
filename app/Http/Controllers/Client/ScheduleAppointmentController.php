@@ -8,6 +8,7 @@ use App\Http\Requests\Client\UpdateAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\ContractedTreatment;
 use App\Traits\CalculatesAvailableSlots;
+use App\Traits\ValidatesAppointmentSlot;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 class ScheduleAppointmentController extends Controller
 {
     use CalculatesAvailableSlots;
+    use ValidatesAppointmentSlot;
 
     /**
      * Display the appointment scheduling page
@@ -62,10 +64,28 @@ class ScheduleAppointmentController extends Controller
     public function store(StoreAppointmentRequest $request)
     {
 
-        // check appointment_date and appointment_time are available ***
         // Check payment status ***
 
         $validated = $request->validated();
+
+        // Obtener la información necesaria para la validación
+        $contractedTreatment = ContractedTreatment::findOrFail($validated['contracted_treatment_id']);
+        $branchId = $contractedTreatment->branch_id;
+
+        $date = Carbon::parse($validated['appointment_date']);
+        // Convertir el tiempo de formato 'h:i a' a 'H:i' (24h) que el Trait necesita
+        $time24h = Carbon::createFromFormat('h:i a', $validated['appointment_time'])->format('H:i');
+
+        // 3. Realizar la validación de disponibilidad usando el Trait
+        $isAvailable = $this->isSlotAvailable($date, $time24h, $branchId);
+
+        if (!$isAvailable) {
+            // Si no está disponible, redirigir al usuario de vuelta al formulario
+            // con un error de validación específico.
+            return back()
+                ->with(['error' => 'El horario seleccionado ya no se encuentra disponible. Por favor, elija otro.'])
+                ->withInput();
+        }
 
         $date = $validated['appointment_date'];
         $time = $validated['appointment_time'];
@@ -106,10 +126,28 @@ class ScheduleAppointmentController extends Controller
     public function resched(Appointment $appointment, UpdateAppointmentRequest $request)
     {
 
-        // check appointment_date and appointment_time are available ***
         // Check payment status ***
 
         $validated = $request->validated();
+
+        // Obtener la información necesaria para la validación
+        $contractedTreatment = ContractedTreatment::findOrFail($appointment->contracted_treatment_id);
+        $branchId = $contractedTreatment->branch_id;
+
+        $date = Carbon::parse($validated['appointment_date']);
+        // Convertir el tiempo de formato 'h:i a' a 'H:i' (24h) que el Trait necesita
+        $time24h = Carbon::createFromFormat('h:i a', $validated['appointment_time'])->format('H:i');
+
+        // 3. Realizar la validación de disponibilidad usando el Trait
+        $isAvailable = $this->isSlotAvailable($date, $time24h, $branchId);
+
+        if (!$isAvailable) {
+            // Si no está disponible, redirigir al usuario de vuelta al formulario
+            // con un error de validación específico.
+            return back()
+                ->with(['error' => 'El horario seleccionado ya no se encuentra disponible. Por favor, elija otro.'])
+                ->withInput();
+        }
 
         $date = $validated['appointment_date'];
         $time = $validated['appointment_time'];

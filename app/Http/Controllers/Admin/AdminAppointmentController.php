@@ -265,9 +265,7 @@ class AdminAppointmentController extends Controller
      */
     public function cancel(Appointment $appointment)
     {
-        $appointment->update([
-            'status' => 'Cancelada'
-        ]);
+        $appointment->delete();
 
         return response()->json([
             'success' => true,

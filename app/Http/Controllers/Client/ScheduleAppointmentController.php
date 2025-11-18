@@ -10,6 +10,7 @@ use App\Models\ContractedTreatment;
 use App\Traits\CalculatesAvailableSlots;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ScheduleAppointmentController extends Controller
 {
@@ -21,11 +22,15 @@ class ScheduleAppointmentController extends Controller
     public function index(ContractedTreatment $contracted_treatment)
     {
 
-        // validate user is owner of the contrated_treatment ***
+        $user = Auth::user();
 
-        $contracted_treatment->load(['branch', 'treatment', 'appointments']);
+        if($contracted_treatment->user_id != $user->id){
+            abort(403);
+        }
 
         // Check payment status ***
+
+        $contracted_treatment->load(['branch', 'treatment', 'appointments']);
         $paymentIsUpToDate = true;
 
         $contracted_treatment->appointments->each(function($appointment){
@@ -58,7 +63,7 @@ class ScheduleAppointmentController extends Controller
     {
 
         // check appointment_date and appointment_time are available ***
-        // verify if the user is the owner of contracted treatment ***
+        // Check payment status ***
 
         $validated = $request->validated();
 
@@ -72,6 +77,16 @@ class ScheduleAppointmentController extends Controller
         $status = ($schedule->between($now, $next24Hours)) ? 'Confirmada' : 'Por confirmar';
 
         $contractedTreatmentId = $validated['contracted_treatment_id'];
+
+        $contracted_treatment = ContractedTreatment::where('id', $contractedTreatmentId)
+            ->select(['id', 'user_id'])
+            ->first();
+
+        $user = Auth::user();
+
+        if($contracted_treatment->user_id != $user->id){
+            abort(403);
+        }
 
         Appointment::create([
             'contracted_treatment_id' => $contractedTreatmentId,
@@ -91,8 +106,8 @@ class ScheduleAppointmentController extends Controller
     public function resched(Appointment $appointment, UpdateAppointmentRequest $request)
     {
 
-        //check appointment_date and appointment_time are available ***
-        // verify if the user is the owner of contracted treatment ***
+        // check appointment_date and appointment_time are available ***
+        // Check payment status ***
 
         $validated = $request->validated();
 
@@ -105,12 +120,22 @@ class ScheduleAppointmentController extends Controller
 
         $status = ($schedule->between($now, $next24Hours)) ? 'Confirmada' : 'Por confirmar';
 
+        $contractedTreatmentId = $appointment->contracted_treatment_id;
+
+        $contracted_treatment = ContractedTreatment::where('id', $contractedTreatmentId)
+            ->select(['id', 'user_id'])
+            ->first();
+
+        $user = Auth::user();
+
+        if($contracted_treatment->user_id != $user->id){
+            abort(403);
+        }
+
         $appointment->update([
             'schedule' => $schedule->toDateTimeString(),
             'status' => $status,
         ]);
-
-        $contractedTreatmentId = $appointment->contracted_treatment_id;
 
         return redirect()
             ->route('client.schedule-appointment.index', ['contracted_treatment' => $contractedTreatmentId])
@@ -124,20 +149,33 @@ class ScheduleAppointmentController extends Controller
     {
 
         // verify if the user is the owner of contracted treatment ***
+        // Check payment status ***
 
         $validated = $request->validate([
             'rating_value' => 'required|integer|min:1|max:3',
             'comment' => 'nullable|string|max:500',
         ]);
 
-        // verify the appointment is completed ***
+        if($appointment->status != 'Atendida'){
+            abort(403);
+        }
+
+        $contractedTreatmentId = $appointment->contracted_treatment_id;
+
+        $contracted_treatment = ContractedTreatment::where('id', $contractedTreatmentId)
+            ->select(['id', 'user_id'])
+            ->first();
+
+        $user = Auth::user();
+
+        if($contracted_treatment->user_id != $user->id){
+            abort(403);
+        }
 
         $appointment->update([
             'review' => $validated['comment'],
             'review_score' => $validated['rating_value'],
         ]);
-
-        $contractedTreatmentId = $appointment->contractedTreatment->id;
 
         return redirect()
             ->route('client.schedule-appointment.index', ['contracted_treatment' => $contractedTreatmentId])
@@ -150,11 +188,19 @@ class ScheduleAppointmentController extends Controller
     public function confirm(Appointment $appointment)
     {
 
-        $appointment->load('contractedTreatment');
+        // Check payment status ***
 
-        // verify if the user is the owner of contracted treatment ***
+        $contractedTreatmentId = $appointment->contracted_treatment_id;
 
-        $contractedTreatmentId = $appointment->contractedTreatment->id;
+        $contracted_treatment = ContractedTreatment::where('id', $contractedTreatmentId)
+            ->select(['id', 'user_id'])
+            ->first();
+
+        $user = Auth::user();
+
+        if($contracted_treatment->user_id != $user->id){
+            abort(403);
+        }
 
         $appointment->update([
             'status' => 'Confirmada',
@@ -171,11 +217,19 @@ class ScheduleAppointmentController extends Controller
     public function cancel(Appointment $appointment)
     {
 
-        $appointment->load('contractedTreatment');
+        $contractedTreatmentId = $appointment->contracted_treatment_id;
 
-        // verify if the user is the owner of contracted treatment ***
+        $contracted_treatment = ContractedTreatment::where('id', $contractedTreatmentId)
+            ->select(['id', 'user_id'])
+            ->first();
 
-        $contractedTreatmentId = $appointment->contractedTreatment->id;
+        $user = Auth::user();
+
+        if($contracted_treatment->user_id != $user->id){
+            abort(403);
+        }
+
+        // Check payment status ***
 
         $appointment->delete();
 

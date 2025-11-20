@@ -14,6 +14,10 @@
         </thead>
         <tbody>
             @forelse ($appointments as $appointment)
+                @php
+                $shots = ($appointment->contractedTreatment->treatment->needs_report_shots) ? intval($appointment->uses_of_hair_removal_shots) : '';
+                $setAppointmentShotsUrl = ($shots == 0 ) ? (route('staff.appointment.set-shots', ['appointment' => $appointment->id])) : '';
+                @endphp
                 <tr>
                     <td>{{ $appointment->contractedTreatment->treatment->name }}</td>
                     <td>{{ $appointment->contractedTreatment->user->name }}</td>
@@ -34,6 +38,9 @@
                                 'status' => $appointment->status
                             ]) }}"
                             data-zones='@json($appointment->contractedTreatment->selected_zones)'
+                            data-shots="{{$shots}}"
+                            data-set-appointment-shots-url="{{$setAppointmentShotsUrl}}"
+                            >
                             <i class="bi bi-eye"></i> Ver
                         </button>
                     </td>

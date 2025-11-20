@@ -27,6 +27,7 @@ class Treatment extends Model
         'terms_conditions',
         'price_additional_zone',
         'price_additional_mini_zone',
+        'needs_report_shots',
     ];
 
     public static $bigZones = [

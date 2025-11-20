@@ -6,18 +6,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                {{--
-                    Aquí puedes agregar el contenido del formulario.
-                    El JavaScript se encargará de cargar datos dinámicos si es necesario,
-                    utilizando el ID de la cita.
-                --}}
-                <p>El formulario para la cita se cargará aquí...</p>
-                <p><strong>ID de la Cita:</strong> <span id="modalAppointmentId"></span></p>
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary">Guardar Cambios</button>
             </div>
         </div>
     </div>

@@ -67,6 +67,7 @@ class TreatmentController extends Controller
             'sessions' => 'required|integer|min:1',
             'days_between_sessions' => 'required|integer|min:0',
             'active' => 'sometimes|boolean',
+            'needs_report_shots' => 'sometimes|boolean',
             'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'price_additional_zone' => 'required|numeric|min:0',
             'price_additional_mini_zone' => 'required|numeric|min:0',
@@ -81,6 +82,7 @@ class TreatmentController extends Controller
 
         $treatmentData = $request->except(['_token', 'branches']);
         $treatmentData['active'] = $request->has('active');
+        $treatmentData['needs_report_shots'] = $request->has('needs_report_shots');
         if ($request->hasFile('main_image')) {
             $treatmentData['main_image'] = $this->uploadFile($request->file('main_image'), 'treatments');
         }
@@ -127,6 +129,7 @@ class TreatmentController extends Controller
             'sessions' => 'required|integer|min:1',
             'days_between_sessions' => 'required|integer|min:0',
             'active' => 'sometimes|boolean',
+            'needs_report_shots' => 'sometimes|boolean',
             'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'price_additional_zone' => 'required|numeric|min:0',
             'price_additional_mini_zone' => 'required|numeric|min:0',
@@ -141,6 +144,7 @@ class TreatmentController extends Controller
 
         $treatmentData = $request->except(['_token', '_method', 'branches']);
         $treatmentData['active'] = $request->has('active');
+        $treatmentData['needs_report_shots'] = $request->has('needs_report_shots');
 
         if ($request->hasFile('main_image')) {
             $treatmentData['main_image'] = $this->uploadFile($request->file('main_image'), 'treatments', $treatment->main_image);

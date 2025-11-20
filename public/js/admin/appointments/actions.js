@@ -158,6 +158,13 @@ const AdminActionsModule = (function() {
 
                             <div><strong>Calificacion del cliente:</strong> ${currentAppointment.review_score ? (reviewValues[currentAppointment.review_score] + (currentAppointment.review ? (' - ' + currentAppointment.review) : '')) : 'Sin calificación.'}</div>
 
+                            ${currentAppointment.shots ? `
+                                <div>
+                                    <strong>Disparos en cabina:</strong>
+                                    ${currentAppointment.shots}
+                                </div>
+                            ` : ''}
+
                             ${currentAppointment.attended !== null ? `<div><strong>Asistencia:</strong> <span class="badge text-bg-${currentAppointment.attended ? 'success' : 'danger'}">${currentAppointment.attended ? 'Asistió' : 'No asistió'}</span></div>` : ''}
                         </div>
                     </div>

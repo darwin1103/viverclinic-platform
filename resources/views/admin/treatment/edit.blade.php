@@ -65,6 +65,13 @@
                                     <label class="form-check-label" for="active">Tratamiento Activo</label>
                                 </div>
                             </div>
+
+                             <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="needs_report_shots" name="needs_report_shots" value="1" @checked(old('needs_report_shots', $treatment->needs_report_shots))>
+                                    <label class="form-check-label" for="needs_report_shots">El personal debe indicar la cantidad de disparos en cabina</label>
+                                </div>
+                            </div>
                         </div>
 
                         <hr class="my-4">

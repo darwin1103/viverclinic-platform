@@ -60,4 +60,28 @@ class StaffAppointmentController extends Controller
         return view('staff.appointment.index', $data);
     }
 
+    public function setAppointmnetShots(Appointment $appointment, Request $request)
+    {
+
+        $user = Auth::user();
+
+        if(
+            intval($appointment->uses_of_hair_removal_shots) > 0 ||
+            $appointment->staff_user_id != $user->id
+        ){
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'shots' => 'required|integer|min:1',
+        ]);
+
+        $appointment->update([
+            'uses_of_hair_removal_shots' => $validated['shots'],
+        ]);
+
+        return redirect()->back()->with('success', 'informacion guardada exitosamente');
+
+    }
+
 }

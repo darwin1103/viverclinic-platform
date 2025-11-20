@@ -72,6 +72,9 @@ if (appointmentModal) {
             }
         }
 
+        const shots = button.getAttribute('data-shots');
+        const shotsUrl = button.getAttribute('data-set-appointment-shots-url');
+
         // Seleccionar los elementos del modal
         const modalTitle = appointmentModal.querySelector('.modal-title');
         const modalBody = appointmentModal.querySelector('.modal-body');
@@ -98,6 +101,38 @@ if (appointmentModal) {
             </div>
         ` : '';
 
+        let shotsHtml = '';
+        const shotsNumber = parseInt(shots, 10);
+
+        // Condición 1: Si shots es un string vacío (''), no se muestra nada.
+        // Esto se cumple por defecto al inicializar shotsHtml = ''.
+
+        // Condición 2: Si es un número entero igual a cero y shotsUrl no está vacío.
+        if (shotsNumber === 0 && shotsUrl) {
+            // Se necesita el token CSRF para que el formulario de Laravel funcione.
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            shotsHtml = `
+            <div>
+                <strong>Cantidad de disparos en cabina:</strong>
+                <form action="${shotsUrl}" method="POST" class="mt-2 needs-validation" novalidate>
+                    <input type="hidden" name="_token" value="${csrfToken}">
+                    <div class="input-group">
+                        <input type="number" name="shots" class="form-control" placeholder="Cantidad de disparos" required min="1" aria-label="Cantidad de disparos">
+                        <button type="submit" class="btn btn-primary">Enviar</button>
+                    </div>
+                     <div class="invalid-feedback">
+                        Por favor, ingrese un número de disparos mayor a cero.
+                    </div>
+                </form>
+            </div>
+            `;
+        }
+        // Condición 3: Si es un número entero mayor a cero.
+        else if (shotsNumber > 0) {
+            shotsHtml = `<div><strong>Disparos en cabina:</strong> <span class="badge bg-success">${shots}</span></div>`;
+        }
+
         // Construir el cuerpo completo del modal
         modalBody.innerHTML = `
             <div class="row g-3">
@@ -113,6 +148,7 @@ if (appointmentModal) {
                                 <div><strong>Estado:</strong> <span class="badge text-bg-info">${details.status}</span></div>
                                 ${bigZonesHtml}
                                 ${miniZonesHtml}
+                                ${shotsHtml}
                             </div>
                         </div>
                     </div>

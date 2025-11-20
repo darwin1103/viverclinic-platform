@@ -64,7 +64,11 @@ Route::middleware(['auth', 'verified', 'role:EMPLOYEE'])->prefix('staff')->name(
     Route::controller(StaffAppointmentController::class)->group(function () {
 
         // Main view
-        Route::get('/appointment', 'index')->name('appointment.index');
+        Route::get('/appointment', 'index')
+        ->name('appointment.index');
+
+        Route::post('/set-appointment-shots/{appointment}', 'setAppointmnetShots')
+            ->name('appointment.set-shots');
 
     });
 

@@ -112,6 +112,7 @@ class AdminAppointmentController extends Controller
                 'session_number' => $appointment->session_number,
                 'review' => $appointment->review,
                 'review_score' => $appointment->review_score,
+                'shots' => ($appointment->contractedTreatment->treatment->needs_report_shots && $appointment->uses_of_hair_removal_shots) ? $appointment->uses_of_hair_removal_shots : null,
             ];
         });
 

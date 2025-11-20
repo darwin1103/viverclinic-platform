@@ -76,30 +76,28 @@ class DashboardController extends Controller
         }elseif($user->hasRole('PATIENT')){
 
             if (!Auth::user()->informed_consent) {
-
-                $user = Auth::user();
-
-                $contractedTreatments = ContractedTreatment::where('user_id', $user->id)
-                    ->select(['id'])
-                    ->get();
-
-                if($contractedTreatments->count() > 1){
-                    $createAppointmentUrl = route('client.contracted-treatment.index');
-                }elseif($contractedTreatments->count() == 1){
-                    $createAppointmentUrl = route('client.schedule-appointment.index', ['contracted_treatment' =>  $contractedTreatments[0]->id]);
-                }else{
-                    $createAppointmentUrl = null;
-                }
-
-                $data = [
-                    'createAppointmentUrl' => $createAppointmentUrl,
-                ];
-
-                return view('dashboards.patient',  $data);
-
+                return redirect()->route('client.informed-consent.create');
             }
 
-            return redirect()->route('client.informed-consent.create');
+            $user = Auth::user();
+
+            $contractedTreatments = ContractedTreatment::where('user_id', $user->id)
+                ->select(['id'])
+                ->get();
+
+            if($contractedTreatments->count() > 1){
+                $createAppointmentUrl = route('client.contracted-treatment.index');
+            }elseif($contractedTreatments->count() == 1){
+                $createAppointmentUrl = route('client.schedule-appointment.index', ['contracted_treatment' =>  $contractedTreatments[0]->id]);
+            }else{
+                $createAppointmentUrl = null;
+            }
+
+            $data = [
+                'createAppointmentUrl' => $createAppointmentUrl,
+            ];
+
+            return view('dashboards.patient',  $data);
 
         }
 

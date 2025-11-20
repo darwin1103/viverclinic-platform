@@ -86,7 +86,6 @@ class ClientController extends Controller
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|string|email|max:255',
-            'requestInformedConsent' => 'nullable|string',
             'branchId' => ['required'], // ***
         ]);
 
@@ -97,7 +96,6 @@ class ClientController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($password),
-            'informed_consent' => ($request->requestInformedConsent && $request->requestInformedConsent == "on") ? true : false,
         ]);
 
         $client->assignRole('PATIENT');
@@ -167,12 +165,10 @@ class ClientController extends Controller
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|string|email|max:255',
-            'requestInformedConsent' => 'nullable|string',
         ]);
 
         $client->name = $request->name;
         $client->email = $request->email;
-        $client->informed_consent = ($request->requestInformedConsent && $request->requestInformedConsent == "on") ? true : false;
         $client->save();
 
         $client->patientProfile()->update([

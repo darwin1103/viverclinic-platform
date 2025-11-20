@@ -26,7 +26,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'informed_consent'
+        'informed_consent',
     ];
 
     /**

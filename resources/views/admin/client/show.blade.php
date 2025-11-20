@@ -38,12 +38,6 @@
                         </div>
 
                     </div>
-                    <div class="form-check mt-3">
-                        <input class="form-check-input" type="checkbox" id="requestInformedConsent" name="requestInformedConsent" @if($client->informed_consent) checked @endif disabled>
-                        <label class="form-check-label" for="requestInformedConsent">
-                            {{ __('Request Informed Consent') }}
-                        </label>
-                    </div>
                 </div>
             </div>
         </div>
@@ -221,22 +215,6 @@
                             <div class="form-floating mt-2">
                                 <input id="recommendation" type="text" placeholder="{{__('Did anyone recommend Viverclinic to you?')}}" class="form-control" name="recommendation" value="{{ $client->recommendation ?? '' }}" disabled>
                                 <label for="recommendation">{{__('Did anyone recommend Viverclinic to you?')}}</label>
-                            </div>
-                        </div>
-                        <div class="col-12 mt-3">
-                            <div class="form-check">
-                                <input class="form-check-input  show-terms-conditions-modal" disabled type="checkbox" id="termsConditions" name="termsConditions" @if($client->terms_conditions) checked @endif>
-                                <label class="form-check-label" for="termsConditions">
-                                    {{ __('I have clearly read the consent I accept terms and conditions') }}
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="notPregnant" name="notPregnant" @if($client->not_pregnant) checked @endif disabled>
-                                <label class="form-check-label" for="notPregnant">
-                                    {{ __('Im not pregnant') }}
-                                </label>
                             </div>
                         </div>
 

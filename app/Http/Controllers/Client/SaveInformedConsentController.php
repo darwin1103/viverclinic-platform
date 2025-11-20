@@ -158,7 +158,7 @@ class SaveInformedConsentController extends Controller
         } else {
             $client->recommendation = null;
         }
-        $client->informed_consent = false;
+        $client->informed_consent = true;
         $client->save();
 
         return redirect()->route('client.treatment.index')->with('success', 'Successful operation');

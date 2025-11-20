@@ -45,12 +45,6 @@
                                 </span>
                             @enderror
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="requestInformedConsent" name="requestInformedConsent">
-                            <label class="form-check-label" for="requestInformedConsent">
-                                {{ __('Request Informed Consent') }}
-                            </label>
-                        </div>
                         <div class="mt-3 text-end">
                             <button type="submit" class="btn btn-primary">{{ __('Create') }}</button>
                         </div>

@@ -113,6 +113,7 @@
                             @endif
                         @elseif ($canManageOptions && !$isConfirmed)
                             <div class="btn-group btn-group-sm" role="group">
+                                @if(Illuminate\Support\Carbon::parse($session['schedule'])->lt(Illuminate\Support\Carbon::now()->addHours(48)))
                                 <button
                                 class="btn btn-success btn-confirm"
                                 data-session="{{ $i }}"
@@ -122,6 +123,7 @@
                                     <i class="bi bi-check2"></i>
                                     <span class="d-none d-lg-inline ms-1">Confirmar</span>
                                 </button>
+                                @endif
                                 <button
                                     class="btn btn-warning btn-resched"
                                     data-session="{{ $i }}"

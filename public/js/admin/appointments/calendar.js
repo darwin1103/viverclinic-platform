@@ -334,7 +334,8 @@ const AdminCalendarModule = (function() {
             'Confirmada': 'confirmed',
             'Por confirmar': 'pending',
             'Atendida': 'confirmed',
-            'Cancelada': 'noshow'
+            'Cancelada': 'noshow',
+            'Completada': 'completed',
         };
         return map[status] || 'pending';
     }
@@ -342,6 +343,7 @@ const AdminCalendarModule = (function() {
     function getStatusBadge(status) {
         const map = {
             'Confirmada': ['success', 'Confirmada'],
+            'Completada': ['success', 'Completada'],
             'Por confirmar': ['warning', 'Pendiente'],
             'Atendida': ['info', 'Atendida'],
             'Cancelada': ['danger', 'Cancelada']

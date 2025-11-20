@@ -49,6 +49,7 @@
                         <option value="Por confirmar">Pendiente</option>
                         <option value="Confirmada">Confirmada</option>
                         <option value="Atendida">Atendida</option>
+                        <option value="Completada">Completada</option>
                         <option value="Cancelada">Cancelada</option>
                     </select>
                 </div>

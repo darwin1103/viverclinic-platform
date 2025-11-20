@@ -74,6 +74,7 @@ if (appointmentModal) {
 
         const shots = button.getAttribute('data-shots');
         const shotsUrl = button.getAttribute('data-set-appointment-shots-url');
+        const markAsCompletedUrl = button.getAttribute('data-set-mark-as-completed-url');
 
         // Seleccionar los elementos del modal
         const modalTitle = appointmentModal.querySelector('.modal-title');
@@ -101,16 +102,20 @@ if (appointmentModal) {
             </div>
         ` : '';
 
+        let markAsCompletedForm = '';
+
         let shotsHtml = '';
         const shotsNumber = parseInt(shots, 10);
 
         // Condición 1: Si shots es un string vacío (''), no se muestra nada.
         // Esto se cumple por defecto al inicializar shotsHtml = ''.
 
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
         // Condición 2: Si es un número entero igual a cero y shotsUrl no está vacío.
         if (shotsNumber === 0 && shotsUrl) {
             // Se necesita el token CSRF para que el formulario de Laravel funcione.
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
 
             shotsHtml = `
             <div>
@@ -133,6 +138,18 @@ if (appointmentModal) {
             shotsHtml = `<div><strong>Disparos en cabina:</strong> <span class="badge bg-success">${shots}</span></div>`;
         }
 
+        if (markAsCompletedUrl ) {
+
+            markAsCompletedForm = `
+            <div>
+                <form action="${markAsCompletedUrl}" method="POST" class="mt-2 needs-validation" novalidate>
+                    <input type="hidden" name="_token" value="${csrfToken}">
+                    <button type="submit" class="btn btn-primary">Marcar como completada</button>
+                </form>
+            </div>
+            `;
+        }
+
         // Construir el cuerpo completo del modal
         modalBody.innerHTML = `
             <div class="row g-3">
@@ -149,6 +166,7 @@ if (appointmentModal) {
                                 ${bigZonesHtml}
                                 ${miniZonesHtml}
                                 ${shotsHtml}
+                                ${markAsCompletedForm}
                             </div>
                         </div>
                     </div>

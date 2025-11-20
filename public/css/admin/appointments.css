@@ -121,6 +121,11 @@
     border-color: rgba(255, 155, 155, 0.35);
 }
 
+.appt-card.completed {
+    background: #057322;
+    border-color: rgba(139, 224, 194, 0.35);
+}
+
 .range-button {
     cursor: pointer;
     text-decoration: none;

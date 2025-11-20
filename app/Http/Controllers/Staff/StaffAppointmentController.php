@@ -67,7 +67,8 @@ class StaffAppointmentController extends Controller
 
         if(
             intval($appointment->uses_of_hair_removal_shots) > 0 ||
-            $appointment->staff_user_id != $user->id
+            $appointment->staff_user_id != $user->id ||
+            ($appointment->status != 'Atendida' && $appointment->status != 'Completada')
         ){
             abort(403);
         }
@@ -80,7 +81,27 @@ class StaffAppointmentController extends Controller
             'uses_of_hair_removal_shots' => $validated['shots'],
         ]);
 
-        return redirect()->back()->with('success', 'informacion guardada exitosamente');
+        return redirect()->back()->with('success', 'Informacion guardada exitosamente');
+
+    }
+
+    public function markAppointmnetAsCompleted(Appointment $appointment, Request $request)
+    {
+
+        $user = Auth::user();
+
+        if(
+            $appointment->status != 'Atendida' ||
+            $appointment->staff_user_id != $user->id
+        ){
+            abort(403);
+        }
+
+        $appointment->update([
+            'status' => 'Completada',
+        ]);
+
+        return redirect()->back()->with('success', 'Cita actualizada exitosamente');
 
     }
 

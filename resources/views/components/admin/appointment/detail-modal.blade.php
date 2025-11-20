@@ -21,7 +21,7 @@
             <div class="modal-footer" id="modalFooterAppointment">
                 <button type="button" id="btnMarkAttended" class="btn btn-success d-none">
                     <i class="bi bi-check2-circle me-1"></i>
-                    Marcar como atendida
+                    Confirmar asistencia
                 </button>
                 <button type="button" id="btnConfirmAppointment" class="btn btn-info d-none">
                     <i class="bi bi-check-circle me-1"></i>

@@ -17,6 +17,7 @@
                 @php
                 $shots = ($appointment->contractedTreatment->treatment->needs_report_shots) ? intval($appointment->uses_of_hair_removal_shots) : '';
                 $setAppointmentShotsUrl = ($shots == 0 ) ? (route('staff.appointment.set-shots', ['appointment' => $appointment->id])) : '';
+                $markAsCompletedUrl = ($appointment->status == 'Atendida') ? route('staff.appointment.mark-as-completed', ['appointment' => $appointment->id]) : '';
                 @endphp
                 <tr>
                     <td>{{ $appointment->contractedTreatment->treatment->name }}</td>
@@ -40,6 +41,7 @@
                             data-zones='@json($appointment->contractedTreatment->selected_zones)'
                             data-shots="{{$shots}}"
                             data-set-appointment-shots-url="{{$setAppointmentShotsUrl}}"
+                            data-set-mark-as-completed-url="{{$markAsCompletedUrl}}"
                             >
                             <i class="bi bi-eye"></i> Ver
                         </button>

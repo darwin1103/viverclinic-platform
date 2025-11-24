@@ -9,13 +9,9 @@
         <input type="radio" name="tabset" id="tab1" aria-controls="generales" checked>
         <label for="tab1">Datos generales</label>
 
-        <!-- Tab 2 -->
-        <input type="radio" name="tabset" id="tab2" aria-controls="appointments">
-        <label for="tab2">Citas programadas</label>
-
         <!-- Tab 3 -->
-        <input type="radio" name="tabset" id="tab3" aria-controls="old-appointments">
-        <label for="tab3">Citas pasadas</label>
+        <input type="radio" name="tabset" id="tab2" aria-controls="old-appointments">
+        <label for="tab2">Citas pasadas</label>
 
         <div class="tab-panels">
 
@@ -30,12 +26,8 @@
 
             </section>
 
-            <section id="appointments" class="tab-panel">
-                <x-admin.staff.show.appointments :appointments="$appointments" title="Citas programadas"/>
-            </section>
-
             <section id="old-appointments" class="tab-panel">
-                <x-admin.staff.show.appointments :appointments="$appointments" title="Citas pasadas"/>
+                <x-admin.staff.show.appointments :appointments="$appointments" :treatments="$treatments" title="Citas pasadas"/>
             </section>
 
         </div>

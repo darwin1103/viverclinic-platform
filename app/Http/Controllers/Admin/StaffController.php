@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Appointment;
 use App\Models\Branch;
 use App\Models\StaffProfile;
+use App\Models\Treatment;
 use App\Models\User;
 use App\Models\WorkSchedule;
 use App\Notifications\UserCreatedNotification;
@@ -136,39 +138,21 @@ class StaffController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(User $staff)
+    public function show(User $staff, Request $request)
     {
 
         $schedules = $staff->staffProfile->workSchedules->groupBy('day_of_week');
 
         $branches = Branch::all();
 
-        $appointments = [
-            [
-                'date' => '05-10-2025',
-                'client_name' => 'Maria Paredes',
-                'treatment' => 'Depilación láser',
-                'branch' => 'Sede Principal'
-            ],
-            [
-                'date' => '08-10-2025',
-                'client_name' => 'Juan Rodriguez',
-                'treatment' => 'Reducción',
-                'branch' => 'Sucursal Norte'
-            ],
-            [
-                'date' => '12-10-2025',
-                'client_name' => 'Ana Garcia',
-                'treatment' => 'Depilación láser',
-                'branch' => 'Sede Principal'
-            ],
-            [
-                'date' => '15-10-2025',
-                'client_name' => 'Carlos Sanchez',
-                'treatment' => 'Reducción',
-                'branch' => 'Sucursal Sur'
-            ],
-        ];
+        // Start query for appointments assigned to the current staff member
+        $query = Appointment::where('staff_user_id', $staff->id)
+                            ->with(['contractedTreatment.user', 'contractedTreatment.treatment']);
+
+        // Order by most recent schedule and paginate
+        $appointments = $query->orderBy('schedule', 'desc')->paginate(15);
+
+        $treatments = Treatment::orderBy('name')->get();
 
         $data = [
             'staff' => $staff,
@@ -176,6 +160,7 @@ class StaffController extends Controller
             'branches' => $branches,
             'appointments' => $appointments,
             'daysOfWeek' => WorkSchedule::$daysOfWeek,
+            'treatments' => $treatments,
         ];
 
         return view('admin.staff.show', $data);

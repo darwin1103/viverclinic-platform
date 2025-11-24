@@ -194,7 +194,10 @@ class ScheduleAppointmentController extends Controller
             'comment' => 'nullable|string|max:500',
         ]);
 
-        if($appointment->status != 'Atendida'){
+        if(
+            $appointment->status != 'Atendida' &&
+            $appointment->status != 'Completada'
+        ){
             abort(403);
         }
 

@@ -192,8 +192,6 @@ class AdminAppointmentController extends Controller
     private function assignStaffSequentially(Appointment $appointment)
     {
 
-        // que no sea de esta manera que sea secuencial ***
-
         $branchId = $appointment->contractedTreatment->branch_id;
         $appointmentTime = Carbon::parse($appointment->schedule);
 

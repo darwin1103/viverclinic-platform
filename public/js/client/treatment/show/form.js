@@ -137,3 +137,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize calculations on page load
     calculateTotals();
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    $(".show-terms-conditions-modal").on('click',function() {
+        if ($(this).is(':checked')) {
+            const modal = new bootstrap.Modal('#termsConditionsModal');
+            modal.show();
+        }
+    });
+    $("#acceptTermsConditions").on('click',function() {
+        $("#nextInformedConsent").removeAttr('disabled');
+        bootstrap.Modal.getInstance('#termsConditionsModal').hide();
+    });
+}, false);

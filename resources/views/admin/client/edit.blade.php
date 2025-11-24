@@ -56,10 +56,4 @@
         </div>
     </div>
 </div>
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-    }, false);
-</script>
-@endpush
 @endsection

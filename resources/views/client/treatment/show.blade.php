@@ -169,20 +169,5 @@
         const additionalZones = @json($additionalZones);
     </script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            $(".show-terms-conditions-modal").on('click',function() {
-                if ($(this).is(':checked')) {
-                    const modal = new bootstrap.Modal('#termsConditionsModal');
-                    modal.show();
-                }
-            });
-            $("#acceptTermsConditions").on('click',function() {
-                $("#nextInformedConsent").removeAttr('disabled');
-                bootstrap.Modal.getInstance('#termsConditionsModal').hide();
-            });
-        }, false);
-    </script>
-
     <script type="text/javascript" src="{{ asset('js/client/treatment/show/form.js') }}"></script>
 @endpush

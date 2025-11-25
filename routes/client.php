@@ -30,7 +30,7 @@ Route::middleware(['auth', 'verified', 'role:PATIENT'])->name('client.')->group(
     Route::post('/schedule-appointment/{appointment}/cancel', [ScheduleAppointmentController::class, 'cancel'])
         ->name('schedule-appointment.cancel');
 
-    Route::post('/appointments/available-slots', [ScheduleAppointmentController::class, 'availableSlots'])
-        ->name('schedule-appointment.available-slots');
-
 });
+
+Route::post('/appointments/available-slots', [ScheduleAppointmentController::class, 'availableSlots'])
+    ->name('schedule-appointment.available-slots');

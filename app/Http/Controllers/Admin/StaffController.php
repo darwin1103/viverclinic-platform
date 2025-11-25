@@ -172,7 +172,7 @@ class StaffController extends Controller
         }
 
         // Order by most recent schedule and paginate
-        $appointments = $query->orderBy('schedule', 'desc')->paginate(1);
+        $appointments = $query->orderBy('schedule', 'desc')->paginate(15);
 
         $treatments = Treatment::orderBy('name')->get();
 

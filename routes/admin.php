@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\TreatmentController;
+use App\Http\Controllers\Admin\AdminScheduleAppointmentController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'role:SUPER_ADMIN|OWNER'])->prefix('admin')->name('admin.')->group(function () {
@@ -79,5 +80,36 @@ Route::middleware(['auth', 'verified', 'role:SUPER_ADMIN|OWNER'])->prefix('admin
     // Treatments list for filters
     Route::get('/all-treatments/list', [AdminAppointmentController::class, 'getTreatmentsList'])
         ->name('treatments.list');
+
+
+
+
+
+
+
+
+
+
+
+    Route::get('/contrated_treatment/{contracted_treatment}/schedule-appointment', [AdminScheduleAppointmentController::class, 'index'])
+        ->name('schedule-appointment.index');
+
+    Route::post('/schedule-appointment/store', [AdminScheduleAppointmentController::class, 'store'])
+        ->name('schedule-appointment.store');
+
+    Route::post('/schedule-appointment/{appointment}/rate', [AdminScheduleAppointmentController::class, 'rate'])
+        ->name('schedule-appointment.rate');
+
+    Route::post('/schedule-appointment/{appointment}/resched', [AdminScheduleAppointmentController::class, 'resched'])
+        ->name('schedule-appointment.resched');
+
+    Route::post('/schedule-appointment/{appointment}/confirm', [AdminScheduleAppointmentController::class, 'confirm'])
+        ->name('schedule-appointment.confirm');
+
+    Route::post('/schedule-appointment/{appointment}/cancel', [AdminScheduleAppointmentController::class, 'cancel'])
+        ->name('schedule-appointment.cancel');
+
+    Route::post('/appointments/available-slots', [AdminScheduleAppointmentController::class, 'availableSlots'])
+        ->name('schedule-appointment.available-slots');
 
 });

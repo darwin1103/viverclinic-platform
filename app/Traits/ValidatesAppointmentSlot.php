@@ -57,17 +57,29 @@ trait ValidatesAppointmentSlot
             return 0;
         }
 
+        // 1. Convertir la hora de la solicitud (que es un string) a un objeto Carbon.
+        // Usamos parse() porque el formato 'H:i' es estándar.
+        $requestedTime = Carbon::parse($time);
+
         $capacity = 0;
         foreach ($branch->staff as $staffMember) {
             foreach ($staffMember->workSchedules as $schedule) {
-                // Check if the requested time falls within the staff member's shift
-                if ($time >= $schedule->start_time && $time < $schedule->end_time) {
+                // 2. Convertir las horas de inicio y fin del horario también a objetos Carbon.
+                $startTime = Carbon::parse($schedule->start_time);
+                $endTime = Carbon::parse($schedule->end_time);
+
+                // 3. Usar el método isBetween() de Carbon para una comparación clara y segura.
+                // La lógica es: "¿la hora solicitada está entre la hora de inicio (inclusive) y la hora de fin (exclusive)?"
+                // Esto coincide exactamente con la lógica original de >= start_time y < end_time.
+                if ($requestedTime->isBetween($startTime, $endTime, true, false)) {
                     $capacity++;
-                    break; // Count this staff member only once and move to the next one
+                    break; // Contar a este miembro del personal una vez y pasar al siguiente.
                 }
             }
         }
+
         return $capacity;
+
     }
 
     /**

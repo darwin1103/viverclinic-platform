@@ -10,6 +10,8 @@ use App\Models\Treatment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use App\Mail\NewTreatmentContracted;
+use Illuminate\Support\Facades\Mail;
 
 class TreatmentController extends Controller
 {
@@ -180,6 +182,14 @@ class TreatmentController extends Controller
             'is_pregnant' => (isset($validatedData['notPregnant']) && $validatedData['notPregnant'] == 1) ? true : false,
         ]);
 
+        // Usamos 'queue' porque el mailable implementa ShouldQueue.
+        // Esto evita que el usuario espere a que se envíe el mail para ver la respuesta.
+        try {
+            Mail::to($user)->queue(new NewTreatmentContracted($contractedTreatment));
+        } catch (\Exception $e) {
+            // Opcional: Loguear el error si falla el envío para no romper el flujo de compra
+            \Log::error('Error enviando correo de compra: ' . $e->getMessage());
+        }
 
         // --- 4. Redirect with a Success Message ---
 

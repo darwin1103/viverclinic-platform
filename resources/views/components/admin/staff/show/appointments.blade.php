@@ -1,4 +1,4 @@
-@props(['appointments', 'title' => '', 'treatments'])
+@props(['appointments', 'title' => '', 'treatments', 'staff'])
 
 <div class="container my-2">
     <div class="row">
@@ -6,7 +6,9 @@
             <div class="card w-100">
                 <div class="card-body m-0">
 
-                    <x-admin.staff.show.appointments-table :treatments="$treatments" :appointments="$appointments" />
+                    <x-admin.staff.show.appointments-filter :staff="$staff" :treatments="$treatments" />
+
+                    <x-admin.staff.show.appointments-table :appointments="$appointments" />
 
                 </div>
             </div>

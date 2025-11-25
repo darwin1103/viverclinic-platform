@@ -147,12 +147,36 @@ class StaffController extends Controller
 
         // Start query for appointments assigned to the current staff member
         $query = Appointment::where('staff_user_id', $staff->id)
-                            ->with(['contractedTreatment.user', 'contractedTreatment.treatment']);
+            ->with(['contractedTreatment.user', 'contractedTreatment.treatment']);
+
+        // Apply search filter for patient name
+        if ($request->filled('search')) {
+            $query->whereHas('contractedTreatment.user', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Apply filter for treatment
+        if ($request->filled('treatment_id')) {
+            $query->whereHas('contractedTreatment', function ($q) use ($request) {
+                $q->where('treatment_id', $request->treatment_id);
+            });
+        }
+
+        // Apply date filters
+        if ($request->filled('min_date')) {
+            $query->whereDate('schedule', '>=', $request->min_date);
+        }
+        if ($request->filled('max_date')) {
+            $query->whereDate('schedule', '<=', $request->max_date);
+        }
 
         // Order by most recent schedule and paginate
-        $appointments = $query->orderBy('schedule', 'desc')->paginate(15);
+        $appointments = $query->orderBy('schedule', 'desc')->paginate(1);
 
         $treatments = Treatment::orderBy('name')->get();
+
+        $isOnAppointmentTable = ($request->filled('is_on_appointment_table') || $request->has('page')) ? true : false;
 
         $data = [
             'staff' => $staff,
@@ -161,6 +185,7 @@ class StaffController extends Controller
             'appointments' => $appointments,
             'daysOfWeek' => WorkSchedule::$daysOfWeek,
             'treatments' => $treatments,
+            'isOnAppointmentTable' => $isOnAppointmentTable,
         ];
 
         return view('admin.staff.show', $data);

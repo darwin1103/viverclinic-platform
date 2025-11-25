@@ -8,6 +8,7 @@
                 <th scope="col" class="text-white">Fecha</th>
                 <th scope="col" class="text-white">Hora</th>
                 <th scope="col" class="text-white">Tratamiento</th>
+                <th scope="col" class="text-white">Sesión</th>
                 <th scope="col" class="text-white text-center">Acciones</th>
             </tr>
         </thead>
@@ -21,6 +22,7 @@
                     <td>{{ \Carbon\Carbon::parse($appointment->schedule)->isoFormat('dddd, D \d\e MMMM, YYYY') }}</td>
                     <td>{{ \Carbon\Carbon::parse($appointment->schedule)->isoFormat('hh:mm a') }}</td>
                     <td data-label="Tratamiento">{{ $appointment->contractedTreatment->treatment->name }}</td>
+                    <td data-label="Tratamiento">{{ $appointment->session_number }}</td>
                     <td data-label="Acciones" class="text-center">
                         <button type="button" class="btn btn-sm btn-primary"
                             data-bs-toggle="modal"
@@ -43,7 +45,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" class="text-center">No hay citas pendientes.</td>
+                    <td colspan="5" class="text-center">No hay citas para mostrar.</td>
                 </tr>
             @endforelse
             {{-- Fila para mostrar cuando no hay resultados de búsqueda --}}

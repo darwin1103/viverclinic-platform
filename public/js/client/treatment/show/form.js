@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const allZonesSelected = selectedLargeZones === allowedLargeZones && selectedMiniZones === allowedMiniZones;
         const hasAllowedZones = allowedLargeZones > 0 || allowedMiniZones > 0;
 
-        paymentButtonContainer.style.display = (allZonesSelected && hasAllowedZones) ? 'block' : 'none';
+        paymentButtonContainer.disabled = (allZonesSelected && hasAllowedZones) ? false : true;
     }
 
     /**
@@ -150,3 +150,43 @@ document.addEventListener('DOMContentLoaded', function () {
         bootstrap.Modal.getInstance('#termsConditionsModal').hide();
     });
 }, false);
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    // Función para el Checkbox
+    const checkboxes = document.querySelectorAll('.trigger-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+
+            if (this.checked) {
+                // Si se marca y estaba en 0, poner 1
+                if (parseInt(input.value) === 0 || input.value === '') {
+                    input.value = 1;
+                }
+            } else {
+                // Si se desmarca, volver a 0
+                input.value = 0;
+            }
+        });
+    });
+
+    // Función para el Input Numérico
+    const inputs = document.querySelectorAll('.item-amount');
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            // Buscamos el checkbox asociado usando el ID inverso o navegando el DOM
+            // Aquí asumimos la estructura de IDs usada arriba
+            const type = this.getAttribute('data-type');
+            const id = this.getAttribute('data-id');
+            const checkbox = document.getElementById(`check-${type}-${id}`);
+
+            if (parseInt(this.value) > 0) {
+                checkbox.checked = true;
+            } else {
+                checkbox.checked = false;
+            }
+        });
+    });
+});

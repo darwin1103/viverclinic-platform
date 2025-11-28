@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const final = parseFloat(finalInput.value) || 0;
 
             // Calculamos la resta
-            const result = initial - final;
+            const result = final - initial;
 
             // Mostramos el resultado (opcional: evitar negativos)
             totalInput.value = result > 0 ? result : 0;

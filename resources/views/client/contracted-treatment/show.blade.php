@@ -145,7 +145,7 @@
                     @if($contractedTreatment->selected_zones && (is_array($contractedTreatment->selected_zones)))
                     <div class="row mt-4">
                         <div class="col-12">
-                            <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-geo-alt me-2"></i>Zonas Seleccionadas</h5>
+                            <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-person-standing me-2"></i>Zonas Seleccionadas</h5>
 
                             {{-- Display Big Zones --}}
                             @if(!empty($contractedTreatment->selected_zones['big']))

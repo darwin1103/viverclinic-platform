@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAppointmentController;
+use App\Http\Controllers\Admin\AdminScheduleAppointmentController;
+use App\Http\Controllers\Admin\AssetController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\ContractedTreatmentController;
@@ -9,7 +11,6 @@ use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\TreatmentController;
-use App\Http\Controllers\Admin\AdminScheduleAppointmentController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'role:SUPER_ADMIN|OWNER'])->prefix('admin')->name('admin.')->group(function () {
@@ -81,16 +82,6 @@ Route::middleware(['auth', 'verified', 'role:SUPER_ADMIN|OWNER'])->prefix('admin
     Route::get('/all-treatments/list', [AdminAppointmentController::class, 'getTreatmentsList'])
         ->name('treatments.list');
 
-
-
-
-
-
-
-
-
-
-
     Route::get('/contrated_treatment/{contracted_treatment}/schedule-appointment', [AdminScheduleAppointmentController::class, 'index'])
         ->name('schedule-appointment.index');
 
@@ -111,5 +102,16 @@ Route::middleware(['auth', 'verified', 'role:SUPER_ADMIN|OWNER'])->prefix('admin
 
     Route::post('/appointments/available-slots', [AdminScheduleAppointmentController::class, 'availableSlots'])
         ->name('schedule-appointment.available-slots');
+
+    // Rutas CRUD de Activos
+    Route::resource('assets', AssetController::class);
+
+    // Ruta para modificar stock específicamente (Modal)
+    Route::post('assets/{asset}/stock', [AssetController::class, 'updateStock'])->name('assets.stock.update');
+
+    // Rutas para Notas (dentro de assets)
+    Route::post('assets/{asset}/notes', [AssetController::class, 'storeNote'])->name('assets.notes.store');
+    Route::delete('assets/notes/{note}', [AssetController::class, 'destroyNote'])->name('assets.notes.destroy');
+    Route::put('assets/notes/{note}', [AssetController::class, 'updateNote'])->name('assets.notes.update');
 
 });

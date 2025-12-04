@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\ContractedTreatmentController;
 use App\Http\Controllers\Admin\OwnerController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\TreatmentController;
@@ -113,5 +114,7 @@ Route::middleware(['auth', 'verified', 'role:SUPER_ADMIN|OWNER'])->prefix('admin
     Route::post('assets/{asset}/notes', [AssetController::class, 'storeNote'])->name('assets.notes.store');
     Route::delete('assets/notes/{note}', [AssetController::class, 'destroyNote'])->name('assets.notes.destroy');
     Route::put('assets/notes/{note}', [AssetController::class, 'updateNote'])->name('assets.notes.update');
+
+    Route::resource('products', AdminProductController::class);
 
 });

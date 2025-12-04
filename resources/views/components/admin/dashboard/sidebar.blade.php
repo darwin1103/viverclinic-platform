@@ -45,6 +45,12 @@
             Paquetes contratados
         </a>
       </li>
+      <li>
+        <a href="{{ route('admin.products.index') }}" class="nav-link @if(Route::is('admin.products.*')) active @endif">
+            <i class="bi bi-box me-2"></i>
+            Productos
+        </a>
+      </li>
       <li class="mt-3 text-uppercase text-secondary small px-2">
         Personal
       </li>

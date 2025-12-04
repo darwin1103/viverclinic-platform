@@ -24,7 +24,7 @@
                                 <button type="button" class="btn btn-secondary" id="btn-clear-filters">
                                     <i class="bi bi-eraser-fill"></i> Limpiar
                                 </button>
-                                <a href="{{ route('admin.assets.create') }}" class="btn btn-success">
+                                <a href="{{ route('admin.assets.create') }}" class="btn btn-primary">
                                     <i class="bi bi-plus-circle"></i> Nuevo
                                 </a>
                             </div>

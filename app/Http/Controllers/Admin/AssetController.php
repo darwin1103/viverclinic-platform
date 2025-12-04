@@ -32,7 +32,11 @@ class AssetController extends Controller
             return view('admin.assets.partials.table-rows', compact('assets'))->render();
         }
 
-        return view('admin.assets.index', compact('assets'));
+        $branches = Branch::all();
+
+        $selectedBranchID = $request->input('branch_id') ?? '';
+
+        return view('admin.assets.index', compact('assets', 'branches', 'selectedBranchID'));
     }
 
     public function create()

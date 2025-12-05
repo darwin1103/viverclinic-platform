@@ -69,6 +69,13 @@ class Treatment extends Model
         return $this->hasMany(BranchTreatment::class);
     }
 
+        public function branches(): BelongsToMany
+    {
+        return $this->belongsToMany(Branch::class, 'branch_treatment')
+                    ->withPivot('name', 'price', 'big_zones', 'mini_zones')
+                    ->withTimestamps();
+    }
+
     /**
      * The "booted" method of the model.
      */

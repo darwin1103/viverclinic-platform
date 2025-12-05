@@ -23,7 +23,7 @@
                         <div class="row g-3 align-items-end">
                             {{-- Campo de búsqueda por nombre --}}
                             <div class="col-12 col-md-6">
-                                <label for="search" class="form-label">Buscar por nombre</label>
+                                <label for="search" class="form-label">Buscar por nombre de tratamiento</label>
                                 <input type="text" class="form-control" id="search" name="search" placeholder="Ej: Reducción" value="{{ request('search') }}">
                             </div>
 

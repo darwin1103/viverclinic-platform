@@ -7,7 +7,7 @@
         <div class="col-12 col-lg-6 mb-4">
             <div class="card h-100">
                 <div class="card-body m-3">
-                    <h4 class="card-title mb-4">Editar Activo</h4>
+                    <h4 class="card-title mb-4">Editar Activo (ID: {{ $asset->id }})</h4>
                     <form method="POST" action="{{ route('admin.assets.update', $asset) }}" class="row g-3">
                         @csrf
                         @method('PUT')

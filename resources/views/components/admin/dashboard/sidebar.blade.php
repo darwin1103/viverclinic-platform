@@ -51,6 +51,12 @@
             Productos
         </a>
       </li>
+      <li>
+        <a href="{{ route('admin.orders.index') }}" class="nav-link @if(Route::is('admin.orders.*')) active @endif">
+            <i class="bi bi-cart-fill me-2"></i>
+            Ordenes
+        </a>
+      </li>
       <li class="mt-3 text-uppercase text-secondary small px-2">
         Personal
       </li>

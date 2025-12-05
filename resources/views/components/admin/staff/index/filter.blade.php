@@ -4,7 +4,7 @@
             <div class="row g-3 align-items-end">
 
                 {{-- Campo de búsqueda por nombre o correo --}}
-                <div class="col-12 col-md-8">
+                <div class="col-12 col-md-10">
                     <label for="search-input" class="form-label">Buscar por nombre o correo</label>
                     <input type="text" class="form-control" id="search-input" name="search" placeholder="Buscar por nombre o correo..." value="{{ request('search') }}">
                 </div>
@@ -13,8 +13,10 @@
                 <input type="hidden" name="branch_id" id="branch-id-filter" value="{{ request('branch_id') }}">
 
                 {{-- Botón para limpiar filtros --}}
-                <div class="col-12 col-md-4 d-grid">
-                    <a href="{{ route('admin.staff.index') }}" class="btn btn-secondary"><i class="bi bi-eraser-fill"></i> Limpiar</a>
+                <div class="col-12 col-md-2 d-grid">
+                    <a href="{{ route('admin.staff.index') }}" class="btn btn-secondary">
+                        <i class="bi bi-eraser-fill"></i> Limpiar
+                    </a>
                 </div>
 
             </div>

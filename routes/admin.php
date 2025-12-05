@@ -1,14 +1,15 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAppointmentController;
+use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminScheduleAppointmentController;
 use App\Http\Controllers\Admin\AssetController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\ContractedTreatmentController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\OwnerController;
 use App\Http\Controllers\Admin\PermissionController;
-use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\TreatmentController;
@@ -116,5 +117,7 @@ Route::middleware(['auth', 'verified', 'role:SUPER_ADMIN|OWNER'])->prefix('admin
     Route::put('assets/notes/{note}', [AssetController::class, 'updateNote'])->name('assets.notes.update');
 
     Route::resource('products', AdminProductController::class);
+
+    Route::resource('orders', OrderController::class)->only(['index', 'show', 'update']);
 
 });

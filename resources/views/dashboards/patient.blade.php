@@ -45,10 +45,19 @@
                         <div class="col-12 col-md-4">
                             <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
                                 role="button"
-                                href="{{ route('care-tips.index') }}"
+                                href="{{ route('client.shop.index') }}"
                             >
                                 <i class="bi bi-bag-check"></i>
                                 Tienda
+                            </a>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
+                                role="button"
+                                href="{{ route('client.orders.index') }}"
+                            >
+                                <i class="bi bi-cart-check-fill"></i>
+                                Compras
                             </a>
                         </div>
                     @endcan
@@ -86,7 +95,7 @@
                         </div>
                     @endcan
                     @can('patient_recomentations_home_btn')
-                        <div class="col-12 col-md-8">
+                        <div class="col-12 col-md-4">
                             <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
                                 role="button"
                                 href="{{ route('recomentations.index') }}"

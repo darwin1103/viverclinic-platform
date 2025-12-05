@@ -1,5 +1,6 @@
 @forelse($assets as $asset)
 <tr>
+    <td>{{ $asset->id }}</td>
     <td>{{ $asset->name }}</td>
     <td>
         <span class="badge bg-info text-dark">{{ $asset->branch->name }}</span>

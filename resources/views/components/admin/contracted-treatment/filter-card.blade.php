@@ -6,16 +6,13 @@
             <div class="row g-3 align-items-end">
 
                 {{-- Search by client name or email --}}
-                <div class="col-12 col-md-6 col-lg-4">
-                    <label for="search" class="form-label">Buscar Cliente</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control" id="search" name="search" placeholder="Nombre o correo del cliente..." value="{{ request('search') }}">
-                    </div>
+                <div class="col-12 col-md-6">
+                    <label for="search" class="form-label">Buscar cliente</label>
+                    <input type="text" class="form-control" id="search" name="search" placeholder="Nombre o correo del cliente..." value="{{ request('search') }}">
                 </div>
 
                 {{-- Filter by Treatment --}}
-                <div class="col-12 col-md-6 col-lg-4">
+                <div class="col-12 col-md-4">
                     <label for="treatment_id_filter" class="form-label">Tratamiento</label>
                     <select class="form-select" id="treatment_id_filter" name="treatment_id">
                         <option value="">Todos</option>
@@ -33,7 +30,7 @@
                 <input type="hidden" name="branch_id" id="branch_id_hidden" value="{{ request('branch_id') }}">
 
                 {{-- Buttons --}}
-                <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-start align-items-end">
+                <div class="col-12 col-md-2">
                      <a href="{{ route('admin.contracted-treatment.index') }}" class="btn btn-secondary">
                         <i class="bi bi-eraser-fill me-1"></i> Limpiar Filtros
                     </a>

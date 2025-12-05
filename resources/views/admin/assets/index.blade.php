@@ -2,6 +2,17 @@
 
 @section('content')
 <div class="container">
+        <div class="row">
+        <div class="col-12 col-md-6 col-lg-4">
+            <h1>Activos</h1>
+        </div>
+        <div class="col-12 col-md-6 col-lg-8 text-end" style="align-content: center;">
+            <a class="btn btn-primary" href="{{ route('admin.assets.create') }}" role="button">
+                <i class="bi bi-plus-circle-fill"></i>&nbsp;Crear nuevo activo
+            </a>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-12">
 
@@ -11,7 +22,7 @@
                     <form id="filter-form" onsubmit="return false;"> <!-- Evita submit tradicional -->
                         <div class="row g-3 align-items-end">
                             {{-- Campo de búsqueda por nombre --}}
-                            <div class="col-12 col-md-6">
+                            <div class="col-12 col-md-10">
                                 <label for="search" class="form-label">Buscar por nombre</label>
                                 <input type="text" class="form-control" id="search" name="search" placeholder="Buscar por nombre...">
                             </div>
@@ -20,13 +31,10 @@
                             <input type="hidden" name="branch_id" id="branch_id_filter">
 
                             {{-- Botones --}}
-                            <div class="col-12 col-md-3 d-flex gap-2">
-                                <button type="button" class="btn btn-secondary" id="btn-clear-filters">
+                            <div class="col-12 col-md-2 d-flex gap-2">
+                                <button type="button" class="btn btn-secondary w-100" id="btn-clear-filters">
                                     <i class="bi bi-eraser-fill"></i> Limpiar
                                 </button>
-                                <a href="{{ route('admin.assets.create') }}" class="btn btn-primary">
-                                    <i class="bi bi-plus-circle"></i> Nuevo
-                                </a>
                             </div>
                         </div>
                     </form>
@@ -40,6 +48,7 @@
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
+                                    <th class="text-white">ID</th>
                                     <th class="text-white">Nombre</th>
                                     <th class="text-white">Sucursal</th>
                                     <th class="text-center text-white">Stock</th>

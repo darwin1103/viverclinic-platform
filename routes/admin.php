@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\AssetController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\ContractedTreatmentController;
+use App\Http\Controllers\Admin\ManualSaleController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\OwnerController;
 use App\Http\Controllers\Admin\PermissionController;
@@ -119,5 +120,11 @@ Route::middleware(['auth', 'verified', 'role:SUPER_ADMIN|OWNER'])->prefix('admin
     Route::resource('products', AdminProductController::class);
 
     Route::resource('orders', OrderController::class)->only(['index', 'show', 'update']);
+
+    // Rutas para Ventas Manuales
+    Route::get('/manual-sales', [ManualSaleController::class, 'index'])->name('manual-sales.index');
+    Route::get('/manual-sales/products', [ManualSaleController::class, 'products'])->name('manual-sales.products'); // AJAX HTML
+    Route::get('/manual-sales/patients', [ManualSaleController::class, 'patients'])->name('manual-sales.patients'); // AJAX JSON
+    Route::post('/manual-sales', [ManualSaleController::class, 'store'])->name('manual-sales.store');
 
 });

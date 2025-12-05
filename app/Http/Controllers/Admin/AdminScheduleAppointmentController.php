@@ -169,10 +169,24 @@ class AdminScheduleAppointmentController extends Controller
         // verify if the user is the owner of contracted treatment ***
         // Check payment status ***
 
+        $messages = [
+            'rating_value.required' => 'La puntuación es obligatoria.',
+            'rating_value.integer'  => 'La puntuación debe ser un número entero.',
+            'rating_value.min'      => 'La puntuación mínima permitida es :min.',
+            'rating_value.max'      => 'La puntuación máxima permitida es :max.',
+            'comment.string'        => 'El comentario debe ser texto.',
+            'comment.max'           => 'El comentario no debe exceder los :max caracteres.',
+        ];
+
+        $attributes = [
+            'rating_value' => 'puntuación',
+            'comment'      => 'comentario',
+        ];
+
         $validated = $request->validate([
             'rating_value' => 'required|integer|min:1|max:3',
-            'comment' => 'nullable|string|max:500',
-        ]);
+            'comment'      => 'nullable|string|max:500',
+        ], $messages, $attributes);
 
         if(
             $appointment->status != 'Atendida' &&
@@ -249,10 +263,25 @@ class AdminScheduleAppointmentController extends Controller
      */
     public function availableSlots(Request $request)
     {
+         $messages = [
+            'date.required'           => 'La fecha de la reserva es obligatoria.',
+            'date.date_format'        => 'La fecha debe tener el formato AAAA-MM-DD (ej: 2025-12-31).',
+            'date.after_or_equal'     => 'La fecha de la reserva no puede ser anterior al día de hoy.',
+
+            'branch_id.required'      => 'El campo de la sucursal es obligatorio.',
+            'branch_id.integer'       => 'El ID de la sucursal debe ser un número entero.',
+            'branch_id.exists'        => 'La sucursal seleccionada no es válida o no existe.',
+        ];
+
+        $attributes = [
+            'date'      => 'fecha de la reserva',
+            'branch_id' => 'sucursal',
+        ];
+
         $validated = $request->validate([
-            'date' => 'required|date_format:Y-m-d|after_or_equal:today',
+            'date'      => 'required|date_format:Y-m-d|after_or_equal:today',
             'branch_id' => 'required|integer|exists:branches,id',
-        ]);
+        ], $messages, $attributes);
 
         try {
             $date = Carbon::parse($validated['date']);

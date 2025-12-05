@@ -61,6 +61,82 @@ class TreatmentController extends Controller
 
     public function store(Request $request)
     {
+        $messages = [
+            // --- Reglas de Nivel Superior ---
+            'name.required'   => 'El campo nombre es obligatorio.',
+            'name.string'     => 'El nombre debe ser una cadena de texto.',
+            'name.max'        => 'El nombre no debe exceder los :max caracteres.',
+            'name.unique'     => 'Este nombre de tratamiento ya existe.',
+
+            'description.required' => 'La descripción es obligatoria.',
+            'description.string'   => 'La descripción debe ser una cadena de texto.',
+
+            'sessions.required' => 'El número de sesiones es obligatorio.',
+            'sessions.integer'  => 'El número de sesiones debe ser un número entero.',
+            'sessions.min'      => 'El número de sesiones mínimo es :min.',
+
+            'days_between_sessions.required' => 'Los días entre sesiones son obligatorios.',
+            'days_between_sessions.integer'  => 'Los días entre sesiones deben ser un número entero.',
+            'days_between_sessions.min'      => 'Los días entre sesiones mínimos son :min.',
+
+            'active.boolean'             => 'El campo activo debe ser verdadero o falso.',
+            'needs_report_shots.boolean' => 'El campo de fotos de reporte debe ser verdadero o falso.',
+
+            'main_image.image' => 'El archivo debe ser una imagen.',
+            'main_image.mimes' => 'La imagen principal debe ser de tipo: jpeg, png, jpg, gif o webp.',
+            'main_image.max'   => 'La imagen principal no debe pesar más de :max kilobytes (2 MB).',
+
+            'price_additional_zone.required' => 'El precio por zona adicional es obligatorio.',
+            'price_additional_zone.numeric'  => 'El precio por zona adicional debe ser un número.',
+            'price_additional_zone.min'      => 'El precio por zona adicional no puede ser menor a :min.',
+
+            'price_additional_mini_zone.required' => 'El precio por mini zona adicional es obligatorio.',
+            'price_additional_mini_zone.numeric'  => 'El precio por mini zona adicional debe ser un número.',
+            'price_additional_mini_zone.min'      => 'El precio por mini zona adicional no puede ser menor a :min.',
+
+            'branches.array'       => 'El campo de sucursales debe ser un arreglo.',
+            'terms_conditions.string' => 'Los términos y condiciones deben ser texto.',
+
+            // --- Reglas Anidadas para Paquetes (branches.*.packages.*) ---
+            'branches.*.packages.array' => 'Los paquetes de cada sucursal deben ser un arreglo.',
+
+            'branches.*.packages.*.name.required' => 'El nombre del paquete es obligatorio.',
+            'branches.*.packages.*.name.string'   => 'El nombre del paquete debe ser una cadena de texto.',
+            'branches.*.packages.*.name.max'      => 'El nombre del paquete no debe exceder los :max caracteres.',
+
+            'branches.*.packages.*.price.required' => 'El precio del paquete es obligatorio.',
+            'branches.*.packages.*.price.numeric'  => 'El precio del paquete debe ser un número.',
+            'branches.*.packages.*.price.min'      => 'El precio del paquete no puede ser menor a :min.',
+
+            'branches.*.packages.*.big_zones.required' => 'Las zonas grandes son obligatorias.',
+            'branches.*.packages.*.big_zones.integer'  => 'Las zonas grandes deben ser un número entero.',
+            'branches.*.packages.*.big_zones.min'      => 'El número de zonas grandes no puede ser menor a :min.',
+
+            'branches.*.packages.*.mini_zones.required' => 'Las mini zonas son obligatorias.',
+            'branches.*.packages.*.mini_zones.integer'  => 'Las mini zonas deben ser un número entero.',
+            'branches.*.packages.*.mini_zones.min'      => 'El número de mini zonas no puede ser menor a :min.',
+        ];
+
+        $attributes = [
+            'name'                         => 'Nombre del Tratamiento',
+            'description'                  => 'Descripción',
+            'sessions'                     => 'Sesiones',
+            'days_between_sessions'        => 'Días entre Sesiones',
+            'active'                       => 'Activo',
+            'needs_report_shots'           => 'Necesita Fotos de Reporte',
+            'main_image'                   => 'Imagen Principal',
+            'price_additional_zone'        => 'Precio Zona Adicional',
+            'price_additional_mini_zone'   => 'Precio Mini Zona Adicional',
+            'branches'                     => 'Sucursales',
+            'terms_conditions'             => 'Términos y Condiciones',
+
+            // Atributos anidados para mejor referencia si se usa el archivo de idioma
+            'branches.*.packages.*.name'   => 'Nombre del Paquete',
+            'branches.*.packages.*.price'  => 'Precio del Paquete',
+            'branches.*.packages.*.big_zones'  => 'Zonas Grandes',
+            'branches.*.packages.*.mini_zones' => 'Mini Zonas',
+        ];
+
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:treatments,name',
             'description' => 'required|string',
@@ -78,7 +154,7 @@ class TreatmentController extends Controller
             'branches.*.packages.*.big_zones' => 'required|integer|min:0',
             'branches.*.packages.*.mini_zones' => 'required|integer|min:0',
             'terms_conditions' => 'nullable|string',
-        ]);
+        ], $messages, $attributes);
 
         $treatmentData = $request->except(['_token', 'branches']);
         $treatmentData['active'] = $request->has('active');
@@ -123,8 +199,84 @@ class TreatmentController extends Controller
 
     public function update(Request $request, Treatment $treatment)
     {
+        $messages = [
+            // --- Reglas de Nivel Superior ---
+            'name.required'   => 'El campo nombre es obligatorio.',
+            'name.string'     => 'El nombre debe ser una cadena de texto.',
+            'name.max'        => 'El nombre no debe exceder los :max caracteres.',
+            'name.unique'     => 'Este nombre de tratamiento ya existe.',
+
+            'description.required' => 'La descripción es obligatoria.',
+            'description.string'   => 'La descripción debe ser una cadena de texto.',
+
+            'sessions.required' => 'El número de sesiones es obligatorio.',
+            'sessions.integer'  => 'El número de sesiones debe ser un número entero.',
+            'sessions.min'      => 'El número de sesiones mínimo es :min.',
+
+            'days_between_sessions.required' => 'Los días entre sesiones son obligatorios.',
+            'days_between_sessions.integer'  => 'Los días entre sesiones deben ser un número entero.',
+            'days_between_sessions.min'      => 'Los días entre sesiones mínimos son :min.',
+
+            'active.boolean'             => 'El campo activo debe ser verdadero o falso.',
+            'needs_report_shots.boolean' => 'El campo de fotos de reporte debe ser verdadero o falso.',
+
+            'main_image.image' => 'El archivo debe ser una imagen.',
+            'main_image.mimes' => 'La imagen principal debe ser de tipo: jpeg, png, jpg, gif o webp.',
+            'main_image.max'   => 'La imagen principal no debe pesar más de :max kilobytes (2 MB).',
+
+            'price_additional_zone.required' => 'El precio por zona adicional es obligatorio.',
+            'price_additional_zone.numeric'  => 'El precio por zona adicional debe ser un número.',
+            'price_additional_zone.min'      => 'El precio por zona adicional no puede ser menor a :min.',
+
+            'price_additional_mini_zone.required' => 'El precio por mini zona adicional es obligatorio.',
+            'price_additional_mini_zone.numeric'  => 'El precio por mini zona adicional debe ser un número.',
+            'price_additional_mini_zone.min'      => 'El precio por mini zona adicional no puede ser menor a :min.',
+
+            'branches.array'       => 'El campo de sucursales debe ser un arreglo.',
+            'terms_conditions.string' => 'Los términos y condiciones deben ser texto.',
+
+            // --- Reglas Anidadas para Paquetes (branches.*.packages.*) ---
+            'branches.*.packages.array' => 'Los paquetes de cada sucursal deben ser un arreglo.',
+
+            'branches.*.packages.*.name.required' => 'El nombre del paquete es obligatorio.',
+            'branches.*.packages.*.name.string'   => 'El nombre del paquete debe ser una cadena de texto.',
+            'branches.*.packages.*.name.max'      => 'El nombre del paquete no debe exceder los :max caracteres.',
+
+            'branches.*.packages.*.price.required' => 'El precio del paquete es obligatorio.',
+            'branches.*.packages.*.price.numeric'  => 'El precio del paquete debe ser un número.',
+            'branches.*.packages.*.price.min'      => 'El precio del paquete no puede ser menor a :min.',
+
+            'branches.*.packages.*.big_zones.required' => 'Las zonas grandes son obligatorias.',
+            'branches.*.packages.*.big_zones.integer'  => 'Las zonas grandes deben ser un número entero.',
+            'branches.*.packages.*.big_zones.min'      => 'El número de zonas grandes no puede ser menor a :min.',
+
+            'branches.*.packages.*.mini_zones.required' => 'Las mini zonas son obligatorias.',
+            'branches.*.packages.*.mini_zones.integer'  => 'Las mini zonas deben ser un número entero.',
+            'branches.*.packages.*.mini_zones.min'      => 'El número de mini zonas no puede ser menor a :min.',
+        ];
+
+        $attributes = [
+            'name'                         => 'Nombre del Tratamiento',
+            'description'                  => 'Descripción',
+            'sessions'                     => 'Sesiones',
+            'days_between_sessions'        => 'Días entre Sesiones',
+            'active'                       => 'Activo',
+            'needs_report_shots'           => 'Necesita Fotos de Reporte',
+            'main_image'                   => 'Imagen Principal',
+            'price_additional_zone'        => 'Precio Zona Adicional',
+            'price_additional_mini_zone'   => 'Precio Mini Zona Adicional',
+            'branches'                     => 'Sucursales',
+            'terms_conditions'             => 'Términos y Condiciones',
+
+            // Atributos anidados para mejor referencia si se usa el archivo de idioma
+            'branches.*.packages.*.name'   => 'Nombre del Paquete',
+            'branches.*.packages.*.price'  => 'Precio del Paquete',
+            'branches.*.packages.*.big_zones'  => 'Zonas Grandes',
+            'branches.*.packages.*.mini_zones' => 'Mini Zonas',
+        ];
+
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:treatments,name',
             'description' => 'required|string',
             'sessions' => 'required|integer|min:1',
             'days_between_sessions' => 'required|integer|min:0',
@@ -140,7 +292,7 @@ class TreatmentController extends Controller
             'branches.*.packages.*.big_zones' => 'required|integer|min:0',
             'branches.*.packages.*.mini_zones' => 'required|integer|min:0',
             'terms_conditions' => 'nullable|string',
-        ]);
+        ], $messages, $attributes);
 
         $treatmentData = $request->except(['_token', '_method', 'branches']);
         $treatmentData['active'] = $request->has('active');

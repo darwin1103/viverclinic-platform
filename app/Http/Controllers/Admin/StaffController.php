@@ -86,6 +86,40 @@ class StaffController extends Controller
     public function store(Request $request)
     {
 
+        $messages = [
+            // Reglas de nivel superior (name, email, branch_id)
+            'name.required'   => 'El campo nombre es obligatorio.',
+            'name.max'        => 'El nombre no debe exceder los :max caracteres.',
+            'email.required'  => 'El correo electrónico es obligatorio.',
+            'email.email'     => 'El formato del correo electrónico no es válido.',
+            'email.unique'    => 'Este correo electrónico ya ha sido registrado.',
+            'branch_id.required' => 'Debe seleccionar una sucursal.',
+            'branch_id.exists'   => 'La sucursal seleccionada no existe.',
+
+            // Reglas para el array 'schedules'
+            'schedules.array'      => 'El campo de horarios debe ser un arreglo.',
+            'schedules.*.required' => 'Cada día dentro del arreglo de horarios debe ser especificado.',
+            'schedules.*.array'    => 'Cada día en los horarios debe ser un arreglo de horas.',
+
+            // Reglas anidadas para las horas ('schedules.*.*')
+            'schedules.*.*.start_time.required'  => 'La hora de inicio es obligatoria para cada bloque.',
+            'schedules.*.*.start_time.date_format' => 'La hora de inicio debe tener el formato HH:MM (ej: 14:30).',
+
+            'schedules.*.*.end_time.required'    => 'La hora de fin es obligatoria para cada bloque.',
+            'schedules.*.*.end_time.date_format' => 'La hora de fin debe tener el formato HH:MM (ej: 18:00).',
+            'schedules.*.*.end_time.after'       => 'La hora de fin debe ser posterior a la hora de inicio.',
+        ];
+
+        $attributes = [
+            'name'      => 'Nombre',
+            'email'     => 'Correo Electrónico',
+            'branch_id' => 'Sucursal',
+            'schedules' => 'Horarios',
+            'schedules.*' => 'Día de la Semana', // Para mejorar el mensaje cuando falla schedules.*.required/array
+            'schedules.*.*.start_time' => 'Hora de Inicio', // Útil si se usa el archivo de idioma
+            'schedules.*.*.end_time'   => 'Hora de Fin',    // Útil si se usa el archivo de idioma
+        ];
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -94,7 +128,7 @@ class StaffController extends Controller
             'schedules.*' => 'required|array',
             'schedules.*.*.start_time' => 'required|date_format:H:i',
             'schedules.*.*.end_time' => 'required|date_format:H:i|after:schedules.*.*.start_time',
-        ]);
+        ], $messages, $attributes);
 
         DB::transaction(function () use ($validated, $request) {
 
@@ -212,15 +246,49 @@ class StaffController extends Controller
     public function update(Request $request, User $staff)
     {
 
+        $messages = [
+            // Reglas de nivel superior (name, email, branch_id)
+            'name.required'   => 'El campo nombre es obligatorio.',
+            'name.max'        => 'El nombre no debe exceder los :max caracteres.',
+            'email.required'  => 'El correo electrónico es obligatorio.',
+            'email.email'     => 'El formato del correo electrónico no es válido.',
+            'email.unique'    => 'Este correo electrónico ya ha sido registrado.',
+            'branch_id.required' => 'Debe seleccionar una sucursal.',
+            'branch_id.exists'   => 'La sucursal seleccionada no existe.',
+
+            // Reglas para el array 'schedules'
+            'schedules.array'      => 'El campo de horarios debe ser un arreglo.',
+            'schedules.*.required' => 'Cada día dentro del arreglo de horarios debe ser especificado.',
+            'schedules.*.array'    => 'Cada día en los horarios debe ser un arreglo de horas.',
+
+            // Reglas anidadas para las horas ('schedules.*.*')
+            'schedules.*.*.start_time.required'  => 'La hora de inicio es obligatoria para cada bloque.',
+            'schedules.*.*.start_time.date_format' => 'La hora de inicio debe tener el formato HH:MM (ej: 14:30).',
+
+            'schedules.*.*.end_time.required'    => 'La hora de fin es obligatoria para cada bloque.',
+            'schedules.*.*.end_time.date_format' => 'La hora de fin debe tener el formato HH:MM (ej: 18:00).',
+            'schedules.*.*.end_time.after'       => 'La hora de fin debe ser posterior a la hora de inicio.',
+        ];
+
+        $attributes = [
+            'name'      => 'Nombre',
+            'email'     => 'Correo Electrónico',
+            'branch_id' => 'Sucursal',
+            'schedules' => 'Horarios',
+            'schedules.*' => 'Día de la Semana', // Para mejorar el mensaje cuando falla schedules.*.required/array
+            'schedules.*.*.start_time' => 'Hora de Inicio', // Útil si se usa el archivo de idioma
+            'schedules.*.*.end_time'   => 'Hora de Fin',    // Útil si se usa el archivo de idioma
+        ];
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($staff->id)],
+            'email' => 'required|string|email|max:255|unique:users',
             'branch_id' => 'required|exists:branches,id',
             'schedules' => 'nullable|array',
             'schedules.*' => 'required|array',
             'schedules.*.*.start_time' => 'required|date_format:H:i',
             'schedules.*.*.end_time' => 'required|date_format:H:i|after:schedules.*.*.start_time',
-        ]);
+        ], $messages, $attributes);
 
         DB::transaction(function () use ($validated, $request, $staff) {
             $staffData = [

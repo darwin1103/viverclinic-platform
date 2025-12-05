@@ -50,7 +50,60 @@ class SaveInformedConsentController extends Controller
      */
     public function store(Request $request) {
 
-        $request->validate([
+        $messages = [
+            // --- Datos Personales ---
+            'name.required'       => 'El nombre es obligatorio.',
+            'name.string'         => 'El nombre debe ser una cadena de texto.',
+
+            'citizenship.string'  => 'La nacionalidad debe ser una cadena de texto.',
+            'documentType.exists' => 'El tipo de documento seleccionado no es válido.',
+            'documentNumber.string' => 'El número de documento debe ser una cadena de texto.',
+
+            'email.required'  => 'El correo electrónico es obligatorio.',
+            'email.string'    => 'El correo electrónico debe ser una cadena de texto.',
+            'email.email'     => 'El formato del correo electrónico no es válido.',
+            'email.max'       => 'El correo electrónico no debe exceder los :max caracteres.',
+
+            'birthday.date'   => 'La fecha de nacimiento no es una fecha válida.',
+            'gender.exists'   => 'El género seleccionado no es válido.',
+            'profession.string' => 'La profesión debe ser una cadena de texto.',
+            'phone.string'    => 'El teléfono debe ser una cadena de texto.',
+            'address.string'  => 'La dirección debe ser una cadena de texto.',
+
+            // --- Historial Médico ---
+            'pathologicalHistory.exists'   => 'El historial patológico seleccionado no es válido.',
+            'toxicologicalHistory.exists'  => 'El historial toxicológico seleccionado no es válido.',
+            'gynecoObstetricHistory.exists' => 'El historial gineco-obstétrico seleccionado no es válido.',
+            'medications.exists'           => 'La medicación seleccionada no es válida.',
+            'dietaryHistory.exists'        => 'El historial dietético seleccionado no es válido.',
+            'treatment.exists'             => 'El tratamiento seleccionado no es válido.',
+
+            'surgery.string'      => 'La información de cirugía debe ser una cadena de texto.',
+            'recommendation.string' => 'La recomendación debe ser una cadena de texto.',
+        ];
+
+        $attributes = [
+            'name' => 'Nombre',
+            'citizenship' => 'Nacionalidad',
+            'documentType' => 'Tipo de Documento',
+            'documentNumber' => 'Número de Documento',
+            'email' => 'Correo Electrónico',
+            'birthday' => 'Fecha de Nacimiento',
+            'gender' => 'Género',
+            'profession' => 'Profesión',
+            'phone' => 'Teléfono',
+            'address' => 'Dirección',
+            'pathologicalHistory' => 'Historial Patológico',
+            'toxicologicalHistory' => 'Historial Toxicológico',
+            'gynecoObstetricHistory' => 'Historial Gineco-Obstétrico',
+            'medications' => 'Medicaciones',
+            'dietaryHistory' => 'Historial Dietético',
+            'treatment' => 'Tratamiento',
+            'surgery' => 'Cirugía',
+            'recommendation' => 'Recomendación',
+        ];
+
+        $validated = $request->validate([
             'name' => 'required|string',
             'citizenship' => 'nullable|string',
             'documentType' => 'nullable|exists:document_types,id',
@@ -69,7 +122,7 @@ class SaveInformedConsentController extends Controller
             'treatment' => 'nullable|exists:treatments,id',
             'surgery' => 'nullable|string',
             'recommendation' => 'nullable|string',
-        ]);
+        ], $messages, $attributes);
 
 
         $client = User::where('id',Auth::user()->id)->first();

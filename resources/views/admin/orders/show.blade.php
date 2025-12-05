@@ -24,7 +24,7 @@
                                 <tr>
                                     <th class="ps-4">Producto</th>
                                     <th class="text-center">Cant.</th>
-                                    <th class="text-end">Precio U.</th>
+                                    <th class="text-end">Precio unidad</th>
                                     <th class="text-end pe-4">Subtotal</th>
                                 </tr>
                             </thead>
@@ -75,7 +75,7 @@
                 <div class="card-body small">
                     <p class="mb-1"><strong>Referencia:</strong> {{ $order->payment_reference ?? 'N/A' }}</p>
                     <p class="mb-1"><strong>Método:</strong> {{ $order->payment_method ?? 'N/A' }}</p>
-                    <p class="mb-1"><strong>Fecha:</strong> {{ $order->created_at->format('d/m/Y H:i') }}</p>
+                    <p class="mb-1"><strong>Fecha:</strong> {{ $order->created_at->format('d/m/Y h:i a') }}</p>
                 </div>
             </div>
 

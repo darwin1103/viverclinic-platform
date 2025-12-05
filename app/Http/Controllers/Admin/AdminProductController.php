@@ -50,6 +50,26 @@ class AdminProductController extends Controller
             'stock' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0|decimal:0,2',
             'branch_id' => 'required|exists:branches,id',
+        ], [
+            // Mensajes para Nombre
+            'name.required' => 'El nombre del producto es obligatorio.',
+            'name.string' => 'El nombre debe ser una cadena de texto válida.',
+            'name.max' => 'El nombre no puede exceder los 255 caracteres.',
+
+            // Mensajes para Stock
+            'stock.required' => 'El stock es obligatorio.',
+            'stock.integer' => 'El stock debe ser un número entero (sin decimales).',
+            'stock.min' => 'El stock no puede ser negativo.',
+
+            // Mensajes para Precio
+            'price.required' => 'El precio es obligatorio.',
+            'price.numeric' => 'El precio debe ser un valor numérico válido.',
+            'price.min' => 'El precio no puede ser negativo.',
+            'price.decimal' => 'El precio debe tener como máximo 2 decimales.',
+
+            // Mensajes para Sucursal
+            'branch_id.required' => 'Debes seleccionar una sucursal para este producto.',
+            'branch_id.exists' => 'La sucursal seleccionada no es válida o no existe.',
         ]);
 
         Product::create($validated);
@@ -70,6 +90,26 @@ class AdminProductController extends Controller
             'stock' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0|decimal:0,2',
             'branch_id' => 'required|exists:branches,id',
+        ], [
+            // Mensajes para Nombre
+            'name.required' => 'El nombre del producto es obligatorio.',
+            'name.string' => 'El nombre debe ser una cadena de texto válida.',
+            'name.max' => 'El nombre no puede exceder los 255 caracteres.',
+
+            // Mensajes para Stock
+            'stock.required' => 'El stock es obligatorio.',
+            'stock.integer' => 'El stock debe ser un número entero (sin decimales).',
+            'stock.min' => 'El stock no puede ser negativo.',
+
+            // Mensajes para Precio
+            'price.required' => 'El precio es obligatorio.',
+            'price.numeric' => 'El precio debe ser un valor numérico válido.',
+            'price.min' => 'El precio no puede ser negativo.',
+            'price.decimal' => 'El precio debe tener como máximo 2 decimales.',
+
+            // Mensajes para Sucursal
+            'branch_id.required' => 'Debes seleccionar una sucursal para este producto.',
+            'branch_id.exists' => 'La sucursal seleccionada no es válida o no existe.',
         ]);
 
         $product->update($validated);

@@ -47,13 +47,38 @@ class BranchController extends Controller
      */
     public function store(Request $request)
     {
+        $messages = [
+            'name.required'             => 'El nombre es obligatorio.',
+            'name.string'               => 'El nombre debe ser texto.',
+
+            'address.required'          => 'La dirección es obligatoria.',
+            'address.string'            => 'La dirección debe ser texto.',
+
+            'phone.string'              => 'El teléfono debe ser texto.', // O 'nullable|string|max:20', etc., según sea necesario.
+
+            'google_maps_url.string'    => 'La URL de Google Maps debe ser texto.',
+
+            'logo.image'                => 'El archivo de logo debe ser una imagen.',
+            'logo.mimes'                => 'El logo debe ser de tipo: jpeg, png, jpg, gif o webp.',
+            'logo.max'                  => 'El logo no debe pesar más de :max kilobytes (2 MB).',
+            // Nota: 'nullable' no necesita mensaje de error para 'required'.
+        ];
+
+        $attributes = [
+            'name'            => 'Nombre',
+            'address'         => 'Dirección',
+            'phone'           => 'Teléfono',
+            'google_maps_url' => 'URL de Google Maps',
+            'logo'            => 'Logo',
+        ];
+
         $validated = $request->validate([
-            'name' => 'required|string',
-            'address' => 'required|string',
-            'phone' => 'nullable|string',
+            'name'            => 'required|string',
+            'address'         => 'required|string',
+            'phone'           => 'nullable|string',
             'google_maps_url' => 'nullable|string',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-        ]);
+            'logo'            => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ], $messages, $attributes);
 
         if ($request->hasFile('logo')) {
             $validated['logo'] = $this->uploadFile($request->file('logo'), 'branches');
@@ -86,13 +111,38 @@ class BranchController extends Controller
      */
     public function update(Request $request, Branch $branch)
     {
+        $messages = [
+            'name.required'             => 'El nombre es obligatorio.',
+            'name.string'               => 'El nombre debe ser texto.',
+
+            'address.required'          => 'La dirección es obligatoria.',
+            'address.string'            => 'La dirección debe ser texto.',
+
+            'phone.string'              => 'El teléfono debe ser texto.', // O 'nullable|string|max:20', etc., según sea necesario.
+
+            'google_maps_url.string'    => 'La URL de Google Maps debe ser texto.',
+
+            'logo.image'                => 'El archivo de logo debe ser una imagen.',
+            'logo.mimes'                => 'El logo debe ser de tipo: jpeg, png, jpg, gif o webp.',
+            'logo.max'                  => 'El logo no debe pesar más de :max kilobytes (2 MB).',
+            // Nota: 'nullable' no necesita mensaje de error para 'required'.
+        ];
+
+        $attributes = [
+            'name'            => 'Nombre',
+            'address'         => 'Dirección',
+            'phone'           => 'Teléfono',
+            'google_maps_url' => 'URL de Google Maps',
+            'logo'            => 'Logo',
+        ];
+
         $validated = $request->validate([
-            'name' => 'required|string',
-            'address' => 'required|string',
-            'phone' => 'nullable|string',
+            'name'            => 'required|string',
+            'address'         => 'required|string',
+            'phone'           => 'nullable|string',
             'google_maps_url' => 'nullable|string',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-        ]);
+            'logo'            => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ], $messages, $attributes);
 
         if ($request->hasFile('logo')) {
             $validated['logo'] = $this->uploadFile($request->file('logo'), 'branches', $branch->logo);

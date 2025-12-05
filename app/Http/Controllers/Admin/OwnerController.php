@@ -70,11 +70,36 @@ class OwnerController extends Controller
     public function store(Request $request)
     {
 
+        $messages = [
+            // Reglas para 'name'
+            'name.required'   => 'El campo nombre es obligatorio.',
+            'name.string'     => 'El nombre debe ser una cadena de texto.',
+            'name.max'        => 'El nombre no debe exceder los :max caracteres.',
+
+            // Reglas para 'email'
+            'email.required'  => 'El campo de correo electrónico es obligatorio.',
+            'email.string'    => 'El correo electrónico debe ser una cadena de texto.',
+            'email.email'     => 'El formato del correo electrónico no es válido.',
+            'email.max'       => 'El correo electrónico no debe exceder los :max caracteres.',
+            'email.unique'    => 'Este correo electrónico ya ha sido registrado.',
+
+            // Reglas para 'branch_id'
+            'branch_id.required' => 'Debe seleccionar una sucursal.',
+            // La regla 'integer' no está explícita, pero 'exists' y la naturaleza del 'id' la implican.
+            'branch_id.exists'   => 'La sucursal seleccionada no existe en la base de datos.',
+        ];
+
+        $attributes = [
+            'name'      => 'Nombre',
+            'email'     => 'Correo Electrónico',
+            'branch_id' => 'Sucursal',
+        ];
+
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'name'      => 'required|string|max:255',
+            'email'     => 'required|string|email|max:255|unique:users',
             'branch_id' => 'required|exists:branches,id',
-        ]);
+        ], $messages, $attributes);
 
         DB::transaction(function () use ($validated, $request) {
 
@@ -134,11 +159,36 @@ class OwnerController extends Controller
     public function update(Request $request, User $owner)
     {
 
+        $messages = [
+            // Reglas para 'name'
+            'name.required'   => 'El campo nombre es obligatorio.',
+            'name.string'     => 'El nombre debe ser una cadena de texto.',
+            'name.max'        => 'El nombre no debe exceder los :max caracteres.',
+
+            // Reglas para 'email'
+            'email.required'  => 'El campo de correo electrónico es obligatorio.',
+            'email.string'    => 'El correo electrónico debe ser una cadena de texto.',
+            'email.email'     => 'El formato del correo electrónico no es válido.',
+            'email.max'       => 'El correo electrónico no debe exceder los :max caracteres.',
+            'email.unique'    => 'Este correo electrónico ya ha sido registrado.',
+
+            // Reglas para 'branch_id'
+            'branch_id.required' => 'Debe seleccionar una sucursal.',
+            // La regla 'integer' no está explícita, pero 'exists' y la naturaleza del 'id' la implican.
+            'branch_id.exists'   => 'La sucursal seleccionada no existe en la base de datos.',
+        ];
+
+        $attributes = [
+            'name'      => 'Nombre',
+            'email'     => 'Correo Electrónico',
+            'branch_id' => 'Sucursal',
+        ];
+
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($owner->id)],
+            'name'      => 'required|string|max:255',
+            'email'     => 'required|string|email|max:255|unique:users',
             'branch_id' => 'required|exists:branches,id',
-        ]);
+        ], $messages, $attributes);
 
         DB::transaction(function () use ($validated, $request, $owner) {
             $ownerData = [

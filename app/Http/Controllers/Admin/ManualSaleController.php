@@ -20,7 +20,10 @@ class ManualSaleController extends Controller
     {
         $branches = Branch::all();
 
-        $selectedBranchID = $request->input('branch_id') ?? '';
+        if ($request->filled('branch_id')) {
+            session(['selected_branch_id' => $request->input('branch_id')]);
+        }
+        $selectedBranchID = session('selected_branch_id', '');
 
         return view('admin.manual-sales.index', compact('branches', 'selectedBranchID'));
     }

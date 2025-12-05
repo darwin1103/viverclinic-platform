@@ -28,10 +28,15 @@ class BranchController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $branches = Branch::paginate(10);
-        return view('admin.branch.index', compact('branches'));
+        $branches = Branch::paginate(100);
+
+        if ($request->filled('branch_id')) {
+            session(['selected_branch_id' => $request->input('branch_id')]);
+        }
+        $selectedBranchID = session('selected_branch_id', '');
+        return view('admin.branch.index', compact('branches', 'selectedBranchID'));
     }
 
     /**

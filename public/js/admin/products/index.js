@@ -86,4 +86,5 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Inicializar listeners al cargar
     attachDeleteListeners();
+    fetchProducts();
 });

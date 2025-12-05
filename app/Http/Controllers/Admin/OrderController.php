@@ -47,7 +47,10 @@ class OrderController extends Controller
 
         $branches = Branch::all();
 
-        $selectedBranchID = $request->input('branch_id') ?? '';
+        if ($request->filled('branch_id')) {
+            session(['selected_branch_id' => $request->input('branch_id')]);
+        }
+        $selectedBranchID = session('selected_branch_id', '');
 
         if ($request->ajax()) {
             return view('admin.orders.partials.table', compact('orders', 'branches', 'selectedBranchID'))->render();

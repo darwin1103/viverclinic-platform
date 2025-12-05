@@ -186,4 +186,5 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Inicializar eventos por primera vez
     attachDynamicEvents();
+    fetchAssets();
 });

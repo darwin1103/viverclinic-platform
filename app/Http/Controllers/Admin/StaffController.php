@@ -45,9 +45,9 @@ class StaffController extends Controller
             ->with('staffProfile.branch'); // use select ***
 
         // Filter by branch using the relationship
-        if ($request->filled('branch_id')) {
+        if ($request->filled('branch_id') || session('selected_branch_id')) {
             $query->whereHas('staffProfile', function ($q) use ($request) {
-                $q->where('branch_id', $request->input('branch_id'));
+                $q->where('branch_id', $request->input('branch_id') ?? session('selected_branch_id'));
             });
         }
 
@@ -59,7 +59,10 @@ class StaffController extends Controller
 
         $branches = Branch::all();
 
-        $selectedBranchID = $request->input('branch_id') ?? '';
+        if ($request->filled('branch_id')) {
+            session(['selected_branch_id' => $request->input('branch_id')]);
+        }
+        $selectedBranchID = session('selected_branch_id', '');
 
         return view('admin.staff.index', compact('staffs', 'branches', 'selectedBranchID'));
 

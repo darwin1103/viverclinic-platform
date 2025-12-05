@@ -21,13 +21,19 @@ class AdminAppointmentController extends Controller
     /**
      * Display the appointment management page
      */
-    public function index()
+    public function index(Request $request)
     {
 
         $branches = Branch::all();
 
+        if ($request->filled('branch_id')) {
+            session(['selected_branch_id' => $request->input('branch_id')]);
+        }
+        $selectedBranchID = session('selected_branch_id', '');
+
         return view('admin.appointments.index', [
             'branches' => $branches,
+            'selectedBranchID' => $selectedBranchID,
         ]);
     }
 
@@ -48,7 +54,7 @@ class AdminAppointmentController extends Controller
 
         $startDate = Carbon::parse($validated['start_date'])->startOfDay();
         $endDate = Carbon::parse($validated['end_date'])->endOfDay();
-        $branchId = $validated['branch_id'];
+        $branchId = $validated['branch_id'] ?? session('selected_branch_id');
 
         $query = Appointment::with([
             'contractedTreatment.user',

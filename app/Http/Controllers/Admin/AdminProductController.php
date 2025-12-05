@@ -27,7 +27,10 @@ class AdminProductController extends Controller
 
         $branches = Branch::all();
 
-        $selectedBranchID = $request->input('branch_id') ?? '';
+        if ($request->filled('branch_id')) {
+            session(['selected_branch_id' => $request->input('branch_id')]);
+        }
+        $selectedBranchID = session('selected_branch_id', '');
 
         // Si es una petición fetch (ajax), retornamos solo la tabla
         if ($request->ajax()) {

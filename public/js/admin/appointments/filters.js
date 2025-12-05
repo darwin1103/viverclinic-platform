@@ -348,3 +348,5 @@ if (document.readyState === 'loading') {
 }
 
 window.AdminFiltersModule = AdminFiltersModule;
+
+

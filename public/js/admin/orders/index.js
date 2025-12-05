@@ -64,4 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
             fetchOrders();
         });
     }
+
+    fetchOrders();
+
 });

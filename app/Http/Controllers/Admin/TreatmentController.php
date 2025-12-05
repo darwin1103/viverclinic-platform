@@ -35,9 +35,9 @@ class TreatmentController extends Controller
         }
 
         // 3. Filtro por sucursal
-        if ($request->filled('branch_id')) {
+        if ($request->filled('branch_id') || session('selected_branch_id')) {
             $query->whereHas('branches', function ($branchQuery) use ($request) {
-                $branchQuery->where('branches.id', $request->input('branch_id'));
+                $branchQuery->where('branches.id', $request->input('branch_id') ?? session('selected_branch_id'));
             });
         }
 
@@ -48,7 +48,10 @@ class TreatmentController extends Controller
         // Las sucursales se necesitan para el selector del header y los filtros
         $branches = Branch::all();
 
-        $selectedBranchID = $request->input('branch_id') ?? '';
+        if ($request->filled('branch_id')) {
+            session(['selected_branch_id' => $request->input('branch_id')]);
+        }
+        $selectedBranchID = session('selected_branch_id', '');
 
         return view('admin.treatment.index', compact('treatments', 'branches', 'selectedBranchID'));
     }

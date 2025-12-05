@@ -48,9 +48,9 @@ class ClientController extends Controller
             ->with('patientProfile.branch'); // use select ***
 
         // Filter by branch using the relationship
-        if ($request->filled('branch_id')) {
+        if ($request->filled('branch_id') || session('selected_branch_id')) {
             $query->whereHas('patientProfile', function ($q) use ($request) {
-                $q->where('branch_id', $request->input('branch_id'));
+                $q->where('branch_id', $request->input('branch_id') ?? session('selected_branch_id'));
             });
         }
 
@@ -62,7 +62,10 @@ class ClientController extends Controller
 
         $branches = Branch::all();
 
-        $selectedBranchID = $request->input('branch_id') ?? '';
+        if ($request->filled('branch_id')) {
+            session(['selected_branch_id' => $request->input('branch_id')]);
+        }
+        $selectedBranchID = session('selected_branch_id', '');
 
         return view('admin.client.index', compact('clients', 'branches', 'selectedBranchID'));
     }

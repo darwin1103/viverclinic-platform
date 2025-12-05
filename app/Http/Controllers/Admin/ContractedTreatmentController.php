@@ -28,6 +28,9 @@ class ContractedTreatmentController extends Controller
         // Filter by branch
         if ($request->filled('branch_id')) {
             $query->where('branch_id', $request->branch_id);
+        }elseif(session('selected_branch_id')){
+            $query->where('branch_id', session('selected_branch_id'));
+
         }
 
         // Filter by treatment
@@ -42,7 +45,10 @@ class ContractedTreatmentController extends Controller
 
         $branches = Branch::all();
 
-        $selectedBranchID = $request->input('branch_id') ?? '';
+        if ($request->filled('branch_id')) {
+            session(['selected_branch_id' => $request->input('branch_id')]);
+        }
+        $selectedBranchID = session('selected_branch_id', '');
 
         return view('admin.contracted-treatment.index', compact(
             'contractedTreatments',

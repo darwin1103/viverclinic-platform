@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
@@ -80,4 +81,14 @@ class OrderController extends Controller
         return redirect()->route('admin.orders.show', $order)
             ->with('success', 'El estado de la orden se ha actualizado correctamente.');
     }
+
+    public function downloadReceipt(Order $order)
+    {
+        if (!$order->payment_receipt || !Storage::exists($order->payment_receipt)) {
+            abort(404, 'Comprobante no encontrado.');
+        }
+
+        return Storage::response($order->payment_receipt);
+    }
+
 }

@@ -76,6 +76,15 @@
                     <p class="mb-1"><strong>Referencia:</strong> {{ $order->payment_reference ?? 'N/A' }}</p>
                     <p class="mb-1"><strong>Método:</strong> {{ $order->payment_method ?? 'N/A' }}</p>
                     <p class="mb-1"><strong>Fecha:</strong> {{ $order->created_at->format('d/m/Y h:i a') }}</p>
+
+                    @if($order->payment_receipt)
+                        <div class="mt-3 pt-2 border-top">
+                            <a href="{{ route('admin.orders.receipt', $order->id) }}" target="_blank" class="btn btn-sm btn-outline-info w-100">
+                                <i class="bi bi-file-earmark-image"></i> Ver Comprobante
+                            </a>
+                        </div>
+                    @endif
+
                 </div>
             </div>
 

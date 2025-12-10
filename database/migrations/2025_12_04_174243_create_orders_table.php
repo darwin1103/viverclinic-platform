@@ -33,6 +33,7 @@ return new class extends Migration
             $table->string('document_number')->nullable();
             $table->string('financial_institution_code')->nullable();
             $table->string('payment_description', 30)->nullable();
+            $table->string('payment_receipt')->nullable();
 
             $table->timestamps();
         });

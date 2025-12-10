@@ -127,4 +127,6 @@ Route::middleware(['auth', 'verified', 'role:SUPER_ADMIN|OWNER'])->prefix('admin
     Route::get('/manual-sales/patients', [ManualSaleController::class, 'patients'])->name('manual-sales.patients'); // AJAX JSON
     Route::post('/manual-sales', [ManualSaleController::class, 'store'])->name('manual-sales.store');
 
+    Route::get('orders/{order}/receipt', [OrderController::class, 'downloadReceipt'])->name('orders.receipt');
+
 });

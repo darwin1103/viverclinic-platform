@@ -83,6 +83,7 @@ class ManualSaleController extends Controller
             'user_id' => 'required|exists:users,id',
             'payment_method' => 'required|in:Efectivo,Punto de Venta,Transferencia Bancaria',
             'items' => 'required|json',
+            'payment_receipt' => 'nullable|image|max:20480', // Max 20MB
         ], [
             // Mensajes para la Sucursal
             'branch_id.required' => 'La sucursal es obligatoria para realizar la venta.',
@@ -99,6 +100,9 @@ class ManualSaleController extends Controller
             // Mensajes para los Ítems (Carrito)
             'items.required' => 'El carrito de compras no puede estar vacío.',
             'items.json' => 'Ocurrió un error con el formato de los productos enviados.',
+
+            'payment_receipt.image' => 'El comprobante debe ser una imagen (jpg, png, etc).',
+            'payment_receipt.max' => 'El comprobante no debe pesar más de 20MB.',
         ]);
 
         $itemsData = json_decode($request->items, true);
@@ -116,6 +120,14 @@ class ManualSaleController extends Controller
         DB::beginTransaction();
 
         try {
+
+            // 2. Lógica de Subida (Antes de crear la orden)
+            $receiptPath = null;
+            if ($request->hasFile('payment_receipt')) {
+                // Se guarda en storage/app/payment-receipts (No accesible públicamente)
+                $receiptPath = $request->file('payment_receipt')->store('payment-receipts');
+            }
+
             // 1. Crear Orden
             $order = Order::create([
                 'user_id' => $patient->id,
@@ -126,7 +138,8 @@ class ManualSaleController extends Controller
                 'payment_status' => 'APPROVED',
                 'customer_email' => $patient->email,
                 'currency' => 'COP',
-                'description' => 'Venta en mostrador (Admin)',
+                'description' => 'Venta en mostrador',
+                'payment_receipt' => $receiptPath,
             ]);
 
             $total = 0;

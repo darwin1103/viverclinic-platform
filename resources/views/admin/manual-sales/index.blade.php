@@ -45,7 +45,7 @@
                 </div>
                 <div class="card-body d-flex flex-column">
 
-                    <form id="sale-form" action="{{ route('admin.manual-sales.store') }}" method="POST">
+                    <form id="sale-form" action="{{ route('admin.manual-sales.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
                         {{-- Input Oculto para Branch (se sincroniza con JS) --}}
@@ -74,6 +74,12 @@
                                 <option value="Punto de Venta">Punto de Venta</option>
                                 <option value="Transferencia Bancaria">Transferencia Bancaria</option>
                             </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="payment_receipt" class="form-label fw-bold">Comprobante de Pago (Opcional)</label>
+                            <input class="form-control" type="file" id="payment_receipt" name="payment_receipt" accept="image/*">
+                            <div class="form-text text-muted">Formatos: JPG, PNG. Máx: 2MB.</div>
                         </div>
 
                         <hr>

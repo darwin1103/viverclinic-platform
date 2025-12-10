@@ -127,7 +127,7 @@
         Configuración
       </li>
       <li>
-        <a href="#" class="nav-link">
+        <a href="{{ route('admin.settings.index') }}" class="nav-link @if(Route::is('admin.settings.*')) active @endif">
             <i class="bi bi-gear me-2"></i>
             Configuración
         </a>

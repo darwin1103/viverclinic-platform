@@ -70,7 +70,7 @@
                 !Route::is('registration-by-branch.create') &&
                 !Route::is('client.informed-consent.create')
             )
-            <div class="container">
+            <div class="container-fluid">
                 <a href="{{ route('dashboard') }}" class="text-decoration-none">
                     <i class="bi bi-arrow-left"></i>
                     Volver al dashboard

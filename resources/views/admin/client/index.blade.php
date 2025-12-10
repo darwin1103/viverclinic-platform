@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 @section('content')
-<div class="container">
+<div class="container-fluid">
     <div class="row">
         <div class="col-12 col-md-6 col-lg-4">
             <h1>Clientes</h1>
         </div>
-        <div class="col-12 col-md-6 col-lg-8 text-end" style="align-content: center;">
+        <div class="col-12 col-md-6 col-lg-8 text-center text-md-end mb-3 mb-md-0" style="align-content: center;">
             <a class="btn btn-primary" href="{{ route('admin.client.create') }}" role="button">
                 <i class="bi bi-plus-circle-fill"></i>&nbsp;Crear nuevo cliente
             </a>

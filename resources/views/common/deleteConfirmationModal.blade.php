@@ -7,7 +7,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="container">
+                <div class="container-fluid">
                     <div class="row">
                         <p class="fs-6 fw-normal">
                             {{ __("Are you sure? This action is permanent and cannot be undone") }}.

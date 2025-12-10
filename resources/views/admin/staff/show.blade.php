@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 @section('content')
-<div class="container">
+<div class="container-fluid">
     <h1>Datos del trabajador</h1>
 
     <div class="tabset mx-2">

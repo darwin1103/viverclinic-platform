@@ -11,7 +11,7 @@
     }
 </style>
 @endpush
-<div class="container">
+<div class="container-fluid">
     <div class="row">
         <div class="col-12 d-flex justify-content-center align-items-center">
             <div class="card w-100">

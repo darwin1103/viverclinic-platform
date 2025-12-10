@@ -3,7 +3,7 @@
         <div class="modal-content">
             <div class="modal-body" style="position: relative;">
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; top: 20px; right: 25px;"></button>
-                <div class="container">
+                <div class="container-fluid">
                     <div class="row text-center">
                         <div class="container-fluid">
                             <p class="fs-2 fw-bold center mb-2">{{__('Join')}}</p>

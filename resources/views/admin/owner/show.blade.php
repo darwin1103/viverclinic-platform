@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 @section('content')
-<div class="container">
+<div class="container-fluid">
     <h1>Datos del propietario</h1>
 
     <x-admin.owner.show.basic-data

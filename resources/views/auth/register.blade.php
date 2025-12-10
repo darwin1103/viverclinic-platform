@@ -1,8 +1,8 @@
 @extends('layouts.app')
 @section('content')
-<div class="container">
+<div class="container-fluid">
     <div class="row justify-content-center">
-        <div class="col-12 col-md-5">
+        <div class="col-12 col-lg-8">
             <div class="card shadow">
                 <div class="card-body my-5">
                     <form method="POST" action="{{ route('register') }}">

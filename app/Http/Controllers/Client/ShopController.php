@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 
 class ShopController extends Controller
 {
@@ -70,41 +71,72 @@ class ShopController extends Controller
         $user = Auth::user();
         $branchId = $user->patientProfile->branch->id;
 
-        // Re-validar datos que vienen del form oculto o sesión
-        // En este ejemplo simple, recibimos arrays de IDs y cantidades del form de checkout
+        // 1. Validaciones
+        $request->validate([
+            'payment_method' => ['required', 'in:GATEWAY,CASH,TRANSFER'],
+            'payment_receipt' => [
+                'nullable',
+                Rule::requiredIf($request->payment_method === 'TRANSFER'),
+                'image',
+                'max:2048'
+            ],
+            'order_items' => 'required|json'
+        ], [
+            'payment_receipt.required' => 'Debes subir el comprobante para validar la transferencia.',
+            'payment_receipt.image' => 'El archivo debe ser una imagen.',
+        ]);
+
         $items = json_decode($request->input('order_items'), true);
 
         if (!$items) {
-            return redirect()->route('client.shop.index');
+            return redirect()->route('client.shop.index')->with('error', 'Error en el carrito.');
         }
 
         DB::beginTransaction();
 
         try {
-            // 1. Crear Orden
+            // 2. Definir Estados y Datos según Método
+            $status = 'Pago completado'; // Default para GATEWAY
+            $paymentMethodLabel = 'Pasarela de Pagos';
+            $receiptPath = null;
+
+            if ($request->payment_method === 'CASH') {
+                $status = 'Pago por verificar'; // O 'Pendiente de Pago'
+                $paymentMethodLabel = 'Efectivo / Contra Entrega';
+            }
+            elseif ($request->payment_method === 'TRANSFER') {
+                $status = 'Pago por verificar';
+                $paymentMethodLabel = 'Transferencia Bancaria';
+
+                // Subir archivo
+                if ($request->hasFile('payment_receipt')) {
+                    $receiptPath = $request->file('payment_receipt')->store('payment-receipts');
+                }
+            }
+
+            // 3. Crear Orden
             $order = Order::create([
                 'user_id' => $user->id,
                 'branch_id' => $branchId,
-                'total' => 0, // Se calcula abajo
-                'status' => 'Pago completado', // Simulado pago exitoso inmediato
-                'payment_method' => 'Wompi - simulado', // Hardcodeado por ahora
-                'payment_status' => 'Pago completado',
+                'total' => 0,
+                'status' => $status,
+                'payment_method' => $paymentMethodLabel,
+                'payment_status' => ($status === 'Pago completado') ? 'APPROVED' : 'PENDING',
+                'payment_receipt' => $receiptPath, // Guardamos la ruta del archivo
                 'customer_email' => $user->email,
                 'currency' => 'COP',
-                'description' => 'Compra de productos médicos',
+                'description' => 'Compra Web - ' . $paymentMethodLabel,
             ]);
 
             $orderTotal = 0;
 
             foreach ($items as $itemData) {
-                // Bloqueo pesimista para evitar race conditions en stock
                 $product = Product::where('id', $itemData['product_id'])->lockForUpdate()->first();
 
                 if (!$product || $product->stock < $itemData['quantity']) {
                     throw new \Exception("El producto {$product->name} no tiene suficiente stock.");
                 }
 
-                // 2. Crear Item
                 $subtotal = $product->price * $itemData['quantity'];
 
                 OrderItem::create([
@@ -116,20 +148,17 @@ class ShopController extends Controller
                     'subtotal' => $subtotal,
                 ]);
 
-                // 3. Descontar Stock
                 $product->decrement('stock', $itemData['quantity']);
                 $orderTotal += $subtotal;
             }
 
-            // Actualizar total de la orden
             $order->update(['total' => $orderTotal]);
 
             DB::commit();
 
-            // 4. Enviar Email (Queue)
             Mail::to($user->email)->queue(new OrderConfirmation($order));
 
-            return redirect()->route('client.orders.index')->with('success', '¡Compra realizada con éxito!');
+            return redirect()->route('client.orders.index')->with('success', '¡Orden registrada con éxito!');
 
         } catch (\Exception $e) {
             DB::rollBack();

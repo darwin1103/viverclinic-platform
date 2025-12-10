@@ -53,16 +53,14 @@
         <div class="col-12 col-lg-5">
             <div class="card shadow-sm border-primary">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-credit-card"></i> Pago</h5>
+                    <h5 class="mb-0"><i class="bi bi-wallet2"></i> Selecciona Método de Pago</h5>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted mb-4">
-                        Por el momento, solo se crea el pedido para registrarlo en el sistema, cuando se implemente wompi aca se mostrar el formulario de pago.
-                    </p>
-
-                    <form action="{{ route('client.shop.placeOrder') }}" method="POST">
+                    {{-- Agregamos enctype para la subida de archivos --}}
+                    <form action="{{ route('client.shop.placeOrder') }}" method="POST" enctype="multipart/form-data" id="checkout-form">
                         @csrf
-                        {{-- Preparamos data limpia para el backend --}}
+
+                        {{-- Data de items (JSON oculto) --}}
                         @php
                             $orderItemsData = array_map(function($item) {
                                 return [
@@ -73,15 +71,72 @@
                         @endphp
                         <input type="hidden" name="order_items" value="{{ json_encode($orderItemsData) }}">
 
+                        {{-- Opciones de Pago --}}
+                        <div class="d-flex flex-column gap-2 mb-4">
+
+                            <!-- Opción 1: Pasarela (Simulada) -->
+                            <div class="form-check card p-3 border-0">
+                                <input class="form-check-input" type="radio" name="payment_method" id="method_gateway" value="GATEWAY" checked>
+                                <label class="form-check-label w-100 stretched-link fw-bold" for="method_gateway">
+                                    <i class="bi bi-credit-card-2-front"></i> Pasarela de Pago
+                                    <div class="small text-muted fw-normal mt-1">
+                                        Tarjeta de Crédito / Débito (Simulado)
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Opción 2: Efectivo -->
+                            <div class="form-check card p-3 border-0">
+                                <input class="form-check-input" type="radio" name="payment_method" id="method_cash" value="CASH">
+                                <label class="form-check-label w-100 stretched-link fw-bold" for="method_cash">
+                                    <i class="bi bi-cash-coin"></i> Efectivo
+                                    <div class="small text-muted fw-normal mt-1">
+                                        Pagas al retirar el producto en la sucursal.
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Opción 3: Transferencia -->
+                            <div class="form-check card p-3 border-0">
+                                <input class="form-check-input" type="radio" name="payment_method" id="method_transfer" value="TRANSFER">
+                                <label class="form-check-label w-100 fw-bold" for="method_transfer">
+                                    <i class="bi bi-bank"></i> Transferencia Bancaria
+                                    <div class="small text-muted fw-normal mt-1">
+                                        Debes subir el comprobante de pago.
+                                    </div>
+                                </label>
+                            </div>
+
+                            {{-- Sección Oculta para Transferencia --}}
+                            <div id="transfer-details" class="card p-3 border-warning mt-1 d-none bg-warning-subtle">
+                                <h6 class="small fw-bold">Detalles para transferir:</h6>
+                                <p class="small mb-2">
+                                    <p class="m-0">Banco: X</p>
+                                    <p class="m-0">Cuenta: Ahorros</p>
+                                    <p class="m-0">Numero: 123-456789</p>
+                                </p>
+
+                                <label for="payment_receipt" class="form-label small fw-bold">Subir Comprobante (Obligatorio)</label>
+                                <input class="form-control form-control-sm" type="file" id="payment_receipt" name="payment_receipt" accept="image/*">
+                                <div class="form-text small">Formato: JPG, PNG. Máx 2MB.</div>
+                            </div>
+
+                        </div>
+
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                Confirmar y Comprar
+                            <button type="submit" class="btn btn-primary btn-lg" id="btn-confirm">
+                                <span id="btn-text">Pagar Ahora</span> <i class="bi bi-chevron-right"></i>
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="{{ asset('js/client/shop/checkout.js') }}"></script>
+@endpush

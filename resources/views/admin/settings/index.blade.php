@@ -16,7 +16,7 @@
 
             <div class="col-12">
                 <label for="wompi_integrity_secret" class="form-label fw-bold">Wompi Integrity Secret</label>
-                <input type="password" class="form-control" id="wompi_integrity_secret" name="wompi_integrity_secret"
+                <input type="text" class="form-control" id="wompi_integrity_secret" name="wompi_integrity_secret"
                        value="{{ $wompiIntegritySecret }}" placeholder="prod_integrity_...">
             </div>
 

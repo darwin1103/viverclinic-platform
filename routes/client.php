@@ -40,6 +40,9 @@ Route::middleware(['auth', 'verified', 'role:PATIENT'])->name('client.')->group(
     Route::get('/my-orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/my-orders/{order}', [OrderController::class, 'show'])->name('orders.show');
 
+    Route::get('/payment/result', [ShopController::class, 'wompiResult'])
+        ->name('payment.result');
+
 });
 
 Route::post('/appointments/available-slots', [ScheduleAppointmentController::class, 'availableSlots'])

@@ -75,15 +75,17 @@
                         <div class="d-flex flex-column gap-2 mb-4">
 
                             <!-- Opción 1: Pasarela (Simulada) -->
+                            @if(isset($wompiData))
                             <div class="form-check card p-3 border-0">
                                 <input class="form-check-input" type="radio" name="payment_method" id="method_gateway" value="GATEWAY" checked>
                                 <label class="form-check-label w-100 stretched-link fw-bold" for="method_gateway">
-                                    <i class="bi bi-credit-card-2-front"></i> Pasarela de Pago
+                                    <i class="bi bi-credit-card-2-front"></i> Pagar en Línea (Wompi)
                                     <div class="small text-muted fw-normal mt-1">
-                                        Tarjeta de Crédito / Débito (Simulado)
+                                        PSE, Tarjetas de Crédito, Nequi, Bancolombia.
                                     </div>
                                 </label>
                             </div>
+                            @endif
 
                             <!-- Opción 2: Efectivo -->
                             <div class="form-check card p-3 border-0">
@@ -123,12 +125,34 @@
 
                         </div>
 
-                        <div class="d-grid gap-2">
+                        <div class="d-grid gap-2" id="standard-submit-container">
                             <button type="submit" class="btn btn-primary btn-lg" id="btn-confirm">
                                 <span id="btn-text">Pagar Ahora</span> <i class="bi bi-chevron-right"></i>
                             </button>
                         </div>
                     </form>
+
+                    {{-- BOTÓN WOMPI (Formulario independiente generado por Widget) --}}
+                    @if(isset($wompiData))
+                    <div id="wompi-widget-container" class="mt-3">
+                        <form>
+                            <script
+                                src="https://checkout.wompi.co/widget.js"
+                                data-render="button"
+                                data-public-key="{{ $wompiData['public_key'] }}"
+                                data-currency="{{ $wompiData['currency'] }}"
+                                data-amount-in-cents="{{ $wompiData['amount_in_cents'] }}"
+                                data-reference="{{ $wompiData['reference'] }}"
+                                data-signature:integrity="{{ $wompiData['signature'] }}"
+                                data-redirect-url="{{ $wompiData['redirect_url'] }}"
+                                data-customer-data:email="{{ Auth::user()->email }}"
+                                data-customer-data:full-name="{{ Auth::user()->name }}"
+                                >
+                            </script>
+                        </form>
+                    </div>
+                    @endif
+
                 </div>
             </div>
         </div>

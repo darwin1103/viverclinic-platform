@@ -19,6 +19,7 @@ class BranchTreatment extends Model
         'price',
         'big_zones',
         'mini_zones',
+        'allow_installments',
     ];
 
     // Relación opcional para acceder al tratamiento desde un paquete
@@ -31,5 +32,10 @@ class BranchTreatment extends Model
     public function branch()
     {
         return $this->belongsTo(Branch::class);
+    }
+
+    public function installments()
+    {
+        return $this->hasMany(TreatmentInstallment::class);
     }
 }

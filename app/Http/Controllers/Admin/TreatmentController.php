@@ -151,6 +151,16 @@ class TreatmentController extends Controller
             'price_additional_zone' => 'required|numeric|min:0',
             'price_additional_mini_zone' => 'required|numeric|min:0',
             'branches' => 'nullable|array',
+            'branches.*.packages.*.installments' => [
+                'nullable',
+                'array',
+                // Validación personalizada: count(installments) <= sessions
+                function ($attribute, $value, $fail) use ($request) {
+                    if (count($value) > $request->input('sessions')) {
+                        $fail('El número de cuotas no puede ser mayor que la cantidad de sesiones (' . $request->input('sessions') . ').');
+                    }
+                },
+            ],
             'branches.*.packages' => 'nullable|array',
             'branches.*.packages.*.name' => 'required|string|max:255',
             'branches.*.packages.*.price' => 'required|numeric|min:0',
@@ -168,18 +178,33 @@ class TreatmentController extends Controller
 
         $treatment = Treatment::create($treatmentData);
 
-        // Guardar los paquetes
+        // Guardar Paquetes y Cuotas
         if (isset($validated['branches'])) {
             foreach ($validated['branches'] as $branchId => $branchData) {
                 if (isset($branchData['packages'])) {
                     foreach ($branchData['packages'] as $packageData) {
-                        $treatment->packages()->create([
+
+                        $allowInstallments = isset($packageData['allow_installments']) && $packageData['allow_installments'] == '1';
+
+                        $package = $treatment->packages()->create([
                             'branch_id' => $branchId,
                             'name' => $packageData['name'],
                             'price' => $packageData['price'],
                             'big_zones' => $packageData['big_zones'],
                             'mini_zones' => $packageData['mini_zones'],
+                            'allow_installments' => $allowInstallments,
                         ]);
+
+                        // Guardar Cuotas si aplica
+                        if ($allowInstallments && isset($packageData['installments'])) {
+                            $i = 1;
+                            foreach ($packageData['installments'] as $instData) {
+                                $package->installments()->create([
+                                    'installment_number' => $i++,
+                                    'price' => $instData['price']
+                                ]);
+                            }
+                        }
                     }
                 }
             }
@@ -279,7 +304,9 @@ class TreatmentController extends Controller
         ];
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:treatments,name',
+            // CORRECCIÓN AQUÍ: Concatenamos el ID del tratamiento al final de la regla unique
+            'name' => 'required|string|max:255|unique:treatments,name,' . $treatment->id,
+
             'description' => 'required|string',
             'sessions' => 'required|integer|min:1',
             'days_between_sessions' => 'required|integer|min:0',
@@ -294,6 +321,18 @@ class TreatmentController extends Controller
             'branches.*.packages.*.price' => 'required|numeric|min:0',
             'branches.*.packages.*.big_zones' => 'required|integer|min:0',
             'branches.*.packages.*.mini_zones' => 'required|integer|min:0',
+            'branches.*.packages.*.allow_installments' => 'nullable|boolean',
+            'branches.*.packages.*.installments' => [
+                'nullable',
+                'array',
+                function ($attribute, $value, $fail) use ($request) {
+                    if (count($value) > $request->input('sessions')) {
+                        $fail('El número de cuotas no puede ser mayor que la cantidad de sesiones.');
+                    }
+                },
+            ],
+            'branches.*.packages.*.installments.*.price' => 'required_with:branches.*.packages.*.installments|numeric|min:0',
+
             'terms_conditions' => 'nullable|string',
         ], $messages, $attributes);
 
@@ -306,20 +345,37 @@ class TreatmentController extends Controller
         }
         $treatment->update($treatmentData);
 
-        // La forma más sencilla de sincronizar: borrar los antiguos y crear los nuevos.
-        $treatment->packages()->delete();
+        // Actualizar Paquetes (Estrategia: Borrar y recrear para limpiar asociaciones complejas)
+        $treatment->packages()->each(function($pkg) {
+            $pkg->installments()->delete(); // Borrar cuotas viejas
+            $pkg->delete(); // Borrar paquete
+        });
 
         if (isset($validated['branches'])) {
             foreach ($validated['branches'] as $branchId => $branchData) {
                 if (isset($branchData['packages'])) {
                     foreach ($branchData['packages'] as $packageData) {
-                        $treatment->packages()->create([
+
+                        $allowInstallments = isset($packageData['allow_installments']) && $packageData['allow_installments'] == '1';
+
+                        $package = $treatment->packages()->create([
                             'branch_id' => $branchId,
                             'name' => $packageData['name'],
                             'price' => $packageData['price'],
                             'big_zones' => $packageData['big_zones'],
                             'mini_zones' => $packageData['mini_zones'],
+                            'allow_installments' => $allowInstallments,
                         ]);
+
+                        if ($allowInstallments && isset($packageData['installments'])) {
+                            $i = 1;
+                            foreach ($packageData['installments'] as $instData) {
+                                $package->installments()->create([
+                                    'installment_number' => $i++,
+                                    'price' => $instData['price']
+                                ]);
+                            }
+                        }
                     }
                 }
             }

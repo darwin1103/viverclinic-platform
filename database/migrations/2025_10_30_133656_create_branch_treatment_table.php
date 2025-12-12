@@ -19,6 +19,7 @@ return new class extends Migration
             $table->decimal('price', 10, 2)->default(0.00);
             $table->unsignedSmallInteger('big_zones');
             $table->unsignedSmallInteger('mini_zones');
+            $table->boolean('allow_installments')->default(false);
             $table->timestamps();
         });
     }

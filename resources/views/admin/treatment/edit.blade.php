@@ -165,7 +165,7 @@
 @endpush
 
 @push('scripts')
-    <script src="{{ asset('js/admin/treatment/edit.js') }}"></script>
+    <script src="{{ asset('js/admin/treatment/create-edit.js') }}"></script>
     <script type="text/javascript" src="{{ asset('ckeditor/build/ckeditor.js') }}"></script>
     <script type="text/javascript" src="{{ asset('ckeditor/use/script.js') }}"></script>
 @endpush

@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use App\Mail\NewTreatmentContracted;
 use Illuminate\Support\Facades\Mail;
+use App\Models\TreatmentOrder;
+use Illuminate\Support\Facades\DB;
 
 class TreatmentController extends Controller
 {
@@ -48,7 +50,10 @@ class TreatmentController extends Controller
 
         $packages = $treatment->packages()
             ->where('branch_id', $branch->id)
-            ->select('id', 'name', 'price', 'big_zones', 'mini_zones')
+            ->with(['installments' => function($q) {
+                $q->orderBy('installment_number');
+            }])
+            ->select('id', 'name', 'price', 'big_zones', 'mini_zones', 'allow_installments')
             ->get();
 
         $additionalZones = [
@@ -81,119 +86,202 @@ class TreatmentController extends Controller
 
     }
 
-    public function store(StoreTreatmentRequest $request)
+public function store(StoreTreatmentRequest $request)
     {
-
         $validatedData = $request->validated();
-
-        // --- 1. Get Context and Perform Critical Business Logic Validation ---
-
         $user = Auth::user();
-        $branch = $user->patientProfile->branch; // Get branch from the authenticated user
+        $branch = $user->patientProfile->branch;
 
-        // Find the treatment from the submitted ID
-        $treatment = Treatment::find($validatedData['treatment_id']);
+        // Determinar intención de pago: 'full' (Total) o 'installment' (Cuotas)
+        $paymentType = $request->input('payment_type', 'full');
 
-        // A) Validate that the treatment exists
-        if (!$treatment) {
-            // Throw an exception that will redirect back with an error message
-            throw ValidationException::withMessages([
-                'treatment_id' => 'El tratamiento seleccionado no es válido.'
-            ]);
-        }
+        DB::beginTransaction();
 
-        // B) Validate that all submitted packages belong to this treatment and branch
-        $submittedPackageIds = array_keys($validatedData['package'] ?? []);
-
-        $validPackages = $treatment->packages()
-            ->where('branch_id', $branch->id)
-            ->whereIn('id', $submittedPackageIds)
-            ->get()
-            ->keyBy('id'); // keyBy('id') is great for easy lookups
-
-        if (count($submittedPackageIds) !== $validPackages->count()) {
-             throw ValidationException::withMessages([
-                'package' => 'Uno o más de los paquetes seleccionados no son válidos para este tratamiento o sucursal.'
-            ]);
-        }
-
-
-        // --- 2. Process and Prepare Data for Storage ---
-
-        // A) Merge "another zone" fields into the selected zones array
-        $selectedZones = $validatedData['selected_zones'] ?? ['big' => [], 'mini' => []];
-        if (!empty($validatedData['another_big_zone'])) {
-            $selectedZones['big'][] = $validatedData['another_big_zone'];
-        }
-        if (!empty($validatedData['another_mini_zone'])) {
-            $selectedZones['mini'][] = $validatedData['another_mini_zone'];
-        }
-
-        // B) Calculate total price and build the data snapshots for JSON columns
-        $totalPrice = 0;
-        $contractedPackages = [];
-        $contractedAdditionals = [];
-
-        // Calculate from main packages
-        foreach (($validatedData['package'] ?? []) as $id => $quantity) {
-            $package = $validPackages->get($id);
-            $priceAtPurchase = $package->price * $quantity;
-            $totalPrice += $priceAtPurchase;
-
-            $contractedPackages[] = [
-                'id' => $package->id,
-                'name' => $package->name,
-                'quantity' => (int)$quantity,
-                'price_at_purchase' => $package->price
-            ];
-        }
-
-        // Calculate from additional zones (assuming prices are fixed or in a config)
-        // For this example, let's use the prices from your original code.
-        $additionalPrices = ['mini' => $treatment->price_additional_mini_zone, 'big' => $treatment->price_additional_zone];
-        $additionalNames = ['mini' => 'Mini zona adicional', 'big' => 'Zona grande adicional'];
-
-        foreach (($validatedData['additional'] ?? []) as $type => $quantity) {
-            $priceAtPurchase = $additionalPrices[$type] * $quantity;
-            $totalPrice += $priceAtPurchase;
-
-             $contractedAdditionals[] = [
-                'id' => $type, // 'mini' or 'big'
-                'name' => $additionalNames[$type],
-                'quantity' => (int)$quantity,
-                'price_at_purchase' => $additionalPrices[$type]
-            ];
-        }
-
-        // --- 3. Create the Database Record ---
-
-        $contractedTreatment = ContractedTreatment::create([
-            'user_id' => $user->id,
-            'branch_id' => $branch->id,
-            'treatment_id' => $treatment->id,
-            'contracted_packages' => $contractedPackages,
-            'contracted_additionals' => $contractedAdditionals,
-            'selected_zones' => $selectedZones,
-            'total_price' => $totalPrice,
-            'status' => 'Pending', // Default status
-            'sessions' => $treatment->sessions,
-            'days_between_sessions' => $treatment->days_between_sessions,
-            'terms_acepted' => ($validatedData['termsConditions'] == 1) ? true : false,
-            'is_pregnant' => (isset($validatedData['notPregnant']) && $validatedData['notPregnant'] == 1) ? true : false,
-        ]);
-
-        // Usamos 'queue' porque el mailable implementa ShouldQueue.
-        // Esto evita que el usuario espere a que se envíe el mail para ver la respuesta.
         try {
-            Mail::to($user)->queue(new NewTreatmentContracted($contractedTreatment));
+            // --- 1. Validar y Obtener Paquetes ---
+            $treatment = Treatment::findOrFail($validatedData['treatment_id']);
+            $submittedPackageIds = array_keys($validatedData['package'] ?? []);
+
+            // Traemos paquetes con sus cuotas
+            $validPackages = $treatment->packages()
+                ->where('branch_id', $branch->id)
+                ->whereIn('id', $submittedPackageIds)
+                ->with(['installments' => function($q) {
+                    $q->orderBy('installment_number');
+                }])
+                ->get()
+                ->keyBy('id');
+
+            if (count($submittedPackageIds) !== $validPackages->count()) {
+                throw ValidationException::withMessages(['package' => 'Paquete seleccionado no válido.']);
+            }
+
+            // --- 2. Calcular Totales y Estructuras JSON ---
+            $totalContractPrice = 0;
+            $contractedPackages = [];
+            $contractedAdditionals = [];
+
+            // A) Paquetes
+            foreach (($validatedData['package'] ?? []) as $id => $quantity) {
+                $pkg = $validPackages->get($id);
+                $lineTotal = $pkg->price * $quantity;
+                $totalContractPrice += $lineTotal;
+
+                $contractedPackages[] = [
+                    'id' => $pkg->id,
+                    'name' => $pkg->name,
+                    'quantity' => (int)$quantity,
+                    'price_at_purchase' => $pkg->price
+                ];
+            }
+
+            // B) Adicionales
+            // (Asumimos precios fijos definidos en el tratamiento)
+            $additionalPrices = ['mini' => $treatment->price_additional_mini_zone, 'big' => $treatment->price_additional_zone];
+            $additionalNames = ['mini' => 'Mini zona adicional', 'big' => 'Zona grande adicional'];
+
+            foreach (($validatedData['additional'] ?? []) as $type => $quantity) {
+                if($quantity > 0) {
+                    $lineTotal = $additionalPrices[$type] * $quantity;
+                    $totalContractPrice += $lineTotal;
+
+                    $contractedAdditionals[] = [
+                        'id' => $type,
+                        'name' => $additionalNames[$type],
+                        'quantity' => (int)$quantity,
+                        'price_at_purchase' => $additionalPrices[$type]
+                    ];
+                }
+            }
+
+            // C) Zonas Seleccionadas
+            $selectedZones = $validatedData['selected_zones'] ?? ['big' => [], 'mini' => []];
+            if (!empty($validatedData['another_big_zone'])) $selectedZones['big'][] = $validatedData['another_big_zone'];
+            if (!empty($validatedData['another_mini_zone'])) $selectedZones['mini'][] = $validatedData['another_mini_zone'];
+
+
+            // --- 3. Crear el Registro Principal (Contrato) ---
+            $contractedTreatment = ContractedTreatment::create([
+                'user_id' => $user->id,
+                'branch_id' => $branch->id,
+                'treatment_id' => $treatment->id,
+                'contracted_packages' => $contractedPackages,
+                'contracted_additionals' => $contractedAdditionals,
+                'selected_zones' => $selectedZones,
+                'total_price' => $totalContractPrice,
+                'status' => 'Pending',
+                'sessions' => $treatment->sessions,
+                'days_between_sessions' => $treatment->days_between_sessions,
+                'terms_acepted' => ($validatedData['termsConditions'] == 1),
+                'is_pregnant' => ($validatedData['notPregnant'] ?? 0) == 1,
+            ]);
+
+
+            // --- 4. Generar Cuotas en Base de Datos ---
+            // Iteramos los paquetes comprados para generar las cuotas asociadas al contrato
+            foreach (($validatedData['package'] ?? []) as $id => $quantity) {
+                $pkg = $validPackages->get($id);
+
+                // Solo si el paquete permite cuotas y tiene definición de ellas
+                if ($pkg->allow_installments && $pkg->installments->isNotEmpty()) {
+                    foreach ($pkg->installments as $inst) {
+                        // Creamos la cuota en el contrato multiplicada por la cantidad de paquetes
+                        $contractedTreatment->installments()->create([
+                            'installment_number' => $inst->installment_number,
+                            'price' => $inst->price * $quantity,
+                            'status' => 'PENDING'
+                        ]);
+                    }
+                }
+            }
+
+
+            // --- 5. PROCESAMIENTO DEL PAGO INICIAL ---
+
+            $amountToPay = 0;
+            $paymentDescription = '';
+            $paidInstallmentIds = [];
+            $hasInstallmentsConfigured = $contractedTreatment->installments()->exists();
+
+            if ($paymentType === 'installment' && $hasInstallmentsConfigured) {
+                // Caso: Pago de Primera Cuota
+
+                // a) Sumar 1ra cuota de paquetes que TIENEN cuotas
+                $firstInstallments = $contractedTreatment->installments()
+                    ->where('installment_number', 1)
+                    ->get();
+
+                $amountToPay += $firstInstallments->sum('price');
+
+                // Marcar estas cuotas como pagadas en memoria (para la orden)
+                foreach ($firstInstallments as $inst) {
+                    $inst->update(['status' => 'PAID', 'paid_at' => now()]);
+                    $paidInstallmentIds[] = $inst->id;
+                }
+
+                // b) Sumar PRECIO TOTAL de paquetes que NO tienen cuotas
+                // Recorremos lo comprado nuevamente para detectar qué no generó cuota
+                foreach (($validatedData['package'] ?? []) as $id => $quantity) {
+                    $pkg = $validPackages->get($id);
+                    if (!$pkg->allow_installments || $pkg->installments->isEmpty()) {
+                        // Este paquete se debe pagar full ahora mismo
+                        $amountToPay += ($pkg->price * $quantity);
+                    }
+                }
+
+                // c) Sumar PRECIO TOTAL de Adicionales
+                foreach (($validatedData['additional'] ?? []) as $type => $quantity) {
+                    if($quantity > 0) {
+                        $amountToPay += ($additionalPrices[$type] * $quantity);
+                    }
+                }
+
+                $paymentDescription = "Pago Inicial (Cuotas + Saldos)";
+
+            } else {
+                // Caso: Pago Total (Full)
+                // O fallback si el usuario intentó pagar cuotas en un paquete que no tiene
+
+                $amountToPay = $totalContractPrice;
+                $paymentDescription = "Pago Total de Contrato";
+
+                // Actualizar estado del contrato a Pagado
+                $contractedTreatment->update(['status' => 'Paid']);
+
+                // Si existen cuotas generadas, marcarlas todas como pagadas
+                if ($hasInstallmentsConfigured) {
+                    foreach ($contractedTreatment->installments as $inst) {
+                        $inst->update(['status' => 'PAID', 'paid_at' => now()]);
+                        $paidInstallmentIds[] = $inst->id;
+                    }
+                }
+            }
+
+            // --- 6. Crear Orden de Pago ---
+            TreatmentOrder::create([
+                'user_id' => $user->id,
+                'branch_id' => $branch->id,
+                'contracted_treatment_id' => $contractedTreatment->id,
+                'total' => $amountToPay,
+                'status' => 'PAID', // Asumimos pago exitoso inmediato
+                'payment_method' => 'Initial Purchase',
+                'payment_description' => $paymentDescription,
+                'paid_installments_ids' => $paidInstallmentIds
+            ]);
+
+            DB::commit();
+
+            // Enviar correo
+            try {
+                Mail::to($user)->queue(new NewTreatmentContracted($contractedTreatment));
+            } catch (\Exception $e) { \Log::error('Mail error: ' . $e->getMessage()); }
+
+            return redirect()->route('client.contracted-treatment.index')
+                ->with('success', '¡Tratamiento contratado y pago registrado correctamente!');
+
         } catch (\Exception $e) {
-            // Opcional: Loguear el error si falla el envío para no romper el flujo de compra
-            \Log::error('Error enviando correo de compra: ' . $e->getMessage());
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Error en la compra: ' . $e->getMessage()])->withInput();
         }
-
-        // --- 4. Redirect with a Success Message ---
-
-        // Redirigir a una página de confirmación o de pago
-        return redirect()->route('client.contracted-treatment.index')->with('success', '¡Has seleccionado tu tratamiento! El siguiente paso es agendar tu cita.');
     }
 }

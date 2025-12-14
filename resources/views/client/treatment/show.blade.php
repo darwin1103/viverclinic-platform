@@ -24,10 +24,11 @@
                         </div>
                     @endif
 
-                    <form method="POST" class="row g-4" action="{{ route('client.treatment.store') }}">
+                    <form method="POST" class="row g-4" action="{{ route('client.treatment.store') }}" id="purchaseForm">
                         @csrf
 
                         <input type="hidden" name="treatment_id" value="{{ $treatment->id }}">
+                        <input type="hidden" name="payment_type" id="paymentTypeInput" value="full">
 
                         <!-- SECCIÓN 1: ESCOGER PAQUETES Y ZONAS ADICIONALES -->
                         <div class="col-12">
@@ -127,8 +128,8 @@
                             </div>
 
                             <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary btn-lg" id="payment-button-container" disabled>
-                                    Pagar
+                                <button type="button" class="btn btn-primary btn-lg" id="btn-open-payment-modal" disabled>
+                                    Continuar al Pago
                                 </button>
                             </div>
                         </div>
@@ -161,6 +162,45 @@
     </div>
 </div>
 
+
+{{-- NUEVO: MODAL DE SELECCIÓN DE PAGO --}}
+<div class="modal fade" id="paymentSelectionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Selecciona tu forma de pago</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">Puedes pagar el total del tratamiento ahora o pagar la primera cuota para comenzar.</p>
+
+                <div class="d-grid gap-3">
+                    {{-- Botón Pago Total --}}
+                    <button type="button" class="btn btn-outline-success p-3 d-flex justify-content-between align-items-center" onclick="submitPurchase('full')">
+                        <div class="text-start">
+                            <div class="fw-bold">Pagar Totalidad</div>
+                            <small class="text-muted">Acceso inmediato a agendar todas las sesiones</small>
+                        </div>
+                        <span class="fs-5 fw-bold" id="modal-total-amount">$0</span>
+                    </button>
+
+                    {{-- Botón Pago Cuotas (Se oculta vía JS si no aplica) --}}
+                    <button type="button"
+                            class="btn btn-outline-primary p-3 d-flex justify-content-between align-items-center"
+                            id="btn-pay-installment"
+                            onclick="submitPurchase('installment')"
+                            style="display: none;">
+                        <div class="text-start">
+                            <div class="fw-bold">Pagar 1ª Cuota</div>
+                            <small class="text-muted">Paga el resto sesión a sesión</small>
+                        </div>
+                        <span class="fs-5 fw-bold" id="modal-installment-amount">$0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -170,4 +210,12 @@
     </script>
 
     <script type="text/javascript" src="{{ asset('js/client/treatment/show/form.js') }}"></script>
+
+    <script>
+        // Script inline para el envío del formulario
+        function submitPurchase(type) {
+            document.getElementById('paymentTypeInput').value = type;
+            document.getElementById('purchaseForm').submit();
+        }
+    </script>
 @endpush

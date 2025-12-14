@@ -57,4 +57,22 @@ class ContractedTreatment extends Model
     {
         return $this->hasMany(Appointment::class);
     }
+
+    // Relación con las cuotas contratadas
+    public function installments(): HasMany
+    {
+        return $this->hasMany(ContractedTreatmentInstallment::class);
+    }
+
+    // Relación con las órdenes de pago
+    public function orders(): HasMany
+    {
+        return $this->hasMany(TreatmentOrder::class);
+    }
+
+    // Helper para saber si tiene cuotas
+    public function hasInstallments(): bool
+    {
+        return $this->installments()->exists();
+    }
 }

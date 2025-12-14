@@ -8,17 +8,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Tabla de Ordenes
-        Schema::create('orders', function (Blueprint $table) {
+        Schema::create('treatment_orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('branch_id')->constrained()->onDelete('cascade'); // Para reporte por sucursal
+            $table->foreignId('branch_id')->constrained()->onDelete('cascade');
+            $table->foreignId('contracted_treatment_id')->constrained()->onDelete('cascade');
 
             // Totales
             $table->decimal('total', 12, 2);
-            $table->string('status')->default('PENDING'); // PENDING, PAID, DELIVERED, CANCELED
+            $table->string('status')->default('PENDING'); // PENDING, PAID, CANCELED
 
-            // Detalles de Pago (Nullables)
+            // Detalles de Pago
             $table->string('payment_method')->nullable();
             $table->string('payment_status')->nullable();
             $table->string('payment_reference')->nullable(); // Referencia interna o de pasarela
@@ -35,25 +35,15 @@ return new class extends Migration
             $table->string('payment_description', 30)->nullable();
             $table->string('payment_receipt')->nullable();
 
-            $table->timestamps();
-        });
+            // Meta data para saber qué se pagó (Snapshot)
+            $table->json('paid_installments_ids')->nullable(); // IDs de las cuotas pagadas en esta orden
 
-        // Tabla de Items de la Orden
-        Schema::create('order_items', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
-            $table->foreignId('product_id')->constrained('products'); // No cascade delete para mantener historial
-            $table->string('product_name'); // Guardamos el nombre por si cambia el producto
-            $table->integer('quantity');
-            $table->decimal('unit_price', 12, 2);
-            $table->decimal('subtotal', 12, 2);
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('order_items');
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('treatment_orders');
     }
 };

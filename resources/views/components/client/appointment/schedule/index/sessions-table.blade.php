@@ -1,17 +1,4 @@
-@props(['sessions', 'totalSessions', 'paymentIsUpToDate', 'branchId', 'contractedTreatmentId'])
-
-@php
-    // Find if there's already a future appointment scheduled
-    $futureAppointment = $sessions->first(function ($session) {
-        return is_null($session['attended']) &&
-               isset($session['date']) &&
-               Illuminate\Support\Carbon::parse($session['date'])->isFuture();
-    });
-
-    // Determine the next session in sequence
-    $lastCompletedSessionNumber = $sessions->whereNotNull('attended')->max('session_number') ?? 0;
-    $nextSessionInSequence = $lastCompletedSessionNumber + 1;
-@endphp
+@props(['sessions', 'totalSessions', 'paymentIsUpToDate', 'branchId', 'contractedTreatmentId', 'nextSessionNumber', 'hasFutureAppointment'])
 
 <div class="table-responsive">
     <table class="table align-middle" id="sessionsTable">
@@ -29,11 +16,21 @@
                 @php
                     $session = $sessions->firstWhere('session_number', $i);
                     $isPast = isset($session) && $session['attended'] !== null;
-                    $isNextSession = isset($session) && $session['date'] !== null && $session['attended'] === null;
-                    $canSchedule = $i === $nextSessionInSequence && !$futureAppointment && $paymentIsUpToDate;
-                    $isDisabled = !$isPast && !$isNextSession && !$canSchedule;
-                    $canManageOptions = $isNextSession && Illuminate\Support\Carbon::parse($session['schedule'])->gt(Illuminate\Support\Carbon::now()->addHours(24));
                     $isConfirmed = isset($session) && $session['status'] === 'Confirmada';
+
+                    // La siguiente sesión agendable (basado en lo que envió el controlador)
+                    $isNextSession = ($i === $nextSessionNumber) && !$hasFutureAppointment;
+
+                    // Nueva lógica para saber si puede cancelar/reagendar (más de 24 horas de antelación)
+                    $canManageOptions = false;
+                    if (isset($session) && $session['schedule'] && $session['attended'] === null) {
+                        $canManageOptions = \Carbon\Carbon::parse($session['schedule'])->gt(now()->addHours(24));
+                    }
+
+                    // Solo puede agendar si es la siguiente sesión y el pago está al día
+                    $canSchedule = $isNextSession && $paymentIsUpToDate;
+
+                    $isDisabled = !$isPast && !$canSchedule && !$isConfirmed && !(isset($session) && $session['schedule']);
                 @endphp
                 <tr data-session="{{ $i }}"
                     data-status="{{ $isPast ? ($session['attended'] ? 'ok' : 'bad') : ($isNextSession ? 'scheduled' : 'pending') }}"
@@ -147,7 +144,7 @@
                             <div class="fw-bold">
                                 Cita confirmada
                             </div>
-                        @elseif ($canSchedule && $paymentIsUpToDate)
+                        @elseif ($canSchedule)
                             <button
                                 class="btn btn-sm btn-primary btn-open-scheduler"
                                 data-branch-id="{{ $branchId }}"

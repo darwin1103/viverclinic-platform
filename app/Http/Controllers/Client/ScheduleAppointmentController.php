@@ -30,10 +30,7 @@ class ScheduleAppointmentController extends Controller
             abort(403);
         }
 
-        // Check payment status ***
-
         $contracted_treatment->load(['branch', 'treatment', 'appointments']);
-        $paymentIsUpToDate = true;
 
         $contracted_treatment->appointments->each(function($appointment){
             $appointment->date = Carbon::parse($appointment->schedule)->isoFormat('YYYY-MM-DD');
@@ -47,14 +44,98 @@ class ScheduleAppointmentController extends Controller
 
         Carbon::setLocale('es');
 
+        // --- LÓGICA DE VALIDACIÓN DE PAGOS ---
+
+        // Determinar cuál es la próxima sesión (secuencial)
+        $lastAttended = $contracted_treatment->appointments->where('attended', true)->max('session_number') ?? 0;
+        $nextSessionNumber = $lastAttended + 1;
+
+        // Verificar si existe una cita futura ya agendada (pendiente de asistencia)
+        $hasFutureAppointment = $contracted_treatment->appointments->where('attended', null)->count() > 0;
+
+        $paymentIsUpToDate = false;
+        $nextPaymentAmount = 0;
+        $nextPaymentDescription = '';
+        $canPayInstallment = false;
+
+        $totalRemainingAmount = 0;
+
+        if ($contracted_treatment->status === 'Paid') {
+            // Si está pagado totalmente, todo está al día
+            $paymentIsUpToDate = true;
+            $totalRemainingAmount = 0;
+        } else {
+
+            // Si tiene cuotas definidas
+            if ($contracted_treatment->hasInstallments()) {
+
+                // Buscar la cuota correspondiente a la próxima sesión
+                // Regla: Para agendar sesión N, la cuota N debe estar pagada.
+                // Si N > TotalCuotas, todas las cuotas deben estar pagadas.
+
+                $installments = $contracted_treatment->installments->sortBy('installment_number');
+                $totalInstallments = $installments->count();
+
+                // Identificamos qué cuota bloquea el proceso
+                $targetInstallmentNumber = ($nextSessionNumber > $totalInstallments) ? $totalInstallments : $nextSessionNumber;
+
+                // Verificar si esa cuota (y las anteriores) están pagadas
+                $pendingInstallment = $installments->where('status', 'PENDING')
+                                                   ->where('installment_number', '<=', $targetInstallmentNumber)
+                                                   ->first();
+
+                if (!$pendingInstallment) {
+                    // No hay cuotas pendientes que bloqueen la siguiente sesión
+                    $paymentIsUpToDate = true;
+                } else {
+                    $paymentIsUpToDate = false;
+                    $nextPaymentAmount = $pendingInstallment->price;
+                    $nextPaymentDescription = "Cuota #{$pendingInstallment->installment_number}";
+                    $canPayInstallment = true; // Habilita botón de pagar cuota individual
+                }
+
+                // Sumar todas las cuotas que estén pendientes
+                $totalRemainingAmount = $contracted_treatment->installments
+                    ->where('status', 'PENDING')
+                    ->sum('price');
+
+            } else {
+                // No tiene cuotas, debe pagar el total
+                $paymentIsUpToDate = false; // Porque status no es 'Paid'
+                $nextPaymentAmount = $contracted_treatment->total_price;
+                $nextPaymentDescription = "Pago Total del Tratamiento";
+                $canPayInstallment = false; // Solo pago total
+                $totalRemainingAmount = $contracted_treatment->total_price;
+            }
+        }
+
+        // --- Preparar datos para la vista ---
+
+        // Calcular estadísticas...
+        $attendedCount = $contracted_treatment->appointments->where('attended', true)->count();
+        $missedCount = $contracted_treatment->appointments->whereStrict('attended', false)->count(); // Strict false check
+        $pendingCount = $contracted_treatment->sessions - ($attendedCount + $missedCount);
+
+        // Formatear fechas...
+        $contracted_treatment->appointments->each(function($appointment){
+             $appointment->date = Carbon::parse($appointment->schedule)->isoFormat('YYYY-MM-DD');
+             $appointment->time = Carbon::parse($appointment->schedule)->isoFormat('hh:mm a');
+        });
+
         return view('client.schedule-appointment.index', [
             'contracted_treatment' => $contracted_treatment,
             'paymentIsUpToDate' => $paymentIsUpToDate,
+            'nextPaymentAmount' => $nextPaymentAmount,
+            'nextPaymentDescription' => $nextPaymentDescription,
+            'canPayInstallment' => $canPayInstallment,
+            'nextSessionNumber' => $nextSessionNumber, // Lógica movida al controlador
+            'hasFutureAppointment' => $hasFutureAppointment,
             'totalSessions' => $contracted_treatment->sessions,
             'sessions' => $contracted_treatment->appointments,
             'attendedCount' => $attendedCount,
             'missedCount' => $missedCount,
             'pendingCount' => $pendingCount,
+            'totalRemainingAmount' => $totalRemainingAmount,
         ]);
     }
 

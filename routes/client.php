@@ -6,6 +6,7 @@ use App\Http\Controllers\Client\SaveInformedConsentController;
 use App\Http\Controllers\Client\ScheduleAppointmentController;
 use App\Http\Controllers\Client\ShopController;
 use App\Http\Controllers\Client\TreatmentController as ClientTreatmentController;
+use App\Http\Controllers\Client\TreatmentPaymentController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'role:PATIENT'])->name('client.')->group(function () {
@@ -42,6 +43,8 @@ Route::middleware(['auth', 'verified', 'role:PATIENT'])->name('client.')->group(
 
     Route::get('/payment/result', [ShopController::class, 'wompiResult'])
         ->name('payment.result');
+
+    Route::post('/treatment/pay', [TreatmentPaymentController::class, 'store'])->name('treatment.pay');
 
 });
 

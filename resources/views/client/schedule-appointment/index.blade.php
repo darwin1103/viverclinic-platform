@@ -19,6 +19,12 @@
                     :attendedCount="$attendedCount"
                     :missedCount="$missedCount"
                     :pendingCount="$pendingCount"
+                    :paymentIsUpToDate="$paymentIsUpToDate"
+                    :nextPaymentAmount="$nextPaymentAmount"
+                    :nextPaymentDescription="$nextPaymentDescription"
+                    :contractedTreatmentId="$contracted_treatment->id"
+                    :canPayInstallment="$canPayInstallment"
+                    :totalRemainingAmount="$totalRemainingAmount"
                 />
 
                 @if (!$paymentIsUpToDate)
@@ -36,6 +42,8 @@
                     :paymentIsUpToDate="$paymentIsUpToDate"
                     :branchId="$contracted_treatment->branch->id"
                     :contractedTreatmentId="$contracted_treatment->id"
+                    :nextSessionNumber="$nextSessionNumber"
+                    :hasFutureAppointment="$hasFutureAppointment"
                 />
             </div>
         </div>

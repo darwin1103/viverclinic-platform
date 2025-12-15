@@ -20,23 +20,20 @@ return new class extends Migration
 
             // Detalles de Pago
             $table->string('payment_method')->nullable();
-            $table->string('payment_status')->nullable();
-            $table->string('payment_reference')->nullable(); // Referencia interna o de pasarela
+            $table->string('payment_status')->nullable(); // APPROVED, DECLINED, PENDING
+            $table->string('payment_reference')->nullable(); // Referencia de Wompi
             $table->string('bank_name')->nullable();
             $table->string('payment_source_id')->nullable();
             $table->integer('amount_in_cents')->nullable();
             $table->string('currency')->default('COP')->nullable();
             $table->string('customer_email')->nullable();
-            $table->string('acceptance_token')->nullable();
-            $table->boolean('is_juridical')->default(0)->nullable(); // 0: Natural, 1: Juridica
-            $table->string('document_type')->nullable(); // CC, NIT
-            $table->string('document_number')->nullable();
-            $table->string('financial_institution_code')->nullable();
-            $table->string('payment_description', 30)->nullable();
-            $table->string('payment_receipt')->nullable();
 
-            // Meta data para saber qué se pagó (Snapshot)
-            $table->json('paid_installments_ids')->nullable(); // IDs de las cuotas pagadas en esta orden
+            // Campos específicos
+            $table->string('payment_description', 255)->nullable(); // Aumentado a 255
+            $table->string('payment_receipt')->nullable(); // Ruta del archivo
+
+            // Meta data
+            $table->json('paid_installments_ids')->nullable();
 
             $table->timestamps();
         });

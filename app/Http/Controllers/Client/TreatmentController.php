@@ -86,7 +86,7 @@ class TreatmentController extends Controller
 
     }
 
-public function store(StoreTreatmentRequest $request)
+    public function store(StoreTreatmentRequest $request)
     {
         $validatedData = $request->validated();
         $user = Auth::user();
@@ -196,79 +196,6 @@ public function store(StoreTreatmentRequest $request)
             }
 
 
-            // --- 5. PROCESAMIENTO DEL PAGO INICIAL ---
-
-            $amountToPay = 0;
-            $paymentDescription = '';
-            $paidInstallmentIds = [];
-            $hasInstallmentsConfigured = $contractedTreatment->installments()->exists();
-
-            if ($paymentType === 'installment' && $hasInstallmentsConfigured) {
-                // Caso: Pago de Primera Cuota
-
-                // a) Sumar 1ra cuota de paquetes que TIENEN cuotas
-                $firstInstallments = $contractedTreatment->installments()
-                    ->where('installment_number', 1)
-                    ->get();
-
-                $amountToPay += $firstInstallments->sum('price');
-
-                // Marcar estas cuotas como pagadas en memoria (para la orden)
-                foreach ($firstInstallments as $inst) {
-                    $inst->update(['status' => 'PAID', 'paid_at' => now()]);
-                    $paidInstallmentIds[] = $inst->id;
-                }
-
-                // b) Sumar PRECIO TOTAL de paquetes que NO tienen cuotas
-                // Recorremos lo comprado nuevamente para detectar qué no generó cuota
-                foreach (($validatedData['package'] ?? []) as $id => $quantity) {
-                    $pkg = $validPackages->get($id);
-                    if (!$pkg->allow_installments || $pkg->installments->isEmpty()) {
-                        // Este paquete se debe pagar full ahora mismo
-                        $amountToPay += ($pkg->price * $quantity);
-                    }
-                }
-
-                // c) Sumar PRECIO TOTAL de Adicionales
-                foreach (($validatedData['additional'] ?? []) as $type => $quantity) {
-                    if($quantity > 0) {
-                        $amountToPay += ($additionalPrices[$type] * $quantity);
-                    }
-                }
-
-                $paymentDescription = "Pago Inicial (Cuotas + Saldos)";
-
-            } else {
-                // Caso: Pago Total (Full)
-                // O fallback si el usuario intentó pagar cuotas en un paquete que no tiene
-
-                $amountToPay = $totalContractPrice;
-                $paymentDescription = "Pago Total de Contrato";
-
-                // Actualizar estado del contrato a Pagado
-                $contractedTreatment->update(['status' => 'Paid']);
-
-                // Si existen cuotas generadas, marcarlas todas como pagadas
-                if ($hasInstallmentsConfigured) {
-                    foreach ($contractedTreatment->installments as $inst) {
-                        $inst->update(['status' => 'PAID', 'paid_at' => now()]);
-                        $paidInstallmentIds[] = $inst->id;
-                    }
-                }
-            }
-
-            // --- 6. Crear Orden de Pago ---
-            TreatmentOrder::create([
-                'user_id' => $user->id,
-                'branch_id' => $branch->id,
-                'contracted_treatment_id' => $contractedTreatment->id,
-                'total' => $amountToPay,
-                'status' => 'PAID', // Asumimos pago exitoso inmediato
-                'payment_method' => 'Initial Purchase',
-                'payment_description' => $paymentDescription,
-                'paid_installments_ids' => $paidInstallmentIds
-            ]);
-
             DB::commit();
 
             // Enviar correo
@@ -276,8 +203,8 @@ public function store(StoreTreatmentRequest $request)
                 Mail::to($user)->queue(new NewTreatmentContracted($contractedTreatment));
             } catch (\Exception $e) { \Log::error('Mail error: ' . $e->getMessage()); }
 
-            return redirect()->route('client.contracted-treatment.index')
-                ->with('success', '¡Tratamiento contratado y pago registrado correctamente!');
+            return redirect()->route('client.schedule-appointment.index', ['contracted_treatment' => $contractedTreatment->id])
+                ->with('warning', 'Contrato creado. Por favor realiza el pago para habilitar tus citas.');
 
         } catch (\Exception $e) {
             DB::rollBack();

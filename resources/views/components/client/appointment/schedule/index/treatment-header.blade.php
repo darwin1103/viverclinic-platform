@@ -89,86 +89,213 @@
 
 {{-- MODAL DE PAGO --}}
 @if(!$paymentIsUpToDate)
-<div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl modal-dialog-centered"> <!-- Modal XL -->
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-wallet2 me-2"></i>Realizar Pago</h5>
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-wallet2 me-2"></i>Realizar Pago</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <p class="text-muted mb-4">Seleccione la modalidad de pago para continuar con su tratamiento.</p>
 
-                <div class="d-grid gap-3">
-                    {{-- Opción Pago de Cuota --}}
-                    @if($canPayInstallment && !$isLastInstallment)
-                        <button class="btn btn-outline-primary p-3 text-start d-flex justify-content-between align-items-center btn-pay-action"
-                                data-type="installment"
-                                data-amount="{{ $nextPaymentAmount }}">
-                            <div>
-                                <div class="fw-bold">{{ $nextPaymentDescription }}</div>
-                                <small class="text-muted">Habilita la siguiente sesión</small>
-                            </div>
-                            <span class="fs-5 fw-bold">${{ number_format($nextPaymentAmount, 0, ',', '.') }}</span>
-                        </button>
-                    @endif
+            <form action="{{ route('client.treatment.payment.process') }}" method="POST" enctype="multipart/form-data" id="paymentForm">
+                @csrf
+                <input type="hidden" name="contracted_treatment_id" value="{{ $contractedTreatmentId }}">
 
-                    {{-- Opción Pago Total (Siempre disponible si hay deuda) --}}
-                    <button class="btn btn-outline-success p-3 text-start d-flex justify-content-between align-items-center btn-pay-action"
-                            data-type="full"
-                            data-amount="{{ $totalRemainingAmount }}">
-                        <div>
-                            <div class="fw-bold">
-                                {{ $isLastInstallment ? 'Pagar Cuota Final' : 'Pagar Totalidad Restante' }}
+                <div class="modal-body pt-4">
+                    <div class="row g-0">
+
+                        {{-- COLUMNA IZQUIERDA: QUÉ PAGAR --}}
+                        <div class="col-12 col-lg-5 pe-lg-4 border-end-lg mb-4 mb-lg-0">
+                            <h6 class="text-muted text-uppercase small fw-bold mb-3">1. ¿Qué deseas pagar?</h6>
+
+                            <div class="d-grid gap-3">
+                                {{-- Opción Cuota (Si aplica) --}}
+                                @if($canPayInstallment && !(isset($isLastInstallment) && $isLastInstallment))
+                                    <label class="card p-3 payment-option-card cursor-pointer border-primary shadow-sm">
+                                        <div class="d-flex align-items-center">
+                                            <input type="radio" name="payment_type" value="installment" class="form-check-input me-3" checked onchange="updatePaymentUI('installment', {{ $nextPaymentAmount }})">
+                                            <div class="flex-grow-1">
+                                                <div class="fw-bold text-primary">{{ $nextPaymentDescription }}</div>
+                                                <small class="text-muted">Desbloquea solo la próxima sesión</small>
+                                            </div>
+                                            <div class="fw-bold fs-5">${{ number_format($nextPaymentAmount, 0, ',', '.') }}</div>
+                                        </div>
+                                    </label>
+                                @endif
+
+                                {{-- Opción Total --}}
+                                <label class="card p-3 payment-option-card cursor-pointer {{ (!$canPayInstallment || (isset($isLastInstallment) && $isLastInstallment)) ? 'border-primary shadow-sm' : '' }}">
+                                    <div class="d-flex align-items-center">
+                                        <input type="radio" name="payment_type" value="full" class="form-check-input me-3"
+                                            {{ (!$canPayInstallment || (isset($isLastInstallment) && $isLastInstallment)) ? 'checked' : '' }}
+                                            onchange="updatePaymentUI('full', {{ $totalRemainingAmount }})">
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold text-success">{{ isset($isLastInstallment) && $isLastInstallment ? 'Cuota Final' : 'Totalidad Restante' }}</div>
+                                            <small class="text-muted">Paga todo y olvídate de cuotas</small>
+                                        </div>
+                                        <div class="fw-bold fs-5">${{ number_format($totalRemainingAmount, 0, ',', '.') }}</div>
+                                    </div>
+                                </label>
                             </div>
-                            <small class="text-muted">Habilita todas las sesiones pendientes</small>
+
+                            <div class="mt-4 p-3 rounded">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal:</span>
+                                    <span class="fw-bold" id="ui-subtotal">$0</span>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between fs-5 fw-bold">
+                                    <span>Total a Pagar:</span>
+                                    <span id="ui-total">$0</span>
+                                </div>
+                            </div>
                         </div>
-                        <span class="fs-5 fw-bold">${{ number_format($totalRemainingAmount, 0, ',', '.') }}</span>
-                    </button>
+
+                        {{-- COLUMNA DERECHA: CÓMO PAGAR --}}
+                        <div class="col-12 col-lg-7 ps-lg-4">
+                            <h6 class="text-muted text-uppercase small fw-bold mb-3">2. Método de Pago</h6>
+
+                            <div class="row g-3">
+                                {{-- Wompi --}}
+                                @if(\App\Models\Setting::get('wompi_public_key'))
+                                <div class="col-12 col-md-4">
+                                    <input type="radio" class="btn-check" name="payment_method" id="pm_wompi" value="WOMPI" checked onchange="toggleMethodDetails()">
+                                    <label class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3" for="pm_wompi">
+                                        <i class="bi bi-credit-card-2-front fs-2 mb-2"></i>
+                                        <span>En Línea</span>
+                                        <small class="text-muted" style="font-size:0.7rem">PSE, Tarjetas, Nequi</small>
+                                    </label>
+                                </div>
+                                @endif
+
+                                {{-- Transferencia --}}
+                                <div class="col-12 col-md-4">
+                                    <input type="radio" class="btn-check" name="payment_method" id="pm_transfer" value="TRANSFER" onchange="toggleMethodDetails()">
+                                    <label class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3" for="pm_transfer">
+                                        <i class="bi bi-bank fs-2 mb-2"></i>
+                                        <span>Transferencia</span>
+                                    </label>
+                                </div>
+
+                                {{-- Efectivo --}}
+                                <div class="col-12 col-md-4">
+                                    <input type="radio" class="btn-check" name="payment_method" id="pm_cash" value="CASH" onchange="toggleMethodDetails()">
+                                    <label class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3" for="pm_cash">
+                                        <i class="bi bi-cash-coin fs-2 mb-2"></i>
+                                        <span>Efectivo</span>
+                                        <small class="text-muted" style="font-size:0.7rem">En Sucursal</small>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {{-- DETALLES DINÁMICOS --}}
+                            <div class="mt-4">
+                                {{-- Info Wompi --}}
+                                <div id="info-wompi" class="method-info">
+                                    <div class="alert alert-info border-0 d-flex align-items-center">
+                                        <i class="bi bi-shield-check fs-3 me-3"></i>
+                                        <div>
+                                            Serás redirigido a la pasarela de pagos segura de <strong>Wompi Bancolombia</strong>.
+                                            El pago se verificará automáticamente.
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-dark w-100 py-3 fs-5 fw-bold">
+                                        Pagar Ahora <i class="bi bi-chevron-right"></i>
+                                    </button>
+                                </div>
+
+                                {{-- Info Transferencia --}}
+                                <div id="info-transfer" class="method-info d-none">
+                                    <div class="card bg-warning-subtle border-0 mb-3">
+                                        <div class="card-body">
+                                            <h6 class="fw-bold"><i class="bi bi-info-circle me-1"></i> Datos Bancarios</h6>
+                                            <ul class="mb-0 small list-unstyled">
+                                                <li><strong>Banco:</strong> X</li>
+                                                <li><strong>Cuenta:</strong> Ahorros</li>
+                                                <li><strong>Numero:</strong> 123-456789</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold small">Subir Comprobante (Obligatorio)</label>
+                                        <input type="file" name="payment_receipt" class="form-control" accept="image/*">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100 py-3 fs-5 fw-bold">
+                                        <span id="btn-text">Pagar Ahora</span> <i class="bi bi-chevron-right"></i>
+                                    </button>
+                                </div>
+
+                                {{-- Info Efectivo --}}
+                                <div id="info-cash" class="method-info d-none">
+                                    <div class="alert alert-secondary d-flex align-items-center">
+                                        <i class="bi bi-shop fs-3 me-3"></i>
+                                        <div>
+                                            Debes dirigirte a la recepción de la sucursal <strong>{{ $branch->name }}</strong> para realizar el pago.
+                                            Tu orden quedará pendiente hasta validación.
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-secondary w-100 py-3 fs-5 fw-bold">
+                                        Confirmar Pago en Efectivo
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
 
-
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const btns = document.querySelectorAll('.btn-pay-action');
-        const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    // Variables iniciales PHP
+    const amountInstallment = {{ $canPayInstallment ? $nextPaymentAmount : 0 }};
+    const amountFull = {{ $totalRemainingAmount }};
+    const isLastInstallment = {{ isset($isLastInstallment) && $isLastInstallment ? 'true' : 'false' }};
 
-        btns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                if(!confirm('¿Confirmar pago de simulación?')) return;
+    function updatePaymentUI(type, amount) {
+        // Actualizar visualmente los totales
+        const formatted = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(amount);
+        document.getElementById('ui-subtotal').innerText = formatted;
+        document.getElementById('ui-total').innerText = formatted;
 
-                const type = this.getAttribute('data-type');
-
-                fetch("{{ route('client.treatment.pay') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrf
-                    },
-                    body: JSON.stringify({
-                        contracted_treatment_id: {{ $contractedTreatmentId }},
-                        payment_type: type
-                    })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.success) {
-                        alert(data.message);
-                        window.location.reload();
-                    } else {
-                        alert(data.message);
-                    }
-                })
-                .catch(err => console.error(err));
-            });
+        // Estilos de selección (borde azul)
+        document.querySelectorAll('.payment-option-card').forEach(card => {
+            const radio = card.querySelector('input[type="radio"]');
+            if(radio.checked) {
+                card.classList.add('border-primary', 'shadow-sm');
+            } else {
+                card.classList.remove('border-primary', 'shadow-sm');
+            }
         });
+    }
+
+    function toggleMethodDetails() {
+        // Ocultar todos
+        document.querySelectorAll('.method-info').forEach(el => el.classList.add('d-none'));
+
+        // Mostrar seleccionado
+        const selected = document.querySelector('input[name="payment_method"]:checked').value;
+        if(selected === 'WOMPI') document.getElementById('info-wompi').classList.remove('d-none');
+        if(selected === 'TRANSFER') document.getElementById('info-transfer').classList.remove('d-none');
+        if(selected === 'CASH') document.getElementById('info-cash').classList.remove('d-none');
+    }
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', () => {
+        // Seleccionar opción por defecto
+        const defaultType = (isLastInstallment || !{{ $canPayInstallment ? 'true' : 'false' }}) ? 'full' : 'installment';
+        const defaultAmount = defaultType === 'installment' ? amountInstallment : amountFull;
+        updatePaymentUI(defaultType, defaultAmount);
+        toggleMethodDetails();
     });
 </script>
+<style>
+    .payment-option-card { transition: all 0.2s ease; border: 1px solid #dee2e6; }
+    .payment-option-card:hover { background-color: #f8f9fa; }
+    .cursor-pointer { cursor: pointer; }
+</style>
 @endpush
-
 @endif

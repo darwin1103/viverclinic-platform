@@ -46,6 +46,10 @@ Route::middleware(['auth', 'verified', 'role:PATIENT'])->name('client.')->group(
 
     Route::post('/treatment/pay', [TreatmentPaymentController::class, 'store'])->name('treatment.pay');
 
+    Route::post('/treatment/payment/process', [TreatmentPaymentController::class, 'process'])->name('treatment.payment.process');
+    Route::get('/treatment/payment/wompi-result', [TreatmentPaymentController::class, 'wompiResult'])->name('treatment.payment.result');
+    Route::get('/treatment/payment/thank-you/{order}', [TreatmentPaymentController::class, 'thankYou'])->name('treatment.payment.thank-you');
+
 });
 
 Route::post('/appointments/available-slots', [ScheduleAppointmentController::class, 'availableSlots'])

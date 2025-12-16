@@ -122,13 +122,19 @@ class ScheduleAppointmentController extends Controller
              $appointment->time = Carbon::parse($appointment->schedule)->isoFormat('hh:mm a');
         });
 
+        $paymentVerificationPending = $contracted_treatment->orders()
+            ->where('status', 'Pago por verificar') // Estado usado para Transferencia/Efectivo
+            ->exists();
+
+
+
         return view('client.schedule-appointment.index', [
             'contracted_treatment' => $contracted_treatment,
             'paymentIsUpToDate' => $paymentIsUpToDate,
             'nextPaymentAmount' => $nextPaymentAmount,
             'nextPaymentDescription' => $nextPaymentDescription,
             'canPayInstallment' => $canPayInstallment,
-            'nextSessionNumber' => $nextSessionNumber, // Lógica movida al controlador
+            'nextSessionNumber' => $nextSessionNumber,
             'hasFutureAppointment' => $hasFutureAppointment,
             'totalSessions' => $contracted_treatment->sessions,
             'sessions' => $contracted_treatment->appointments,
@@ -136,6 +142,7 @@ class ScheduleAppointmentController extends Controller
             'missedCount' => $missedCount,
             'pendingCount' => $pendingCount,
             'totalRemainingAmount' => $totalRemainingAmount,
+            'paymentVerificationPending' => $paymentVerificationPending,
         ]);
     }
 

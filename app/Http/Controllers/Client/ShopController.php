@@ -203,7 +203,6 @@ class ShopController extends Controller
         }
     }
 
-
     // Método wompiResult
     public function wompiResult(Request $request)
     {

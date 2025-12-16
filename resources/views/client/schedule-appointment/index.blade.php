@@ -25,6 +25,7 @@
                     :contractedTreatmentId="$contracted_treatment->id"
                     :canPayInstallment="$canPayInstallment"
                     :totalRemainingAmount="$totalRemainingAmount"
+                    :paymentVerificationPending="$paymentVerificationPending"
                 />
 
                 @if (!$paymentIsUpToDate)

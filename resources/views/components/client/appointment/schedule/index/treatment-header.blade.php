@@ -10,6 +10,7 @@
     'contractedTreatmentId',
     'canPayInstallment',
     'totalRemainingAmount',
+    'paymentVerificationPending',
 ])
 
 @php
@@ -21,8 +22,12 @@
 <div class="d-flex align-items-center justify-content-between flex-wrap mb-4">
     <div>
         <h3 class="fw-semibold mb-1">Control de Tratamiento</h3>
-        {{-- Indicador visual de estado de pago --}}
-        @if($paymentIsUpToDate)
+        @if($paymentVerificationPending)
+            <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill">
+                <i class="bi bi-hourglass-split me-1"></i> Verificando pago...
+            </span>
+        @elseif($paymentIsUpToDate)
+            <span class="badge bg-success
             <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
                 <i class="bi bi-check-circle-fill me-1"></i> Pagos al día
             </span>
@@ -33,9 +38,17 @@
         @endif
     </div>
 
-    {{-- Botón de Pago --}}
-    @if(!$paymentIsUpToDate)
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">
+    @if($paymentVerificationPending)
+        <div class="text-end">
+            <button class="btn btn-secondary" disabled>
+                <i class="bi bi-clock-history me-2"></i> Procesando
+            </button>
+            <div class="small text-muted mt-1">
+                Tu pago está en proceso.
+            </div>
+        </div>
+    @elseif(!$paymentIsUpToDate)
+        <button type="button" class="btn btn-primary pulse-animation" data-bs-toggle="modal" data-bs-target="#paymentModal">
             <i class="bi bi-credit-card me-2"></i> Pagar
         </button>
     @endif
@@ -88,7 +101,7 @@
 
 
 {{-- MODAL DE PAGO --}}
-@if(!$paymentIsUpToDate)
+@if(!$paymentIsUpToDate && !$paymentVerificationPending)
 <div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-xl modal-dialog-centered"> <!-- Modal XL -->
         <div class="modal-content">

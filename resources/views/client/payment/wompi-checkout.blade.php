@@ -8,8 +8,8 @@
 
             <div class="py-4 rounded mb-4">
                 <p class="text-muted mb-1">Total a Pagar</p>
-                <h2 class="fw-bold text-dark mb-0">${{ number_format($amount, 0, ',', '.') }}</h2>
-                <small class="text-secondary">{{ $description }}</small>
+                <h2 class="fw-bold mb-0">${{ number_format($amount, 0, ',', '.') }}</h2>
+                <small class="">{{ $description }}</small>
             </div>
 
             <div id="wompi-widget-container">

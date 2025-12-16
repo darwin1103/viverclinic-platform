@@ -294,7 +294,6 @@
 </script>
 <style>
     .payment-option-card { transition: all 0.2s ease; border: 1px solid #dee2e6; }
-    .payment-option-card:hover { background-color: #f8f9fa; }
     .cursor-pointer { cursor: pointer; }
 </style>
 @endpush

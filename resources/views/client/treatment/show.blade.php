@@ -9,26 +9,25 @@
 </div>
 
 <div class="container my-5">
-    <div class="row">
-        <div class="col-12 d-flex justify-content-center align-items-center">
-            <div class="card w-100">
-                <div class="card-body m-0 m-lg-3">
 
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+    <form method="POST" class="row g-4" action="{{ route('client.treatment.store') }}" id="purchaseForm" enctype="multipart/form-data">
+    @csrf
+    <input type="hidden" name="treatment_id" value="{{ $treatment->id }}">
 
-                    <form method="POST" class="row g-4" action="{{ route('client.treatment.store') }}" id="purchaseForm">
-                        @csrf
+        <div class="row">
+            <div class="col-12 d-flex justify-content-center align-items-center">
+                <div class="card w-100">
+                    <div class="card-body m-0 m-lg-3">
 
-                        <input type="hidden" name="treatment_id" value="{{ $treatment->id }}">
-                        <input type="hidden" name="payment_type" id="paymentTypeInput" value="full">
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
 
                         <!-- SECCIÓN 1: ESCOGER PAQUETES Y ZONAS ADICIONALES -->
                         <div class="col-12">
@@ -87,58 +86,162 @@
                             </button>
                         </div>
 
-                        <!-- SECCIÓN 4: RESUMEN DE COMPRA -->
-                        <div class="col-12" id="purchase-sumary-container">
-                            <h2 class="section-title">Resumen de tu Compra</h2>
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <tbody id="purchase-summary">
-                                        <!-- El resumen se generará aquí con JS -->
-                                    </tbody>
-                                    <tfoot>
-                                        <tr class="fw-bold fs-5">
-                                            <td>TOTAL A PAGAR:</td>
-                                            <td id="total" class="text-end">$0</td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
+        <!-- SECCIÓN 4: RESUMEN DE COMPRA -->
+        <div class="col-12" id="purchase-sumary-container">
+            <h2 class="section-title">Resumen de tu Compra</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <tbody id="purchase-summary"></tbody>
+                    <tfoot>
+                        <tr class="fw-bold fs-5">
+                            <td>PRECIO TOTAL:</td>
+                            <td id="total" class="text-end">$0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
 
-                            <div class="col-12 mt-3">
-                                <div class="form-check">
-                                    <input class="form-check-input @error('termsConditions') is-invalid @enderror show-terms-conditions-modal" type="checkbox" value="1" id="termsConditions" name="termsConditions" required>
-                                    <label class="form-check-label" for="termsConditions">
-                                        {{ __('I have clearly read the consent I accept terms and conditions') }}
+            <div class="col-12 mt-3">
+                <div class="form-check">
+                    <input class="form-check-input show-terms-conditions-modal" type="checkbox" value="1" id="termsConditions" name="termsConditions" required>
+                    <label class="form-check-label" for="termsConditions">Acepto términos y condiciones</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="notPregnant" name="notPregnant" value="1">
+                    <label class="form-check-label" for="notPregnant">Declaro no estar embarazada</label>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+                {{-- Botón abre el modal, NO hace submit directo --}}
+                <button type="button" class="btn btn-primary btn-lg" id="btn-open-payment-modal" disabled>
+                    Continuar al Pago
+                </button>
+            </div>
+        </div>
+
+        {{-- MODAL DE PAGO (DENTRO DEL FORM) --}}
+        <div class="modal fade" id="paymentSelectionModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold"><i class="bi bi-wallet2 me-2"></i>Finalizar Compra</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body pt-4">
+                        <div class="row g-0">
+                            {{-- COLUMNA IZQUIERDA: QUÉ PAGAR --}}
+                            <div class="col-12 col-lg-5 pe-lg-4 border-end-lg mb-4 mb-lg-0">
+                                <h6 class="text-muted text-uppercase small fw-bold mb-3">1. Modalidad de Pago</h6>
+
+                                <div class="d-grid gap-3">
+                                    {{-- Opción Cuota (Controlado por JS) --}}
+                                    <label class="card p-3 payment-option-card cursor-pointer" id="option-installment-container" style="display:none">
+                                        <div class="d-flex align-items-center">
+                                            <input type="radio" name="payment_type" value="installment" id="pt_installment" class="form-check-input me-3">
+                                            <div class="flex-grow-1">
+                                                <div class="fw-bold text-primary">Pago Inicial (1ª Cuota)</div>
+                                                <small class="text-muted">Paga el resto sesión a sesión</small>
+                                            </div>
+                                            <div class="fw-bold fs-5" id="modal-installment-amount">$0</div>
+                                        </div>
                                     </label>
-                                    @error('termsConditions')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{$message}}</strong>
-                                        </span>
-                                    @enderror
+
+                                    {{-- Opción Total --}}
+                                    <label class="card p-3 payment-option-card cursor-pointer border-primary shadow-sm">
+                                        <div class="d-flex align-items-center">
+                                            <input type="radio" name="payment_type" value="full" id="pt_full" class="form-check-input me-3" checked>
+                                            <div class="flex-grow-1">
+                                                <div class="fw-bold text-success">Pagar Totalidad</div>
+                                                <small class="text-muted">Adquiere todo el tratamiento</small>
+                                            </div>
+                                            <div class="fw-bold fs-5" id="modal-total-amount">$0</div>
+                                        </div>
+                                    </label>
                                 </div>
                             </div>
 
-                            <div class="col-12">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="notPregnant" name="notPregnant" value="1" >
-                                    <label class="form-check-label" for="notPregnant">
-                                        {{ __('Im not pregnant') }}
-                                    </label>
-                                </div>
-                            </div>
+                            {{-- COLUMNA DERECHA: MÉTODO --}}
+                            <div class="col-12 col-lg-7 ps-lg-4">
+                                <h6 class="text-muted text-uppercase small fw-bold mb-3">2. Método de Pago</h6>
 
-                            <div class="d-grid gap-2">
-                                <button type="button" class="btn btn-primary btn-lg" id="btn-open-payment-modal" disabled>
-                                    Continuar al Pago
-                                </button>
+                                <div class="row g-3">
+                                    @if(isset($wompiPublicKey) && $wompiPublicKey)
+                                    <div class="col-12 col-md-4">
+                                        <input type="radio" class="btn-check" name="payment_method" id="pm_wompi" value="WOMPI" checked>
+                                        <label class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3" for="pm_wompi">
+                                            <i class="bi bi-credit-card-2-front fs-2 mb-2"></i>
+                                            <span>En Línea</span>
+                                        </label>
+                                    </div>
+                                    @endif
+
+                                    <div class="col-12 col-md-4">
+                                        <input type="radio" class="btn-check" name="payment_method" id="pm_transfer" value="TRANSFER">
+                                        <label class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3" for="pm_transfer">
+                                            <i class="bi bi-bank fs-2 mb-2"></i>
+                                            <span>Transferencia</span>
+                                        </label>
+                                    </div>
+
+                                    <div class="col-12 col-md-4">
+                                        <input type="radio" class="btn-check" name="payment_method" id="pm_cash" value="CASH">
+                                        <label class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3" for="pm_cash">
+                                            <i class="bi bi-cash-coin fs-2 mb-2"></i>
+                                            <span>Efectivo</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {{-- DETALLES DINÁMICOS --}}
+                                <div class="mt-4">
+                                    <div id="info-wompi" class="method-info">
+                                        <div class="alert alert-info border-0"><i class="bi bi-shield-check me-2"></i>Redirigiendo a Wompi Bancolombia.</div>
+                                        <button type="submit" class="btn btn-primary w-100 py-3 fs-5 fw-bold">
+                                            <span id="btn-text">Pagar Ahora</span> <i class="bi bi-chevron-right"></i>
+                                        </button>
+                                    </div>
+
+                                    <div id="info-transfer" class="method-info d-none">
+                                        <div class="card bg-warning-subtle border-0 mb-3">
+                                            <div class="card-body">
+                                                <h6 class="fw-bold"><i class="bi bi-info-circle me-1"></i> Datos Bancarios</h6>
+                                                <ul class="mb-0 small list-unstyled">
+                                                    <li><strong>Banco:</strong> X</li>
+                                                    <li><strong>Cuenta:</strong> Ahorros</li>
+                                                    <li><strong>Numero:</strong> 123-456789</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold">Comprobante</label>
+                                            <input type="file" name="payment_receipt" class="form-control" accept="image/*">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100 py-3 fs-5 fw-bold">
+                                            <span id="btn-text">Pagar Ahora</span> <i class="bi bi-chevron-right"></i>
+                                        </button>
+                                    </div>
+
+                                    <div id="info-cash" class="method-info d-none">
+                                        <div class="alert alert-secondary"><i class="bi bi-shop me-2"></i>Paga en recepción. Tu orden quedará pendiente.</div>
+                                        <button type="submit" class="btn btn-primary w-100 py-3 fs-5 fw-bold">
+                                            <span id="btn-text">Pagar Ahora</span> <i class="bi bi-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 
 <!-- Modal Instructivo -->
@@ -163,44 +266,6 @@
 </div>
 
 
-{{-- NUEVO: MODAL DE SELECCIÓN DE PAGO --}}
-<div class="modal fade" id="paymentSelectionModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Selecciona tu forma de pago</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p class="text-muted">Puedes pagar el total del tratamiento ahora o pagar la primera cuota para comenzar.</p>
-
-                <div class="d-grid gap-3">
-                    {{-- Botón Pago Total --}}
-                    <button type="button" class="btn btn-outline-success p-3 d-flex justify-content-between align-items-center" onclick="submitPurchase('full')">
-                        <div class="text-start">
-                            <div class="fw-bold">Pagar Totalidad</div>
-                            <small class="text-muted">Acceso inmediato a agendar todas las sesiones</small>
-                        </div>
-                        <span class="fs-5 fw-bold" id="modal-total-amount">$0</span>
-                    </button>
-
-                    {{-- Botón Pago Cuotas (Se oculta vía JS si no aplica) --}}
-                    <button type="button"
-                            class="btn btn-outline-primary p-3 d-flex justify-content-between align-items-center"
-                            id="btn-pay-installment"
-                            onclick="submitPurchase('installment')"
-                            style="display: none;">
-                        <div class="text-start">
-                            <div class="fw-bold">Pagar 1ª Cuota</div>
-                            <small class="text-muted">Paga el resto sesión a sesión</small>
-                        </div>
-                        <span class="fs-5 fw-bold" id="modal-installment-amount">$0</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 @endsection
 
 @push('scripts')
@@ -211,11 +276,4 @@
 
     <script type="text/javascript" src="{{ asset('js/client/treatment/show/form.js') }}"></script>
 
-    <script>
-        // Script inline para el envío del formulario
-        function submitPurchase(type) {
-            document.getElementById('paymentTypeInput').value = type;
-            document.getElementById('purchaseForm').submit();
-        }
-    </script>
 @endpush

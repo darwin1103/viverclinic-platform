@@ -5,8 +5,13 @@
 {{-- Sección de Filtros --}}
 <div class="container mb-4">
     <div class="row">
-        <div class="col-12">
+        <div class="col-12 col-md-6 col-lg-4">
             <h1>Ordenes</h1>
+        </div>
+        <div class="col-12 col-md-6 col-lg-8 text-center text-md-end mb-3 mb-md-0" style="align-content: center;">
+            <a class="btn btn-primary" href="{{ route('admin.manual-sales.index') }}" role="button">
+                <i class="bi bi-plus-circle-fill"></i>&nbsp;Añadir venta
+            </a>
         </div>
     </div>
 

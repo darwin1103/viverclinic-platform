@@ -26,9 +26,6 @@
                             <h6 class="card-subtitle mb-2 text-primary fw-bold">
                                 $ {{ number_format($product->price, 2, ',', '.') }}
                             </h6>
-                            <p class="card-text text-muted small">
-                                Disponible: {{ $product->stock }} unidades
-                            </p>
 
                             <div class="mt-auto pt-3 border-top">
                                 <label for="qty_{{ $product->id }}" class="form-label small">Cantidad:</label>

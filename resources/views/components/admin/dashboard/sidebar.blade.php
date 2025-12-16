@@ -52,15 +52,9 @@
         </a>
       </li>
       <li>
-        <a href="{{ route('admin.manual-sales.index') }}" class="nav-link @if(Route::is('admin.manual-sales.*')) active @endif">
-            <i class="bi bi-cart-plus-fill"></i>
-            Venta de productos
-        </a>
-      </li>
-      <li>
-        <a href="{{ route('admin.orders.index') }}" class="nav-link @if(Route::is('admin.orders.*')) active @endif">
+        <a href="{{ route('admin.orders.index') }}" class="nav-link @if(Route::is('admin.orders.*') || Route::is('admin.manual-sales.*')) active @endif">
             <i class="bi bi-cart-fill me-2"></i>
-            Ordenes
+            Venta de productos
         </a>
       </li>
       <li class="mt-3 text-uppercase text-secondary small px-2">

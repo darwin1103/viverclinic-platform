@@ -26,6 +26,8 @@
                     :canPayInstallment="$canPayInstallment"
                     :totalRemainingAmount="$totalRemainingAmount"
                     :paymentVerificationPending="$paymentVerificationPending"
+                    :lastOrderRejected="$lastOrderRejected"
+                    :lastOrderMessage="$lastOrderMessage"
                 />
 
                 @if (!$paymentIsUpToDate)

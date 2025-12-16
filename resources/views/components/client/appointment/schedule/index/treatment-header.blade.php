@@ -11,6 +11,8 @@
     'canPayInstallment',
     'totalRemainingAmount',
     'paymentVerificationPending',
+    'lastOrderRejected',
+    'lastOrderMessage',
 ])
 
 @php
@@ -37,6 +39,13 @@
             </span>
         @endif
     </div>
+
+    @if($lastOrderRejected)
+       <div class="alert alert-danger">
+          Tu último intento de pago fue rechazado. Por favor intenta nuevamente. <br>
+          <small>{{ $lastOrderMessage }}</small>
+       </div>
+    @endif
 
     @if($paymentVerificationPending)
         <div class="text-end">

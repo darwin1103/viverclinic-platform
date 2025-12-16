@@ -126,7 +126,8 @@ class ScheduleAppointmentController extends Controller
             ->where('status', 'Pago por verificar') // Estado usado para Transferencia/Efectivo
             ->exists();
 
-
+        $lastOrder = $contracted_treatment->orders()->latest()->first();
+        $lastOrderRejected = ($lastOrder && $lastOrder->status === 'Cancelado');
 
         return view('client.schedule-appointment.index', [
             'contracted_treatment' => $contracted_treatment,
@@ -143,6 +144,8 @@ class ScheduleAppointmentController extends Controller
             'pendingCount' => $pendingCount,
             'totalRemainingAmount' => $totalRemainingAmount,
             'paymentVerificationPending' => $paymentVerificationPending,
+            'lastOrderRejected' => $lastOrderRejected,
+            'lastOrderMessage' => $lastOrder ? $lastOrder->payment_description : ''
         ]);
     }
 

@@ -7,7 +7,11 @@ use App\Models\Branch;
 use App\Models\BranchTreatment;
 use App\Models\ContractedTreatment;
 use App\Models\Treatment;
+use App\Models\TreatmentOrder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Mail\TreatmentOrderConfirmation;
+use Illuminate\Support\Facades\Mail;
 
 class ContractedTreatmentController extends Controller
 {
@@ -62,9 +66,87 @@ class ContractedTreatmentController extends Controller
     public function show(ContractedTreatment $contractedTreatment)
     {
 
-        $contractedTreatment->load(['user', 'branch', 'treatment']);
+        $contractedTreatment->load(['user', 'branch', 'treatment', 'installments', 'orders']);
 
         return view('admin.contracted-treatment.show', compact('contractedTreatment'));
+
+    }
+
+    /**
+     * Aprobar un pago pendiente (Transferencia o Efectivo)
+     */
+    public function approvePayment(TreatmentOrder $order)
+    {
+        if ($order->status === 'Pago completado') {
+            return back()->with('info', 'Esta orden ya fue aprobada.');
+        }
+
+        DB::beginTransaction();
+        try {
+            // 1. Actualizar estado de la Orden
+            $order->update([
+                'status' => 'Pago completado',
+                'payment_status' => 'APPROVED',
+            ]);
+
+            // 2. Actualizar las cuotas asociadas a esta orden
+            // Usamos el campo JSON 'paid_installments_ids' que guardamos al crear la orden
+            if (!empty($order->paid_installments_ids)) {
+                $contractedTreatment = $order->contractedTreatment;
+
+                $contractedTreatment->installments()
+                    ->whereIn('id', $order->paid_installments_ids)
+                    ->update([
+                        'status' => 'PAID',
+                        'paid_at' => now()
+                    ]);
+
+                // 3. Verificar si se completó todo el contrato
+                $pendingCount = $contractedTreatment->installments()->where('status', 'PENDING')->count();
+                if ($pendingCount === 0) {
+                    $contractedTreatment->update(['status' => 'Paid']);
+                }
+            } else {
+                // Si no hay IDs de cuotas (ej. pago total antiguo o lógica diferida),
+                // asumimos lógica por defecto o pago total
+                if($order->contractedTreatment->status !== 'Paid'){
+                     // Lógica de fallback si es necesario, o actualizar todo si fue pago total
+                     // ...
+                }
+            }
+
+            // Opcional: Enviar correo de aprobación
+            // Mail::to($order->user)->queue(new TreatmentOrderConfirmation($order));
+
+            DB::commit();
+            return back()->with('success', 'Pago aprobado correctamente. Las cuotas han sido actualizadas.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Error al aprobar el pago: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Rechazar un pago
+     */
+    public function rejectPayment(Request $request, TreatmentOrder $order)
+    {
+        $request->validate(['reason' => 'nullable|string|max:255']);
+
+        if ($order->status !== 'Pago por verificar') {
+            return back()->with('error', 'No se puede rechazar esta orden en su estado actual.');
+        }
+
+        $order->update([
+            'status' => 'Cancelado',
+            'payment_status' => 'DECLINED',
+            'payment_description' => $order->payment_description . ' [Rechazado: ' . ($request->reason ?? 'Sin motivo') . ']'
+        ]);
+
+        // No tocamos las cuotas (siguen PENDING), así el usuario puede intentar pagar de nuevo.
+
+        return back()->with('success', 'El pago ha sido rechazado.');
     }
 
 }

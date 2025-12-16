@@ -173,6 +173,185 @@
                     </div>
                     @endif
 
+
+
+
+
+
+
+
+
+
+
+
+                    <hr class="my-5">
+
+                    <div class="row g-4">
+
+                        {{-- 1. ESTADO DE LAS CUOTAS --}}
+                        <div class="col-12">
+                            <h5 class="mb-3 fw-bold text-primary">
+                                <i class="bi bi-list-ol me-2"></i> Plan de Cuotas
+                            </h5>
+
+                            @if($contractedTreatment->installments->isEmpty())
+                                <div class="alert alert-secondary">
+                                    Este tratamiento no tiene cuotas configuradas (Pago único).
+                                </div>
+                            @else
+                                <div class="table-responsive border rounded">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="text-white">#</th>
+                                                <th class="text-white">Monto</th>
+                                                <th class="text-white">Estado</th>
+                                                <th class="text-white">Fecha Pago</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($contractedTreatment->installments->sortBy('installment_number') as $inst)
+                                                <tr>
+                                                    <td class="fw-bold">{{ $inst->installment_number }}</td>
+                                                    <td>${{ number_format($inst->price, 2) }}</td>
+                                                    <td>
+                                                        @if($inst->status == 'PAID')
+                                                            <span class="badge bg-success">Pagada</span>
+                                                        @else
+                                                            <span class="badge bg-secondary">Pendiente</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="small text-muted">
+                                                        {{ $inst->paid_at ? $inst->paid_at->format('d/m/Y H:i') : '-' }}
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="mt-2 text-end small text-muted">
+                                    Progreso:
+                                    <strong>{{ $contractedTreatment->installments->where('status', 'PAID')->count() }}</strong>
+                                    de
+                                    <strong>{{ $contractedTreatment->installments->count() }}</strong> pagadas.
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- 2. HISTORIAL DE ÓRDENES / APROBACIÓN --}}
+                        <div class="col-12">
+                            <h5 class="mb-3 fw-bold text-primary">
+                                <i class="bi bi-cash-coin me-2"></i> Historial de Transacciones
+                            </h5>
+
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="text-white">Fecha</th>
+                                            <th class="text-white">Método</th>
+                                            <th class="text-white">Total</th>
+                                            <th class="text-white">Estado</th>
+                                            <th class="text-end text-white">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($contractedTreatment->orders->sortByDesc('created_at') as $order)
+                                            <tr>
+                                                <td class="small">
+                                                    {{ $order->created_at->format('d/m/Y') }}<br>
+                                                    <span class="text-muted">{{ $order->created_at->format('H:i') }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="fw-bold d-block">{{ $order->payment_method }}</span>
+                                                    <small class="text-muted text-truncate d-block" style="max-width: 150px;" title="{{ $order->payment_description }}">
+                                                        {{ $order->payment_description }}
+                                                    </small>
+                                                    @if($order->payment_receipt)
+                                                        <a href="{{ Storage::url($order->payment_receipt) }}" target="_blank" class="btn btn-link btn-sm p-0 text-decoration-none">
+                                                            <i class="bi bi-paperclip"></i> Ver Comprobante
+                                                        </a>
+                                                    @endif
+                                                </td>
+                                                <td class="fw-bold">${{ number_format($order->total, 2) }}</td>
+                                                <td>
+                                                    @if($order->status == 'Pago completado')
+                                                        <span class="badge bg-success"><i class="bi bi-check-lg"></i> Aprobado</span>
+                                                    @elseif($order->status == 'Cancelado')
+                                                        <span class="badge bg-danger"><i class="bi bi-x-lg"></i> Rechazado</span>
+                                                    @elseif($order->status == 'Pago por verificar')
+                                                        <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Por Verificar</span>
+                                                    @else
+                                                        <span class="badge bg-secondary">{{ $order->status }}</span>
+                                                    @endif
+                                                </td>
+                                                <td class="text-end">
+                                                    @if($order->status == 'Pago por verificar')
+                                                        <div class="btn-group btn-group-sm">
+                                                            {{-- Botón Aprobar --}}
+                                                            <form action="{{ route('admin.contracted-treatment.approve-payment', $order->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de APROBAR este pago? Esto marcará las cuotas como pagadas.');">
+                                                                @csrf
+                                                                <button type="submit" class="btn btn-success" title="Aprobar Pago">
+                                                                    <i class="bi bi-check-circle"></i>
+                                                                </button>
+                                                            </form>
+
+                                                            {{-- Botón Rechazar (Modal Trigger) --}}
+                                                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal-{{ $order->id }}" title="Rechazar Pago">
+                                                                <i class="bi bi-x-circle"></i>
+                                                            </button>
+                                                        </div>
+
+                                                        {{-- Modal de Rechazo --}}
+                                                        <div class="modal fade" id="rejectModal-{{ $order->id }}" tabindex="-1" aria-hidden="true">
+                                                            <div class="modal-dialog">
+                                                                <form action="{{ route('admin.contracted-treatment.reject-payment', $order->id) }}" method="POST">
+                                                                    @csrf
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title">Rechazar Pago</h5>
+                                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                                        </div>
+                                                                        <div class="modal-body text-start">
+                                                                            <p>Indica el motivo del rechazo (visible para el cliente):</p>
+                                                                            <textarea name="reason" class="form-control" rows="3" placeholder="Ej: Comprobante ilegible, monto incorrecto..."></textarea>
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                                            <button type="submit" class="btn btn-danger">Confirmar Rechazo</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <span class="text-muted small">-</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted py-3">No hay transacciones registradas.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+
+
+
+
+
+
+
+
+
+
                 </div>
             </div>
         </div>

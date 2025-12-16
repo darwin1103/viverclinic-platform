@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TreatmentOrder extends Model
 {
@@ -33,4 +34,22 @@ class TreatmentOrder extends Model
     protected $casts = [
         'paid_installments_ids' => 'array',
     ];
+
+    // --- RELACIONES ---
+
+    // ESTA ES LA QUE FALTA Y CAUSA EL ERROR
+    public function contractedTreatment(): BelongsTo
+    {
+        return $this->belongsTo(ContractedTreatment::class, 'contracted_treatment_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
 }

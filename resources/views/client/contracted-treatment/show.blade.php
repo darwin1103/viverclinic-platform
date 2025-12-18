@@ -1,24 +1,25 @@
 @extends('layouts.app') {{-- Asumiendo tu layout de admin --}}
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid p-0 py-4">
     <div class="row">
-        <div class="col-12 col-md-7 col-lg-8">
+        <div class="col-12 col-md-6 col-lg-4">
             <h1>Tratamiento</h1>
         </div>
+        <div class="col-12 col-md-6 col-lg-8 text-center text-md-end mb-3 mb-md-0" style="align-content: center;">
+            <a href="{{ route('client.contracted-treatment.index') }}" class="btn btn-primary">
+                <i class="bi bi-arrow-left-circle me-1"></i>
+                Volver al listado
+            </a>
+        </div>
     </div>
-</div>
-<div class="container-fluid">
+
     <div class="row d-flex justify-content-center">
-        <div class="col-12 col-md-7 col-lg-10 mx-auto p-0">
+        <div class="col-12 p-0">
 
             <div class="card shadow-sm">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">Detalles del Tratamiento Contratado</h4>
-                    <a href="{{ route('client.contracted-treatment.index') }}" class="btn btn-primary">
-                        <i class="bi bi-arrow-left-circle me-1"></i>
-                        Volver al listado
-                    </a>
                 </div>
 
                 <div class="card-body p-4">

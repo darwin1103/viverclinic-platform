@@ -1,8 +1,17 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-4">
-    <h2 class="mb-4">Finalizar Compra</h2>
+<div class="container-fluid p-0 py-4">
+    <div class="row">
+        <div class="col-12 col-md-6 col-lg-4">
+            <h1>Finalizar Compra</h1>
+        </div>
+        <div class="col-12 col-md-6 col-lg-8 text-center text-md-end mb-3 mb-md-0" style="align-content: center;">
+            <a href="{{ route('client.shop.index') }}" class="btn btn-primary">
+                <i class="bi bi-arrow-left"></i> Volver al catálogo
+            </a>
+        </div>
+    </div>
 
     <div class="row">
         {{-- Lado Izquierdo: Detalle --}}
@@ -44,9 +53,6 @@
                     </div>
                 </div>
             </div>
-            <a href="{{ route('client.shop.index') }}" class="btn btn-primary">
-                <i class="bi bi-arrow-left"></i> Volver al catálogo
-            </a>
         </div>
 
         {{-- Lado Derecho: Pago --}}

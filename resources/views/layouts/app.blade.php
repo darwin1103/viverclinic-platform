@@ -11,7 +11,7 @@
 <body>
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light">
-            <div class="container">
+            <div class="container-fluid px-2 px-md-3 px-lg-5">
                 <a class="navbar-brand fw-bold" href="{{ url('/') }}">
                     {{ config('app.name', 'Viverclinic') }}
                 </a>
@@ -62,7 +62,7 @@
                 </div>
             </div>
         </nav>
-        <main class="py-3">
+        <main class="container-fuid py-3 px-2 px-md-3 px-lg-5">
             @if(
                 !Route::is('dashboard') &&
                 !Route::is('login') &&
@@ -70,7 +70,7 @@
                 !Route::is('registration-by-branch.create') &&
                 !Route::is('client.informed-consent.create')
             )
-            <div class="container">
+            <div class="">
                 <a href="{{ route('dashboard') }}" class="text-decoration-none">
                     <i class="bi bi-arrow-left"></i>
                     Volver al dashboard

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-5 text-center">
+<div class="container-fluid p-0 py-4 text-center">
     <div class="card shadow-sm mx-auto" style="max-width: 600px;">
         <div class="card-body p-5">
             @if($order->status == 'Pago completado' || $order->status == 'Pago por verificar')

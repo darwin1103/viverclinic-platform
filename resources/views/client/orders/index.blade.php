@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-4">
-    <h2 class="mb-4">Mis Compras</h2>
+<div class="container-fluid p-0 py-4">
+    <h1 class="">Mis Compras</h1>
 
     {{-- Filtros --}}
     <div class="card mb-4">

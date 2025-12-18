@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-4">
+<div class="container-fluid p-0 py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Detalle de Compra #{{ $order->id }}</h2>
+        <h1>Detalle de Compra #{{ $order->id }}</h1>
         <a href="{{ route('client.orders.index') }}" class="btn btn-secondary">
             <i class="bi bi-arrow-left"></i> Volver
         </a>

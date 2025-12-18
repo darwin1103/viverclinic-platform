@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-5 d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+<div class="container-fluid py-5 d-flex justify-content-center align-items-center" style="min-height: 60vh;">
     <div class="card shadow-lg border-0" style="max-width: 500px; width: 100%;">
         <div class="card-body text-center p-5">
             <h3 class="mb-4">Confirmar Pago en Línea</h3>

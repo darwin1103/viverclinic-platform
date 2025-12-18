@@ -1,14 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12 col-md-7 col-lg-8">
-            <h1>{{ __('Schedule Appointment') }}</h1>
-        </div>
-    </div>
-</div>
-<div class="container my-5">
+<div class="container-fluid p-0 py-4">
     <div class="row mb-4">
         <div class="col-12 text-center">
             <h1>Nuestros Tratamientos</h1>

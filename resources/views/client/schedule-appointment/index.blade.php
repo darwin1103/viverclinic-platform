@@ -6,7 +6,7 @@
 
 @section('content')
 
-<main class="container">
+<div class="container-fluid p-0 py-4">
     <div class="">
 
         <h1 class="h3">Agendar Cita</h1>
@@ -51,7 +51,7 @@
             </div>
         </div>
     </div>
-</main>
+</div>
 
 <x-client.appointment.schedule.index.appointment-modal />
 <x-client.appointment.schedule.index.rating-modal />

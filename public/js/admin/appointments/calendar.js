@@ -307,6 +307,8 @@ const AdminCalendarModule = (function() {
         const card = document.createElement('div');
         card.className = `appt-card ${getStatusClass(appointment.status)}`;
         card.dataset.id = appointment.id;
+        card.dataset.bsToggle = 'modal';
+        card.dataset.bsTarget = '#modalAppointmentDetail';
 
         card.innerHTML = `
             <div class="title" style="word-wrap: break-word;">${appointment.patient}</div>

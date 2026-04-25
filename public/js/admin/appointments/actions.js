@@ -87,9 +87,9 @@ const AdminActionsModule = (function() {
             return;
         }
 
-        // Show modal
-        const modal = new bootstrap.Modal(elements.modalDetail);
-        modal.show();
+        // Show modal natively using data-bs-toggle
+        // const modal = new bootstrap.Modal(elements.modalDetail);
+        // modal.show();
 
         // Render appointment details
         renderAppointmentDetails();
@@ -315,8 +315,9 @@ const AdminActionsModule = (function() {
 
         renderRescheduleCalendar();
 
-        const modal = new bootstrap.Modal(elements.modalReschedule);
-        modal.show();
+        // Show modal natively using data-bs-toggle
+        // const modal = new bootstrap.Modal(elements.modalReschedule);
+        // modal.show();
     }
 
     function navigateRescheduleMonth(direction) {

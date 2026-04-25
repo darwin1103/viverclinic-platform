@@ -27,7 +27,7 @@
                     <i class="bi bi-check-circle me-1"></i>
                     Confirmar cita
                 </button>
-                <button type="button" id="btnRescheduleAppointment" class="btn btn-warning d-none">
+                <button type="button" id="btnRescheduleAppointment" class="btn btn-warning d-none" data-bs-toggle="modal" data-bs-target="#modalReschedule">
                     <i class="bi bi-arrow-repeat me-1"></i>
                     Reagendar
                 </button>

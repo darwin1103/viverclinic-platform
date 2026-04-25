@@ -27,7 +27,7 @@
           <div class="d-flex justify-content-between align-items-start">
             <div>
               <div class="text-secondary small">Ingreso diario</div>
-              <div class="kpi-value mt-1">$1.450.000</div>
+              <div class="kpi-value mt-1">${{ number_format($ingresoDiario, 0, ',', '.') }}</div>
             </div>
             <i class="bi bi-cash-stack fs-3 text-info"></i>
           </div>
@@ -42,7 +42,7 @@
           <div class="d-flex justify-content-between align-items-start">
             <div>
               <div class="text-secondary small">Egresos de hoy</div>
-              <div class="kpi-value mt-1">$520.000</div>
+              <div class="kpi-value mt-1">${{ number_format($egresosHoy, 0, ',', '.') }}</div>
             </div>
             <i class="bi bi-receipt fs-3 text-info"></i>
           </div>
@@ -112,67 +112,28 @@
         <div class="card-header fw-semibold"><i class="bi bi-activity me-2"></i>Actividad reciente</div>
         <div class="card-body scroll-area">
           <ul class="list-group list-group-flush">
-            <li class="list-group-item"><span class="text-secondary small">09:15</span> · María registró pago de <strong>$350.000</strong> a <a href="#" class="link-muted">Ana Ramírez</a>.</li>
-            <li class="list-group-item"><span class="text-secondary small">09:03</span> · Se creó promoción <strong>“Control Dental -20%”</strong>.</li>
-            <li class="list-group-item"><span class="text-secondary small">08:42</span> · <strong>Super Admin</strong> actualizó rol <em>Recepción</em>.</li>
+            @forelse($actividadReciente as $actividad)
+            <li class="list-group-item"><span class="text-secondary small">{{ \Carbon\Carbon::parse($actividad->created_at)->format('H:i') }}</span> · Pago registrado de <strong>${{ number_format($actividad->total, 0, ',', '.') }}</strong> de <a href="#" class="link-muted">{{ $actividad->user->name ?? 'Paciente' }}</a>.</li>
+            @empty
+            <li class="list-group-item text-center text-muted"><em>Aún no hay actividad registrada hoy.</em></li>
+            @endforelse
           </ul>
         </div>
       </div>
-    </div>
 
-    <!-- Col Derecha -->
-    <div class="col-12 col-lg-5">
-      <!-- Alertas (ya sin “consentimientos”) -->
-      <div class="card">
-        <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
-          <span><i class="bi bi-exclamation-triangle me-2 text-warning"></i>Alertas</span>
-          <a href="#" class="link-muted small">Ver todo</a>
-        </div>
-        <div class="card-body">
-          <div class="vstack gap-2">
-            <div class="d-flex justify-content-between align-items-center p-2 rounded border border-warning-subtle">
-              <div><strong>Pagos pendientes:</strong> 4 pacientes</div>
-              <button class="btn btn-sm btn-outline-warning">Revisar</button>
-            </div>
-            <div class="d-flex justify-content-between align-items-center p-2 rounded border border-secondary">
-              <div><strong>Reagendar no asistidos:</strong> 3 citas</div>
-              <button class="btn btn-sm btn-outline-light">Abrir lista</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Ingreso diario por categoría (SIN gráfico) -->
+      <!-- Gráfico de Citas -->
       <div class="card mt-3">
         <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
-          <span><i class="bi bi-journal-richtext me-2"></i>Ingreso diario</span>
-          <span class="badge text-bg-success">$1.450.000</span>
+          <span><i class="bi bi-graph-up text-info me-2"></i>Rendimiento de Citas (7 días)</span>
         </div>
         <div class="card-body">
-          <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
-            <div class="d-flex align-items-center gap-2">
-              <i class="bi bi-dot text-info fs-3 m-0 p-0"></i>
-              <span>Depilación láser</span>
-            </div>
-            <strong>$950.000</strong>
-          </div>
-          <div class="d-flex justify-content-between">
-            <div class="d-flex align-items-center gap-2">
-              <i class="bi bi-dot text-info fs-3 m-0 p-0"></i>
-              <span>Reducción</span>
-            </div>
-            <strong>$500.000</strong>
+          <div style="height: 250px;">
+             <canvas id="appointmentsChart"></canvas>
           </div>
         </div>
       </div>
-
-    </div>
-  </div>
-
-  <!-- Tablas -->
-  <div class="row g-3 mt-1">
-    <div class="col-12 col-xl-8">
-      <div class="card">
+      <!-- Pagos recientes -->
+      <div class="card mt-3">
         <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
           <span><i class="bi bi-receipt me-2"></i>Pagos recientes</span>
           <button class="btn btn-sm btn-outline-light">Exportar</button>
@@ -181,17 +142,77 @@
           <table class="table table-sm align-middle mb-0">
             <thead><tr><th>Fecha</th><th>Paciente</th><th>Concepto</th><th>Monto</th><th>Método</th><th>Estado</th></tr></thead>
             <tbody>
-              <tr><td>Hoy 09:15</td><td>Ana Ramírez</td><td>Control</td><td>$350.000</td><td>Tarjeta</td><td><span class="badge text-bg-success">Pagado</span></td></tr>
-              <tr><td>Hoy 08:40</td><td>Kevin Mora</td><td>Paquete x4</td><td>$1.200.000</td><td>PSE</td><td><span class="badge text-bg-success">Pagado</span></td></tr>
-              <tr><td>Ayer</td><td>Nora Silva</td><td>Rx</td><td>$90.000</td><td>Efectivo</td><td><span class="badge text-bg-warning">Pendiente</span></td></tr>
+              @forelse($recentPayments as $payment)
+                <tr>
+                  <td>{{ \Carbon\Carbon::parse($payment->created_at)->diffForHumans() }}</td>
+                  <td>{{ $payment->user->name ?? 'N/A' }}</td>
+                  <td>{{ Str::limit($payment->contractedTreatment->treatment->name ?? $payment->payment_description, 20) }}</td>
+                  <td>${{ number_format($payment->total, 0, ',', '.') }}</td>
+                  <td>{{ $payment->payment_method }}</td>
+                  <td>
+                    @if(in_array($payment->status, ['Pago completado', 'Aprobado', 'Pagado', 'Paid']))
+                      <span class="badge text-bg-success">{{ $payment->status }}</span>
+                    @elseif(in_array($payment->status, ['Pago por verificar', 'Pendiente', 'Pending']))
+                      <span class="badge text-bg-warning">{{ $payment->status }}</span>
+                    @else
+                      <span class="badge text-bg-secondary">{{ $payment->status }}</span>
+                    @endif
+                  </td>
+                </tr>
+              @empty
+                <tr><td colspan="6" class="text-center fw-semibold py-3">No hay pagos registrados</td></tr>
+              @endforelse
             </tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <div class="col-12 col-xl-4">
-      <div class="card h-100">
+    <!-- Col Derecha -->
+    <div class="col-12 col-lg-5">
+      <!-- Alertas -->
+      <div class="card">
+        <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-exclamation-triangle me-2 text-warning"></i>Alertas</span>
+          <a href="#" class="link-muted small">Ver todo</a>
+        </div>
+        <div class="card-body">
+          <div class="vstack gap-2">
+            <div class="d-flex justify-content-between align-items-center p-2 rounded border border-warning-subtle">
+              <div><strong>Pagos pendientes:</strong> {{ $pagosPendientesCount }} pacientes</div>
+              <button class="btn btn-sm btn-outline-warning">Revisar</button>
+            </div>
+            <div class="d-flex justify-content-between align-items-center p-2 rounded border border-secondary">
+              <div><strong>Reagendar no asistidos:</strong> {{ $reagendarCount }} citas</div>
+              <button class="btn btn-sm btn-outline-light">Abrir lista</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ingreso diario por categoría -->
+      <div class="card mt-3">
+        <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-journal-richtext me-2"></i>Ingreso diario por servicio</span>
+          <span class="badge text-bg-success">${{ number_format($ingresoDiario, 0, ',', '.') }}</span>
+        </div>
+        <div class="card-body scroll-area" style="max-height: 250px;">
+          @forelse($ingresosPorCategoria as $ingreso)
+          <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-dot text-info fs-3 m-0 p-0"></i>
+              <span>{{ $ingreso->category }}</span>
+            </div>
+            <strong>${{ number_format($ingreso->total, 0, ',', '.') }}</strong>
+          </div>
+          @empty
+          <div class="text-muted text-center py-2">Sin ingresos registrados hoy</div>
+          @endforelse
+        </div>
+      </div>
+
+      <!-- Nuevos pacientes -->
+      <div class="card mt-3">
         <div class="card-header fw-semibold"><i class="bi bi-person-plus me-2"></i>Nuevos pacientes (7d)</div>
         <div class="card-body scroll-area">
           <ul class="list-group list-group-flush">
@@ -208,6 +229,7 @@
       </div>
     </div>
   </div>
+
 
 </div>
 
@@ -238,4 +260,46 @@
       </div>
     </div>
   </div>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const ctx = document.getElementById('appointmentsChart');
+    if (ctx) {
+        new Chart(ctx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($chartLabels ?? []) !!},
+                datasets: [{
+                    label: 'Citas agendadas',
+                    data: {!! json_encode($chartValues ?? []) !!},
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        ticks: { stepSize: 1 } 
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

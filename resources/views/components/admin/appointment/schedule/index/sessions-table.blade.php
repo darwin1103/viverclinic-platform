@@ -147,6 +147,8 @@
                         @elseif ($canSchedule && $paymentIsUpToDate)
                             <button
                                 class="btn btn-sm btn-primary btn-open-scheduler"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalAgendar"
                                 data-branch-id="{{ $branchId }}"
                                 data-contracted-treatment-id="{{ $contractedTreatmentId }}"
                                 data-store-url-template="{{ route('admin.schedule-appointment.store') }}"

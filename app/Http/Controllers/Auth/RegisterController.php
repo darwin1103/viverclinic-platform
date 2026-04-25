@@ -66,11 +66,20 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        $referredById = null;
+
+        if (!empty($data['ref'])) {
+            $referrer = User::where('referral_code', $data['ref'])->first();
+            if ($referrer) {
+                $referredById = $referrer->id;
+            }
+        }
 
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'referred_by_id' => $referredById,
         ]);
 
         $user->assignRole('PATIENT');

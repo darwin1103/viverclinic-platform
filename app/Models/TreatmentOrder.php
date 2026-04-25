@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TreatmentOrder extends Model
 {
+    use \App\Traits\ScopesByBranch;
+
     protected $fillable = [
         'user_id',
         'branch_id',

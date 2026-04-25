@@ -155,6 +155,10 @@ class AssetController extends Controller
 
     public function storeNote(Request $request, Asset $asset)
     {
+        if (!Asset::where('id', $asset->id)->exists()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $request->validate(['content' => 'required|string'], [
             'content.required' => 'El contenido de la nota es obligatorio.',
             'content.string' => 'El contenido debe ser un texto válido.',
@@ -163,7 +167,7 @@ class AssetController extends Controller
         AssetNote::create([
             'asset_id' => $asset->id,
             'user_id' => Auth::id(),
-            'content' => $request->content
+            'content' => $request->input('content')
         ]);
 
         return back()->with('success', 'Nota agregada.');
@@ -171,16 +175,24 @@ class AssetController extends Controller
 
     public function updateNote(Request $request, AssetNote $note)
     {
+        if (!Asset::where('id', $note->asset_id)->exists()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $request->validate(['content' => 'required|string'], [
             'content.required' => 'El contenido de la nota es obligatorio.',
             'content.string' => 'El contenido debe ser un texto válido.',
         ]);
-        $note->update(['content' => $request->content]);
+        $note->update(['content' => $request->input('content')]);
         return back()->with('success', 'Nota actualizada.');
     }
 
     public function destroyNote(AssetNote $note)
     {
+        if (!Asset::where('id', $note->asset_id)->exists()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $note->delete();
         return back()->with('success', 'Nota eliminada.');
     }

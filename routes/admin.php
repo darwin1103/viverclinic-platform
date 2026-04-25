@@ -17,7 +17,7 @@ use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\TreatmentController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified', 'role:SUPER_ADMIN|OWNER'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified', 'role_or_permission:SUPER_ADMIN|OWNER|admin_dashboard'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::resource('treatment', TreatmentController::class);
 

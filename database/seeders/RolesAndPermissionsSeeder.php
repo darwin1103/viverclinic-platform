@@ -28,11 +28,20 @@ class RolesAndPermissionsSeeder extends Seeder
         $ownerRole->givePermissionTo(Permission::firstOrCreate(['name' => 'owner_dashboard_branch_management']));
         $ownerRole->givePermissionTo(Permission::firstOrCreate(['name' => 'owner_dashboard_treatment_management']));
 
-        $adminRole->givePermissionTo(Permission::firstOrCreate(['name' => 'admin_dashboard']));
-        $adminRole->givePermissionTo(Permission::firstOrCreate(['name' => 'admin_dashboard_role_management']));
-        $adminRole->givePermissionTo(Permission::firstOrCreate(['name' => 'admin_dashboard_user_management']));
-        $adminRole->givePermissionTo(Permission::firstOrCreate(['name' => 'admin_dashboard_branch_management']));
-        $adminRole->givePermissionTo(Permission::firstOrCreate(['name' => 'admin_dashboard_treatment_management']));
+        $adminPermissions = [
+            'admin_dashboard',
+            'ver_pacientes',
+            'crear_citas',
+            'ver_inventario',
+            'admin_dashboard_role_management',
+            'admin_dashboard_user_management',
+            'admin_dashboard_branch_management',
+            'admin_dashboard_treatment_management',
+        ];
+
+        foreach ($adminPermissions as $permission) {
+            $adminRole->givePermissionTo(Permission::firstOrCreate(['name' => $permission]));
+        }
 
         $employeeRole->givePermissionTo(Permission::firstOrCreate(['name' => 'employee_dashboard']));
         $employeeRole->givePermissionTo(Permission::firstOrCreate(['name' => 'employee_agenda_day_home_btn']));

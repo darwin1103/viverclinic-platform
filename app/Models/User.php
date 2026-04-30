@@ -30,6 +30,19 @@ class User extends Authenticatable
         'informed_consent',
         'referral_code',
         'referred_by_id',
+        'document_type_id',
+        'document_number',
+        'phone',
+        'address',
+        'profession',
+        'gender_id',
+        'birthdate',
+        'status',
+        'pathological_id',
+        'toxicological_id',
+        'gyneco_obstetric_id',
+        'medication_id',
+        'dietary_id',
     ];
 
     protected static function booted()
@@ -141,6 +154,11 @@ class User extends Authenticatable
     public function patientProfile(): HasOne
     {
         return $this->hasOne(PatientProfile::class);
+    }
+
+    public function virtualWallet(): HasOne
+    {
+        return $this->hasOne(VirtualWallet::class);
     }
 
     public function appointments(): HasMany

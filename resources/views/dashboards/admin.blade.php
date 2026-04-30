@@ -113,7 +113,7 @@
         <div class="card-body scroll-area">
           <ul class="list-group list-group-flush">
             @forelse($actividadReciente as $actividad)
-            <li class="list-group-item"><span class="text-secondary small">{{ \Carbon\Carbon::parse($actividad->created_at)->format('H:i') }}</span> · Pago registrado de <strong>${{ number_format($actividad->total, 0, ',', '.') }}</strong> de <a href="#" class="link-muted">{{ $actividad->user->name ?? 'Paciente' }}</a>.</li>
+            <li class="list-group-item"><span class="text-secondary small">{{ \Carbon\Carbon::parse($actividad->created_at)->format('H:i') }}</span> · Pago registrado de <strong>${{ number_format($actividad->total, 0, ',', '.') }}</strong> de <a href="{{ $actividad->user ? route('admin.client.show', $actividad->user->id) : '#' }}" class="link-muted">{{ $actividad->user->name ?? 'Paciente' }}</a>.</li>
             @empty
             <li class="list-group-item text-center text-muted"><em>Aún no hay actividad registrada hoy.</em></li>
             @endforelse
@@ -136,7 +136,7 @@
       <div class="card mt-3">
         <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
           <span><i class="bi bi-receipt me-2"></i>Pagos recientes</span>
-          <button class="btn btn-sm btn-outline-light">Exportar</button>
+          <a href="{{ route('admin.payments.export') }}" class="btn btn-sm btn-outline-light">Exportar</a>
         </div>
         <div class="table-responsive">
           <table class="table table-sm align-middle mb-0">
@@ -174,17 +174,17 @@
       <div class="card">
         <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
           <span><i class="bi bi-exclamation-triangle me-2 text-warning"></i>Alertas</span>
-          <a href="#" class="link-muted small">Ver todo</a>
+          {{-- <a href="#" class="link-muted small">Ver todo</a> --}}
         </div>
         <div class="card-body">
           <div class="vstack gap-2">
             <div class="d-flex justify-content-between align-items-center p-2 rounded border border-warning-subtle">
               <div><strong>Pagos pendientes:</strong> {{ $pagosPendientesCount }} pacientes</div>
-              <button class="btn btn-sm btn-outline-warning">Revisar</button>
+              <a href="{{ route('admin.payments.pending') }}" class="btn btn-sm btn-outline-warning">Revisar</a>
             </div>
             <div class="d-flex justify-content-between align-items-center p-2 rounded border border-secondary">
               <div><strong>Reagendar no asistidos:</strong> {{ $reagendarCount }} citas</div>
-              <button class="btn btn-sm btn-outline-light">Abrir lista</button>
+              <a href="{{ route('admin.appointments.reschedule-list') }}" class="btn btn-sm btn-outline-light">Abrir lista</a>
             </div>
           </div>
         </div>
@@ -240,24 +240,37 @@
       <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
     </div>
     <div class="offcanvas-body">
-      <div class="vstack gap-3">
+      <form action="{{ route('dashboard') }}" method="GET" class="vstack gap-3">
         <div>
           <label class="form-label">Rango de fechas</label>
           <div class="d-flex gap-2">
-            <input type="date" class="form-control" />
-            <input type="date" class="form-control" />
+            <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-control" />
+            <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-control" />
           </div>
         </div>
         <div>
           <label class="form-label">Profesional</label>
-          <select class="form-select"><option>Todos</option><option>Dra. Pérez</option><option>Dr. Gómez</option></select>
+          <select name="professional_id" class="form-select">
+            <option value="">Todos</option>
+            @foreach($professionals as $prof)
+                <option value="{{ $prof->id }}" {{ request('professional_id') == $prof->id ? 'selected' : '' }}>{{ $prof->name }}</option>
+            @endforeach
+          </select>
         </div>
         <div>
           <label class="form-label">Sucursal</label>
-          <select class="form-select"><option>Actual</option><option>Todas</option></select>
+          <select name="branch_id" class="form-select">
+            <option value="">Todas</option>
+            @foreach($branches as $branch)
+                <option value="{{ $branch->id }}" {{ request('branch_id') == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+            @endforeach
+          </select>
         </div>
-        <div class="d-grid"><button class="btn btn-primary">Aplicar</button></div>
-      </div>
+        <div class="d-grid d-flex gap-2">
+          <a href="{{ route('dashboard') }}" class="btn btn-secondary w-50">Limpiar</a>
+          <button type="submit" class="btn btn-primary w-50">Aplicar</button>
+        </div>
+      </form>
     </div>
   </div>
 

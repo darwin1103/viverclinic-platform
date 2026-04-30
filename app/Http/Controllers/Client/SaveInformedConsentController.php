@@ -125,7 +125,7 @@ class SaveInformedConsentController extends Controller
         ], $messages, $attributes);
 
 
-        $client = User::where('id',Auth::user()->id)->first();
+        $client = User::withoutGlobalScopes()->find(Auth::user()->id);
         if (!$client) {
             return redirect()->back()->with('info', 'Operation failed, try again');
         }

@@ -32,8 +32,12 @@ class BranchController extends Controller
     {
         $branches = Branch::paginate(100);
 
-        if ($request->filled('branch_id')) {
-            session(['selected_branch_id' => $request->input('branch_id')]);
+        if ($request->has('branch_id')) {
+            if ($request->filled('branch_id')) {
+                session(['selected_branch_id' => $request->input('branch_id')]);
+            } else {
+                session()->forget('selected_branch_id');
+            }
         }
         $selectedBranchID = session('selected_branch_id', '');
         return view('admin.branch.index', compact('branches', 'selectedBranchID'));
@@ -168,5 +172,29 @@ class BranchController extends Controller
         }
         $branch->delete();
         return redirect()->back()->with('success', 'Successful operation');
+    }
+
+    public function switchGlobalBranch(Request $request)
+    {
+        if ($request->filled('branch_id')) {
+            session(['selected_branch_id' => $request->branch_id]);
+        } else {
+            session()->forget('selected_branch_id');
+        }
+
+        // Clean branch_id from previous URL to avoid overriding session on reload
+        $referer = url()->previous();
+        $parsedUrl = parse_url($referer);
+        if (isset($parsedUrl['query'])) {
+            parse_str($parsedUrl['query'], $query);
+            unset($query['branch_id']);
+            $newQuery = http_build_query($query);
+            $referer = $parsedUrl['scheme'] . '://' . $parsedUrl['host'] . (isset($parsedUrl['port']) ? ':' . $parsedUrl['port'] : '') . $parsedUrl['path'];
+            if (!empty($newQuery)) {
+                $referer .= '?' . $newQuery;
+            }
+        }
+
+        return redirect($referer);
     }
 }

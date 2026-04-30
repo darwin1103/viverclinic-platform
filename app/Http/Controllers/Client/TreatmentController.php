@@ -25,9 +25,14 @@ class TreatmentController extends Controller
      */
     public function index()
     {
-        // Cargar solo los tratamientos activos asociados a esta sucursal
         $user = Auth::user();
-        $branch = $user->patientProfile->branch;
+        $profile = $user->patientProfile;
+        if (!$profile || !$profile->branch_id) {
+            return view('client.treatment.index', ['treatments' => collect(), 'branch' => null])
+                ->withErrors('No tienes una sucursal asignada a tu perfil.');
+        }
+
+        $branch = $profile->branch;
         $treatments = Treatment::where('active', true)
             ->whereHas('packages', function ($query) use ($branch) {
                 $query->where('branch_id', $branch->id);
@@ -41,7 +46,11 @@ class TreatmentController extends Controller
     {
 
         $user = Auth::user();
-        $branch = $user->patientProfile->branch;
+        $profile = $user->patientProfile;
+        if (!$profile || !$profile->branch_id) {
+            return redirect()->route('client.treatment.index')->withErrors('No tienes una sucursal asignada a tu perfil.');
+        }
+        $branch = $profile->branch;
 
         $isAvailableInBranch = $treatment->packages()
             ->where('branch_id', $branch->id)
@@ -116,7 +125,11 @@ class TreatmentController extends Controller
 
         $validatedData = $request->validated();
         $user = Auth::user();
-        $branch = $user->patientProfile->branch;
+        $profile = $user->patientProfile;
+        if (!$profile || !$profile->branch_id) {
+            return redirect()->route('client.treatment.index')->withErrors('No tienes una sucursal asignada a tu perfil.');
+        }
+        $branch = $profile->branch;
         $paymentType = $request->payment_type;
 
         DB::beginTransaction();
@@ -273,7 +286,7 @@ class TreatmentController extends Controller
                 'payment_receipt' => $receiptPath,
                 'currency' => 'COP',
                 'customer_email' => $user->email,
-                'paid_installments_ids' => $targetInstallments->pluck('id')->toArray()
+                'paid_installments_ids' => collect($targetInstallments)->pluck('id')->toArray()
             ]);
 
             DB::commit();

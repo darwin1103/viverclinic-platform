@@ -144,28 +144,32 @@
                                 </div>
                                 <div class="col text-start">
                                     <p class="fw-bold m-0">{{ __('Next Appointment') }}</p>
-                                    <p class="fs-3 fw-bold m-0 text-uppercase" style="color: #b6d3db;">N/A</p>
+                                    <p class="fs-3 fw-bold m-0 text-uppercase" style="color: #b6d3db;">
+                                        {{ $nextAppointment ? \Carbon\Carbon::parse($nextAppointment->schedule)->isoFormat('D MMM YYYY, h:mm a') : 'N/A' }}
+                                    </p>
                                 </div>
                             </div><hr>
                             <div class="row">
                                 <div class="col text-start">
                                     <p class="fw-bold m-0">{{ __('Balance') }}</p>
-                                    <p class="fs-1 fw-bold m-0 text-uppercase" style="color: #f9ffff;">$0.00</p>
+                                    <p class="fs-1 fw-bold m-0 text-uppercase" style="color: #f9ffff;">${{ number_format($walletBalance, 2) }}</p>
                                 </div>
                             </div><hr>
                             <div class="row">
                                 <div class="col text-start">
                                     <p class="fw-bold m-0">{{ __('Active Packages') }}</p>
-                                    <p class="fs-1 fw-bold m-0 text-uppercase" style="color: #b6d3db;">0</p>
+                                    <p class="fs-1 fw-bold m-0 text-uppercase" style="color: #b6d3db;">{{ $activePackagesCount }}</p>
                                 </div>
                             </div><hr>
                             <div class="row">
                                 <div class="col text-start">
                                     <p class="fw-bold m-0">{{ __('Latest recommendations') }}</p>
                                     <ul style="color: #b6d3db;">
-                                        <li>Elemento 1</li>
-                                        <li>Elemento 2</li>
-                                        <li>Elemento 3</li>
+                                        @forelse($latestRecommendations as $recommendation)
+                                            <li>{{ $recommendation->title }}</li>
+                                        @empty
+                                            <li>Ninguna recomendación reciente</li>
+                                        @endforelse
                                     </ul>
                                 </div>
                             </div>
@@ -176,10 +180,25 @@
                     <div class="card shadow">
                         <div class="card-body px-4">
                             <h5 class="card-title fw-bold">{{ __('Treatment Progress') }}</h5>
-                            <div class="progress my-4" role="progressbar" aria-label="Basic example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
-                                <div class="progress-bar w-75"></div>
+                            <div class="progress my-4" role="progressbar" aria-label="Basic example" aria-valuenow="{{ $treatmentProgress }}" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar" style="width: {{ $treatmentProgress }}%"></div>
                             </div>
-                            <p class="fw-bold m-0" style="color: #33a1d6;">{{ __('') }}Progreso oratnicic</p>
+                            <p class="fw-bold m-0" style="color: #33a1d6;">{{ $treatmentProgress }}% - {{ $treatmentName }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 mt-3">
+                    <div class="card shadow">
+                        <div class="card-body px-4">
+                            <h5 class="card-title fw-bold">Programa de Referidos</h5>
+                            <p class="m-0 mb-2">Invita a tus amigos y gana recompensas.</p>
+                            <p class="fw-bold m-0" style="color: #33a1d6;">Tu código: {{ Auth::user()->referral_code }}</p>
+                            <div class="input-group mt-3">
+                                <input type="text" class="form-control" id="referralLink" value="{{ url('/register?ref=' . Auth::user()->referral_code) }}" readonly>
+                                <button class="btn btn-primary" type="button" onclick="copyReferralLink()">
+                                    <i class="bi bi-clipboard"></i> Copiar
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -188,3 +207,18 @@
 
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    function copyReferralLink() {
+        var copyText = document.getElementById("referralLink");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(copyText.value).then(function() {
+            alert("Enlace copiado al portapapeles");
+        }, function(err) {
+            console.error('Error al copiar: ', err);
+        });
+    }
+</script>
+@endpush

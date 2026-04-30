@@ -8,7 +8,9 @@ use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvid
 use Illuminate\Support\Facades\URL;
 use Carbon\Carbon;
 use Illuminate\Pagination\Paginator;
-
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -40,5 +42,27 @@ class AppServiceProvider extends ServiceProvider
 
         Paginator::useBootstrapFive();
 
+        User::observe(\App\Observers\UserObserver::class);
+
+        RateLimiter::for('login', function (Request $request) {
+            return Limit::perMinute(5)->by($request->input('email') ?: $request->ip());
+        });
+
+        RateLimiter::for('register', function (Request $request) {
+            return Limit::perMinute(10)->by($request->ip());
+        });
+
+        RateLimiter::for('checkout', function (Request $request) {
+            return Limit::perMinute(5)->by($request->ip());
+        });
+
+        \Illuminate\Support\Facades\View::composer('components.admin.dashboard.header', function ($view) {
+            if (!array_key_exists('branches', $view->getData())) {
+                $view->with('branches', \App\Models\Branch::all());
+            }
+            if (!array_key_exists('selectedBranchID', $view->getData())) {
+                $view->with('selectedBranchID', session('selected_branch_id', ''));
+            }
+        });
     }
 }

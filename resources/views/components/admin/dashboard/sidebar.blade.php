@@ -28,7 +28,7 @@
         </a>
       </li>
       <li>
-        <a href="#" class="nav-link">
+        <a href="{{ route('admin.payments.index') }}" class="nav-link @if(Route::is('admin.payments.*')) active @endif">
             <i class="bi bi-cash-coin me-2"></i>
             Pagos
         </a>
@@ -97,13 +97,13 @@
         Marketing
       </li>
       <li>
-        <a href="#" class="nav-link">
+        <a href="{{ route('admin.promotions.index') }}" class="nav-link @if(Route::is('admin.promotions.*')) active @endif">
             <i class="bi bi-megaphone me-2"></i>
             Promociones
         </a>
       </li>
       <li>
-        <a href="#" class="nav-link">
+        <a href="{{ route('admin.referrals.index') }}" class="nav-link @if(Route::is('admin.referrals.*')) active @endif">
             <i class="bi bi-send-check me-2"></i>
             Referidos
         </a>
@@ -112,8 +112,8 @@
         Reportes
       </li>
       <li>
-        <a href="#" class="nav-link">
-            <i class="bi bi-graph-up-arrow me-2"></i>
+        <a href="{{ route('admin.reports.index') }}" class="nav-link @if(Route::is('admin.reports.*')) active @endif">
+            <i class="bi bi-graph-up me-2"></i>
             Reportes
         </a>
       </li>

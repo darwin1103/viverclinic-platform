@@ -22,8 +22,9 @@ class AssetController extends Controller
         }
 
         // Filtro Branch (desde el header)
-        if ($request->filled('branch_id')) {
-            $query->where('branch_id', $request->branch_id);
+        $activeBranch = $request->input('branch_id') ?: session('selected_branch_id');
+        if (!empty($activeBranch)) {
+            $query->where('branch_id', $activeBranch);
         }
 
         $assets = $query->latest()->paginate(10);
@@ -34,8 +35,12 @@ class AssetController extends Controller
 
         $branches = Branch::all();
 
-        if ($request->filled('branch_id')) {
-            session(['selected_branch_id' => $request->input('branch_id')]);
+        if ($request->has('branch_id')) {
+            if ($request->filled('branch_id') || session('selected_branch_id')) {
+                session(['selected_branch_id' => $request->input('branch_id')]);
+            } else {
+                session()->forget('selected_branch_id');
+            }
         }
         $selectedBranchID = session('selected_branch_id', '');
 

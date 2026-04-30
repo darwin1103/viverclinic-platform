@@ -34,8 +34,8 @@ Route::middleware(['auth', 'verified', 'role:PATIENT'])->name('client.')->group(
         ->name('schedule-appointment.cancel');
 
     Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
-    Route::post('/shop/checkout', [ShopController::class, 'checkout'])->name('shop.checkout'); // Previsualizar compra
-    Route::post('/shop/place-order', [ShopController::class, 'placeOrder'])->name('shop.placeOrder'); // Confirmar y guardar
+    Route::post('/shop/checkout', [ShopController::class, 'checkout'])->name('shop.checkout')->middleware('throttle:checkout'); // Previsualizar compra
+    Route::post('/shop/place-order', [ShopController::class, 'placeOrder'])->name('shop.placeOrder')->middleware('throttle:checkout'); // Confirmar y guardar
 
     // Historial de Compras
     Route::get('/my-orders', [OrderController::class, 'index'])->name('orders.index');
@@ -44,9 +44,9 @@ Route::middleware(['auth', 'verified', 'role:PATIENT'])->name('client.')->group(
     Route::get('/payment/result', [ShopController::class, 'wompiResult'])
         ->name('payment.result');
 
-    Route::post('/treatment/pay', [TreatmentPaymentController::class, 'store'])->name('treatment.pay');
+    Route::post('/treatment/pay', [TreatmentPaymentController::class, 'store'])->name('treatment.pay')->middleware('throttle:checkout');
 
-    Route::post('/treatment/payment/process', [TreatmentPaymentController::class, 'process'])->name('treatment.payment.process');
+    Route::post('/treatment/payment/process', [TreatmentPaymentController::class, 'process'])->name('treatment.payment.process')->middleware('throttle:checkout');
     Route::get('/treatment/payment/wompi-result', [TreatmentPaymentController::class, 'wompiResult'])->name('treatment.payment.result');
     Route::get('/treatment/payment/thank-you/{order}', [TreatmentPaymentController::class, 'thankYou'])->name('treatment.payment.thank-you');
 

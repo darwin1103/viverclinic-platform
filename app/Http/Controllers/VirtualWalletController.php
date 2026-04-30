@@ -11,54 +11,42 @@ class VirtualWalletController extends Controller
      */
     public function index()
     {
-        return view('virtual-wallet.index');
+        $user = auth()->user();
+        $wallet = $user->virtualWallet()->firstOrCreate(
+            ['user_id' => $user->id],
+            ['balance' => 0.00]
+        );
+        $transactions = $wallet->transactions()->latest()->get();
+
+        return view('virtual-wallet.index', compact('wallet', 'transactions'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Add balance to a user's wallet manually (Admin).
      */
-    public function create()
+    public function addBalance(Request $request, $userId)
     {
-        //
-    }
+        $validated = $request->validate([
+            'amount' => 'required|numeric|min:0.01',
+            'description' => 'nullable|string|max:255',
+        ]);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $user = \App\Models\User::findOrFail($userId);
+        
+        $wallet = $user->virtualWallet()->firstOrCreate(
+            ['user_id' => $user->id],
+            ['balance' => 0.00]
+        );
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        $wallet->balance += $validated['amount'];
+        $wallet->save();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+        $wallet->transactions()->create([
+            'amount' => $validated['amount'],
+            'type' => 'ingreso',
+            'description' => $validated['description'] ?? 'Recarga manual de administrador',
+        ]);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return back()->with('success', 'Saldo agregado exitosamente a la billetera.');
     }
 }

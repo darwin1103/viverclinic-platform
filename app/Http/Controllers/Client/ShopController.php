@@ -23,15 +23,22 @@ class ShopController extends Controller
     public function index()
     {
         $user = Auth::user();
-        // Asumiendo la relación: User -> PatientProfile -> Branch
-        $branchId = $user->patientProfile->branch->id;
+        $profile = $user->patientProfile;
+
+        if (!$profile || !$profile->branch_id) {
+            return view('client.shop.index', ['products' => collect(), 'branch' => null])
+                ->withErrors('No tienes una sucursal asignada a tu perfil.');
+        }
+
+        $branchId = $profile->branch_id;
+        $branch = $profile->branch;
 
         $products = Product::where('branch_id', $branchId)
             ->where('stock', '>', 0)
             ->latest()
             ->get();
 
-        return view('client.shop.index', compact('products'));
+        return view('client.shop.index', compact('products', 'branch'));
     }
 
     // Vista de Checkout (Recibe el form del index con cantidades)
@@ -106,7 +113,13 @@ class ShopController extends Controller
     public function placeOrder(Request $request)
     {
         $user = Auth::user();
-        $branchId = $user->patientProfile->branch->id;
+        $profile = $user->patientProfile;
+
+        if (!$profile || !$profile->branch_id) {
+            return redirect()->route('dashboard')->withErrors('No tienes una sucursal asignada a tu perfil.');
+        }
+
+        $branchId = $profile->branch_id;
 
         // 1. Validaciones
         $request->validate([
@@ -264,9 +277,16 @@ class ShopController extends Controller
             DB::beginTransaction();
 
             $user = Auth::user();
+            $profile = $user->patientProfile;
+            
+            if (!$profile || !$profile->branch_id) {
+                DB::rollBack();
+                return redirect()->route('dashboard')->withErrors('No tienes una sucursal asignada a tu perfil.');
+            }
+
             $order = Order::create([
                 'user_id' => $user->id,
-                'branch_id' => $user->patientProfile->branch->id,
+                'branch_id' => $profile->branch_id,
                 'total' => $sessionData['total'],
                 'status' => $orderStatus,
                 'payment_method' => 'Wompi (' . $transaction['payment_method_type'] . ')',

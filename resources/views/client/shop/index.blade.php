@@ -3,8 +3,9 @@
 @section('content')
 <div class="container-fluid p-0 py-4">
     <div class="row mb-4">
-        <div class="col-12">
+        <div class="col-12 text-center">
             <h1>Catálogo de Productos</h1>
+            <h5 class="text-muted">Disponibles en: {{ isset($branch) && $branch ? $branch->name : 'Sucursal no asignada' }}</h5>
             <p class="text-muted">Selecciona la cantidad de los productos que deseas comprar.</p>
         </div>
     </div>

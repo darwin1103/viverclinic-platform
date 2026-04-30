@@ -11,7 +11,11 @@ class ReferralsController extends Controller
      */
     public function index()
     {
-        return view('referrals.index');
+        $user = auth()->user();
+        $referralCode = $user->referral_code;
+        $referrals = \App\Models\Referral::where('referrer_id', $user->id)->latest()->get();
+
+        return view('referrals.index', compact('referralCode', 'referrals'));
     }
 
     /**

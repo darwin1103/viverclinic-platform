@@ -48,8 +48,12 @@ class TreatmentController extends Controller
         // Las sucursales se necesitan para el selector del header y los filtros
         $branches = Branch::all();
 
-        if ($request->filled('branch_id')) {
-            session(['selected_branch_id' => $request->input('branch_id')]);
+        if ($request->has('branch_id')) {
+            if ($request->filled('branch_id')) {
+                session(['selected_branch_id' => $request->input('branch_id')]);
+            } else {
+                session()->forget('selected_branch_id');
+            }
         }
         $selectedBranchID = session('selected_branch_id', '');
 
@@ -169,9 +173,18 @@ class TreatmentController extends Controller
             'terms_conditions' => 'nullable|string',
         ], $messages, $attributes);
 
-        $treatmentData = $request->except(['_token', 'branches']);
-        $treatmentData['active'] = $request->has('active');
-        $treatmentData['needs_report_shots'] = $request->has('needs_report_shots');
+        $treatmentData = [
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'sessions' => $validated['sessions'],
+            'days_between_sessions' => $validated['days_between_sessions'],
+            'price_additional_zone' => $validated['price_additional_zone'],
+            'price_additional_mini_zone' => $validated['price_additional_mini_zone'],
+            'terms_conditions' => $validated['terms_conditions'] ?? null,
+            'active' => $request->has('active'),
+            'needs_report_shots' => $request->has('needs_report_shots'),
+        ];
+
         if ($request->hasFile('main_image')) {
             $treatmentData['main_image'] = $this->uploadFile($request->file('main_image'), 'treatments');
         }
@@ -336,9 +349,17 @@ class TreatmentController extends Controller
             'terms_conditions' => 'nullable|string',
         ], $messages, $attributes);
 
-        $treatmentData = $request->except(['_token', '_method', 'branches']);
-        $treatmentData['active'] = $request->has('active');
-        $treatmentData['needs_report_shots'] = $request->has('needs_report_shots');
+        $treatmentData = [
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'sessions' => $validated['sessions'],
+            'days_between_sessions' => $validated['days_between_sessions'],
+            'price_additional_zone' => $validated['price_additional_zone'],
+            'price_additional_mini_zone' => $validated['price_additional_mini_zone'],
+            'terms_conditions' => $validated['terms_conditions'] ?? null,
+            'active' => $request->has('active'),
+            'needs_report_shots' => $request->has('needs_report_shots'),
+        ];
 
         if ($request->hasFile('main_image')) {
             $treatmentData['main_image'] = $this->uploadFile($request->file('main_image'), 'treatments', $treatment->main_image);
@@ -386,10 +407,14 @@ class TreatmentController extends Controller
 
     public function destroy(Treatment $treatment)
     {
-        if ($treatment->main_image) {
-            Storage::disk('public')->delete($treatment->main_image);
+        try {
+            if ($treatment->main_image) {
+                Storage::disk('public')->delete($treatment->main_image);
+            }
+            $treatment->delete();
+            return redirect()->route('admin.treatment.index')->with('success', 'Tratamiento eliminado con éxito.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'No se puede eliminar este registro porque tiene datos dependientes asociados.']);
         }
-        $treatment->delete();
-        return redirect()->route('admin.treatment.index')->with('success', 'Tratamiento eliminado con éxito.');
     }
 }

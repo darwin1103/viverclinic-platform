@@ -61,16 +61,32 @@ class DashboardController extends Controller
             ])
             ->get();
 
-            $patientCount = User::role('PATIENT')
-                ->whereDate('created_at', '>=', now()->subDays(7))
-                ->count();
+            $patientListQuery = User::role('PATIENT')
+                ->when(request('date_from'), function ($q) {
+                    $q->whereDate('created_at', '>=', request('date_from'));
+                }, function ($q) {
+                    $q->whereDate('created_at', '>=', now()->subDays(7));
+                })
+                ->when(request('date_to'), function ($q) {
+                    $q->whereDate('created_at', '<=', request('date_to'));
+                })
+                ->when(request('branch_id') ?: session('selected_branch_id'), function ($q, $branchId) {
+                    $q->whereHas('patientsBranches', function ($q2) use ($branchId) {
+                        $q2->where('branches.id', $branchId);
+                    });
+                });
 
-            $patientList = User::role('PATIENT')
-                ->whereDate('created_at', '>=', now()->subDays(7))
+            $patientCount = $patientListQuery->count();
+
+            $patientList = (clone $patientListQuery)
                 ->select(['id', 'name'])
+                ->latest()
+                ->take(10)
                 ->get();
 
             $branches = Branch::select(['id', 'name'])->get();
+            $rolesExcluyendoPaciente = \Spatie\Permission\Models\Role::where('name', '!=', 'PATIENT')->pluck('name')->toArray();
+            $professionals = User::role($rolesExcluyendoPaciente)->select(['id', 'name'])->get();
 
             // Preparar datos para Chart.js (Citas de los últimos 7 días)
             $appointmentsLast7Days = Appointment::selectRaw('DATE(schedule) as date, count(*) as count')
@@ -91,8 +107,19 @@ class DashboardController extends Controller
             }
 
             $recentPayments = \App\Models\TreatmentOrder::with(['user', 'contractedTreatment.treatment'])
+                ->when(request('date_from'), function ($q) {
+                    $q->whereDate('created_at', '>=', request('date_from'));
+                })
+                ->when(request('date_to'), function ($q) {
+                    $q->whereDate('created_at', '<=', request('date_to'));
+                })
+                ->when(request('branch_id') ?: session('selected_branch_id'), function ($q, $branchId) {
+                    $q->whereHas('contractedTreatment', function ($q2) use ($branchId) {
+                        $q2->where('branch_id', $branchId);
+                    });
+                })
                 ->latest()
-                ->take(5)
+                ->take(10)
                 ->get();
 
             // Cálculos Reales
@@ -100,7 +127,9 @@ class DashboardController extends Controller
                 ->whereIn('status', ['Pagado', 'Paid', 'Pago completado', 'Aprobado'])
                 ->sum('total');
 
-            $egresosHoy = 0; // Todavía no hay tabla de Egresos
+            $egresosHoy = \App\Models\AccountingRecord::whereDate('created_at', today())
+                ->where('type', 'expense')
+                ->sum('amount');
 
             $ingresosPorCategoria = \App\Models\TreatmentOrder::whereDate('treatment_orders.created_at', today())
                 ->whereIn('treatment_orders.status', ['Pagado', 'Paid', 'Pago completado', 'Aprobado'])
@@ -124,6 +153,8 @@ class DashboardController extends Controller
                 'patientCount' => $patientCount,
                 'patientList' => $patientList,
                 'branches' => $branches,
+                'selectedBranchID' => session('selected_branch_id', ''),
+                'professionals' => $professionals,
                 'recentPayments' => $recentPayments,
                 // Nuevas métricas
                 'totalPatients' => $totalPatients,
@@ -146,7 +177,7 @@ class DashboardController extends Controller
 
             return view('dashboards.employee');
 
-        }elseif($user->hasRole('PATIENT')){
+        } elseif ($user->hasRole('PATIENT')) {
 
             if (!Auth::user()->informed_consent) {
                 return redirect()->route('client.informed-consent.create');
@@ -158,19 +189,69 @@ class DashboardController extends Controller
                 ->select(['id'])
                 ->get();
 
-            if($contractedTreatments->count() > 1){
+            if ($contractedTreatments->count() > 1) {
                 $createAppointmentUrl = route('client.contracted-treatment.index');
-            }elseif($contractedTreatments->count() == 1){
+            } elseif ($contractedTreatments->count() == 1) {
                 $createAppointmentUrl = route('client.schedule-appointment.index', ['contracted_treatment' =>  $contractedTreatments[0]->id]);
-            }else{
+            } else {
                 $createAppointmentUrl = null;
+            }
+
+            // --- Cálculos dinámicos para el Frontend ---
+
+            // 1. Próxima Cita
+            $nextAppointment = Appointment::whereHas('contractedTreatment', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->where('schedule', '>=', now())
+            ->whereIn('status', ['Agendado', 'Confirmado', 'Pendiente', 'Pending', 'Scheduled', 'Confirmed'])
+            ->orderBy('schedule', 'asc')
+            ->first();
+
+            // 2. Saldo (Valor base hasta que se migre VirtualWallet real)
+            $walletBalance = $user->virtualWallet->balance ?? 0.00;
+
+            // 3. Paquetes Activos
+            $activePackagesCount = ContractedTreatment::where('user_id', $user->id)
+                ->whereIn('status', ['Pending', 'Activo', 'In Progress'])
+                ->count();
+
+            // 4. Últimas Recomendaciones
+            $latestRecommendations = \App\Models\Recommendation::latest()->take(3)->get();
+
+            // 5. Progreso del Tratamiento (del paquete más reciente)
+            $latestActiveTreatment = ContractedTreatment::with('appointments', 'treatment')
+                ->where('user_id', $user->id)
+                ->whereIn('status', ['Pending', 'Activo', 'In Progress'])
+                ->latest()
+                ->first();
+
+            $treatmentProgress = 0;
+            $treatmentName = 'Ningún tratamiento activo';
+
+            if ($latestActiveTreatment && $latestActiveTreatment->sessions > 0) {
+                $completedSessions = $latestActiveTreatment->appointments()
+                    ->where(function ($query) {
+                        $query->whereIn('status', ['Completada', 'Completado', 'Completed'])
+                              ->orWhere('attended', true);
+                    })
+                    ->count();
+                
+                $treatmentProgress = min(100, (int) round(($completedSessions / $latestActiveTreatment->sessions) * 100));
+                $treatmentName = $latestActiveTreatment->treatment->name ?? 'Tratamiento actual';
             }
 
             $data = [
                 'createAppointmentUrl' => $createAppointmentUrl,
+                'nextAppointment'      => $nextAppointment,
+                'walletBalance'        => $walletBalance,
+                'activePackagesCount'  => $activePackagesCount,
+                'latestRecommendations'=> $latestRecommendations,
+                'treatmentProgress'    => $treatmentProgress,
+                'treatmentName'        => $treatmentName,
             ];
 
-            return view('dashboards.patient',  $data);
+            return view('dashboards.patient', $data);
 
         }
 

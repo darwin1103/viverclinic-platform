@@ -11,7 +11,17 @@ class CancelAppointmentController extends Controller
      */
     public function index()
     {
-        return view('cancel-appointment.index');
+        $user = auth()->user();
+        $nextAppointment = \App\Models\Appointment::with(['contractedTreatment.treatment', 'contractedTreatment.branch'])
+            ->whereHas('contractedTreatment', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->where('schedule', '>=', now())
+            ->whereIn('status', ['Agendado', 'Confirmado', 'Pendiente', 'Pending', 'Scheduled', 'Confirmed', 'Por confirmar'])
+            ->orderBy('schedule', 'asc')
+            ->first();
+
+        return view('cancel-appointment.index', compact('nextAppointment'));
     }
 
     /**
@@ -59,6 +69,21 @@ class CancelAppointmentController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $appointment = \App\Models\Appointment::findOrFail($id);
+
+        // Verify ownership
+        $user = auth()->user();
+        $contractedTreatment = $appointment->contractedTreatment;
+        if ($contractedTreatment->user_id !== $user->id) {
+            abort(403);
+        }
+
+        // Cancel logic: We delete the appointment or change status.
+        // The business logic says "devuelva o libere esa sesión". As analyzed, deleting the appointment 
+        // completely removes it from the 'attended'/'missed' count, thereby freeing the pending session count.
+        $appointment->delete();
+
+        return redirect()->route('dashboard')
+            ->with('success', 'Cita cancelada exitosamente. Tu sesión ha sido devuelta a tu paquete.');
     }
 }

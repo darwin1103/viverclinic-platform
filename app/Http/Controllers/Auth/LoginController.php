@@ -40,6 +40,26 @@ class LoginController extends Controller
         $this->middleware('auth')->only('logout');
     }
 
+    public function login(Request $request)
+    {
+        $key = 'login_attempts:' . $request->ip();
+
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($key, 5)) {
+            abort(429, 'Too Many Requests');
+        }
+
+        \Illuminate\Support\Facades\RateLimiter::hit($key, 60);
+
+        $this->validateLogin($request);
+
+        if ($this->attemptLogin($request)) {
+            \Illuminate\Support\Facades\RateLimiter::clear($key);
+            return $this->sendLoginResponse($request);
+        }
+
+        return $this->sendFailedLoginResponse($request);
+    }
+
     public function logout(Request $request)
     {
         Auth::logout();

@@ -5,7 +5,7 @@
     <div class="row mb-4">
         <div class="col-12 text-center">
             <h1>Nuestros Tratamientos</h1>
-            <h5 class="text-muted">Disponibles en: {{ $branch->name }}</h5>
+            <h5 class="text-muted">Disponibles en: {{ $branch ? $branch->name : 'Sucursal no asignada' }}</h5>
         </div>
     </div>
     <div class="row g-4">

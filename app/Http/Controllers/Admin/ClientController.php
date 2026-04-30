@@ -62,8 +62,12 @@ class ClientController extends Controller
 
         $branches = Branch::all();
 
-        if ($request->filled('branch_id')) {
-            session(['selected_branch_id' => $request->input('branch_id')]);
+        if ($request->has('branch_id')) {
+            if ($request->filled('branch_id')) {
+                session(['selected_branch_id' => $request->input('branch_id')]);
+            } else {
+                session()->forget('selected_branch_id');
+            }
         }
         $selectedBranchID = session('selected_branch_id', '');
 
@@ -129,7 +133,7 @@ class ClientController extends Controller
         $client->assignRole('PATIENT');
 
         $client->patientProfile()->create([
-            'branch_id' => $request->branchId,
+            'branch_id' => $request->branch_id,
         ]);
 
         $client->notify(new UserCreatedNotification($client->name, $client->email, $password));
@@ -226,7 +230,7 @@ class ClientController extends Controller
         $client->save();
 
         $client->patientProfile()->update([
-            'branch_id' => $request->branchId,
+            'branch_id' => $request->branch_id,
         ]);
 
         return redirect()->back()->with('success', 'Successful operation');
@@ -239,9 +243,12 @@ class ClientController extends Controller
     public function destroy(User $client)
     {
 
-        $client->delete();
-
-        return redirect()->back()->with('success', 'Successful operation');
+        try {
+            $client->delete();
+            return redirect()->back()->with('success', 'User deleted successfully');
+        } catch (Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'No se puede eliminar este registro porque tiene datos dependientes asociados.']);
+        }
 
     }
 

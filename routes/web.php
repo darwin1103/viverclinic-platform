@@ -27,6 +27,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
+Route::post('login', [\App\Http\Controllers\Auth\LoginController::class, 'login'])->middleware('throttle:login');
+Route::post('register', [\App\Http\Controllers\Auth\RegisterController::class, 'register'])->middleware('throttle:register');
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -57,3 +59,8 @@ Route::resource('job-trailing', JobTrailingController::class);
 require __DIR__.'/client.php';
 require __DIR__.'/admin.php';
 require __DIR__.'/staff.php';
+
+// Panel de Administración - Módulo Contable (SuperAdmin)
+Route::prefix('admin')->middleware(['auth', 'role:SuperAdmin|SUPER_ADMIN'])->group(function () {
+    Route::get('/accounting', [\App\Http\Controllers\Admin\AccountingController::class, 'index'])->name('admin.accounting.index');
+});

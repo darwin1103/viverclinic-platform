@@ -105,7 +105,6 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'referred_by_id' => $referredById,
-            'branch_id' => $data['branchId'],
         ]);
 
         $user->assignRole('PATIENT');
@@ -120,7 +119,7 @@ class RegisterController extends Controller
                 'referred_name' => $user->name,
                 'referred_email' => $user->email,
                 'referred_phone' => null,
-                'status' => 'Pending',
+                'status' => 'Pendiente',
             ]);
         }
 

@@ -114,8 +114,7 @@ class ContractedTreatmentController extends Controller
                 // Si no hay IDs de cuotas (ej. pago total antiguo o lógica diferida),
                 // asumimos lógica por defecto o pago total
                 if($order->contractedTreatment->status !== 'Paid'){
-                     // Lógica de fallback si es necesario, o actualizar todo si fue pago total
-                     // ...
+                     $order->contractedTreatment->update(['status' => 'Paid']);
                 }
             }
 

@@ -102,6 +102,10 @@ const SessionsTableModule = (function() {
         if (appointmentForm) appointmentForm.action = url;
         if (contractedTreatmentIdInput) contractedTreatmentIdInput.value = contractedTreatmentId;
 
+        // Show the modal
+        const modal = bootstrap.Modal.getOrCreateInstance(elements.modalAgendar);
+        modal.show();
+
         setTimeout(()=>{
             const todayCell = document.querySelector('#calendarDays .cell-today');
             if(todayCell) todayCell.click();

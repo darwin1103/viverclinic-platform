@@ -156,7 +156,7 @@ const AdminActionsModule = (function() {
                                 </div>
                             ` : ''}
 
-                            <div><strong>Calificacion del cliente:</strong> ${currentAppointment.review_score ? (reviewValues[currentAppointment.review_score] + (currentAppointment.review ? (' - ' + currentAppointment.review) : '')) : 'Sin calificación.'}</div>
+                            ${(!['Pendiente', 'Agendado', 'Por confirmar'].includes(currentAppointment.status) || currentAppointment.review_score) ? `<div><strong>Calificacion del cliente:</strong> ${currentAppointment.review_score ? (reviewValues[currentAppointment.review_score] + (currentAppointment.review ? (' - ' + currentAppointment.review) : '')) : 'Sin calificación.'}</div>` : ''}
 
                             ${currentAppointment.shots ? `
                                 <div>
@@ -165,7 +165,7 @@ const AdminActionsModule = (function() {
                                 </div>
                             ` : ''}
 
-                            ${currentAppointment.attended !== null ? `<div><strong>Asistencia:</strong> <span class="badge text-bg-${currentAppointment.attended ? 'success' : 'danger'}">${currentAppointment.attended ? 'Asistió' : 'No asistió'}</span></div>` : ''}
+                            ${(!['Pendiente', 'Agendado', 'Por confirmar'].includes(currentAppointment.status) && currentAppointment.attended !== null) ? `<div><strong>Asistencia:</strong> <span class="badge text-bg-${currentAppointment.attended ? 'success' : 'danger'}">${currentAppointment.attended ? 'Asistió' : 'No asistió'}</span></div>` : ''}
                         </div>
                     </div>
                 </div>
@@ -180,10 +180,10 @@ const AdminActionsModule = (function() {
     function updateActionButtons() {
         if (!currentAppointment) return;
 
-        const canMarkAttended = (currentAppointment.status === 'Confirmada' && currentAppointment.attended === null) || currentAppointment.status === 'No asistida';
-        const canConfirm = currentAppointment.status === 'Por confirmar' || currentAppointment.status === 'No asistida';
-        const canReschedule = ['Por confirmar', 'Confirmada', 'No asistida'].includes(currentAppointment.status);
-        const canCancel = currentAppointment.status !== 'Cancelada' && currentAppointment.status !== 'Atendida' &&  currentAppointment.status !== 'No asistida';
+        const canMarkAttended = (['Confirmada', 'Pendiente'].includes(currentAppointment.status) && currentAppointment.attended === null) || currentAppointment.status === 'No asistida';
+        const canConfirm = ['Por confirmar', 'Agendado', 'Pendiente', 'No asistida'].includes(currentAppointment.status);
+        const canReschedule = ['Por confirmar', 'Agendado', 'Pendiente', 'Confirmada', 'No asistida'].includes(currentAppointment.status);
+        const canCancel = !['Cancelada', 'Atendida', 'Completado', 'No asistida'].includes(currentAppointment.status);
 
         if (elements.btnMarkAttended) {
             elements.btnMarkAttended.classList.toggle('d-none', !canMarkAttended);
@@ -315,9 +315,13 @@ const AdminActionsModule = (function() {
 
         renderRescheduleCalendar();
 
-        // Show modal natively using data-bs-toggle
-        // const modal = new bootstrap.Modal(elements.modalReschedule);
-        // modal.show();
+        // Hide current detail modal
+        const detailModal = bootstrap.Modal.getInstance(elements.modalDetail);
+        if (detailModal) detailModal.hide();
+
+        // Show reschedule modal
+        const reschedModal = bootstrap.Modal.getOrCreateInstance(elements.modalReschedule);
+        reschedModal.show();
     }
 
     function navigateRescheduleMonth(direction) {

@@ -43,7 +43,7 @@ class DashboardController extends Controller
                                         ->count();
 
             // 3. Tratamientos activos (Asumiendo que 'Pending' es el estado activo o simplemente count de todo)
-            $activeTreatments = ContractedTreatment::where('status', 'Pending')->count();
+            $activeTreatments = ContractedTreatment::whereIn('status', ['Pending', 'Activo', 'In Progress', 'Paid', 'Pagado'])->count();
 
             // KPIs originales mantenidos si son necesarios para la vista
             $todayAppointments = Appointment::whereBetween('schedule', [
@@ -213,7 +213,7 @@ class DashboardController extends Controller
 
             // 3. Paquetes Activos
             $activePackagesCount = ContractedTreatment::where('user_id', $user->id)
-                ->whereIn('status', ['Pending', 'Activo', 'In Progress'])
+                ->whereIn('status', ['Pending', 'Activo', 'In Progress', 'Paid', 'Pagado'])
                 ->count();
 
             // 4. Últimas Recomendaciones
@@ -222,7 +222,7 @@ class DashboardController extends Controller
             // 5. Progreso del Tratamiento (del paquete más reciente)
             $latestActiveTreatment = ContractedTreatment::with('appointments', 'treatment')
                 ->where('user_id', $user->id)
-                ->whereIn('status', ['Pending', 'Activo', 'In Progress'])
+                ->whereIn('status', ['Pending', 'Activo', 'In Progress', 'Paid', 'Pagado'])
                 ->latest()
                 ->first();
 

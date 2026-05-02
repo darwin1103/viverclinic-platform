@@ -206,7 +206,7 @@ class TreatmentController extends Controller
 
             $amountToPay = 0;
             $paymentDescription = '';
-            $targetInstallments = []; // Cuotas a marcar como pagadas/afectadas
+            $targetInstallments = collect([]); // Cuotas a marcar como pagadas/afectadas
 
             if ($paymentType === 'installment' && $contractedTreatment->hasInstallments()) {
                 // Pagar 1ra Cuota

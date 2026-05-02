@@ -8,6 +8,7 @@ use App\Models\BranchTreatment;
 use App\Models\ContractedTreatment;
 use App\Models\Treatment;
 use App\Models\TreatmentOrder;
+use App\Services\ReferralService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Mail\TreatmentOrderConfirmation;
@@ -117,6 +118,9 @@ class ContractedTreatmentController extends Controller
 
             // Opcional: Enviar correo de aprobación
             // Mail::to($order->user)->queue(new TreatmentOrderConfirmation($order));
+
+            // Procesar recompensa de referido (si aplica)
+            ReferralService::processReward($order->user);
 
             DB::commit();
             return back()->with('success', 'Pago aprobado correctamente. Las cuotas han sido actualizadas.');

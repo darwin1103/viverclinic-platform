@@ -2,63 +2,53 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Referral;
+use App\Models\Setting;
+use Illuminate\Support\Facades\Auth;
 
 class ReferralsController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display the referrals dashboard for the patient.
      */
     public function index()
     {
-        return view('referrals.index');
-    }
+        $user = Auth::user();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        // Asegurar que el usuario tenga un código de referido
+        if (!$user->referral_code) {
+            $user->referral_code = \App\Models\User::generateReferralCode();
+            $user->save();
+        }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $referralLink = $user->getReferralLink();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        // Referidos hechos por este usuario
+        $referrals = Referral::where('referrer_id', $user->id)
+            ->with('referred')
+            ->latest()
+            ->get();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+        // Estadísticas
+        $totalReferred = $referrals->count();
+        $successfulReferrals = $referrals->where('status', 'rewarded')->count();
+        $totalBonusSessions = $referrals->where('status', 'rewarded')->sum('bonus_sessions');
+        $pendingReferrals = $referrals->where('status', 'registered')->count();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+        // Configuración actual
+        $bonusSessionsConfig = Setting::get('referral_bonus_sessions', 3);
+        $referralEnabled = Setting::get('referral_enabled', '1');
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return view('referrals.index', compact(
+            'user',
+            'referralLink',
+            'referrals',
+            'totalReferred',
+            'successfulReferrals',
+            'totalBonusSessions',
+            'pendingReferrals',
+            'bonusSessionsConfig',
+            'referralEnabled'
+        ));
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ContractedTreatment;
 use App\Models\TreatmentOrder;
 use App\Models\Setting;
+use App\Services\ReferralService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -236,6 +237,9 @@ class TreatmentPaymentController extends Controller
                 if ($pendingCount === 0) {
                     $contractedTreatment->update(['status' => 'Paid']);
                 }
+
+                // Procesar recompensa de referido (si aplica)
+                ReferralService::processReward(Auth::user());
             }
 
             DB::commit();

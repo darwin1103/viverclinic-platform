@@ -103,7 +103,7 @@
         </a>
       </li>
       <li>
-        <a href="#" class="nav-link">
+        <a href="{{ route('admin.referrals.index') }}" class="nav-link @if(Route::is('admin.referrals.*')) active @endif">
             <i class="bi bi-send-check me-2"></i>
             Referidos
         </a>

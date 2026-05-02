@@ -4,12 +4,14 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Appointment;
+use App\Models\Referral;
 use App\Models\StaffProfile;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -27,6 +29,7 @@ class User extends Authenticatable
         'email',
         'password',
         'informed_consent',
+        'referral_code',
     ];
 
     /**
@@ -122,4 +125,48 @@ class User extends Authenticatable
         return $this->hasMany(Appointment::class, 'staff_user_id');
     }
 
+    /**
+     * Referidos hechos por este usuario.
+     */
+    public function referralsMade(): HasMany
+    {
+        return $this->hasMany(Referral::class, 'referrer_id');
+    }
+
+    /**
+     * Referido recibido (si este usuario fue referido por alguien).
+     */
+    public function referralReceived(): HasOne
+    {
+        return $this->hasOne(Referral::class, 'referred_id');
+    }
+
+    /**
+     * Generar un código de referido único.
+     */
+    public static function generateReferralCode(): string
+    {
+        do {
+            $code = 'VV-' . strtoupper(Str::random(6));
+        } while (self::where('referral_code', $code)->exists());
+
+        return $code;
+    }
+
+    /**
+     * Obtener el link de referido del usuario.
+     */
+    public function getReferralLink(): ?string
+    {
+        if (!$this->referral_code) {
+            return null;
+        }
+
+        $branch = $this->patientProfile?->branch;
+        if ($branch) {
+            return route('registration-by-branch.create', ['branch' => $branch->id]) . '?ref=' . $this->referral_code;
+        }
+
+        return url('/register') . '?ref=' . $this->referral_code;
+    }
 }

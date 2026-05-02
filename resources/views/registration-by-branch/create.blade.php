@@ -8,6 +8,9 @@
                     <form method="POST" action="{{ route('register') }}">
                         @csrf
                         <input type="hidden" name="branchId" value="{{ $branchId }}">
+                        @if(!empty($referralCode))
+                            <input type="hidden" name="referral_code" value="{{ $referralCode }}">
+                        @endif
                         <div class="row mb-3">
                             <label for="name" class="col-md-4 col-form-label text-md-end">{{ __('Name') }}</label>
                             <div class="col-md-6">

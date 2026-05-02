@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Referral;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
@@ -54,6 +55,7 @@ class RegisterController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'branchId' => ['required'], // ***
+            'referral_code' => ['nullable', 'string', 'max:10'],
         ]);
 
     }
@@ -71,6 +73,7 @@ class RegisterController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'referral_code' => User::generateReferralCode(),
         ]);
 
         $user->assignRole('PATIENT');
@@ -78,6 +81,18 @@ class RegisterController extends Controller
         $user->patientProfile()->create([
             'branch_id' => $data['branchId'],
         ]);
+
+        // Procesar código de referido si fue proporcionado
+        if (!empty($data['referral_code'])) {
+            $referrer = User::where('referral_code', $data['referral_code'])->first();
+            if ($referrer && $referrer->id !== $user->id) {
+                Referral::create([
+                    'referrer_id' => $referrer->id,
+                    'referred_id' => $user->id,
+                    'status' => 'registered',
+                ]);
+            }
+        }
 
         return $user;
 

@@ -15,6 +15,7 @@ class UserRegistrationByBranchController extends Controller
     {
         $data = [
             'branchId' => $branch->id,
+            'referralCode' => request()->query('ref'),
         ];
 
         return view('registration-by-branch.create', $data);

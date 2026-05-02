@@ -19,6 +19,46 @@ class AdminAppointmentController extends Controller
     use CalculatesAvailableSlots;
 
     /**
+     * Show the form for creating a new appointment manually
+     */
+    public function create(): \Illuminate\View\View
+    {
+        $patients = User::role('PATIENT')->select(['id', 'name'])->get();
+        $contractedTreatments = \App\Models\ContractedTreatment::with('treatment')
+            ->whereIn('status', ['Activo', 'Pending', 'In Progress'])
+            ->get();
+            
+        return view('admin.appointments.create', compact('patients', 'contractedTreatments'));
+    }
+
+    /**
+     * Store a newly created appointment manually.
+     */
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $validated = $request->validate([
+            'contracted_treatment_id' => 'required|exists:contracted_treatments,id',
+            'date' => 'required|date',
+            'time' => 'required|date_format:H:i',
+        ]);
+
+        $schedule = Carbon::parse($validated['date'] . ' ' . $validated['time']);
+        $contractedTreatment = \App\Models\ContractedTreatment::findOrFail($validated['contracted_treatment_id']);
+
+        $previousAppointmentsCount = Appointment::where('contracted_treatment_id', $contractedTreatment->id)->count();
+        $sessionNumber = $previousAppointmentsCount + 1;
+
+        Appointment::create([
+            'contracted_treatment_id' => $contractedTreatment->id,
+            'schedule' => $schedule,
+            'session_number' => $sessionNumber,
+            'status' => 'Agendado',
+        ]);
+
+        return redirect()->route('admin.appointments.index')->with('success', 'Cita agendada exitosamente.');
+    }
+
+    /**
      * Display the appointment management page
      */
     public function index(Request $request)
@@ -26,8 +66,12 @@ class AdminAppointmentController extends Controller
 
         $branches = Branch::all();
 
-        if ($request->filled('branch_id')) {
-            session(['selected_branch_id' => $request->input('branch_id')]);
+        if ($request->has('branch_id')) {
+            if ($request->filled('branch_id')) {
+                session(['selected_branch_id' => $request->input('branch_id')]);
+            } else {
+                session()->forget('selected_branch_id');
+            }
         }
         $selectedBranchID = session('selected_branch_id', '');
 
@@ -35,6 +79,14 @@ class AdminAppointmentController extends Controller
             'branches' => $branches,
             'selectedBranchID' => $selectedBranchID,
         ]);
+    }
+
+    /**
+     * Display the list of appointments that need to be rescheduled.
+     */
+    public function rescheduleList(): \Illuminate\View\View
+    {
+        return view('admin.appointments.reschedule-list');
     }
 
     /**

@@ -53,7 +53,7 @@
                                 <i class="bi bi-x-lg"></i>
                                 <span class="d-none d-sm-inline">No asistida</span>
                             </span>
-                        @elseif ($isNextSession)
+                        @elseif (isset($session) && $session['schedule'])
                             <span class="badge-assist text-bg-info">
                                 <i class="bi bi-clock"></i>
                                 <span class="d-none d-sm-inline">Agendada</span>

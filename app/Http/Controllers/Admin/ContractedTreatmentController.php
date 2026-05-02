@@ -50,8 +50,12 @@ class ContractedTreatmentController extends Controller
 
         $branches = Branch::all();
 
-        if ($request->filled('branch_id')) {
-            session(['selected_branch_id' => $request->input('branch_id')]);
+        if ($request->has('branch_id')) {
+            if ($request->filled('branch_id')) {
+                session(['selected_branch_id' => $request->input('branch_id')]);
+            } else {
+                session()->forget('selected_branch_id');
+            }
         }
         $selectedBranchID = session('selected_branch_id', '');
 
@@ -111,8 +115,7 @@ class ContractedTreatmentController extends Controller
                 // Si no hay IDs de cuotas (ej. pago total antiguo o lógica diferida),
                 // asumimos lógica por defecto o pago total
                 if($order->contractedTreatment->status !== 'Paid'){
-                     // Lógica de fallback si es necesario, o actualizar todo si fue pago total
-                     // ...
+                     $order->contractedTreatment->update(['status' => 'Paid']);
                 }
             }
 

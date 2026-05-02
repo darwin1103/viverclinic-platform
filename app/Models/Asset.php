@@ -6,8 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+
 class Asset extends Model
 {
+    use \Illuminate\Database\Eloquent\Factories\HasFactory, \App\Traits\BelongsToBranch;
+
     protected $fillable = ['name', 'stock', 'branch_id'];
 
     public function branch(): BelongsTo

@@ -19,16 +19,21 @@ class AdminProductController extends Controller
         }
 
         // Filtro por sucursal
-        if ($request->filled('branch_id')) {
-            $query->where('branch_id', $request->branch_id);
+        $activeBranch = $request->input('branch_id') ?: session('selected_branch_id');
+        if (!empty($activeBranch)) {
+            $query->where('branch_id', $activeBranch);
         }
 
         $products = $query->latest()->paginate(10);
 
         $branches = Branch::all();
 
-        if ($request->filled('branch_id')) {
-            session(['selected_branch_id' => $request->input('branch_id')]);
+        if ($request->has('branch_id')) {
+            if ($request->filled('branch_id')) {
+                session(['selected_branch_id' => $request->input('branch_id')]);
+            } else {
+                session()->forget('selected_branch_id');
+            }
         }
         $selectedBranchID = session('selected_branch_id', '');
 
@@ -51,7 +56,7 @@ class AdminProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'stock' => 'required|integer|min:0',
-            'price' => 'required|numeric|min:0|decimal:0,2',
+            'price' => 'required|numeric|min:0',
             'branch_id' => 'required|exists:branches,id',
         ], [
             // Mensajes para Nombre
@@ -91,7 +96,7 @@ class AdminProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'stock' => 'required|integer|min:0',
-            'price' => 'required|numeric|min:0|decimal:0,2',
+            'price' => 'required|numeric|min:0',
             'branch_id' => 'required|exists:branches,id',
         ], [
             // Mensajes para Nombre
@@ -122,7 +127,11 @@ class AdminProductController extends Controller
 
     public function destroy(Product $product)
     {
-        $product->delete();
-        return redirect()->route('admin.products.index')->with('success', 'Producto eliminado correctamente.');
+        try {
+            $product->delete();
+            return redirect()->route('admin.products.index')->with('success', 'Producto eliminado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'No se puede eliminar este registro porque tiene datos dependientes asociados.']);
+        }
     }
 }

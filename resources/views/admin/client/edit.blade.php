@@ -34,14 +34,14 @@
                         </div>
 
                         <div class="form-floating my-3">
-                            <select id="branchId" class="form-control @error('branchId') is-invalid @enderror" name="branchId" value="{{ old('branchId') }}" required autocomplete="branchId" >
+                            <select id="branch_id" class="form-control @error('branch_id') is-invalid @enderror" name="branch_id" required>
                                 <option value="">Seleccionar</option>
                                 @foreach($branches as $branch)
-                                    <option value="{{ $branch->id }}" @if ($branch->id == $client->patientProfile->branch->id) selected @endif >{{ $branch->name }}</option>
+                                    <option value="{{ $branch->id }}" @if ($branch->id == ($client->patientProfile->branch_id ?? null) || old('branch_id') == $branch->id) selected @endif >{{ $branch->name }}</option>
                                 @endforeach
                             </select>
-                            <label for="branchId">Sucursal</label>
-                            @error('branchId')
+                            <label for="branch_id">Sucursal</label>
+                            @error('branch_id')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
                                 </span>

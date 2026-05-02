@@ -8,7 +8,7 @@
         <div class="modal-body">
           <div class="row g-2">
             <div class="col-12 col-sm-6">
-              <a href="#" class="btn btn-outline-light w-100">
+              <a href="{{ route('admin.appointments.create') }}" class="btn btn-outline-light w-100">
                 <i class="bi bi-calendar-plus me-2"></i>
                 Nueva cita
               </a>
@@ -20,17 +20,16 @@
               </a>
             </div>
             <div class="col-12 col-sm-6">
-              <a href="#" class="btn btn-outline-light w-100">
+              <a href="{{ route('admin.payments.create') }}" class="btn btn-outline-light w-100">
                 <i class="bi bi-cash-coin me-2"></i>
                 Registrar pago
               </a>
             </div>
             <div class="col-12 col-sm-6">
-              <a href="#" class="btn btn-outline-light w-100">
-                <i class="bi bi-megaphone me-2"></i>Crear
-                   promoción
-                 </a>
-               </div>
+              <a href="{{ route('admin.promotions.create') }}" class="btn btn-outline-light w-100">
+                <i class="bi bi-megaphone me-2"></i>Crear promoción
+              </a>
+            </div>
           </div>
         </div>
         <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button></div>

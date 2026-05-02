@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             BranchSeeder::class,
             TreatmentSeeder::class,
             UserSeeder::class,
+            // MockDataSeeder::class,
         ]);
 
     }

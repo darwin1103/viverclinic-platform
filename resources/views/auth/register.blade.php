@@ -37,7 +37,7 @@
                             <div class="col-md-6">
                                 <select id="branchId" class="form-control @error('branchId') is-invalid @enderror" name="branchId" value="{{ old('branchId') }}" required autocomplete="branchId" >
                                     <option value="">Seleccionar</option>
-                                    @foreach(App\Models\Branch::all() as $branch)
+                                    @foreach($branches as $branch)
                                         <option value="{{ $branch->id }}">{{ $branch->name }}</option>
                                     @endforeach
                                 </select>

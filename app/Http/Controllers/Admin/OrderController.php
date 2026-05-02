@@ -22,9 +22,10 @@ class OrderController extends Controller
     {
         $query = Order::with(['user', 'branch']);
 
-        // 1. Filtro por Sucursal (Header)
-        if ($request->filled('branch_id')) {
-            $query->where('branch_id', $request->branch_id);
+        // 1. Filtro por Sucursal
+        $activeBranch = $request->input('branch_id') ?: session('selected_branch_id');
+        if (!empty($activeBranch)) {
+            $query->where('branch_id', $activeBranch);
         }
 
         // 2. Filtro por Búsqueda (Nombre o Email del paciente)
@@ -48,8 +49,12 @@ class OrderController extends Controller
 
         $branches = Branch::all();
 
-        if ($request->filled('branch_id')) {
-            session(['selected_branch_id' => $request->input('branch_id')]);
+        if ($request->has('branch_id')) {
+            if ($request->filled('branch_id') || session('selected_branch_id')) {
+                session(['selected_branch_id' => $request->input('branch_id')]);
+            } else {
+                session()->forget('selected_branch_id');
+            }
         }
         $selectedBranchID = session('selected_branch_id', '');
 

@@ -4,9 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Appointment;
-use App\Mail\AppointmentReminderMail;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Date;
-use Illuminate\Support\Facades\Mail;
 
 class SendAppointmentReminders26h extends Command
 {
@@ -22,12 +21,12 @@ class SendAppointmentReminders26h extends Command
      *
      * @var string
      */
-    protected $description = 'Sends email reminders for appointments scheduled between 24 and 26 hours from now.';
+    protected $description = 'Sends email/whatsapp reminders for appointments scheduled between 24 and 26 hours from now.';
 
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(NotificationService $notificationService)
     {
         $now = Date::now();
         $startWindow = $now->copy()->addHours(24);
@@ -50,15 +49,13 @@ class SendAppointmentReminders26h extends Command
         }
 
         foreach ($appointmentsToSendReminder as $appointment) {
-            // Se encola el correo para no afectar el rendimiento
-            Mail::to($appointment->contractedTreatment->user->email)
-                ->queue(new AppointmentReminderMail($appointment));
+            $notificationService->sendAppointmentReminder($appointment);
 
             // Marca la notificación como enviada
             $appointment->notification_reminder_sent = true;
             $appointment->save();
         }
 
-        $this->info($appointmentsToSendReminder->count() . ' appointment reminders have been queued.');
+        $this->info($appointmentsToSendReminder->count() . ' appointment reminders have been processed.');
     }
 }

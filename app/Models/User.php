@@ -13,11 +13,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
+use App\Traits\ScopesByBranch;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, ScopesByBranch;
 
     /**
      * The attributes that are mass assignable.
@@ -31,6 +32,19 @@ class User extends Authenticatable
         'informed_consent',
         'referral_code',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($user) {
+            if (empty($user->referral_code)) {
+                do {
+                    $code = strtoupper(\Illuminate\Support\Str::random(8));
+                } while (static::withoutGlobalScopes()->where('referral_code', $code)->exists());
+                
+                $user->referral_code = $code;
+            }
+        });
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -59,6 +73,16 @@ class User extends Authenticatable
     public function staffProfile()
     {
         return $this->hasOne(StaffProfile::class);
+    }
+
+    public function referrer()
+    {
+        return $this->belongsTo(User::class, 'referred_by_id');
+    }
+
+    public function referrals()
+    {
+        return $this->hasMany(User::class, 'referred_by_id');
     }
 
     public function adminsBranches()
@@ -118,6 +142,11 @@ class User extends Authenticatable
     public function patientProfile(): HasOne
     {
         return $this->hasOne(PatientProfile::class);
+    }
+
+    public function virtualWallet(): HasOne
+    {
+        return $this->hasOne(VirtualWallet::class);
     }
 
     public function appointments(): HasMany

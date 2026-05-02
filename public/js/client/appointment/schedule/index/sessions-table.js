@@ -89,8 +89,6 @@ const SessionsTableModule = (function() {
     function openSchedulerModal(sessionNumber, branchId, url, contractedTreatmentId) {
         if (!elements.modalAgendar) return;
 
-        const modal = new bootstrap.Modal(elements.modalAgendar);
-
         // Set session number in modal
         const sessionSpan = elements.modalAgendar.querySelector('#modalSessionNumber');
         const sessionInput = elements.modalAgendar.querySelector('#sessionNumberInput');
@@ -104,11 +102,14 @@ const SessionsTableModule = (function() {
         if (appointmentForm) appointmentForm.action = url;
         if (contractedTreatmentIdInput) contractedTreatmentIdInput.value = contractedTreatmentId;
 
-        setTimeout(()=>{
-            document.querySelector('#calendarDays .cell-today').click();
-        },500);
-
+        // Show the modal
+        const modal = bootstrap.Modal.getOrCreateInstance(elements.modalAgendar);
         modal.show();
+
+        setTimeout(()=>{
+            const todayCell = document.querySelector('#calendarDays .cell-today');
+            if(todayCell) todayCell.click();
+        },500);
     }
 
     function confirmSession(confirmUrl) {

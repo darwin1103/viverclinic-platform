@@ -11,12 +11,15 @@
   <div class="ms-auto d-flex align-items-center gap-2">
 
   @if($branches && $branches->count() > 0)
-      <select class="form-select form-select-sm" id="branch-selector" style="min-width:220px" aria-label="Seleccionar sucursal">
-          <option value="">Todos</option>
-          @foreach($branches as $branch)
-              <option value="{{ $branch->id }}" @if($selectedBranchID == $branch->id) selected @endif>{{ $branch->name }}</option>
-          @endforeach
-      </select>
+      <form id="global-branch-form" method="POST" action="{{ route('admin.switch-branch') }}" class="m-0">
+          @csrf
+          <select class="form-select form-select-sm" name="branch_id" id="global-branch-selector" style="min-width:220px" aria-label="Seleccionar sucursal" onchange="this.form.submit()">
+              <option value="" @if(empty($selectedBranchID)) selected @endif>Todos</option>
+              @foreach($branches as $branch)
+                  <option value="{{ $branch->id }}" @if($selectedBranchID == $branch->id) selected @endif>{{ $branch->name }}</option>
+              @endforeach
+          </select>
+      </form>
   @endif
 
     <!-- SOLO ICONO "+" -->

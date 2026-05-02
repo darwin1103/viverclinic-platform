@@ -28,13 +28,13 @@
         </a>
       </li>
       <li>
-        <a href="#" class="nav-link">
+        <a href="{{ route('staff.payments.index') }}" class="nav-link @if(Route::is('staff.payments.*')) active @endif">
             <i class="bi bi-cash-coin me-2"></i>
             Pagos
         </a>
       </li>
       <li>
-        <a href="#" class="nav-link">
+        <a href="{{ route('staff.packages.index') }}" class="nav-link @if(Route::is('staff.packages.*')) active @endif">
             <i class="bi bi-bag-check me-2"></i>
             Paquetes
         </a>
@@ -43,8 +43,8 @@
         Reportes
       </li>
       <li>
-        <a href="#" class="nav-link">
-            <i class="bi bi-graph-up-arrow me-2"></i>
+        <a href="{{ route('staff.reports.index') }}" class="nav-link @if(Route::is('staff.reports.*')) active @endif">
+            <i class="bi bi-graph-up me-2"></i>
             Reportes
         </a>
       </li>
@@ -52,7 +52,7 @@
         Configuración
       </li>
       <li>
-        <a href="#" class="nav-link">
+        <a href="{{ route('staff.settings.index') }}" class="nav-link @if(Route::is('staff.settings.*')) active @endif">
             <i class="bi bi-gear me-2"></i>
             Configuración
         </a>

@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('referral_code')->unique()->nullable();
-            $table->foreignId('referred_by_id')->nullable()->constrained('users')->nullOnDelete();
+            if (!Schema::hasColumn('users', 'referral_code')) {
+                $table->string('referral_code')->unique()->nullable();
+            }
+            if (!Schema::hasColumn('users', 'referred_by_id')) {
+                $table->foreignId('referred_by_id')->nullable()->constrained('users')->nullOnDelete();
+            }
         });
     }
 

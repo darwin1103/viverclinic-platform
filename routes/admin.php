@@ -169,7 +169,20 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
     Route::post('/treatment-order/{order}/approve', [ContractedTreatmentController::class, 'approvePayment'])->name('contracted-treatment.approve-payment');
     Route::post('/treatment-order/{order}/reject', [ContractedTreatmentController::class, 'rejectPayment'])->name('contracted-treatment.reject-payment');
 
-    // Gestión de Referidos
+    // Marketing Management
+    Route::get('/referrals-report', [\App\Http\Controllers\Admin\ReferralReportController::class, 'index'])->name('referrals-report.index');
+    Route::resource('promotions', \App\Http\Controllers\Admin\PromotionController::class);
+
+    // Accounting Management (Restricted to SUPER_ADMIN)
+    Route::middleware('role:SUPER_ADMIN')->group(function () {
+        Route::get('/accounting', [\App\Http\Controllers\Admin\AccountingController::class, 'index'])->name('accounting.index');
+        Route::post('/accounting', [\App\Http\Controllers\Admin\AccountingController::class, 'store'])->name('accounting.store');
+    });
+
+    // Virtual Wallet Management
+    Route::post('/virtual-wallet/{user}/add-balance', [\App\Http\Controllers\VirtualWalletController::class, 'addBalance'])->name('virtual-wallet.add-balance');
+
+    // Gestión de Referidos (Local)
     Route::get('/referrals', [ReferralController::class, 'index'])->name('referrals.index');
     Route::post('/referrals/{referral}/mark-commission-paid', [ReferralController::class, 'markCommissionPaid'])
         ->name('referrals.mark-commission-paid');

@@ -187,38 +187,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 mt-3">
-                    <div class="card shadow">
-                        <div class="card-body px-4">
-                            <h5 class="card-title fw-bold">Programa de Referidos</h5>
-                            <p class="m-0 mb-2">Invita a tus amigos y gana recompensas.</p>
-                            <p class="fw-bold m-0" style="color: #33a1d6;">Tu código: {{ Auth::user()->referral_code }}</p>
-                            <div class="input-group mt-3">
-                                <input type="text" class="form-control" id="referralLink" value="{{ url('/register?ref=' . Auth::user()->referral_code) }}" readonly>
-                                <button class="btn btn-primary" type="button" onclick="copyReferralLink()">
-                                    <i class="bi bi-clipboard"></i> Copiar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
     </div>
 @endsection
-
-@push('scripts')
-<script>
-    function copyReferralLink() {
-        var copyText = document.getElementById("referralLink");
-        copyText.select();
-        copyText.setSelectionRange(0, 99999);
-        navigator.clipboard.writeText(copyText.value).then(function() {
-            alert("Enlace copiado al portapapeles");
-        }, function(err) {
-            console.error('Error al copiar: ', err);
-        });
-    }
-</script>
-@endpush

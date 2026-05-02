@@ -3,27 +3,6 @@
 <div class="container-fluid p-0 py-4">
     <h1 class="">Mis Referidos</h1>
 
-    {{-- Tarjeta Superior Estilo Filtro --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5 class="text-muted mb-3"><i class="bi bi-share me-2"></i>Tu Código de Referido</h5>
-            <div class="d-flex align-items-center flex-wrap gap-3">
-                @if($referralCode)
-                    <div class="bg-dark border border-secondary text-white fw-bold fs-4 rounded py-2 px-4 shadow-sm user-select-all" style="letter-spacing: 2px;" id="referralCodeText">
-                        {{ $referralCode }}
-                    </div>
-                    <button class="btn btn-outline-light rounded-pill fw-medium" onclick="copyReferralCode()">
-                        <i class="bi bi-clipboard me-2"></i>Copiar
-                    </button>
-                @else
-                    <div class="bg-dark border border-secondary text-secondary opacity-50 fw-bold fs-4 rounded py-2 px-4 shadow-sm d-inline-block">
-                        NO DISPONIBLE
-                    </div>
-                    <p class="text-muted small mb-0 ms-2">Comunícate con administración para generar tu código.</p>
-                @endif
-            </div>
-        </div>
-    </div>
 
     @if($referralEnabled)
 
@@ -46,8 +25,8 @@
                                 <div class="input-group" style="max-width: 500px;">
                                     <input type="text" class="form-control bg-dark text-white border-secondary"
                                            id="referralLinkInput" value="{{ $referralLink }}" readonly>
-                                    <button class="btn btn-outline-light" type="button" id="copyReferralLink"
-                                            onclick="copyReferralLink()">
+                                    <button class="btn btn-outline-light" type="button" id="copyReferralLinkBtn"
+                                            onclick="copyLinkToClipboard()">
                                         <i class="bi bi-clipboard"></i> Copiar
                                     </button>
                                 </div>
@@ -170,12 +149,12 @@
 
 @push('scripts')
 <script>
-    function copyReferralLink() {
+    function copyLinkToClipboard() {
         const input = document.getElementById('referralLinkInput');
         input.select();
         input.setSelectionRange(0, 99999);
-        navigator.clipboard.writeText(input.value).then(() => {
-            const btn = document.getElementById('copyReferralLink');
+        const showSuccess = () => {
+            const btn = document.getElementById('copyReferralLinkBtn');
             const originalHtml = btn.innerHTML;
             btn.innerHTML = '<i class="bi bi-check-lg"></i> ¡Copiado!';
             btn.classList.remove('btn-outline-light');
@@ -185,7 +164,19 @@
                 btn.classList.remove('btn-success');
                 btn.classList.add('btn-outline-light');
             }, 2000);
-        });
+        };
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(input.value).then(showSuccess);
+        } else {
+            try {
+                document.execCommand('copy');
+                showSuccess();
+            } catch (err) {
+                console.error('Error al copiar: ', err);
+                alert('No se pudo copiar automáticamente. Por favor copia el texto manualmente.');
+            }
+        }
     }
 </script>
 @endpush

@@ -193,7 +193,7 @@ class User extends Authenticatable
 
         $branch = $this->patientProfile?->branch;
         if ($branch) {
-            return route('registration-by-branch.create', ['branch' => $branch->id]) . '?ref=' . $this->referral_code;
+            return route('registration-by-branch.create', ['branch' => $branch->slug]) . '?ref=' . $this->referral_code;
         }
 
         return url('/register') . '?ref=' . $this->referral_code;

@@ -38,9 +38,11 @@ class ReferralsController extends Controller
         // Configuración actual
         $bonusSessionsConfig = Setting::get('referral_bonus_sessions', 3);
         $referralEnabled = Setting::get('referral_enabled', '1');
+        $referralCode = $user->referral_code;
 
         return view('referrals.index', compact(
             'user',
+            'referralCode',
             'referralLink',
             'referrals',
             'totalReferred',

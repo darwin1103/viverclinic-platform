@@ -113,7 +113,18 @@
         <div class="card-body scroll-area">
           <ul class="list-group list-group-flush">
             @forelse($actividadReciente as $actividad)
-            <li class="list-group-item"><span class="text-secondary small">{{ \Carbon\Carbon::parse($actividad->created_at)->format('H:i') }}</span> · Pago registrado de <strong>${{ number_format($actividad->total, 0, ',', '.') }}</strong> de <a href="{{ $actividad->user ? route('admin.client.show', $actividad->user->id) : '#' }}" class="link-muted">{{ $actividad->user->name ?? 'Paciente' }}</a>.</li>
+            <li class="list-group-item">
+              <span class="text-secondary small">{{ \Carbon\Carbon::parse($actividad->created_at)->format('H:i') }}</span> · 
+              @if(($actividad->activity_type ?? '') === 'pago_producto')
+                Venta de productos por 
+              @else
+                Pago de tratamiento por 
+              @endif
+              <strong>${{ number_format($actividad->total, 0, ',', '.') }}</strong> de 
+              <a href="{{ $actividad->user ? route('admin.client.show', $actividad->user->id) : '#' }}" class="link-muted">
+                {{ $actividad->user->name ?? 'Paciente' }}
+              </a>.
+            </li>
             @empty
             <li class="list-group-item text-center text-muted"><em>Aún no hay actividad registrada hoy.</em></li>
             @endforelse

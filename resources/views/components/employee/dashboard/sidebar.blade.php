@@ -6,12 +6,7 @@
     </div>
     <hr class="border-secondary-subtle">
     <ul class="nav nav-pills flex-column gap-1 mb-auto">
-      <li>
-        <a href="{{ route('dashboard') }}" class="nav-link @if(Route::is('dashboard')) active @endif">
-          <i class="bi bi-speedometer2 me-2"></i>
-            Dashboard
-        </a>
-      </li>
+
       <li class="mt-2 text-uppercase text-secondary small px-2">
         Operación
       </li>
@@ -22,21 +17,18 @@
         </a>
       </li>
       <li>
-        <a href="{{ route('admin.client.index') }}" class="nav-link @if(Route::is('client.*')) active @endif">
-            <i class="bi bi-people me-2"></i>
-            Clientes
+        <a href="{{ route('staff.trainings.index') }}" class="nav-link @if(Route::is('staff.trainings.*')) active @endif">
+            <i class="bi bi-play-btn me-2"></i>
+            Capacitaciones
         </a>
       </li>
-      <li>
-        <a href="{{ route('staff.payments.index') }}" class="nav-link @if(Route::is('staff.payments.*')) active @endif">
-            <i class="bi bi-cash-coin me-2"></i>
-            Pagos
-        </a>
+      <li class="mt-3 text-uppercase text-secondary small px-2">
+        Mis Finanzas
       </li>
       <li>
-        <a href="{{ route('staff.packages.index') }}" class="nav-link @if(Route::is('staff.packages.*')) active @endif">
-            <i class="bi bi-bag-check me-2"></i>
-            Paquetes
+        <a href="{{ route('staff.payroll.index') }}" class="nav-link @if(Route::is('staff.payroll.*')) active @endif">
+            <i class="bi bi-wallet2 me-2"></i>
+            Mi Liquidación
         </a>
       </li>
       <li class="mt-3 text-uppercase text-secondary small px-2">

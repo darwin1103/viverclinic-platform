@@ -182,11 +182,15 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
     Route::get('/accounting', [\App\Http\Controllers\Admin\AccountingController::class, 'index'])->name('accounting.index');
     Route::post('/accounting', [\App\Http\Controllers\Admin\AccountingController::class, 'store'])->name('accounting.store');
 
+    // Tips and Recommendations
+    Route::resource('care-tips', \App\Http\Controllers\Admin\CareTipsController::class);
+    Route::resource('recomentations', \App\Http\Controllers\Admin\RecomentationsController::class);
+
+    // Trainings
+    Route::resource('trainings', \App\Http\Controllers\Admin\TrainingController::class)->except(['create', 'edit', 'show']);
+
     // Expense Categories Management
     Route::resource('expense-categories', \App\Http\Controllers\Admin\ExpenseCategoryController::class)->only(['index', 'store', 'update', 'destroy']);
-
-    // Virtual Wallet Management
-    Route::post('/virtual-wallet/{user}/add-balance', [\App\Http\Controllers\VirtualWalletController::class, 'addBalance'])->name('virtual-wallet.add-balance');
 
     // Gestión de Referidos (Local)
     Route::get('/referrals', [ReferralController::class, 'index'])->name('referrals.index');

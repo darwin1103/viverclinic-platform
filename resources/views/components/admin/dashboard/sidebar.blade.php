@@ -100,6 +100,27 @@
         </a>
       </li>
       <li class="mt-3 text-uppercase text-secondary small px-2">
+        Contenido
+      </li>
+      <li>
+        <a href="{{ route('admin.care-tips.index') }}" class="nav-link @if(Route::is('admin.care-tips.*')) active @endif">
+            <i class="bi bi-heart-pulse me-2"></i>
+            Tips de Cuidado
+        </a>
+      </li>
+      <li>
+        <a href="{{ route('admin.recomentations.index') }}" class="nav-link @if(Route::is('admin.recomentations.*')) active @endif">
+            <i class="bi bi-star me-2"></i>
+            Recomendaciones
+        </a>
+      </li>
+      <li>
+        <a href="{{ route('admin.trainings.index') }}" class="nav-link @if(Route::is('admin.trainings.*')) active @endif">
+            <i class="bi bi-play-btn me-2"></i>
+            Capacitaciones
+        </a>
+      </li>
+      <li class="mt-3 text-uppercase text-secondary small px-2">
         Marketing
       </li>
       <li>

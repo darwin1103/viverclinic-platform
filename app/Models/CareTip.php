@@ -11,6 +11,7 @@ class CareTip extends Model
     protected $fillable = [
         'branch_id',
         'title',
+        'image',
         'content',
     ];
 

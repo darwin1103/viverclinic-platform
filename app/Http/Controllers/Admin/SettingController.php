@@ -18,6 +18,7 @@ class SettingController extends Controller
         $referralBonusSessions = Setting::get('referral_bonus_sessions', '3');
         $referralCommissionType = Setting::get('referral_commission_type', 'fixed');
         $referralCommissionValue = Setting::get('referral_commission_value', '0');
+        $staffCommissionTarget = Setting::get('staff_commission_target', '0');
 
         return view('admin.settings.index', compact(
             'wompiPublicKey',
@@ -25,7 +26,8 @@ class SettingController extends Controller
             'referralEnabled',
             'referralBonusSessions',
             'referralCommissionType',
-            'referralCommissionValue'
+            'referralCommissionValue',
+            'staffCommissionTarget'
         ));
     }
 
@@ -38,6 +40,7 @@ class SettingController extends Controller
             'referral_bonus_sessions' => 'nullable|integer|min:1|max:50',
             'referral_commission_type' => 'nullable|in:fixed,percentage',
             'referral_commission_value' => 'nullable|numeric|min:0',
+            'staff_commission_target' => 'nullable|numeric|min:0',
         ]);
 
         Setting::updateOrCreate(['key' => 'wompi_public_key'], ['value' => $request->wompi_public_key]);
@@ -48,6 +51,7 @@ class SettingController extends Controller
         Setting::updateOrCreate(['key' => 'referral_bonus_sessions'], ['value' => $request->referral_bonus_sessions ?? '3']);
         Setting::updateOrCreate(['key' => 'referral_commission_type'], ['value' => $request->referral_commission_type ?? 'fixed']);
         Setting::updateOrCreate(['key' => 'referral_commission_value'], ['value' => $request->referral_commission_value ?? '0']);
+        Setting::updateOrCreate(['key' => 'staff_commission_target'], ['value' => $request->staff_commission_target ?? '0']);
 
         return back()->with('success', 'Configuración actualizada correctamente.');
     }

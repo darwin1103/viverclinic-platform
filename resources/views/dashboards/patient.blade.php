@@ -72,17 +72,6 @@
                             </a>
                         </div>
                     @endcan
-                    @can('patient_virtual_wallet_home_btn')
-                        <div class="col-12 col-lg-4">
-                            <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
-                                role="button"
-                                href="{{ route('virtual-wallet.index') }}"
-                            >
-                                <i class="bi bi-wallet"></i>
-                                Pagos
-                            </a>
-                        </div>
-                    @endcan
                     @can('patient_referrals_home_btn')
                         <div class="col-12 col-lg-4">
                             <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
@@ -144,15 +133,9 @@
                                 </div>
                                 <div class="col text-start">
                                     <p class="fw-bold m-0">{{ __('Next Appointment') }}</p>
-                                    <p class="fs-3 fw-bold m-0 text-uppercase" style="color: #b6d3db;">
-                                        {{ $nextAppointment ? \Carbon\Carbon::parse($nextAppointment->schedule)->isoFormat('D MMM YYYY, h:mm a') : 'N/A' }}
+                                    <p class="{{ $nextAppointment ? 'fs-4 text-uppercase' : 'small fw-normal' }} fw-bold m-0" style="color: #b6d3db;">
+                                        {{ $nextAppointment ? \Carbon\Carbon::parse($nextAppointment->schedule)->isoFormat('D MMM YYYY, h:mm a') : 'No tienes citas programadas' }}
                                     </p>
-                                </div>
-                            </div><hr>
-                            <div class="row">
-                                <div class="col text-start">
-                                    <p class="fw-bold m-0">{{ __('Balance') }}</p>
-                                    <p class="fs-1 fw-bold m-0 text-uppercase" style="color: #f9ffff;">${{ number_format($walletBalance, 2) }}</p>
                                 </div>
                             </div><hr>
                             <div class="row">
@@ -161,6 +144,14 @@
                                     <p class="fs-1 fw-bold m-0 text-uppercase" style="color: #b6d3db;">{{ $activePackagesCount }}</p>
                                 </div>
                             </div><hr>
+                            @if($pendingBalance > 0)
+                            <div class="row">
+                                <div class="col text-start">
+                                    <p class="fw-bold m-0 text-warning">Saldo por pagar</p>
+                                    <p class="fs-1 fw-bold m-0 text-uppercase text-warning">${{ number_format($pendingBalance, 0, ',', '.') }}</p>
+                                </div>
+                            </div><hr>
+                            @endif
                             <div class="row">
                                 <div class="col text-start">
                                     <p class="fw-bold m-0">{{ __('Latest recommendations') }}</p>

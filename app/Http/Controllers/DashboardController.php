@@ -123,29 +123,73 @@ class DashboardController extends Controller
                 ->get();
 
             // Cálculos Reales
-            $ingresoDiario = \App\Models\TreatmentOrder::whereDate('created_at', today())
+            $branchId = request('branch_id') ?: session('selected_branch_id');
+
+            // 1. Ingreso diario (Tratamientos + Productos)
+            $treatmentIncomeToday = \App\Models\TreatmentOrder::whereDate('created_at', today())
                 ->whereIn('status', ['Pagado', 'Paid', 'Pago completado', 'Aprobado'])
+                ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
                 ->sum('total');
 
+            $productIncomeToday = \App\Models\Order::whereDate('created_at', today())
+                ->whereIn('status', ['Pagado', 'Paid', 'Completado', 'Completed'])
+                ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
+                ->sum('total');
+
+            $ingresoDiario = $treatmentIncomeToday + $productIncomeToday;
+
+            // 2. Egresos de hoy
             $egresosHoy = \App\Models\AccountingRecord::whereDate('created_at', today())
                 ->where('type', 'expense')
+                ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
                 ->sum('amount');
 
+            // 3. Ingresos por categoría (incluyendo Productos)
             $ingresosPorCategoria = \App\Models\TreatmentOrder::whereDate('treatment_orders.created_at', today())
                 ->whereIn('treatment_orders.status', ['Pagado', 'Paid', 'Pago completado', 'Aprobado'])
+                ->when($branchId, fn($q) => $q->where('treatment_orders.branch_id', $branchId))
                 ->join('contracted_treatments', 'treatment_orders.contracted_treatment_id', '=', 'contracted_treatments.id')
                 ->join('treatments', 'contracted_treatments.treatment_id', '=', 'treatments.id')
                 ->selectRaw('treatments.name as category, SUM(treatment_orders.total) as total')
                 ->groupBy('treatments.name')
                 ->get();
 
+            if ($productIncomeToday > 0) {
+                $ingresosPorCategoria->push((object)[
+                    'category' => 'Venta de productos',
+                    'total' => $productIncomeToday
+                ]);
+            }
+
             $pagosPendientesCount = \App\Models\TreatmentOrder::whereIn('status', ['Pendiente', 'Pending', 'Pago por verificar'])->count();
             $reagendarCount = \App\Models\Appointment::whereIn('status', ['No asistió', 'Cancelada', 'Cancelado'])->count();
 
-            $actividadReciente = \App\Models\TreatmentOrder::with(['user', 'contractedTreatment.treatment'])
+            // 4. Actividad reciente (Tratamientos + Productos)
+            $recentTreatments = \App\Models\TreatmentOrder::with(['user', 'contractedTreatment.treatment'])
+                ->whereDate('created_at', today())
+                ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
                 ->latest()
                 ->take(3)
-                ->get();
+                ->get()
+                ->map(function($item) {
+                    $item->activity_type = 'pago_tratamiento';
+                    return $item;
+                });
+
+            $recentProducts = \App\Models\Order::with(['user'])
+                ->whereDate('created_at', today())
+                ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
+                ->latest()
+                ->take(3)
+                ->get()
+                ->map(function($item) {
+                    $item->activity_type = 'pago_producto';
+                    return $item;
+                });
+
+            $actividadReciente = $recentTreatments->concat($recentProducts)
+                ->sortByDesc('created_at')
+                ->take(5);
 
             $data = [
                 'todayAppointments' => $todayAppointments,
@@ -175,7 +219,7 @@ class DashboardController extends Controller
 
         } elseif ($user->hasRole('EMPLOYEE')) {
 
-            return view('dashboards.employee');
+            return redirect()->route('staff.appointment.index');
 
         } elseif ($user->hasRole('PATIENT')) {
 
@@ -208,8 +252,10 @@ class DashboardController extends Controller
             ->orderBy('schedule', 'asc')
             ->first();
 
-            // 2. Saldo (Valor base hasta que se migre VirtualWallet real)
-            $walletBalance = $user->virtualWallet->balance ?? 0.00;
+            // 2. Saldo por pagar (Cuotas pendientes)
+            $pendingBalance = \App\Models\TreatmentOrder::where('user_id', $user->id)
+                ->whereIn('status', ['Pendiente', 'Pending', 'Pago por verificar'])
+                ->sum('total');
 
             // 3. Paquetes Activos
             $activePackagesCount = ContractedTreatment::where('user_id', $user->id)
@@ -244,7 +290,7 @@ class DashboardController extends Controller
             $data = [
                 'createAppointmentUrl' => $createAppointmentUrl,
                 'nextAppointment'      => $nextAppointment,
-                'walletBalance'        => $walletBalance,
+                'pendingBalance'       => $pendingBalance,
                 'activePackagesCount'  => $activePackagesCount,
                 'latestRecommendations'=> $latestRecommendations,
                 'treatmentProgress'    => $treatmentProgress,

@@ -88,6 +88,24 @@
                 <small class="text-secondary">Ingresa 0 para desactivar la comisión de empleada.</small>
             </div>
 
+            {{-- Sección Empleados --}}
+            <div class="col-12 mt-4">
+                <h5 class="fw-bold border-bottom pb-2 mb-3">
+                    <i class="bi bi-person-badge me-2"></i>Staff y Empleadas
+                </h5>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label for="staff_commission_target" class="form-label fw-bold">Meta mensual de comisiones</label>
+                <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" class="form-control" id="staff_commission_target"
+                           name="staff_commission_target" value="{{ $staffCommissionTarget ?? 0 }}"
+                           min="0" step="1000" placeholder="500000">
+                </div>
+                <small class="text-secondary">Esta meta se mostrará a las empleadas en su panel de liquidación.</small>
+            </div>
+
             <div class="col-12 mt-4 text-end">
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-save"></i> Guardar Configuración

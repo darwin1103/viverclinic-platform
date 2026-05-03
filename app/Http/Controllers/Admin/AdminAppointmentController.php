@@ -258,7 +258,16 @@ class AdminAppointmentController extends Controller
         ->join('staff_profiles', 'users.id', '=', 'staff_profiles.user_id') // 2. Une la tabla de perfiles.
         ->where('staff_profiles.branch_id', $branchId) // 3. Filtra por branch_id directamente en la tabla unida.
         ->whereHas('staffProfile.workSchedules', function ($q) use ($appointmentTime) {
-            $dayOfWeek = $appointmentTime->locale('es')->dayName;
+            $daysMap = [
+                0 => 'Domingo',
+                1 => 'Lunes',
+                2 => 'Martes',
+                3 => 'Miércoles',
+                4 => 'Jueves',
+                5 => 'Viernes',
+                6 => 'Sábado',
+            ];
+            $dayOfWeek = $daysMap[$appointmentTime->dayOfWeek];
             $time = $appointmentTime->format('H:i:s');
 
             $q->where('day_of_week', $dayOfWeek)

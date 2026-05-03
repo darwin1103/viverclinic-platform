@@ -21,12 +21,17 @@ class StaffAppointmentController extends Controller
 
         // Start query for appointments assigned to the current staff member
         $query = Appointment::where('staff_user_id', $staffUserId)
-                            ->with(['contractedTreatment.user', 'contractedTreatment.treatment']);
+                            ->with([
+                                'contractedTreatment.user' => function ($q) {
+                                    $q->withoutGlobalScope('scopesByBranch');
+                                },
+                                'contractedTreatment.treatment'
+                            ]);
 
         // Apply search filter for patient name
         if ($request->filled('search')) {
             $query->whereHas('contractedTreatment.user', function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%');
+                $q->withoutGlobalScope('scopesByBranch')->where('name', 'like', '%' . $request->search . '%');
             });
         }
 

@@ -16,7 +16,17 @@ trait ScopesByBranch
                     return;
                 }
 
-                $branchIds = $user->adminsBranches()->pluck('branches.id')->toArray();
+                if ($user->hasRole('ADMIN')) {
+                    $branchIds = $user->adminsBranches()->pluck('branches.id')->toArray();
+                } elseif ($user->hasRole('EMPLOYEE')) {
+                    $branchIds = $user->employeesBranches()->pluck('branches.id')->toArray();
+                    // Fallback to staffProfile branch_id if employees_branches pivot is empty
+                    if (empty($branchIds) && $user->staffProfile) {
+                        $branchIds = [$user->staffProfile->branch_id];
+                    }
+                } else {
+                    $branchIds = [];
+                }
 
                 $table = $builder->getModel()->getTable();
 

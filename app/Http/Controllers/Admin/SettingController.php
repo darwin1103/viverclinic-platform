@@ -20,6 +20,10 @@ class SettingController extends Controller
         $referralCommissionValue = Setting::get('referral_commission_value', '0');
         $staffCommissionTarget = Setting::get('staff_commission_target', '0');
 
+        // Configuración de Disparos
+        $shotsPerZone = Setting::get('shots_per_zone', '600');
+        $shotsPerMinizone = Setting::get('shots_per_minizone', '200');
+
         return view('admin.settings.index', compact(
             'wompiPublicKey',
             'wompiIntegritySecret',
@@ -27,7 +31,9 @@ class SettingController extends Controller
             'referralBonusSessions',
             'referralCommissionType',
             'referralCommissionValue',
-            'staffCommissionTarget'
+            'staffCommissionTarget',
+            'shotsPerZone',
+            'shotsPerMinizone'
         ));
     }
 
@@ -41,6 +47,8 @@ class SettingController extends Controller
             'referral_commission_type' => 'nullable|in:fixed,percentage',
             'referral_commission_value' => 'nullable|numeric|min:0',
             'staff_commission_target' => 'nullable|numeric|min:0',
+            'shots_per_zone' => 'nullable|integer|min:1',
+            'shots_per_minizone' => 'nullable|integer|min:1',
         ]);
 
         Setting::updateOrCreate(['key' => 'wompi_public_key'], ['value' => $request->wompi_public_key]);
@@ -52,6 +60,10 @@ class SettingController extends Controller
         Setting::updateOrCreate(['key' => 'referral_commission_type'], ['value' => $request->referral_commission_type ?? 'fixed']);
         Setting::updateOrCreate(['key' => 'referral_commission_value'], ['value' => $request->referral_commission_value ?? '0']);
         Setting::updateOrCreate(['key' => 'staff_commission_target'], ['value' => $request->staff_commission_target ?? '0']);
+
+        // Guardar configuración de disparos
+        Setting::updateOrCreate(['key' => 'shots_per_zone'], ['value' => $request->shots_per_zone ?? '600']);
+        Setting::updateOrCreate(['key' => 'shots_per_minizone'], ['value' => $request->shots_per_minizone ?? '200']);
 
         return back()->with('success', 'Configuración actualizada correctamente.');
     }

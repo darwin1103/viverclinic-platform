@@ -10,6 +10,7 @@
 
   <div class="ms-auto d-flex align-items-center gap-2">
 
+  @role('SUPER_ADMIN|OWNER')
   @if($branches && $branches->count() > 0)
       <form id="global-branch-form" method="POST" action="{{ route('admin.switch-branch') }}" class="m-0">
           @csrf
@@ -21,6 +22,7 @@
           </select>
       </form>
   @endif
+  @endrole
 
     <!-- SOLO ICONO "+" -->
     <button class="btn btn-primary btn-sm btn-icon" aria-label="Crear" title="Crear" data-bs-toggle="modal" data-bs-target="#modalQuickAdd">

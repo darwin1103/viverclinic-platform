@@ -51,6 +51,22 @@
             </div>
         </div>
     </div>
+
+    {{-- Aclaraciones al paciente --}}
+    <div class="row justify-content-center mt-3">
+        <div class="col-12 col-lg-8">
+            <div class="alert alert-info border-info" role="alert">
+                <h5 class="alert-heading fw-bold mb-2"><i class="bi bi-info-circle-fill me-2"></i>Atención usuario</h5>
+                <ul class="mb-0 text-start">
+                    <li>Las citas agendadas se deben confirmar, reagendar o cancelar con 24 horas de anticipación, de lo contrario se tomará como no asistida.</li>
+                    <li>Recuerda que no asistir puntual a tu tratamiento va a afectar los resultados del mismo y el centro de estética no se hace responsable.</li>
+                    <li>Recuerda asistir a tu cita siguiendo las recomendaciones previas al tratamiento.</li>
+                    <li>El tiempo estimado de cada sesión es de 20 minutos.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <x-client.appointment.schedule.index.appointment-modal />

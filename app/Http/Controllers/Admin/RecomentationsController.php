@@ -27,6 +27,7 @@ class RecomentationsController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'description' => 'required|string|max:500',
             'content' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
@@ -44,6 +45,7 @@ class RecomentationsController extends Controller
         \App\Models\Recommendation::create([
             'branch_id' => $branchId,
             'title' => $request->title,
+            'description' => $request->description,
             'image' => $imagePath,
             'content' => $request->content,
         ]);
@@ -53,18 +55,21 @@ class RecomentationsController extends Controller
 
     public function show(string $id)
     {
-        //
+        $recommendation = \App\Models\Recommendation::findOrFail($id);
+        return view('admin.recomentations.show', compact('recommendation'));
     }
 
     public function edit(string $id)
     {
-        //
+        $recommendation = \App\Models\Recommendation::findOrFail($id);
+        return view('admin.recomentations.edit', compact('recommendation'));
     }
 
     public function update(Request $request, string $id)
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'description' => 'required|string|max:500',
             'content' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
@@ -81,6 +86,7 @@ class RecomentationsController extends Controller
 
         $recommendation->update([
             'title' => $request->title,
+            'description' => $request->description,
             'image' => $imagePath,
             'content' => $request->content,
         ]);

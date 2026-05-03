@@ -116,48 +116,45 @@ document.addEventListener('DOMContentLoaded', function () {
 
             let shotsHtml = '';
             const shotsNumber = parseInt(shots, 10);
-
-            // Condición 1: Si shots es un string vacío (''), no se muestra nada.
-            // Esto se cumple por defecto al inicializar shotsHtml = ''.
-
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-            // Condición 2: Si es un número entero igual a cero y shotsUrl no está vacío.
-            if (shotsNumber === 0 && shotsUrl) {
-                // Se necesita el token CSRF para que el formulario de Laravel funcione.
+            // Condición 2: Si es un número entero igual a cero (necesita reporte de disparos)
+            if (shotsNumber === 0) {
                 shotsHtml = `
-                <div>
+                <div class="mt-3">
                     <strong>Cantidad de disparos en cabina:</strong>
-                    <form action="${shotsUrl}" method="POST" class="mt-2 needs-validation" novalidate>
-                        <input type="hidden" name="_token" value="${csrfToken}">
-                        <div class="input-group">
-                            <input type="number" id="initial-shots" class="form-control" placeholder="Disparos (inicial)" min="1" aria-label="Disparos (inicial)" required>
-                            <input type="number" id="final-shots" class="form-control" placeholder="Disparos (final)" min="1" aria-label="Disparos (final)" required>
-                            <input type="number" id="shots" readonly name="shots" required class="form-control" placeholder="Disparos (total)" min="1" aria-label="Disparos (total)" required>
-                            <button type="submit" class="btn btn-primary">Enviar</button>
-                        </div>
-                         <div class="invalid-feedback">
-                            Por favor, ingrese un número de disparos mayor a cero.
-                        </div>
-                    </form>
+                    <div class="input-group mt-2">
+                        <input type="number" id="initial-shots" class="form-control" placeholder="Disparos (inicial)" min="1" aria-label="Disparos (inicial)" required>
+                        <input type="number" id="final-shots" class="form-control" placeholder="Disparos (final)" min="1" aria-label="Disparos (final)" required>
+                        <input type="number" id="shots" readonly name="shots" class="form-control" placeholder="Disparos (total)" min="1" aria-label="Disparos (total)" required>
+                    </div>
+                     <div class="invalid-feedback">
+                        Por favor, ingrese un número de disparos mayor a cero.
+                    </div>
                 </div>
                 `;
             }
-            // Condición 3: Si es un número entero mayor a cero.
+            // Condición 3: Si es un número entero mayor a cero (ya reportado).
             else if (shotsNumber > 0) {
-                shotsHtml = `<div><strong>Disparos en cabina:</strong> <span class="badge bg-success">${shots}</span></div>`;
+                shotsHtml = `<div class="mt-3"><strong>Disparos en cabina:</strong> <span class="badge bg-success">${shots}</span></div>`;
             }
 
             if (markAsCompletedUrl ) {
 
                 markAsCompletedForm = `
-                <div>
-                    <form action="${markAsCompletedUrl}" method="POST" class="mt-2 needs-validation" novalidate>
+                <div class="mt-4 border-top pt-3">
+                    <form action="${markAsCompletedUrl}" method="POST" class="needs-validation" novalidate>
                         <input type="hidden" name="_token" value="${csrfToken}">
-                        <button type="submit" class="btn btn-primary">Marcar como completada</button>
+                        ${shotsNumber === 0 ? shotsHtml : ''}
+                        <button type="submit" class="btn btn-primary w-100 mt-3"><i class="bi bi-check-circle me-2"></i>Marcar como completada</button>
                     </form>
                 </div>
                 `;
+                // Si la marcamos como completada, el shotsHtml va DENTRO del form para que lo envíe.
+                // Limpiamos la variable global de shotsHtml para que no se imprima dos veces.
+                if (shotsNumber === 0) {
+                    shotsHtml = ''; 
+                }
             }
 
             // Construir el cuerpo completo del modal
@@ -172,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <div><strong>Sesión:</strong> #${details.session_number}</div>
                                     <div><strong>Fecha:</strong> ${details.date}</div>
                                     <div><strong>Hora:</strong> ${details.time}</div>
-                                    <div><strong>Estado:</strong> <span class="badge text-bg-info">${details.status}</span></div>
+                                    <div><strong>Estado:</strong> <span class="badge ${details.status === 'Atendida' ? 'text-bg-primary' : 'text-bg-info'}">${details.status === 'Atendida' ? 'Atención' : details.status}</span></div>
                                     ${bigZonesHtml}
                                     ${miniZonesHtml}
                                     ${shotsHtml}

@@ -80,6 +80,11 @@ class User extends Authenticatable
         return $this->hasOne(AdminProfile::class);
     }
 
+    public function salesProfile()
+    {
+        return $this->hasOne(SalesProfile::class);
+    }
+
     public function referrer()
     {
         return $this->belongsTo(User::class, 'referred_by_id');

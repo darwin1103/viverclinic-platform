@@ -21,9 +21,10 @@
                     @endif
                     <div class="card-body">
                         <h5 class="card-title fw-bold">{{ $rec->title }}</h5>
-                        <div class="card-text mt-3">
-                            {!! $rec->content !!}
-                        </div>
+                        <p class="card-text mt-3 text-muted">
+                            {{ $rec->description }}
+                        </p>
+                        <a href="{{ route('recomentations.show', $rec->id) }}" class="btn btn-outline-primary w-100 mt-2">Leer más</a>
                     </div>
                 </div>
             </div>

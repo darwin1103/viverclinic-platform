@@ -2,20 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Recommendation extends Model
+class SalesProfile extends Model
 {
-    use HasFactory, \App\Traits\ScopesByBranch;
-
     protected $fillable = [
+        'user_id',
         'branch_id',
-        'title',
-        'description',
-        'image',
-        'content',
+        'commission_divisor',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function branch()
     {

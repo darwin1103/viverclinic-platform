@@ -12,6 +12,7 @@
             </nav>
         </div>
     </div>
+    @role('SUPER_ADMIN|OWNER')
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -27,8 +28,12 @@
                             <input type="url" class="form-control" id="youtube_url" name="youtube_url" placeholder="https://www.youtube.com/watch?v=...">
                         </div>
                         <div class="mb-3">
-                            <label for="description" class="form-label">Descripción</label>
-                            <textarea id="description" name="description" class="form-control ckeditor-textarea"></textarea>
+                            <label for="description" class="form-label">Descripción Corta</label>
+                            <textarea id="description" name="description" class="form-control" rows="2" required maxlength="500"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Contenido Detallado</label>
+                            <textarea id="content" name="content" class="form-control ckeditor-textarea"></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary">Guardar Capacitación</button>
                     </form>
@@ -36,6 +41,7 @@
             </div>
         </div>
     </div>
+    @endrole
 
     <div class="row mt-4">
         <div class="col-12">
@@ -51,15 +57,21 @@
                             @endif
                             <div class="card-body">
                                 <h5 class="card-title">{{ $training->title }}</h5>
-                                <div class="card-text">{!! $training->description !!}</div>
+                                <p class="card-text text-muted">{{ $training->description }}</p>
+                                <a href="{{ route('admin.trainings.show', $training->id) }}" class="btn btn-sm btn-outline-primary w-100 mt-2">Ver Detalles</a>
                             </div>
+                            @role('SUPER_ADMIN|OWNER')
                             <div class="card-footer bg-transparent">
-                                <form action="{{ route('admin.trainings.destroy', $training->id) }}" method="POST" onsubmit="return confirm('¿Eliminar esta capacitación?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
-                                </form>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ route('admin.trainings.edit', $training->id) }}" class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i> Editar</a>
+                                    <form action="{{ route('admin.trainings.destroy', $training->id) }}" method="POST" onsubmit="return confirm('¿Eliminar esta capacitación?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+                                    </form>
+                                </div>
                             </div>
+                            @endrole
                         </div>
                     </div>
                 @empty

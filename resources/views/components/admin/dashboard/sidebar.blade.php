@@ -27,18 +27,21 @@
             Clientes
         </a>
       </li>
+      @unlessrole('SALES')
       <li>
         <a href="{{ route('admin.payments.index') }}" class="nav-link @if(Route::is('admin.payments.*')) active @endif">
             <i class="bi bi-cash-coin me-2"></i>
             Pagos
         </a>
       </li>
+      @role('SUPER_ADMIN|OWNER')
       <li>
         <a href="{{ route('admin.treatment.index') }}" class="nav-link @if(Route::is('admin.treatment.*')) active @endif">
             <i class="bi bi-bag-check me-2"></i>
             Tratamientos
         </a>
       </li>
+      @endrole
       <li>
         <a href="{{ route('admin.contracted-treatment.index') }}" class="nav-link @if(Route::is('admin.contracted-treatment.*')) active @endif">
             <i class="bi bi-bag-heart me-2"></i>
@@ -57,6 +60,8 @@
             Venta de productos
         </a>
       </li>
+      @endunlessrole
+      @role('SUPER_ADMIN|OWNER')
       <li class="mt-3 text-uppercase text-secondary small px-2">
         Personal
       </li>
@@ -79,20 +84,30 @@
         </a>
       </li>
       <li>
+        <a href="{{ route('admin.sales-manager.index') }}" class="nav-link @if(Route::is('admin.sales-manager.*')) active @endif">
+            <i class="bi bi-person-lines-fill me-2"></i>
+            Ventas
+        </a>
+      </li>
+      <li>
         <a href="{{ route('admin.role.index') }}" class="nav-link @if(Route::is('admin.roles.*')) active @endif">
             <i class="bi bi-shield-lock me-2"></i>
             {{ __('Role Management') }}
         </a>
       </li>
+      @endrole
+      @unlessrole('SALES')
       <li class="mt-3 text-uppercase text-secondary small px-2">
-        Sucursales
+        Inventario y Activos
       </li>
+      @role('SUPER_ADMIN|OWNER')
       <li>
         <a href="{{ route('admin.branch.index') }}" class="nav-link @if(Route::is('admin.branch.*')) active @endif">
             <i class="bi bi-building me-2"></i>
             {{ __('Branch Management') }}
         </a>
       </li>
+      @endrole
       <li>
         <a href="{{ route('admin.assets.index') }}" class="nav-link @if(Route::is('admin.assets.*')) active @endif">
             <i class="bi bi-box-seam me-2"></i>
@@ -102,6 +117,7 @@
       <li class="mt-3 text-uppercase text-secondary small px-2">
         Contenido
       </li>
+      @role('SUPER_ADMIN|OWNER')
       <li>
         <a href="{{ route('admin.care-tips.index') }}" class="nav-link @if(Route::is('admin.care-tips.*')) active @endif">
             <i class="bi bi-heart-pulse me-2"></i>
@@ -114,6 +130,7 @@
             Recomendaciones
         </a>
       </li>
+      @endrole
       <li>
         <a href="{{ route('admin.trainings.index') }}" class="nav-link @if(Route::is('admin.trainings.*')) active @endif">
             <i class="bi bi-play-btn me-2"></i>
@@ -161,6 +178,8 @@
             Reportes
         </a>
       </li>
+      @endunlessrole
+      @role('SUPER_ADMIN|OWNER')
       <li class="mt-3 text-uppercase text-secondary small px-2">
         Configuración
       </li>
@@ -170,6 +189,7 @@
             Configuración
         </a>
       </li>
+      @endrole
     </ul>
     <div class="mt-3">
 

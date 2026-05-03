@@ -24,6 +24,9 @@ trait ScopesByBranch
                     if (empty($branchIds) && $user->staffProfile) {
                         $branchIds = [$user->staffProfile->branch_id];
                     }
+                } elseif ($user->hasRole('SALES')) {
+                    $branchId = $user->salesProfile?->branch_id;
+                    $branchIds = $branchId ? [$branchId] : [];
                 } else {
                     $branchIds = [];
                 }
@@ -34,16 +37,18 @@ trait ScopesByBranch
                     $builder->where(function ($query) use ($branchIds) {
                         $query->whereHas('patientsBranches', function ($sub) use ($branchIds) {
                             $sub->whereIn('branches.id', $branchIds);
+                        })->orWhereHas('patientProfile', function ($sub) use ($branchIds) {
+                            $sub->whereIn('patient_profiles.branch_id', $branchIds);
                         })->orWhereDoesntHave('roles', function ($sub) {
                             $sub->where('name', 'PATIENT');
                         });
                     });
                 } elseif ($table === 'appointments') {
                     $builder->whereHas('contractedTreatment', function ($sub) use ($branchIds) {
-                        $sub->whereIn('branch_id', $branchIds);
+                        $sub->whereIn('contracted_treatments.branch_id', $branchIds);
                     });
                 } elseif (in_array($table, ['assets', 'treatment_orders', 'patient_profiles', 'contracted_treatments', 'orders', 'accounting_records'])) {
-                    $builder->whereIn('branch_id', $branchIds);
+                    $builder->whereIn($table . '.branch_id', $branchIds);
                 }
             }
         });

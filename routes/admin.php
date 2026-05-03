@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\OwnerController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\AdminManagerController;
+use App\Http\Controllers\Admin\SalesManagerController;
 use App\Http\Controllers\Admin\PayrollController;
 use App\Http\Controllers\Admin\ReferralController;
 use App\Http\Controllers\Admin\RoleController;
@@ -22,8 +23,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('admin')->name('admin.')->group(function () {
 
-    Route::middleware('permission:admin_dashboard_treatment_management')->group(function () {
+    // Treatment catalog management (SUPER_ADMIN/OWNER only)
+    Route::middleware('role:SUPER_ADMIN|OWNER')->group(function () {
         Route::resource('treatment', TreatmentController::class);
+    });
+
+    // Contracted treatments & payment actions (available to ADMIN too)
+    Route::middleware('permission:admin_dashboard_treatment_management')->group(function () {
         Route::resource('contracted-treatment', ContractedTreatmentController::class);
         Route::post('/treatment-order/{order}/approve', [ContractedTreatmentController::class, 'approvePayment'])->name('contracted-treatment.approve-payment');
         Route::post('/treatment-order/{order}/reject', [ContractedTreatmentController::class, 'rejectPayment'])->name('contracted-treatment.reject-payment');
@@ -54,6 +60,7 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
         Route::resource('staff', StaffController::class);
         Route::resource('owner', OwnerController::class);
         Route::resource('admin-manager', AdminManagerController::class)->except(['show']);
+        Route::resource('sales-manager', SalesManagerController::class)->except(['show']);
     });
 
     // Appointments Management
@@ -165,35 +172,48 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
         Route::get('/appointments/reschedule-list', [\App\Http\Controllers\Admin\AdminAppointmentController::class, 'rescheduleList'])->name('appointments.reschedule-list');
     });
 
-    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
-    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+    // Tips and Recommendations (SUPER_ADMIN/OWNER only)
+    Route::middleware('role:SUPER_ADMIN|OWNER')->group(function () {
+        Route::resource('care-tips', \App\Http\Controllers\Admin\CareTipsController::class);
+        Route::resource('recomentations', \App\Http\Controllers\Admin\RecomentationsController::class);
+        Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+    });
 
     // Reports (Admin)
-    Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports.index');
-
-    Route::post('/treatment-order/{order}/approve', [ContractedTreatmentController::class, 'approvePayment'])->name('contracted-treatment.approve-payment');
-    Route::post('/treatment-order/{order}/reject', [ContractedTreatmentController::class, 'rejectPayment'])->name('contracted-treatment.reject-payment');
+    Route::middleware('permission:ver_reportes')->group(function () {
+        Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports.index');
+    });
 
     // Marketing Management
-    Route::get('/referrals-report', [\App\Http\Controllers\Admin\ReferralReportController::class, 'index'])->name('referrals-report.index');
-    Route::resource('promotions', \App\Http\Controllers\Admin\PromotionController::class);
+    Route::middleware('permission:ver_promociones')->group(function () {
+        Route::get('/referrals-report', [\App\Http\Controllers\Admin\ReferralReportController::class, 'index'])->name('referrals-report.index');
+        Route::resource('promotions', \App\Http\Controllers\Admin\PromotionController::class);
+    });
 
     // Accounting Management (ADMIN sees own branch, SUPER_ADMIN sees all)
-    Route::get('/accounting', [\App\Http\Controllers\Admin\AccountingController::class, 'index'])->name('accounting.index');
-    Route::post('/accounting', [\App\Http\Controllers\Admin\AccountingController::class, 'store'])->name('accounting.store');
+    Route::middleware('permission:ver_contabilidad')->group(function () {
+        Route::get('/accounting', [\App\Http\Controllers\Admin\AccountingController::class, 'index'])->name('accounting.index');
+        Route::post('/accounting', [\App\Http\Controllers\Admin\AccountingController::class, 'store'])->name('accounting.store');
+    });
 
-    // Tips and Recommendations
-    Route::resource('care-tips', \App\Http\Controllers\Admin\CareTipsController::class);
-    Route::resource('recomentations', \App\Http\Controllers\Admin\RecomentationsController::class);
+    // Trainings (Read-only for ADMIN, Full for others)
+    Route::resource('trainings', \App\Http\Controllers\Admin\TrainingController::class)->except(['create']);
+    Route::middleware('role:ADMIN')->group(function () {
+        // Explicitly block write methods for ADMIN on trainings if needed, 
+        // but better to handle in controller or via separate group.
+    });
 
-    // Trainings
-    Route::resource('trainings', \App\Http\Controllers\Admin\TrainingController::class)->except(['create', 'edit', 'show']);
-
-    // Expense Categories Management
-    Route::resource('expense-categories', \App\Http\Controllers\Admin\ExpenseCategoryController::class)->only(['index', 'store', 'update', 'destroy']);
+    // Expense Categories Management (SUPER_ADMIN/OWNER only)
+    Route::middleware('role:SUPER_ADMIN|OWNER')->group(function () {
+        Route::resource('expense-categories', \App\Http\Controllers\Admin\ExpenseCategoryController::class)->only(['store', 'update', 'destroy']);
+    });
+    Route::get('/expense-categories', [\App\Http\Controllers\Admin\ExpenseCategoryController::class, 'index'])->name('expense-categories.index');
 
     // Gestión de Referidos (Local)
-    Route::get('/referrals', [ReferralController::class, 'index'])->name('referrals.index');
+    Route::middleware('permission:ver_referidos')->group(function () {
+        Route::get('/referrals', [ReferralController::class, 'index'])->name('referrals.index');
+    });
 
     // Payroll Management (SUPER_ADMIN/OWNER only)
     Route::middleware('role:SUPER_ADMIN|OWNER')->group(function () {

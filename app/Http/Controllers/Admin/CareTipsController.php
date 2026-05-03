@@ -27,6 +27,7 @@ class CareTipsController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'description' => 'required|string|max:500',
             'content' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
@@ -44,6 +45,7 @@ class CareTipsController extends Controller
         \App\Models\CareTip::create([
             'branch_id' => $branchId,
             'title' => $request->title,
+            'description' => $request->description,
             'image' => $imagePath,
             'content' => $request->content,
         ]);
@@ -53,18 +55,21 @@ class CareTipsController extends Controller
 
     public function show(string $id)
     {
-        //
+        $careTip = \App\Models\CareTip::findOrFail($id);
+        return view('admin.care-tips.show', compact('careTip'));
     }
 
     public function edit(string $id)
     {
-        //
+        $careTip = \App\Models\CareTip::findOrFail($id);
+        return view('admin.care-tips.edit', compact('careTip'));
     }
 
     public function update(Request $request, string $id)
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'description' => 'required|string|max:500',
             'content' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
@@ -81,6 +86,7 @@ class CareTipsController extends Controller
 
         $careTip->update([
             'title' => $request->title,
+            'description' => $request->description,
             'image' => $imagePath,
             'content' => $request->content,
         ]);

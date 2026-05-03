@@ -21,9 +21,10 @@
                     @endif
                     <div class="card-body">
                         <h5 class="card-title fw-bold">{{ $tip->title }}</h5>
-                        <div class="card-text mt-3">
-                            {!! $tip->content !!}
-                        </div>
+                        <p class="card-text mt-3 text-muted">
+                            {{ $tip->description }}
+                        </p>
+                        <a href="{{ route('care-tips.show', $tip->id) }}" class="btn btn-outline-primary w-100 mt-2">Leer más</a>
                     </div>
                 </div>
             </div>

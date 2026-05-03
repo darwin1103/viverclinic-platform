@@ -19,8 +19,12 @@
                     <form action="{{ route('admin.care-tips.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="mb-3">
-                            <label for="title" class="form-label">{{ __('Title') }}</label>
+                            <label for="title" class="form-label">Título</label>
                             <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Descripción Corta</label>
+                            <textarea id="description" name="description" class="form-control" rows="2" required maxlength="500"></textarea>
                         </div>
                         <div class="mb-3">
                             <label for="image" class="form-label">Imagen (Opcional)</label>
@@ -40,26 +44,36 @@
     <div class="row mt-4">
         <div class="col-12">
             <h3 class="mb-3">Tips Registrados</h3>
-            @forelse($careTips as $tip)
-                <div class="card mb-3">
-                    <div class="card-header fw-bold d-flex justify-content-between align-items-center">
-                        {{ $tip->title }}
-                        <form action="{{ route('admin.care-tips.destroy', $tip->id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar este tip?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
-                        </form>
+            <div class="row g-4">
+                @forelse($careTips as $tip)
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card h-100">
+                            @if($tip->image)
+                                <img src="{{ Storage::url($tip->image) }}" class="card-img-top" alt="{{ $tip->title }}" style="height: 200px; object-fit: cover;">
+                            @endif
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title fw-bold">{{ $tip->title }}</h5>
+                                <p class="card-text text-muted flex-grow-1">{{ $tip->description }}</p>
+                                <a href="{{ route('admin.care-tips.show', $tip->id) }}" class="btn btn-sm btn-outline-primary w-100 mt-auto">Ver Detalles</a>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="d-flex gap-2">
+                                    <a href="{{ route('admin.care-tips.edit', $tip->id) }}" class="btn btn-sm btn-primary flex-grow-1"><i class="bi bi-pencil"></i> Editar</a>
+                                    <form action="{{ route('admin.care-tips.destroy', $tip->id) }}" method="POST" class="d-inline flex-grow-1" onsubmit="return confirm('¿Eliminar este tip?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger w-100"><i class="bi bi-trash"></i> Eliminar</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        @if($tip->image)
-                            <img src="{{ Storage::url($tip->image) }}" class="img-fluid rounded mb-3" style="max-height: 200px; object-fit: cover;">
-                        @endif
-                        {!! $tip->content !!}
+                @empty
+                    <div class="col-12">
+                        <div class="alert alert-info">No hay tips registrados.</div>
                     </div>
-                </div>
-            @empty
-                <div class="alert alert-info">Aún no hay tips de cuidado registrados.</div>
-            @endforelse
+                @endforelse
+            </div>
         </div>
     </div>
 </div>

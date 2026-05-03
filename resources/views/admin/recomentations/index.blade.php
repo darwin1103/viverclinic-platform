@@ -19,8 +19,12 @@
                     <form action="{{ route('admin.recomentations.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="mb-3">
-                            <label for="title" class="form-label">{{ __('Title') }}</label>
+                            <label for="title" class="form-label">Título</label>
                             <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Descripción Corta</label>
+                            <textarea id="description" name="description" class="form-control" rows="2" required maxlength="500"></textarea>
                         </div>
                         <div class="mb-3">
                             <label for="image" class="form-label">Imagen (Opcional)</label>
@@ -40,26 +44,36 @@
     <div class="row mt-4">
         <div class="col-12">
             <h3 class="mb-3">Recomendaciones Registradas</h3>
-            @forelse($recommendations as $rec)
-                <div class="card mb-3">
-                    <div class="card-header fw-bold d-flex justify-content-between align-items-center">
-                        {{ $rec->title }}
-                        <form action="{{ route('admin.recomentations.destroy', $rec->id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar esta recomendación?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
-                        </form>
+            <div class="row g-4">
+                @forelse($recommendations as $rec)
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card h-100">
+                            @if($rec->image)
+                                <img src="{{ Storage::url($rec->image) }}" class="card-img-top" alt="{{ $rec->title }}" style="height: 200px; object-fit: cover;">
+                            @endif
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title fw-bold">{{ $rec->title }}</h5>
+                                <p class="card-text text-muted flex-grow-1">{{ $rec->description }}</p>
+                                <a href="{{ route('admin.recomentations.show', $rec->id) }}" class="btn btn-sm btn-outline-primary w-100 mt-auto">Ver Detalles</a>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="d-flex gap-2">
+                                    <a href="{{ route('admin.recomentations.edit', $rec->id) }}" class="btn btn-sm btn-primary flex-grow-1"><i class="bi bi-pencil"></i> Editar</a>
+                                    <form action="{{ route('admin.recomentations.destroy', $rec->id) }}" method="POST" class="d-inline flex-grow-1" onsubmit="return confirm('¿Eliminar esta recomendación?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger w-100"><i class="bi bi-trash"></i> Eliminar</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        @if($rec->image)
-                            <img src="{{ Storage::url($rec->image) }}" class="img-fluid rounded mb-3" style="max-height: 200px; object-fit: cover;">
-                        @endif
-                        {!! $rec->content !!}
+                @empty
+                    <div class="col-12">
+                        <div class="alert alert-info">No hay recomendaciones registradas.</div>
                     </div>
-                </div>
-            @empty
-                <div class="alert alert-info">Aún no hay recomendaciones registradas.</div>
-            @endforelse
+                @endforelse
+            </div>
         </div>
     </div>
 </div>

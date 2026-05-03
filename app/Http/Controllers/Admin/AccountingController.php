@@ -44,6 +44,14 @@ class AccountingController extends Controller
             $query->where('branch_id', $branchId);
         }
 
+        // Hide payroll (Nómina) for ADMINs
+        if (!$isSuperAdmin) {
+            $query->where(function($q) {
+                $q->whereNull('category')
+                  ->orWhere('category', '!=', 'Nómina');
+            });
+        }
+
         if ($typeFilter) {
             $query->where('type', $typeFilter);
         }

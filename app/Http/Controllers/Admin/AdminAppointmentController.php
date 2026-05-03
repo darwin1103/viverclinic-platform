@@ -24,8 +24,8 @@ class AdminAppointmentController extends Controller
     public function create(): \Illuminate\View\View
     {
         $patients = User::role('PATIENT')->select(['id', 'name'])->get();
-        $contractedTreatments = \App\Models\ContractedTreatment::with('treatment')
-            ->whereIn('status', ['Activo', 'Pending', 'In Progress'])
+        $contractedTreatments = \App\Models\ContractedTreatment::with(['treatment', 'user'])
+            ->whereIn('status', ['Activo', 'Pending', 'In Progress', 'Paid', 'Pagado'])
             ->get();
             
         return view('admin.appointments.create', compact('patients', 'contractedTreatments'));

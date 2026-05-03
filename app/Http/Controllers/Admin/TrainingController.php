@@ -8,6 +8,11 @@ use Illuminate\Http\Request;
 
 class TrainingController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('role:SUPER_ADMIN|OWNER')->except(['index', 'show']);
+    }
+
     public function index()
     {
         $trainings = Training::latest()->get();
@@ -18,7 +23,8 @@ class TrainingController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'required|string|max:500',
+            'content' => 'required|string',
             'youtube_url' => 'nullable|url',
         ]);
 
@@ -27,11 +33,22 @@ class TrainingController extends Controller
         return redirect()->route('admin.trainings.index')->with('success', 'Capacitación creada exitosamente.');
     }
 
+    public function show(Training $training)
+    {
+        return view('admin.trainings.show', compact('training'));
+    }
+
+    public function edit(Training $training)
+    {
+        return view('admin.trainings.edit', compact('training'));
+    }
+
     public function update(Request $request, Training $training)
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'required|string|max:500',
+            'content' => 'required|string',
             'youtube_url' => 'nullable|url',
         ]);
 

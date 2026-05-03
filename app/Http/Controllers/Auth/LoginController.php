@@ -60,6 +60,30 @@ class LoginController extends Controller
         return $this->sendFailedLoginResponse($request);
     }
 
+    /**
+     * The user has been authenticated.
+     * Auto-set the branch in session for ADMIN users.
+     */
+    protected function authenticated(Request $request, $user)
+    {
+        if ($user->hasRole('ADMIN')) {
+            $branchId = $user->adminsBranches()->first()?->id;
+            if ($branchId) {
+                session(['selected_branch_id' => $branchId]);
+            }
+        } elseif ($user->hasRole('SALES')) {
+            $branchId = $user->salesProfile?->branch_id;
+            if ($branchId) {
+                session(['selected_branch_id' => $branchId]);
+            }
+        } elseif ($user->hasRole('EMPLOYEE')) {
+            $branchId = $user->staffProfile?->branch_id;
+            if ($branchId) {
+                session(['selected_branch_id' => $branchId]);
+            }
+        }
+    }
+
     public function logout(Request $request)
     {
         Auth::logout();

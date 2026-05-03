@@ -45,18 +45,9 @@ class ReferralService
         $commissionType = Setting::get('referral_commission_type', 'fixed');
         $commissionValue = (float) Setting::get('referral_commission_value', 0);
 
-        // 4. Dar sesiones extra al referidor
         $referrer = $referral->referrer;
-        $activeTreatment = ContractedTreatment::where('user_id', $referrer->id)
-            ->whereNotIn('status', ['Cancelled', 'Completed'])
-            ->latest()
-            ->first();
-
-        if ($activeTreatment) {
-            $activeTreatment->increment('sessions', $bonusSessions);
-        }
-        // Si no tiene tratamiento activo, las sesiones quedan registradas
-        // en el referral.bonus_sessions para aplicarse cuando contrate uno nuevo.
+        // The sessions are no longer automatically applied to an active treatment.
+        // They remain in referral.bonus_sessions to be redeemed manually by the user.
 
         // 5. Calcular comisión para la última empleada que atendió al referidor
         $lastAttendedAppt = Appointment::whereHas('contractedTreatment', function ($q) use ($referrer) {
@@ -99,26 +90,6 @@ class ReferralService
      */
     public static function applyPendingSessions(ContractedTreatment $contractedTreatment): void
     {
-        $userId = $contractedTreatment->user_id;
-
-        // Buscar referidos recompensados donde el referidor no tenía tratamiento activo
-        $pendingReferrals = Referral::where('referrer_id', $userId)
-            ->where('status', 'rewarded')
-            ->where('bonus_sessions', '>', 0)
-            ->get();
-
-        // Verificar si las sesiones ya fueron aplicadas
-        // (si el usuario ya tiene un tratamiento con sesiones incrementadas, no duplicamos)
-        foreach ($pendingReferrals as $referral) {
-            // Solo aplicamos si no hay otro tratamiento activo al que se le hayan sumado
-            $otherActiveTreatments = ContractedTreatment::where('user_id', $userId)
-                ->where('id', '!=', $contractedTreatment->id)
-                ->whereNotIn('status', ['Cancelled', 'Completed'])
-                ->count();
-
-            if ($otherActiveTreatments === 0) {
-                $contractedTreatment->increment('sessions', $referral->bonus_sessions);
-            }
-        }
+        // Deprecated: sessions are now redeemed manually via the patient dashboard.
     }
 }

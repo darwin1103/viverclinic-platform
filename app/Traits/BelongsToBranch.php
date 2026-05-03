@@ -18,8 +18,8 @@ trait BelongsToBranch
         static::creating(function ($model) {
             if (auth()->check() && empty($model->branch_id)) {
                 $user = auth()->user();
-                if (isset($user->branch_id)) {
-                    $model->branch_id = $user->branch_id;
+                if ($user->hasRole(['ADMIN', 'Admin', 'Administrador'])) {
+                    $model->branch_id = session('selected_branch_id') ?: $user->adminsBranches()->first()?->id;
                 }
             }
         });

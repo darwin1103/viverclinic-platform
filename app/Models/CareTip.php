@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class CareTip extends Model
 {
-    use \App\Traits\ScopesByBranch;
+    use HasFactory, \App\Traits\ScopesByBranch;
 
     protected $fillable = [
         'branch_id',
         'title',
+        'description',
         'image',
         'content',
     ];

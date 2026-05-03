@@ -98,19 +98,40 @@
             <div class="col-12 col-md-6">
                 <label for="staff_commission_target" class="form-label fw-bold">Meta mensual de comisiones</label>
                 <div class="input-group">
-                    <span class="input-group-text">$</span>
-                    <input type="number" class="form-control" id="staff_commission_target"
-                           name="staff_commission_target" value="{{ $staffCommissionTarget ?? 0 }}"
-                           min="0" step="1000" placeholder="500000">
+                    <span class="input-group-text">COP</span>
+                    <input type="number" class="form-control" id="staff_commission_target" name="staff_commission_target"
+                           value="{{ $staffCommissionTarget }}" min="0" step="1000">
                 </div>
-                <small class="text-secondary">Esta meta se mostrará a las empleadas en su panel de liquidación.</small>
+                <small class="text-secondary">Si alcanzan la meta, su comisión aumenta de 2% a 4%.</small>
+            </div>
+
+            {{-- Sección Disparos --}}
+            <div class="col-12 mt-4">
+                <h5 class="fw-bold border-bottom pb-2 mb-3">
+                    <i class="bi bi-bullseye me-2"></i>Control de Disparos
+                </h5>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label for="shots_per_zone" class="form-label fw-bold">Límite de disparos por Zona</label>
+                <input type="number" class="form-control" id="shots_per_zone" name="shots_per_zone"
+                       value="{{ $shotsPerZone }}" min="1" placeholder="600">
+                <small class="text-secondary">Límite global aplicable a zonas grandes y pequeñas.</small>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label for="shots_per_minizone" class="form-label fw-bold">Límite de disparos por Mini-zona</label>
+                <input type="number" class="form-control" id="shots_per_minizone" name="shots_per_minizone"
+                       value="{{ $shotsPerMinizone }}" min="1" placeholder="200">
+                <small class="text-secondary">Límite global aplicable a mini-zonas.</small>
             </div>
 
             <div class="col-12 mt-4 text-end">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-save"></i> Guardar Configuración
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-save me-2"></i>Guardar Cambios
                 </button>
             </div>
+
         </div>
     </form>
 </x-admin-card>

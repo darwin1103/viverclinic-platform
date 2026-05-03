@@ -11,6 +11,20 @@
                 </div>
             </div>
 
+            {{-- Tabs de Navegación --}}
+            <ul class="nav nav-tabs mb-4">
+                <li class="nav-item">
+                    <a class="nav-link {{ $tab === 'today' ? 'active fw-bold' : '' }}" href="{{ route('staff.appointment.index', ['tab' => 'today']) }}">
+                        <i class="bi bi-calendar-day me-2"></i>Agenda de Hoy
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $tab === 'archive' ? 'active fw-bold' : '' }}" href="{{ route('staff.appointment.index', ['tab' => 'archive']) }}">
+                        <i class="bi bi-archive me-2"></i>Historial de Citas
+                    </a>
+                </li>
+            </ul>
+
             {{-- Filters Component --}}
             {{-- Se asume que el controlador pasa la variable $treatments --}}
             <x-staff.appointments.filters :treatments="$treatments ?? []" />

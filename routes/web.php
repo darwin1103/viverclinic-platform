@@ -29,6 +29,17 @@ Auth::routes();
 Route::post('login', [\App\Http\Controllers\Auth\LoginController::class, 'login'])->middleware('throttle:login');
 Route::post('register', [\App\Http\Controllers\Auth\RegisterController::class, 'register'])->middleware('throttle:register');
 
+Route::get('/debug-session', function () {
+    $user = auth()->user();
+    if (!$user) return 'Not logged in';
+    return [
+        'session_branch_id' => session('selected_branch_id'),
+        'roles' => $user->getRoleNames(),
+        'sales_profile_branch' => $user->salesProfile?->branch_id,
+        'has_sales_role' => $user->hasRole('SALES')
+    ];
+});
+
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
@@ -45,10 +56,11 @@ Route::resource('profile', ProfileController::class);
 
 Route::resource('medical-record', MedicalRecordController::class);
 Route::resource('qualify-staff', QualifyStaffController::class);
-Route::get('care-tips', [ClientCareTipsController::class, 'index'])->name('care-tips.index');
+Route::resource('care-tips', ClientCareTipsController::class)->only(['index', 'show']);
 Route::resource('promotions', PromotionsController::class);
-Route::get('recomentations', [ClientRecomentationsController::class, 'index'])->name('recomentations.index');
+Route::resource('recomentations', ClientRecomentationsController::class)->only(['index', 'show']);
 Route::resource('referrals', ReferralsController::class);
+Route::post('referrals/{referral}/redeem', [ReferralsController::class, 'redeem'])->name('referrals.redeem');
 Route::resource('cancel-appointment', CancelAppointmentController::class);
 Route::resource('agenda-day', AgendaDayController::class);
 Route::resource('agenda-new', AgendaNewController::class);

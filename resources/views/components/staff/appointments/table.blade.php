@@ -9,6 +9,7 @@
                 <th scope="col" class="text-white">Sesión</th>
                 <th scope="col" class="text-white">Fecha</th>
                 <th scope="col" class="text-white">Hora</th>
+                <th scope="col" class="text-white">Estado</th>
                 <th scope="col" class="text-white" class="text-center">Acciones</th>
             </tr>
         </thead>
@@ -16,15 +17,32 @@
             @forelse ($appointments as $appointment)
                 @php
                 $shots = ($appointment->contractedTreatment?->treatment?->needs_report_shots) ? intval($appointment->uses_of_hair_removal_shots) : '';
-                $setAppointmentShotsUrl = ($shots == 0 ) ? (route('staff.appointment.set-shots', ['appointment' => $appointment->id])) : '';
                 $markAsCompletedUrl = ($appointment->status == 'Atendida') ? route('staff.appointment.mark-as-completed', ['appointment' => $appointment->id]) : '';
+                
+                // Resaltar la cita si está "Atendida"
+                $rowClass = ($appointment->status == 'Atendida') ? 'table-highlight-primary' : '';
                 @endphp
-                <tr>
+                <tr class="{{ $rowClass }}">
                     <td>{{ $appointment->contractedTreatment?->treatment?->name ?? 'N/A' }}</td>
                     <td>{{ $appointment->contractedTreatment?->user?->name ?? 'N/A' }}</td>
                     <td><span class="badge bg-primary rounded-pill">{{ $appointment->session_number }}</span></td>
                     <td>{{ \Carbon\Carbon::parse($appointment->schedule)->isoFormat('dddd, D \d\e MMMM, YYYY') }}</td>
                     <td>{{ \Carbon\Carbon::parse($appointment->schedule)->isoFormat('hh:mm a') }}</td>
+                    <td>
+                        @php
+                            $badgeClass = 'bg-secondary';
+                            $statusLabel = $appointment->status;
+                            if ($appointment->status == 'Atendida') {
+                                $badgeClass = 'bg-primary text-white';
+                                $statusLabel = 'Atención';
+                            } elseif ($appointment->status == 'Completada') {
+                                $badgeClass = 'bg-success';
+                            } elseif ($appointment->status == 'Agendada') {
+                                $badgeClass = 'bg-info';
+                            }
+                        @endphp
+                        <span class="badge {{ $badgeClass }}">{{ $statusLabel }}</span>
+                    </td>
                     <td class="text-center">
                         <button type="button" class="btn btn-sm btn-primary"
                             data-bs-toggle="modal"
@@ -40,7 +58,6 @@
                             ]) }}"
                             data-zones='@json($appointment->contractedTreatment?->selected_zones ?? [])'
                             data-shots="{{$shots}}"
-                            data-set-appointment-shots-url="{{$setAppointmentShotsUrl}}"
                             data-set-mark-as-completed-url="{{$markAsCompletedUrl}}"
                             >
                             <i class="bi bi-eye"></i> Ver

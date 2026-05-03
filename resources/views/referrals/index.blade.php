@@ -85,6 +85,7 @@
                                     <th>Fecha</th>
                                     <th>Estado</th>
                                     <th>Sesiones ganadas</th>
+                                    <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -114,6 +115,58 @@
                                     <td>
                                         @if($referral->status === 'rewarded')
                                             <span class="fw-bold" style="color: #4dd0a1;">+{{ $referral->bonus_sessions }}</span>
+                                        @else
+                                            <span class="text-secondary">-</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($referral->status === 'rewarded' && !$referral->sessions_redeemed)
+                                            <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#redeemModal-{{ $referral->id }}">
+                                                <i class="bi bi-gift"></i> Redimir
+                                            </button>
+
+                                            <!-- Redeem Modal -->
+                                            <div class="modal fade" id="redeemModal-{{ $referral->id }}" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <form method="POST" action="{{ route('referrals.redeem', $referral) }}" class="modal-content">
+                                                        @csrf
+                                                        <div class="modal-header border-0 pb-0">
+                                                            <h5 class="modal-title fw-bold">Redimir Sesiones</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>Vas a redimir <strong>{{ $referral->bonus_sessions }} sesiones</strong> por el referido de {{ $referral->referred->name ?? 'tu invitado' }}.</p>
+                                                            
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Selecciona el tratamiento al que deseas sumar las sesiones:</label>
+                                                                @if($activeTreatments->count() > 0)
+                                                                    <select name="contracted_treatment_id" class="form-select" required>
+                                                                        <option value="">-- Elige un tratamiento activo --</option>
+                                                                        @foreach($activeTreatments as $treatment)
+                                                                            <option value="{{ $treatment->id }}">
+                                                                                {{ $treatment->treatment->name }} ({{ $treatment->sessions }} sesiones actuales)
+                                                                            </option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                @else
+                                                                    <div class="alert alert-warning mb-0">
+                                                                        <i class="bi bi-exclamation-triangle me-2"></i>
+                                                                        No tienes tratamientos activos en este momento. Debes tener un paquete contratado activo para redimir tus sesiones gratis.
+                                                                    </div>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-0 pt-0">
+                                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                                                            @if($activeTreatments->count() > 0)
+                                                                <button type="submit" class="btn btn-success">Confirmar Redención</button>
+                                                            @endif
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        @elseif($referral->status === 'rewarded' && $referral->sessions_redeemed)
+                                            <span class="badge bg-light text-secondary"><i class="bi bi-check-all"></i> Redimido</span>
                                         @else
                                             <span class="text-secondary">-</span>
                                         @endif

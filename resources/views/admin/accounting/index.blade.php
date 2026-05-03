@@ -9,12 +9,15 @@
             <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
                 <i class="bi bi-plus-lg me-1"></i>Registrar Gasto
             </button>
+            @if($isSuperAdmin)
             <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#manageCategoriesModal">
                 <i class="bi bi-tags me-1"></i>Categorías
             </button>
+            @endif
         </div>
     </div>
 
+    @if($isSuperAdmin)
     {{-- KPIs --}}
     <div class="row g-3 mb-4">
         <div class="col-6 col-xl-3">
@@ -70,6 +73,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     {{-- Filters --}}
     <div class="card mb-3">

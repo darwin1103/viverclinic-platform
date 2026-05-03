@@ -32,10 +32,24 @@ class DashboardController extends Controller
         $user = Auth::user();
         if ($user->hasRole(['SUPER_ADMIN', 'OWNER', 'ADMIN']) || $user->hasPermissionTo('admin_dashboard')) {
 
+            // Resolve branch ID early for use in all queries
+            $branchId = request('branch_id') ?: session('selected_branch_id');
+            if (!$branchId && $user->hasRole('ADMIN')) {
+                $branchId = $user->adminsBranches()->first()?->id;
+            }
+
             // 1. Total de pacientes (filtrado por sucursal automáticamente si aplica)
-            // Se asume que User::role('PATIENT') respeta el global scope en otras vistas, pero si no
-            // se aplicará al conteo base.
-            $totalPatients = User::role('PATIENT')->count();
+            $totalPatients = User::role('PATIENT')
+                ->when($branchId, function ($q) use ($branchId) {
+                    $q->where(function ($q2) use ($branchId) {
+                        $q2->whereHas('patientsBranches', function ($sub) use ($branchId) {
+                            $sub->where('branches.id', $branchId);
+                        })->orWhereHas('patientProfile', function ($sub) use ($branchId) {
+                            $sub->where('patient_profiles.branch_id', $branchId);
+                        });
+                    });
+                })
+                ->count();
 
             // 2. Citas del mes actual
             $appointmentsThisMonth = Appointment::whereMonth('schedule', now()->month)
@@ -70,9 +84,13 @@ class DashboardController extends Controller
                 ->when(request('date_to'), function ($q) {
                     $q->whereDate('created_at', '<=', request('date_to'));
                 })
-                ->when(request('branch_id') ?: session('selected_branch_id'), function ($q, $branchId) {
-                    $q->whereHas('patientsBranches', function ($q2) use ($branchId) {
-                        $q2->where('branches.id', $branchId);
+                ->when($branchId, function ($q) use ($branchId) {
+                    $q->where(function ($q2) use ($branchId) {
+                        $q2->whereHas('patientsBranches', function ($sub) use ($branchId) {
+                            $sub->where('branches.id', $branchId);
+                        })->orWhereHas('patientProfile', function ($sub) use ($branchId) {
+                            $sub->where('patient_profiles.branch_id', $branchId);
+                        });
                     });
                 });
 
@@ -113,27 +131,26 @@ class DashboardController extends Controller
                 ->when(request('date_to'), function ($q) {
                     $q->whereDate('created_at', '<=', request('date_to'));
                 })
-                ->when(request('branch_id') ?: session('selected_branch_id'), function ($q, $branchId) {
+                ->when($branchId, function ($q) use ($branchId) {
                     $q->whereHas('contractedTreatment', function ($q2) use ($branchId) {
-                        $q2->where('branch_id', $branchId);
+                        $q2->where('contracted_treatments.branch_id', $branchId);
                     });
                 })
                 ->latest()
                 ->take(10)
                 ->get();
 
-            // Cálculos Reales
-            $branchId = request('branch_id') ?: session('selected_branch_id');
+            // Cálculos Reales (branchId already resolved above)
 
             // 1. Ingreso diario (Tratamientos + Productos)
-            $treatmentIncomeToday = \App\Models\TreatmentOrder::whereDate('created_at', today())
-                ->whereIn('status', ['Pagado', 'Paid', 'Pago completado', 'Aprobado'])
-                ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
+            $treatmentIncomeToday = \App\Models\TreatmentOrder::whereDate('treatment_orders.created_at', today())
+                ->whereIn('treatment_orders.status', ['Pagado', 'Paid', 'Pago completado', 'Aprobado'])
+                ->when($branchId, fn($q) => $q->where('treatment_orders.branch_id', $branchId))
                 ->sum('total');
 
             $productIncomeToday = \App\Models\Order::whereDate('created_at', today())
                 ->whereIn('status', ['Pagado', 'Paid', 'Completado', 'Completed'])
-                ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
+                ->when($branchId, fn($q) => $q->where('orders.branch_id', $branchId))
                 ->sum('total');
 
             $ingresoDiario = $treatmentIncomeToday + $productIncomeToday;
@@ -141,11 +158,12 @@ class DashboardController extends Controller
             // 2. Egresos de hoy
             $egresosHoy = \App\Models\AccountingRecord::whereDate('created_at', today())
                 ->where('type', 'expense')
-                ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
+                ->when($branchId, fn($q) => $q->where('accounting_records.branch_id', $branchId))
                 ->sum('amount');
 
             // 3. Ingresos por categoría (incluyendo Productos)
-            $ingresosPorCategoria = \App\Models\TreatmentOrder::whereDate('treatment_orders.created_at', today())
+            $ingresosPorCategoria = \App\Models\TreatmentOrder::withoutGlobalScopes()
+                ->whereDate('treatment_orders.created_at', today())
                 ->whereIn('treatment_orders.status', ['Pagado', 'Paid', 'Pago completado', 'Aprobado'])
                 ->when($branchId, fn($q) => $q->where('treatment_orders.branch_id', $branchId))
                 ->join('contracted_treatments', 'treatment_orders.contracted_treatment_id', '=', 'contracted_treatments.id')
@@ -167,7 +185,7 @@ class DashboardController extends Controller
             // 4. Actividad reciente (Tratamientos + Productos)
             $recentTreatments = \App\Models\TreatmentOrder::with(['user', 'contractedTreatment.treatment'])
                 ->whereDate('created_at', today())
-                ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
+                ->when($branchId, fn($q) => $q->where('treatment_orders.branch_id', $branchId))
                 ->latest()
                 ->take(3)
                 ->get()
@@ -178,7 +196,7 @@ class DashboardController extends Controller
 
             $recentProducts = \App\Models\Order::with(['user'])
                 ->whereDate('created_at', today())
-                ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
+                ->when($branchId, fn($q) => $q->where('orders.branch_id', $branchId))
                 ->latest()
                 ->take(3)
                 ->get()

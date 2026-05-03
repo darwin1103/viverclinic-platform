@@ -52,3 +52,8 @@ body{ background: var(--vc-bg); padding-top: var(--header-h); }
 /* Utilidades */
 .btn-icon{ padding: .375rem .5rem; line-height:1; display:inline-flex; align-items:center; justify-content:center; }
 .btn-wide{ min-width: 150px; } /* para evitar salto de línea en “Ver agenda” */
+.table-highlight-primary {
+  --bs-table-bg: rgba(19, 160, 178, 0.15);
+  --bs-table-color: #ffffff;
+  border-color: rgba(19, 160, 178, 0.4);
+}

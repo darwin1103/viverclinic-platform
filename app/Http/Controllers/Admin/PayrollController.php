@@ -145,6 +145,47 @@ class PayrollController extends Controller
                     'total'                 => $total,
                 ]);
             }
+
+            // --- SALES ---
+            $salesUsers = User::role('SALES')->with('salesProfile')->get();
+            foreach ($salesUsers as $user) {
+                // Determine branch from salesProfile if exists, else skip or use session
+                $userBranchId = $user->salesProfile->branch_id ?? session('selected_branch_id');
+                if ($branchId && $userBranchId != $branchId) {
+                    continue; // Skip if filtering by branch and it doesn't match
+                }
+                
+                if (!$userBranchId) continue; // Cannot determine branch
+
+                $divisor = $user->salesProfile->commission_divisor ?? 26;
+                $divisor = max(1, $divisor); // Ensure divisor is at least 1
+
+                // Calculate commission: ventas totales paquetes / divisor
+                $monthlyPackagesSales = TreatmentOrder::whereIn('status', ['Pagado', 'Pago completado', 'Paid', 'Completado', 'Aprobado', 'APPROVED'])
+                    ->where('branch_id', $userBranchId)
+                    ->whereMonth('created_at', $month)
+                    ->whereYear('created_at', $year)
+                    ->sum('total');
+
+                $salesCommission = max(0, $monthlyPackagesSales / $divisor);
+                
+                // Net commissions (0 base salary)
+                $total = $salesCommission;
+
+                if ($total > 0) {
+                    PayrollSettlement::create([
+                        'branch_id'             => $userBranchId,
+                        'user_id'               => $user->id,
+                        'role_type'             => 'SALES',
+                        'period_month'          => $month,
+                        'period_year'           => $year,
+                        'base_salary'           => 0,
+                        'referral_commissions'  => 0,
+                        'sales_commissions'     => $salesCommission,
+                        'total'                 => $total,
+                    ]);
+                }
+            }
         });
 
         return back()->with('success', 'Liquidación generada exitosamente para el periodo seleccionado.');

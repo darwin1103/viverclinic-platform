@@ -28,6 +28,21 @@ class StaffAppointmentController extends Controller
                                 'contractedTreatment.treatment'
                             ]);
 
+        $tab = $request->input('tab', 'today');
+
+        if ($tab === 'today') {
+            // Citas del día actual (y futuras, para incluir datos de prueba)
+            $query->whereDate('schedule', '>=', now()->toDateString());
+            
+            // Ordenar primero por 'Atendida', luego 'Asignada', luego el resto, y por hora
+            $query->orderByRaw("CASE WHEN status = 'Atendida' THEN 1 WHEN status = 'Asignada' THEN 2 ELSE 3 END")
+                  ->orderBy('schedule', 'asc');
+        } else {
+            // Archivo: citas de días anteriores
+            $query->whereDate('schedule', '<', now()->toDateString());
+            $query->orderBy('schedule', 'desc');
+        }
+
         // Apply search filter for patient name
         if ($request->filled('search')) {
             $query->whereHas('contractedTreatment.user', function ($q) use ($request) {
@@ -42,16 +57,8 @@ class StaffAppointmentController extends Controller
             });
         }
 
-        // Apply date filters
-        if ($request->filled('min_date')) {
-            $query->whereDate('schedule', '>=', $request->min_date);
-        }
-        if ($request->filled('max_date')) {
-            $query->whereDate('schedule', '<=', $request->max_date);
-        }
-
-        // Order by most recent schedule and paginate
-        $appointments = $query->orderBy('schedule', 'desc')->paginate(15);
+        // Paginate
+        $appointments = $query->paginate(15)->appends(['tab' => $tab, 'search' => $request->search, 'treatment_id' => $request->treatment_id]);
 
         // Get all treatments for the filter dropdown
         $treatments = Treatment::orderBy('name')->get();
@@ -60,39 +67,14 @@ class StaffAppointmentController extends Controller
         $data = [
             'appointments' => $appointments,
             'treatments' => $treatments,
+            'tab' => $tab,
         ];
 
         return view('staff.appointment.index', $data);
     }
 
-    public function setAppointmnetShots(Appointment $appointment, Request $request)
-    {
-
-        $user = Auth::user();
-
-        if(
-            intval($appointment->uses_of_hair_removal_shots) > 0 ||
-            $appointment->staff_user_id != $user->id ||
-            ($appointment->status != 'Atendida' && $appointment->status != 'Completada')
-        ){
-            abort(403);
-        }
-
-        $validated = $request->validate([
-            'shots' => 'required|integer|min:1',
-        ]);
-
-        $appointment->update([
-            'uses_of_hair_removal_shots' => $validated['shots'],
-        ]);
-
-        return redirect()->back()->with('success', 'Informacion guardada exitosamente');
-
-    }
-
     public function markAppointmnetAsCompleted(Appointment $appointment, Request $request)
     {
-
         $user = Auth::user();
 
         if(
@@ -102,12 +84,24 @@ class StaffAppointmentController extends Controller
             abort(403);
         }
 
-        $appointment->update([
-            'status' => 'Completada',
-        ]);
+        $rules = [];
+        $needsShots = $appointment->contractedTreatment?->treatment?->needs_report_shots;
+        
+        if ($needsShots) {
+            $rules['shots'] = 'required|integer|min:1';
+        }
 
-        return redirect()->back()->with('success', 'Cita actualizada exitosamente');
+        $validated = $request->validate($rules);
 
+        $updateData = ['status' => 'Completada'];
+
+        if ($needsShots && isset($validated['shots'])) {
+            $updateData['uses_of_hair_removal_shots'] = $validated['shots'];
+        }
+
+        $appointment->update($updateData);
+
+        return redirect()->back()->with('success', 'Cita completada exitosamente');
     }
 
 }

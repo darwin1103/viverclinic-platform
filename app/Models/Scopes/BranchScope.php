@@ -20,8 +20,11 @@ class BranchScope implements Scope
                 return;
             }
 
-            if ($user->hasRole('ADMIN') || $user->hasRole('Admin') || $user->hasRole('Administrador')) {
-                $builder->where('branch_id', $user->branch_id);
+            if ($user->hasRole(['ADMIN', 'Admin', 'Administrador'])) {
+                $branchId = session('selected_branch_id') ?: $user->adminsBranches()->first()?->id;
+                if ($branchId) {
+                    $builder->where($model->getTable() . '.branch_id', $branchId);
+                }
             }
         }
     }

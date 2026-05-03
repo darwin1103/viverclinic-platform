@@ -11,4 +11,10 @@ class ClientRecomentationsController extends Controller
         $recommendations = \App\Models\Recommendation::latest()->get();
         return view('recomentations.index', compact('recommendations'));
     }
+
+    public function show($id)
+    {
+        $recommendation = \App\Models\Recommendation::findOrFail($id);
+        return view('recomentations.show', compact('recommendation'));
+    }
 }

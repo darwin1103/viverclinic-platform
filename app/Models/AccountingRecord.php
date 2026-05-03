@@ -17,6 +17,7 @@ class AccountingRecord extends Model
         'type',
         'amount',
         'description',
+        'category',
         'reference_id',
         'reference_type',
     ];

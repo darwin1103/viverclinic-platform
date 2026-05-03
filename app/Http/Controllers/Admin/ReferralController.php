@@ -40,7 +40,7 @@ class ReferralController extends Controller
         $totalReferrals = Referral::count();
         $rewardedCount = Referral::where('status', 'rewarded')->count();
         $totalBonusSessions = Referral::where('status', 'rewarded')->sum('bonus_sessions');
-        $pendingCommissions = Referral::where('staff_commission_status', 'pending')->sum('staff_commission');
+
         $registeredCount = Referral::where('status', 'registered')->count();
 
         return view('admin.referrals.index', compact(
@@ -48,24 +48,7 @@ class ReferralController extends Controller
             'totalReferrals',
             'rewardedCount',
             'totalBonusSessions',
-            'pendingCommissions',
             'registeredCount'
         ));
-    }
-
-    /**
-     * Marcar comisión como pagada.
-     */
-    public function markCommissionPaid(Referral $referral)
-    {
-        if ($referral->staff_commission_status !== 'pending') {
-            return back()->with('error', 'Esta comisión no está pendiente.');
-        }
-
-        $referral->update([
-            'staff_commission_status' => 'paid',
-        ]);
-
-        return back()->with('success', 'Comisión marcada como pagada.');
     }
 }

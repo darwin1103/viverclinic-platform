@@ -9,15 +9,59 @@
         </a>
     </div>
 
-    <div class="card mt-3">
+    {{-- Filters --}}
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <form method="GET" action="{{ route('admin.payments.index') }}" class="row g-2 align-items-end">
+                <div class="col-12 col-md-3">
+                    <label class="form-label small mb-1">Buscar paciente</label>
+                    <input type="text" name="search" class="form-control form-control-sm" placeholder="Nombre del paciente..." value="{{ request('search') }}">
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label small mb-1">Estado</label>
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="">Todos</option>
+                        @foreach($statuses as $status)
+                            <option value="{{ $status }}" {{ request('status') === $status ? 'selected' : '' }}>{{ $status }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label small mb-1">Método</label>
+                    <select name="payment_method" class="form-select form-select-sm">
+                        <option value="">Todos</option>
+                        @foreach($paymentMethods as $method)
+                            <option value="{{ $method }}" {{ request('payment_method') === $method ? 'selected' : '' }}>{{ $method }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label small mb-1">Desde</label>
+                    <input type="date" name="from" class="form-control form-control-sm" value="{{ request('from') }}">
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label small mb-1">Hasta</label>
+                    <input type="date" name="to" class="form-control form-control-sm" value="{{ request('to') }}">
+                </div>
+                <div class="col-12 col-md-1 d-flex gap-1">
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-search"></i></button>
+                    <a href="{{ route('admin.payments.index') }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
         <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
             <span><i class="bi bi-cash-coin me-2"></i>Todos los Pagos</span>
+            <span class="badge bg-secondary">{{ $payments->total() }}</span>
         </div>
         <div class="table-responsive">
-            <table class="table table-sm align-middle mb-0">
+            <table class="table table-sm table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th>Fecha</th>
+                        <th class="ps-3">Fecha</th>
+                        <th>Tipo</th>
                         <th>Paciente</th>
                         <th>Concepto</th>
                         <th>Monto</th>
@@ -29,30 +73,68 @@
                 <tbody>
                     @forelse($payments as $payment)
                         <tr>
-                            <td>{{ $payment->created_at->format('d/m/Y') }}</td>
-                            <td>{{ $payment->user->name ?? 'N/A' }}</td>
-                            <td>{{ $payment->contractedTreatment->treatment->name ?? 'N/A' }}</td>
-                            <td>${{ number_format($payment->total, 2, ',', '.') }}</td>
-                            <td>{{ $payment->payment_method }}</td>
+                            <td class="ps-3">{{ $payment->created_at->format('d/m/Y') }}</td>
                             <td>
-                                @if(in_array(strtolower($payment->status), ['pagado', 'completado']))
-                                    <span class="badge bg-success">{{ $payment->status }}</span>
+                                @if($payment->payment_type === 'treatment')
+                                    <span class="badge bg-info">Tratamiento</span>
                                 @else
-                                    <span class="badge bg-warning text-dark">{{ $payment->status }}</span>
+                                    <span class="badge bg-secondary">Producto</span>
                                 @endif
                             </td>
+                            <td>{{ $payment->user->name ?? 'N/A' }}</td>
+                            <td>{{ $payment->concept ?? 'N/A' }}</td>
+                            <td class="fw-bold">${{ number_format($payment->total, 0, ',', '.') }}</td>
+                            <td>{{ $payment->payment_method ?? '-' }}</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-secondary" disabled>Ver</button>
+                                @php
+                                    $statusLower = strtolower($payment->status);
+                                    $badgeClass = match(true) {
+                                        in_array($statusLower, ['pagado', 'completado', 'pago completado', 'paid']) => 'bg-success',
+                                        in_array($statusLower, ['cancelado', 'declined']) => 'bg-danger',
+                                        default => 'bg-warning text-dark',
+                                    };
+                                @endphp
+                                <span class="badge {{ $badgeClass }}">{{ $payment->status }}</span>
+                            </td>
+                            <td>
+                                @if($payment->payment_type === 'treatment' && in_array($payment->status, ['Pago por verificar', 'Pendiente', 'Pending']))
+                                    <div class="d-flex gap-1">
+                                        <form method="POST" action="{{ route('admin.payments.approve', $payment->id) }}"
+                                              onsubmit="return confirm('¿Aprobar este pago?');">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Aprobar">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ route('admin.payments.reject', $payment->id) }}"
+                                              onsubmit="return confirm('¿Rechazar este pago?');">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Rechazar">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center fw-semibold py-3 text-muted">Aún no hay pagos registrados</td>
+                            <td colspan="8" class="text-center fw-semibold py-3 text-muted">
+                                <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                                No hay pagos registrados
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+        @if($payments->hasPages())
+        <div class="card-footer">
+            {{ $payments->links() }}
+        </div>
+        @endif
     </div>
 </div>
 

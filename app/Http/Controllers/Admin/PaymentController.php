@@ -3,23 +3,118 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
-
+use App\Models\ContractedTreatment;
+use App\Models\Order;
 use App\Models\TreatmentOrder;
 use App\Models\User;
-use App\Models\ContractedTreatment;
+use App\Services\ReferralService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class PaymentController extends Controller
 {
     /**
-     * Display payments index list.
+     * Display unified payments index with filters and pagination.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $payments = TreatmentOrder::with(['user', 'contractedTreatment.treatment'])->latest()->get();
-        return view('admin.payments.index', compact('payments'));
+        $branchId = session('selected_branch_id');
+
+        // --- Treatment Orders ---
+        $treatmentQuery = TreatmentOrder::with(['user', 'contractedTreatment.treatment'])
+            ->select(
+                'id', 'user_id', 'contracted_treatment_id', 'total', 'status',
+                'payment_method', 'branch_id', 'created_at',
+                DB::raw("'treatment' as payment_type")
+            );
+
+        // --- Product Orders ---
+        $productQuery = Order::with(['user'])
+            ->select(
+                'id', 'user_id',
+                DB::raw('NULL as contracted_treatment_id'),
+                'total', 'status',
+                DB::raw("'N/A' as payment_method"),
+                'branch_id', 'created_at',
+                DB::raw("'product' as payment_type")
+            );
+
+        // Apply branch filter
+        if ($branchId) {
+            $treatmentQuery->where('branch_id', $branchId);
+            $productQuery->where('branch_id', $branchId);
+        }
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $treatmentQuery->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+            $productQuery->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply status filter
+        if ($request->filled('status')) {
+            $treatmentQuery->where('status', $request->status);
+            $productQuery->where('status', $request->status);
+        }
+
+        // Apply payment method filter (only for treatment orders)
+        if ($request->filled('payment_method')) {
+            $treatmentQuery->where('payment_method', $request->payment_method);
+        }
+
+        // Apply date filters
+        if ($request->filled('from')) {
+            $treatmentQuery->whereDate('created_at', '>=', $request->from);
+            $productQuery->whereDate('created_at', '>=', $request->from);
+        }
+        if ($request->filled('to')) {
+            $treatmentQuery->whereDate('created_at', '<=', $request->to);
+            $productQuery->whereDate('created_at', '<=', $request->to);
+        }
+
+        // Get treatment orders with pagination
+        $treatmentPayments = $treatmentQuery->latest()->get()->map(function ($item) {
+            $item->concept = $item->contractedTreatment?->treatment?->name ?? 'Tratamiento';
+            return $item;
+        });
+
+        $productPayments = $productQuery->latest()->get()->map(function ($item) {
+            $item->concept = 'Venta de productos';
+            $item->payment_method = 'N/A';
+            return $item;
+        });
+
+        // Merge and sort
+        $allPayments = $treatmentPayments->concat($productPayments)
+            ->sortByDesc('created_at');
+
+        // Manual pagination
+        $perPage = 20;
+        $page = $request->input('page', 1);
+        $paginatedPayments = new \Illuminate\Pagination\LengthAwarePaginator(
+            $allPayments->forPage($page, $perPage)->values(),
+            $allPayments->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        // Get unique statuses for filter dropdown
+        $statuses = TreatmentOrder::distinct()->pluck('status')->filter()->sort()->values();
+        $paymentMethods = TreatmentOrder::distinct()->pluck('payment_method')->filter()->sort()->values();
+
+        return view('admin.payments.index', [
+            'payments' => $paginatedPayments,
+            'statuses' => $statuses,
+            'paymentMethods' => $paymentMethods,
+        ]);
     }
 
     /**
@@ -67,6 +162,75 @@ class PaymentController extends Controller
         TreatmentOrder::create($validated);
 
         return redirect()->route('admin.payments.index')->with('success', 'Pago registrado exitosamente.');
+    }
+
+    /**
+     * Approve a pending payment.
+     */
+    public function approve(TreatmentOrder $order): RedirectResponse
+    {
+        if (in_array($order->status, ['Pago completado', 'Pagado'])) {
+            return back()->with('info', 'Esta orden ya fue aprobada.');
+        }
+
+        DB::beginTransaction();
+        try {
+            $order->update([
+                'status' => 'Pago completado',
+                'payment_status' => 'APPROVED',
+            ]);
+
+            // Update installments if they exist
+            if (!empty($order->paid_installments_ids)) {
+                $contractedTreatment = $order->contractedTreatment;
+
+                $contractedTreatment->installments()
+                    ->whereIn('id', $order->paid_installments_ids)
+                    ->update([
+                        'status' => 'PAID',
+                        'paid_at' => now()
+                    ]);
+
+                $pendingCount = $contractedTreatment->installments()->where('status', 'PENDING')->count();
+                if ($pendingCount === 0) {
+                    $contractedTreatment->update(['status' => 'Paid']);
+                }
+            } else {
+                if ($order->contractedTreatment && $order->contractedTreatment->status !== 'Paid') {
+                    $order->contractedTreatment->update(['status' => 'Paid']);
+                }
+            }
+
+            // Process referral reward if applicable
+            ReferralService::processReward($order->user);
+
+            DB::commit();
+            return back()->with('success', 'Pago aprobado correctamente.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Error al aprobar el pago: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Reject a pending payment.
+     */
+    public function reject(Request $request, TreatmentOrder $order): RedirectResponse
+    {
+        $request->validate(['reason' => 'nullable|string|max:255']);
+
+        if (!in_array($order->status, ['Pago por verificar', 'Pendiente', 'Pending'])) {
+            return back()->with('error', 'No se puede rechazar esta orden en su estado actual.');
+        }
+
+        $order->update([
+            'status' => 'Cancelado',
+            'payment_status' => 'DECLINED',
+            'payment_description' => $order->payment_description . ' [Rechazado: ' . ($request->reason ?? 'Sin motivo') . ']'
+        ]);
+
+        return back()->with('success', 'El pago ha sido rechazado.');
     }
 
     /**

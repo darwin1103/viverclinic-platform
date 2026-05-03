@@ -49,19 +49,6 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-xl-3">
-            <div class="card kpi h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <div class="text-secondary small">Comisiones pendientes</div>
-                            <div class="kpi-value mt-1">${{ number_format($pendingCommissions, 0, ',', '.') }}</div>
-                        </div>
-                        <i class="bi bi-cash-coin fs-3 text-danger"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     {{-- Filtros --}}
@@ -109,8 +96,6 @@
                         <th>Sesiones</th>
                         <th>Empleada</th>
                         <th>Comisión</th>
-                        <th>Estado comisión</th>
-                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -153,31 +138,11 @@
                                 -
                             @endif
                         </td>
-                        <td>
-                            @if($referral->staff_commission_status === 'paid')
-                                <span class="badge bg-success">Pagada</span>
-                            @elseif($referral->staff_commission_status === 'pending')
-                                <span class="badge bg-warning text-dark">Pendiente</span>
-                            @else
-                                <span class="text-secondary">-</span>
-                            @endif
-                        </td>
-                        <td>
-                            @if($referral->staff_commission_status === 'pending')
-                                <form method="POST" action="{{ route('admin.referrals.mark-commission-paid', $referral) }}"
-                                      class="d-inline"
-                                      onsubmit="return confirm('¿Marcar comisión como pagada?');">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Marcar como pagada">
-                                        <i class="bi bi-check-lg"></i>
-                                    </button>
-                                </form>
-                            @endif
-                        </td>
+
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="text-center py-4 text-secondary">
+                        <td colspan="7" class="text-center py-4 text-secondary">
                             <i class="bi bi-inbox fs-3 d-block mb-2"></i>
                             No hay referidos registrados.
                         </td>

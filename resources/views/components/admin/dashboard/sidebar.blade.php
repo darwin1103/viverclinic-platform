@@ -73,6 +73,12 @@
         </a>
       </li>
       <li>
+        <a href="{{ route('admin.admin-manager.index') }}" class="nav-link @if(Route::is('admin.admin-manager.*')) active @endif">
+            <i class="bi bi-person-fill-gear me-2"></i>
+            Administradores
+        </a>
+      </li>
+      <li>
         <a href="{{ route('admin.role.index') }}" class="nav-link @if(Route::is('admin.roles.*')) active @endif">
             <i class="bi bi-shield-lock me-2"></i>
             {{ __('Role Management') }}
@@ -108,6 +114,23 @@
             Referidos
         </a>
       </li>
+      <li class="mt-3 text-uppercase text-secondary small px-2">
+        Finanzas
+      </li>
+      <li>
+        <a href="{{ route('admin.accounting.index') }}" class="nav-link @if(Route::is('admin.accounting.*')) active @endif">
+            <i class="bi bi-journal-text me-2"></i>
+            Contabilidad
+        </a>
+      </li>
+      @role('SUPER_ADMIN|OWNER')
+      <li>
+        <a href="{{ route('admin.payroll.index') }}" class="nav-link @if(Route::is('admin.payroll.*')) active @endif">
+            <i class="bi bi-wallet2 me-2"></i>
+            Liquidación
+        </a>
+      </li>
+      @endrole
       <li class="mt-3 text-uppercase text-secondary small px-2">
         Reportes
       </li>

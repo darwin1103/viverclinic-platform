@@ -60,7 +60,4 @@ require __DIR__.'/client.php';
 require __DIR__.'/admin.php';
 require __DIR__.'/staff.php';
 
-// Panel de Administración - Módulo Contable (SuperAdmin)
-Route::prefix('admin')->middleware(['auth', 'role:SuperAdmin|SUPER_ADMIN'])->group(function () {
-    Route::get('/accounting', [\App\Http\Controllers\Admin\AccountingController::class, 'index'])->name('admin.accounting.index');
-});
+

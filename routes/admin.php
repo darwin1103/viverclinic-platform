@@ -11,6 +11,8 @@ use App\Http\Controllers\Admin\ManualSaleController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\OwnerController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\AdminManagerController;
+use App\Http\Controllers\Admin\PayrollController;
 use App\Http\Controllers\Admin\ReferralController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
@@ -51,6 +53,7 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
     Route::middleware('permission:admin_dashboard_user_management')->group(function () {
         Route::resource('staff', StaffController::class);
         Route::resource('owner', OwnerController::class);
+        Route::resource('admin-manager', AdminManagerController::class)->except(['show']);
     });
 
     // Appointments Management
@@ -154,6 +157,8 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
         Route::get('/payments/pending', [\App\Http\Controllers\Admin\PaymentController::class, 'pending'])->name('payments.pending');
         Route::get('/payments/create', [\App\Http\Controllers\Admin\PaymentController::class, 'create'])->name('payments.create');
         Route::post('/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'store'])->name('payments.store');
+        Route::post('/payments/{order}/approve', [\App\Http\Controllers\Admin\PaymentController::class, 'approve'])->name('payments.approve');
+        Route::post('/payments/{order}/reject', [\App\Http\Controllers\Admin\PaymentController::class, 'reject'])->name('payments.reject');
         Route::get('/payments/export', [\App\Http\Controllers\Admin\PaymentController::class, 'export'])->name('payments.export');
         
         // Appointments reschedule list
@@ -173,18 +178,24 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
     Route::get('/referrals-report', [\App\Http\Controllers\Admin\ReferralReportController::class, 'index'])->name('referrals-report.index');
     Route::resource('promotions', \App\Http\Controllers\Admin\PromotionController::class);
 
-    // Accounting Management (Restricted to SUPER_ADMIN)
-    Route::middleware('role:SUPER_ADMIN')->group(function () {
-        Route::get('/accounting', [\App\Http\Controllers\Admin\AccountingController::class, 'index'])->name('accounting.index');
-        Route::post('/accounting', [\App\Http\Controllers\Admin\AccountingController::class, 'store'])->name('accounting.store');
-    });
+    // Accounting Management (ADMIN sees own branch, SUPER_ADMIN sees all)
+    Route::get('/accounting', [\App\Http\Controllers\Admin\AccountingController::class, 'index'])->name('accounting.index');
+    Route::post('/accounting', [\App\Http\Controllers\Admin\AccountingController::class, 'store'])->name('accounting.store');
+
+    // Expense Categories Management
+    Route::resource('expense-categories', \App\Http\Controllers\Admin\ExpenseCategoryController::class)->only(['index', 'store', 'update', 'destroy']);
 
     // Virtual Wallet Management
     Route::post('/virtual-wallet/{user}/add-balance', [\App\Http\Controllers\VirtualWalletController::class, 'addBalance'])->name('virtual-wallet.add-balance');
 
     // Gestión de Referidos (Local)
     Route::get('/referrals', [ReferralController::class, 'index'])->name('referrals.index');
-    Route::post('/referrals/{referral}/mark-commission-paid', [ReferralController::class, 'markCommissionPaid'])
-        ->name('referrals.mark-commission-paid');
+
+    // Payroll Management (SUPER_ADMIN/OWNER only)
+    Route::middleware('role:SUPER_ADMIN|OWNER')->group(function () {
+        Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
+        Route::post('/payroll/generate', [PayrollController::class, 'generate'])->name('payroll.generate');
+        Route::post('/payroll/{settlement}/mark-paid', [PayrollController::class, 'markAsPaid'])->name('payroll.mark-paid');
+    });
 
 });

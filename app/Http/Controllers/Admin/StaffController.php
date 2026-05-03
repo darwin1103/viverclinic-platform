@@ -131,6 +131,7 @@ class StaffController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'branch_id' => 'required|exists:branches,id',
+            'salary' => 'nullable|numeric|min:0',
             'schedules' => 'nullable|array',
             'schedules.*' => 'required|array',
             'schedules.*.*.start_time' => 'required|date_format:H:i',
@@ -154,7 +155,8 @@ class StaffController extends Controller
             $staff->notify(new UserCreatedNotification($staff->name, $staff->email, $password));
 
             $staffProfile = $staff->staffProfile()->create([
-                'branch_id' => $validated['branch_id']
+                'branch_id' => $validated['branch_id'],
+                'salary' => $validated['salary'] ?? 0,
             ]);
 
             if (isset($validated['schedules'])) {
@@ -291,6 +293,7 @@ class StaffController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $staff->id,
             'branch_id' => 'required|exists:branches,id',
+            'salary' => 'nullable|numeric|min:0',
             'schedules' => 'nullable|array',
             'schedules.*' => 'required|array',
             'schedules.*.*.start_time' => 'required|date_format:H:i',
@@ -306,7 +309,8 @@ class StaffController extends Controller
             $staff->update($staffData);
 
             $staff->staffProfile()->update([
-                'branch_id' => $validated['branch_id']
+                'branch_id' => $validated['branch_id'],
+                'salary' => $validated['salary'] ?? $staff->staffProfile->salary ?? 0,
             ]);
 
             // Delete old schedules

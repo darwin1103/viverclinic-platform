@@ -75,6 +75,11 @@ class User extends Authenticatable
         return $this->hasOne(StaffProfile::class);
     }
 
+    public function adminProfile()
+    {
+        return $this->hasOne(AdminProfile::class);
+    }
+
     public function referrer()
     {
         return $this->belongsTo(User::class, 'referred_by_id');
@@ -150,6 +155,11 @@ class User extends Authenticatable
     }
 
     public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class, 'staff_user_id');
+    }
+
+    public function assignedAppointments(): HasMany
     {
         return $this->hasMany(Appointment::class, 'staff_user_id');
     }

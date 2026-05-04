@@ -23,10 +23,14 @@ class ReportController extends Controller
         $to = $request->input('to', now()->toDateString());
 
         // --- 1. Monthly Performance (existing) ---
+        $monthField = config('database.default') === 'sqlite' 
+            ? "strftime('%m', created_at)" 
+            : "MONTH(created_at)";
+
         $monthlyQuery = TreatmentOrder::whereIn('status', ['Pagado', 'Completado', 'Paid', 'Completed', 'Pago completado'])
             ->whereDate('created_at', '>=', $from)
             ->whereDate('created_at', '<=', $to)
-            ->selectRaw("strftime('%m', created_at) as month, SUM(total) as total")
+            ->selectRaw("$monthField as month, SUM(total) as total")
             ->groupBy('month')
             ->orderBy('month');
 

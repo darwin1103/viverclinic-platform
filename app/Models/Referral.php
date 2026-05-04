@@ -16,11 +16,13 @@ class Referral extends Model
         'staff_commission',
         'staff_commission_status',
         'rewarded_at',
+        'sessions_redeemed',
     ];
 
     protected $casts = [
         'rewarded_at' => 'datetime',
         'staff_commission' => 'decimal:2',
+        'sessions_redeemed' => 'boolean',
     ];
 
     /**

@@ -12,7 +12,27 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('referrals', function (Blueprint $table) {
-            $table->boolean('sessions_redeemed')->default(false)->after('bonus_sessions');
+            if (!Schema::hasColumn('referrals', 'referred_id')) {
+                $table->foreignId('referred_id')->nullable()->constrained('users')->onDelete('set null')->after('referrer_id');
+            }
+            if (!Schema::hasColumn('referrals', 'bonus_sessions')) {
+                $table->unsignedSmallInteger('bonus_sessions')->default(0)->after('status');
+            }
+            if (!Schema::hasColumn('referrals', 'staff_id')) {
+                $table->foreignId('staff_id')->nullable()->constrained('users')->onDelete('set null')->after('bonus_sessions');
+            }
+            if (!Schema::hasColumn('referrals', 'staff_commission')) {
+                $table->decimal('staff_commission', 10, 2)->nullable()->after('staff_id');
+            }
+            if (!Schema::hasColumn('referrals', 'staff_commission_status')) {
+                $table->string('staff_commission_status')->nullable()->after('staff_commission');
+            }
+            if (!Schema::hasColumn('referrals', 'rewarded_at')) {
+                $table->timestamp('rewarded_at')->nullable()->after('staff_commission_status');
+            }
+            if (!Schema::hasColumn('referrals', 'sessions_redeemed')) {
+                $table->boolean('sessions_redeemed')->default(false)->after('bonus_sessions');
+            }
         });
     }
 

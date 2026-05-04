@@ -91,6 +91,7 @@ class ReportController extends Controller
         // --- 5. NEW KPIs (Requested by user) ---
         // 1. Nuevos pacientes
         $newPatientsQuery = User::role('PATIENT')
+            ->where('is_legacy', false)
             ->whereDate('created_at', '>=', $from)
             ->whereDate('created_at', '<=', $to);
         // Note: Users don't strictly belong to a branch globally except through pivots, but we'll show global or pivot based.

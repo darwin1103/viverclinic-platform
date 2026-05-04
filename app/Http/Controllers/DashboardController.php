@@ -40,6 +40,7 @@ class DashboardController extends Controller
 
             // 1. Total de pacientes (filtrado por sucursal automáticamente si aplica)
             $totalPatients = User::role('PATIENT')
+                ->where('is_legacy', false)
                 ->when($branchId, function ($q) use ($branchId) {
                     $q->where(function ($q2) use ($branchId) {
                         $q2->whereHas('patientsBranches', function ($sub) use ($branchId) {

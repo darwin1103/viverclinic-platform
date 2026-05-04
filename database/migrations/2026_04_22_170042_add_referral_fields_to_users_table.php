@@ -27,8 +27,13 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['referred_by_id']);
-            $table->dropColumn(['referral_code', 'referred_by_id']);
+            if (Schema::hasColumn('users', 'referred_by_id')) {
+                $table->dropForeign(['referred_by_id']);
+                $table->dropColumn('referred_by_id');
+            }
+            if (Schema::hasColumn('users', 'referral_code')) {
+                $table->dropColumn('referral_code');
+            }
         });
     }
 };

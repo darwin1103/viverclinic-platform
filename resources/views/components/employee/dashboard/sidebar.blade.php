@@ -1,7 +1,7 @@
   <aside id="sidebar" class="app-sidebar">
-    <div class="d-flex align-items-center mb-4">
+    <div class="d-flex justify-content-start mb-4">
       <a href="{{ url('/') }}" class="brand fs-5 text-decoration-none">
-        <img src="{{ asset('/storage/viver-clinic-logo.png') }}" style="width: 100%; height: aunto;">
+        <img src="{{ asset('images/logo-viverclinic.png') }}" style="width: 50%; height: auto;">
       </a>
     </div>
     <hr class="border-secondary-subtle">

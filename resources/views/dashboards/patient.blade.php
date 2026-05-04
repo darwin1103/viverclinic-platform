@@ -14,7 +14,7 @@
                                 role="button"
                                 href="{{ route('medical-record.index') }}"
                             >
-                                <i class="bi bi-clipboard-heart-fill"></i>
+                                <img src="{{ asset('images/icons/historia-clinica.png') }}" width="60" height="60" alt="Icon">
                                 {{ __('Medical Record') }}
                             </a>
                         </div>
@@ -25,8 +25,8 @@
                                 role="button"
                                 href="{{ route('client.contracted-treatment.index') }}"
                             >
-                                <i class="bi bi-card-checklist"></i>
-                                {{ __('Treatment') }}
+                                <img src="{{ asset('images/icons/Control-tratamiento.png') }}" width="60" height="60" alt="Icon">
+                                Control de tratamientos
                             </a>
                         </div>
                     @endcan
@@ -36,7 +36,7 @@
                                 role="button"
                                 href="{{ route('care-tips.index') }}"
                             >
-                                <i class="bi bi-bookmark-star-fill"></i>
+                                <img src="{{ asset('images/icons/Tips-cuidados.png') }}" width="60" height="60" alt="Icon">
                                 {{ __('Care Tips') }}
                             </a>
                         </div>
@@ -47,7 +47,7 @@
                                 role="button"
                                 href="{{ route('client.shop.index') }}"
                             >
-                                <i class="bi bi-bag-check"></i>
+                                <img src="{{ asset('images/icons/Tienda.png') }}" width="60" height="60" alt="Icon">
                                 Tienda
                             </a>
                         </div>
@@ -56,7 +56,7 @@
                                 role="button"
                                 href="{{ route('client.orders.index') }}"
                             >
-                                <i class="bi bi-cart-check-fill"></i>
+                                <img src="{{ asset('images/icons/Compras.png') }}" width="60" height="60" alt="Icon">
                                 Compras
                             </a>
                         </div>
@@ -67,7 +67,7 @@
                                 role="button"
                                 href="{{ route('client.treatment.index') }}"
                             >
-                                <i class="bi bi-heart-fill"></i>
+                                <img src="{{ asset('images/icons/Comprar-paquetes.png') }}" width="60" height="60" alt="Icon">
                                 {{ __('Buy Package') }}
                             </a>
                         </div>
@@ -78,18 +78,18 @@
                                 role="button"
                                 href="{{ route('referrals.index') }}"
                             >
-                                <i class="bi bi-person-hearts"></i>
+                                <img src="{{ asset('images/icons/Referidos.png') }}" width="60" height="60" alt="Icon">
                                 {{ __('Referrals') }}
                             </a>
                         </div>
                     @endcan
                     @can('patient_recomentations_home_btn')
-                        <div class="col-12 col-lg-4">
+                        <div class="col-12 col-lg-8">
                             <a class="btn btn-custom btn-custom-height d-flex justify-content-start text-start gap-3 fs-4 align-items-center"
                                 role="button"
                                 href="{{ route('recomentations.index') }}"
                             >
-                                <i class="bi bi-person-add"></i>
+                                <img src="{{ asset('images/icons/Recomendaciones.png') }}" width="60" height="60" alt="Icon">
                                 {{ __('Recommendations') }}
                             </a>
                         </div>
@@ -183,3 +183,47 @@
 
     </div>
 @endsection
+
+@if(session('show_welcome_popup'))
+    <!-- Welcome Modal -->
+    <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border: 1px solid rgba(255,255,255,.06); background-color: var(--vc-card, #0f2a30);">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center pt-0 pb-4 px-4">
+                    <div class="mb-4 text-primary" style="color: var(--vc-primary) !important;">
+                        <i class="bi bi-stars" style="font-size: 3rem;"></i>
+                    </div>
+                    <h3 class="fw-bold text-white mb-3" id="welcomeModalLabel">¡Bienvenido(a) a ViverClinic!</h3>
+                    <h5 class="text-white mb-3">{{ Auth::user()->name }}</h5>
+                    <p class="text-secondary fs-5 mb-4">Estamos encantados de tenerte de vuelta. Nuestro equipo está listo para brindarte la mejor experiencia en cuidado y bienestar. ¡Explora tu panel para descubrir todo lo que hemos preparado para ti!</p>
+                    <button type="button" class="btn btn-primary btn-lg w-100 rounded-pill" data-bs-dismiss="modal">Explorar mi panel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var welcomeModalEl = document.getElementById('welcomeModal');
+                if (welcomeModalEl) {
+                    var welcomeModal = new bootstrap.Modal(welcomeModalEl, {
+                        backdrop: 'static'
+                    });
+                    welcomeModal.show();
+                    
+                    // Auto-close after 15 seconds if they don't click anything
+                    setTimeout(function() {
+                        if (document.getElementById('welcomeModal').classList.contains('show')) {
+                            welcomeModal.hide();
+                        }
+                    }, 15000);
+                }
+            });
+        </script>
+        {{ session()->forget('show_welcome_popup') }}
+    @endpush
+@endif

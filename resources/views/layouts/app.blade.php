@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Viverclinic') }}</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     @stack('styles')
 </head>
@@ -13,7 +14,7 @@
         <nav class="navbar navbar-expand-md navbar-light">
             <div class="container-fluid px-2 px-md-3 px-lg-5">
                 <a class="navbar-brand fw-bold" href="{{ url('/') }}">
-                    {{ config('app.name', 'Viverclinic') }}
+                    <img src="{{ asset('images/logo-viverclinic.png') }}" alt="{{ config('app.name', 'Viverclinic') }}" style="max-height: 45px; width: auto;">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>

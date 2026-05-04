@@ -54,21 +54,27 @@ class DashboardController extends Controller
             // 2. Citas del mes actual
             $appointmentsThisMonth = Appointment::whereMonth('schedule', now()->month)
                                         ->whereYear('schedule', now()->year)
+                                        ->when($branchId, fn($q) => $q->whereHas('contractedTreatment', fn($sub) => $sub->where('contracted_treatments.branch_id', $branchId)))
                                         ->count();
 
             // 3. Tratamientos activos (Asumiendo que 'Pending' es el estado activo o simplemente count de todo)
-            $activeTreatments = ContractedTreatment::whereIn('status', ['Pending', 'Activo', 'In Progress', 'Paid', 'Pagado'])->count();
+            $activeTreatments = ContractedTreatment::whereIn('status', ['Pending', 'Activo', 'In Progress', 'Paid', 'Pagado'])
+                ->when($branchId, fn($q) => $q->where('contracted_treatments.branch_id', $branchId))
+                ->count();
 
             // KPIs originales mantenidos si son necesarios para la vista
             $todayAppointments = Appointment::whereBetween('schedule', [
                 today()->startOfDay(),
                 today()->endOfDay(),
-            ])->count();
+            ])
+            ->when($branchId, fn($q) => $q->whereHas('contractedTreatment', fn($sub) => $sub->where('contracted_treatments.branch_id', $branchId)))
+            ->count();
 
             $todayAppointmentsList = Appointment::whereBetween('schedule', [
                 today()->startOfDay(),
                 today()->endOfDay(),
             ])
+            ->when($branchId, fn($q) => $q->whereHas('contractedTreatment', fn($sub) => $sub->where('contracted_treatments.branch_id', $branchId)))
             ->with([
                 'contractedTreatment.user',
                 'contractedTreatment.treatment'
@@ -110,6 +116,7 @@ class DashboardController extends Controller
             $appointmentsLast7Days = Appointment::selectRaw('DATE(schedule) as date, count(*) as count')
                 ->whereDate('schedule', '>=', now()->subDays(6)->startOfDay())
                 ->whereDate('schedule', '<=', now()->endOfDay())
+                ->when($branchId, fn($q) => $q->whereHas('contractedTreatment', fn($sub) => $sub->where('contracted_treatments.branch_id', $branchId)))
                 ->groupBy('date')
                 ->orderBy('date', 'ASC')
                 ->get();
@@ -179,8 +186,12 @@ class DashboardController extends Controller
                 ]);
             }
 
-            $pagosPendientesCount = \App\Models\TreatmentOrder::whereIn('status', ['Pendiente', 'Pending', 'Pago por verificar'])->count();
-            $reagendarCount = \App\Models\Appointment::whereIn('status', ['No asistió', 'Cancelada', 'Cancelado'])->count();
+            $pagosPendientesCount = \App\Models\TreatmentOrder::whereIn('status', ['Pendiente', 'Pending', 'Pago por verificar'])
+                ->when($branchId, fn($q) => $q->where('treatment_orders.branch_id', $branchId))
+                ->count();
+            $reagendarCount = \App\Models\Appointment::whereIn('status', ['No asistió', 'Cancelada', 'Cancelado'])
+                ->when($branchId, fn($q) => $q->whereHas('contractedTreatment', fn($sub) => $sub->where('contracted_treatments.branch_id', $branchId)))
+                ->count();
 
             // 4. Actividad reciente (Tratamientos + Productos)
             $recentTreatments = \App\Models\TreatmentOrder::with(['user', 'contractedTreatment.treatment'])

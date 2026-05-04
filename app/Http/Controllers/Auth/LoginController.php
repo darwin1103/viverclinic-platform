@@ -81,6 +81,8 @@ class LoginController extends Controller
             if ($branchId) {
                 session(['selected_branch_id' => $branchId]);
             }
+        } elseif ($user->hasRole('PATIENT')) {
+            session(['show_welcome_popup' => true]);
         }
     }
 

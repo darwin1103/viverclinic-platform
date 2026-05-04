@@ -6,7 +6,7 @@
         <div class="col-md-8 text-center">
             <div class="card shadow border-0 rounded-4">
                 <div class="card-body p-5">
-                    <img src="{{ asset('img/logo-viverclinic.png') }}" alt="ViverClinic Logo" class="img-fluid mb-4" style="max-width: 200px; opacity: 0.8;">
+                    <img src="{{ asset('images/logo-viverclinic.png') }}" alt="ViverClinic Logo" class="img-fluid mb-4" style="max-width: 200px; opacity: 0.8;">
                     
                     <h2 class="fw-bold mb-3" style="color: var(--primary-color);">¡Bienvenido a la nueva plataforma de ViverClinic!</h2>
                     

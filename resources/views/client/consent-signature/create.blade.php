@@ -19,15 +19,8 @@
                     <form action="{{ route('client.consent-signature.store', $contractedTreatment->id) }}" method="POST">
                         @csrf
                         
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">Consentimiento del Tratamiento</label>
-                            <div class="p-3 border rounded bg-light" style="max-height: 200px; overflow-y: auto;">
-                                {!! nl2br(e($contractedTreatment->treatment->informed_consent)) !!}
-                            </div>
-                        </div>
-
                         <div class="form-check mb-3">
-                            <input class="form-check-input @error('terms_accepted') is-invalid @enderror" type="checkbox" value="1" id="terms_accepted" name="terms_accepted" required>
+                            <input class="form-check-input show-terms-conditions-modal @error('terms_accepted') is-invalid @enderror" type="checkbox" value="1" id="terms_accepted" name="terms_accepted" required>
                             <label class="form-check-label" for="terms_accepted">
                                 He leído, entiendo y <strong>acepto los términos y condiciones</strong> descritos en este documento para el tratamiento {{ $contractedTreatment->treatment->name }}.
                             </label>
@@ -69,4 +62,52 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="termsConditionsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="termsConditionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="termsConditionsModalLabel">Consentimiento Informado - {{ $contractedTreatment->treatment->name }}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {!! $contractedTreatment->treatment->terms_conditions !!}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
+                <button type="button" class="btn btn-primary" id="acceptTermsConditions">{{ __('I accept') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const termsCheck = document.querySelector(".show-terms-conditions-modal");
+    if (termsCheck) {
+        termsCheck.addEventListener('click', function(e) {
+            if (this.checked) {
+                // Prevenir check inmediato, mostrar modal primero
+                e.preventDefault();
+                const modalEl = document.getElementById('termsConditionsModal');
+                if (modalEl) new bootstrap.Modal(modalEl).show();
+            }
+        });
+    }
+
+    const btnAcceptTerms = document.getElementById("acceptTermsConditions");
+    if (btnAcceptTerms) {
+        btnAcceptTerms.addEventListener('click', function() {
+            const modalEl = document.getElementById('termsConditionsModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+
+            // Marcar el checkbox ahora sí
+            if (termsCheck) termsCheck.checked = true;
+        });
+    }
+});
+</script>
+@endpush

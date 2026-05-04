@@ -71,7 +71,7 @@
                         <h5 class="text-secondary">Zonas Grandes</h5>
                         <div class="d-flex flex-wrap gap-2 mb-3">
                             @foreach ($bigZones as $zone)
-                                <div class="form-check form-check-inline border rounded p-2 m-0 bg-light">
+                                <div class="form-check form-check-inline p-2 m-0">
                                     <input class="form-check-input ms-1" type="checkbox" name="selected_zones[big][]" id="big_{{ Str::slug($zone) }}" value="{{ $zone }}">
                                     <label class="form-check-label ms-2 pe-2" for="big_{{ Str::slug($zone) }}">{{ $zone }}</label>
                                 </div>
@@ -81,7 +81,7 @@
                         <h5 class="text-secondary mt-3">Zonas Pequeñas</h5>
                         <div class="d-flex flex-wrap gap-2 mb-3">
                             @foreach ($smallZones as $zone)
-                                <div class="form-check form-check-inline border rounded p-2 m-0 bg-light">
+                                <div class="form-check form-check-inline p-2 m-0">
                                     <input class="form-check-input ms-1" type="checkbox" name="selected_zones[big][]" id="small_{{ Str::slug($zone) }}" value="{{ $zone }}">
                                     <label class="form-check-label ms-2 pe-2" for="small_{{ Str::slug($zone) }}">{{ $zone }}</label>
                                 </div>
@@ -97,7 +97,7 @@
                         <h5 class="text-secondary">Mini Zonas</h5>
                         <div class="d-flex flex-wrap gap-2 mb-3">
                             @foreach ($miniZones as $zone)
-                                <div class="form-check form-check-inline border rounded p-2 m-0 bg-light">
+                                <div class="form-check form-check-inline p-2 m-0">
                                     <input class="form-check-input ms-1" type="checkbox" name="selected_zones[mini][]" id="mini_{{ Str::slug($zone) }}" value="{{ $zone }}">
                                     <label class="form-check-label ms-2 pe-2" for="mini_{{ Str::slug($zone) }}">{{ $zone }}</label>
                                 </div>

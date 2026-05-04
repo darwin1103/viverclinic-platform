@@ -31,6 +31,7 @@ class User extends Authenticatable
         'password',
         'informed_consent',
         'referral_code',
+        'is_legacy',
     ];
 
     protected static function booted()
@@ -67,6 +68,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_legacy' => 'boolean',
         ];
     }
 

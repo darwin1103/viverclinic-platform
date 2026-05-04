@@ -1,0 +1,138 @@
+@extends('layouts.admin')
+
+@section('title', 'Asignar Tratamiento Antiguo')
+
+@section('content')
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-2 text-gray-800">Asignar Tratamiento a Usuario Antiguo</h1>
+            <p class="mb-4">Asigna un tratamiento previo a un paciente migrado. Esto no generará registros contables ni ventas.</p>
+        </div>
+    </div>
+
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form action="{{ route('admin.legacy-treatments.store') }}" method="POST">
+                @csrf
+                
+                <h4 class="mb-3 text-primary border-bottom pb-2">1. Datos Principales</h4>
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                        <label for="user_id" class="form-label fw-bold">Paciente (Solo usuarios antiguos)</label>
+                        <select name="user_id" id="user_id" class="form-select select2" required>
+                            <option value="">Seleccione un paciente...</option>
+                            @foreach($legacyUsers as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="branch_id" class="form-label fw-bold">Sucursal</label>
+                        <select name="branch_id" id="branch_id" class="form-select" required>
+                            <option value="">Seleccione sucursal...</option>
+                            @foreach($branches as $branch)
+                                <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="treatment_id" class="form-label fw-bold">Tratamiento</label>
+                        <select name="treatment_id" id="treatment_id" class="form-select select2" required>
+                            <option value="">Seleccione tratamiento...</option>
+                            @foreach($treatments as $treatment)
+                                <option value="{{ $treatment->id }}">{{ $treatment->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="sessions" class="form-label fw-bold">Sesiones Restantes a Asignar</label>
+                        <input type="number" name="sessions" id="sessions" class="form-control" min="1" value="1" required>
+                        <small class="text-muted">Número de sesiones que el paciente aún tiene pendientes por tomar.</small>
+                    </div>
+                </div>
+
+                <h4 class="mb-3 text-primary border-bottom pb-2">2. Zonas del Tratamiento</h4>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5 class="text-secondary">Zonas Grandes</h5>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            @foreach ($bigZones as $zone)
+                                <div class="form-check form-check-inline border rounded p-2 m-0 bg-light">
+                                    <input class="form-check-input ms-1" type="checkbox" name="selected_zones[big][]" id="big_{{ Str::slug($zone) }}" value="{{ $zone }}">
+                                    <label class="form-check-label ms-2 pe-2" for="big_{{ Str::slug($zone) }}">{{ $zone }}</label>
+                                </div>
+                            @endforeach
+                        </div>
+                        
+                        <h5 class="text-secondary mt-3">Zonas Pequeñas</h5>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            @foreach ($smallZones as $zone)
+                                <div class="form-check form-check-inline border rounded p-2 m-0 bg-light">
+                                    <input class="form-check-input ms-1" type="checkbox" name="selected_zones[big][]" id="small_{{ Str::slug($zone) }}" value="{{ $zone }}">
+                                    <label class="form-check-label ms-2 pe-2" for="small_{{ Str::slug($zone) }}">{{ $zone }}</label>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="form-floating mt-3">
+                            <input type="text" class="form-control" id="another-big-zone" name="another_big_zone" placeholder="Otra zona grande">
+                            <label for="another-big-zone">Otra zona grande o pequeña (opcional)</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="text-secondary">Mini Zonas</h5>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            @foreach ($miniZones as $zone)
+                                <div class="form-check form-check-inline border rounded p-2 m-0 bg-light">
+                                    <input class="form-check-input ms-1" type="checkbox" name="selected_zones[mini][]" id="mini_{{ Str::slug($zone) }}" value="{{ $zone }}">
+                                    <label class="form-check-label ms-2 pe-2" for="mini_{{ Str::slug($zone) }}">{{ $zone }}</label>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="form-floating mt-3">
+                            <input type="text" class="form-control" id="another-mini-zone" name="another_mini_zone" placeholder="Otra mini zona">
+                            <label for="another-mini-zone">Otra mini zona (opcional)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle-fill me-2"></i> 
+                    Al guardar, el paciente deberá iniciar sesión en su cuenta y firmar el consentimiento médico específico de este tratamiento antes de poder agendar su cita.
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <a href="{{ route('dashboard') }}" class="btn btn-secondary me-2">Cancelar</a>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> Asignar Tratamiento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            theme: 'bootstrap-5'
+        });
+    });
+</script>
+@endpush

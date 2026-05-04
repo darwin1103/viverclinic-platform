@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Client\ConsentSignatureController;
 use App\Http\Controllers\Client\ContractedTreatmentController as ClientContractedTreatmentController;
 use App\Http\Controllers\Client\OrderController;
 use App\Http\Controllers\Client\SaveInformedConsentController;
@@ -14,6 +15,9 @@ Route::middleware(['auth', 'verified', 'role:PATIENT'])->name('client.')->group(
     Route::resource('/treatment', ClientTreatmentController::class);
     Route::resource('/contracted-treatment', ClientContractedTreatmentController::class);
     Route::resource('/informed-consent', SaveInformedConsentController::class);
+
+    Route::get('consent-signature/{contracted_treatment}', [ConsentSignatureController::class, 'create'])->name('consent-signature.create');
+    Route::post('consent-signature/{contracted_treatment}', [ConsentSignatureController::class, 'store'])->name('consent-signature.store');
 
     Route::get('/contrated_treatment/{contracted_treatment}/schedule-appointment', [ScheduleAppointmentController::class, 'index'])
         ->name('schedule-appointment.index');

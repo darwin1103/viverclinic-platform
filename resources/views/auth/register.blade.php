@@ -10,6 +10,9 @@
                         @if(request()->query('ref'))
                             <input type="hidden" name="referral_code" value="{{ request()->query('ref') }}">
                         @endif
+                        @if(isset($isLegacy) && $isLegacy)
+                            <input type="hidden" name="is_legacy" value="1">
+                        @endif
                         <div class="row mb-3">
                             <label for="name" class="col-md-4 col-form-label text-md-end">{{ __('Name') }}</label>
                             <div class="col-md-6">

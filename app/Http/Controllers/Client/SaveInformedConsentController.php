@@ -214,6 +214,10 @@ class SaveInformedConsentController extends Controller
         $client->informed_consent = true;
         $client->save();
 
+        if (Auth::user()->is_legacy) {
+            return redirect()->route('dashboard')->with('success', 'Historia clínica guardada. Por favor espera a que se asignen tus tratamientos.');
+        }
+
         return redirect()->route('client.treatment.index')->with('success', 'Successful operation');
 
     }

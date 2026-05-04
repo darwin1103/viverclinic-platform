@@ -41,10 +41,11 @@ class RegisterController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function showRegistrationForm()
+    public function showRegistrationForm(\Illuminate\Http\Request $request)
     {
         $branches = Branch::all();
-        return view('auth.register', compact('branches'));
+        $isLegacy = $request->query('legacy') == 1;
+        return view('auth.register', compact('branches', 'isLegacy'));
     }
 
     /**
@@ -80,6 +81,7 @@ class RegisterController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'branchId' => ['required'], // ***
             'referral_code' => ['nullable', 'string', 'max:10'],
+            'is_legacy' => ['nullable', 'boolean'],
         ]);
 
     }
@@ -107,6 +109,7 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'referral_code' => User::generateReferralCode(),
+            'is_legacy' => $data['is_legacy'] ?? false,
         ]);
 
         $user->assignRole('PATIENT');

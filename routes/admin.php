@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\TreatmentController;
+use App\Http\Controllers\Admin\LegacyTreatmentController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('admin')->name('admin.')->group(function () {
@@ -26,6 +27,8 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
     // Treatment catalog management (SUPER_ADMIN/OWNER only)
     Route::middleware('role:SUPER_ADMIN|OWNER')->group(function () {
         Route::resource('treatment', TreatmentController::class);
+        Route::get('legacy-treatments/create', [LegacyTreatmentController::class, 'create'])->name('legacy-treatments.create');
+        Route::post('legacy-treatments', [LegacyTreatmentController::class, 'store'])->name('legacy-treatments.store');
     });
 
     // Contracted treatments & payment actions (available to ADMIN too)

@@ -82,6 +82,7 @@ class DashboardController extends Controller
             ->get();
 
             $patientListQuery = User::role('PATIENT')
+                ->where('is_legacy', false)
                 ->when(request('date_from'), function ($q) {
                     $q->whereDate('created_at', '>=', request('date_from'));
                 }, function ($q) {
@@ -259,8 +260,19 @@ class DashboardController extends Controller
             $user = Auth::user();
 
             $contractedTreatments = ContractedTreatment::where('user_id', $user->id)
-                ->select(['id'])
+                ->select(['id', 'terms_acepted'])
                 ->get();
+
+            if ($user->is_legacy) {
+                if ($contractedTreatments->isEmpty()) {
+                    return view('dashboards.patient_legacy_waiting');
+                }
+
+                $unsignedTreatment = $contractedTreatments->firstWhere('terms_acepted', false);
+                if ($unsignedTreatment) {
+                    return redirect()->route('client.consent-signature.create', ['contracted_treatment' => $unsignedTreatment->id]);
+                }
+            }
 
             if ($contractedTreatments->count() > 1) {
                 $createAppointmentUrl = route('client.contracted-treatment.index');

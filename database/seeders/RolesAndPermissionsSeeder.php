@@ -22,11 +22,24 @@ class RolesAndPermissionsSeeder extends Seeder
         $employeeRole = Role::firstOrCreate(['name' => 'EMPLOYEE']);
         $patientRole = Role::firstOrCreate(['name' => 'PATIENT']);
 
-        $ownerRole->givePermissionTo(Permission::firstOrCreate(['name' => 'owner_dashboard']));
-        $ownerRole->givePermissionTo(Permission::firstOrCreate(['name' => 'owner_dashboard_role_management']));
-        $ownerRole->givePermissionTo(Permission::firstOrCreate(['name' => 'owner_dashboard_user_management']));
-        $ownerRole->givePermissionTo(Permission::firstOrCreate(['name' => 'owner_dashboard_branch_management']));
-        $ownerRole->givePermissionTo(Permission::firstOrCreate(['name' => 'owner_dashboard_treatment_management']));
+        $ownerPermissions = [
+            'admin_dashboard',
+            'ver_pacientes',
+            'crear_citas',
+            'ver_inventario',
+            'ver_reportes',
+            'ver_contabilidad',
+            'ver_referidos',
+            'ver_promociones',
+            'admin_dashboard_role_management',
+            'admin_dashboard_user_management',
+            'admin_dashboard_branch_management',
+            'admin_dashboard_treatment_management',
+        ];
+
+        foreach ($ownerPermissions as $permission) {
+            $ownerRole->givePermissionTo(Permission::firstOrCreate(['name' => $permission]));
+        }
 
         $adminPermissions = [
             'admin_dashboard',

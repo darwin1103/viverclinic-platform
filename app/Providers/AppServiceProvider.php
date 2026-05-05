@@ -31,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->registerPolicies();
         Gate::before(function (User $user, $ability) {
-            if ($user->hasRole('SUPER_ADMIN')) {
+            if ($user->hasRole(['SUPER_ADMIN', 'OWNER'])) {
                 return true;
             }
         });

@@ -5,6 +5,54 @@
     .show-image-selector {
         cursor: pointer;
     }
+    .profile-photo-container {
+        position: absolute;
+        top: 130px;
+        left: 20px;
+        border-radius: 50%;
+        z-index: 5;
+    }
+    .photo-edit-icon {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        background-color: white;
+        border: 2px solid white;
+        border-radius: 50%;
+        color: #3a3a3a;
+        width: 25px;
+        height: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .profile-info-container {
+        position: absolute;
+        top: 185px;
+        left: 140px;
+        z-index: 5;
+    }
+    .profile-card-body {
+        margin-top: 60px;
+    }
+
+    @media (max-width: 768px) {
+        .profile-photo-container {
+            left: 50%;
+            transform: translateX(-50%);
+            top: 100px;
+        }
+        .profile-info-container {
+            position: relative;
+            top: 0;
+            left: 0;
+            margin-top: 60px;
+            text-align: center;
+        }
+        .profile-card-body {
+            margin-top: 10px;
+        }
+    }
 </style>
 @endpush
 <div class="container-fluid">
@@ -13,24 +61,28 @@
             <h1>{{ __('Profile') }}</h1>
         </div>
         <div class="col-12 d-flex justify-content-center align-items-center">
-            <div class="card shadow-sm" style="position: relative; width: 60%;">
+            <div class="card shadow-sm w-100 w-md-75 w-lg-60" style="position: relative;">
                 <div class="card-img-top" 
                     style="height: 180px; background: linear-gradient(135deg, #ff7e5f, #feb47b);">
                 </div>
-                <div style="position: absolute; top: 140px; left: 20px; border: 5px solid white; border-radius: 50%;" class="show-image-selector">
-                    <img id="profilePhoto" alt="user photo" width="100" height="100" class="rounded-circle" src="{{asset(Storage::url(Auth::user()->photo_profile?:config('app.app_default_img_profile')))}}">
-                    <i class="bi bi-camera-fill" style="position: absolute; bottom: 0px; right: 0px; background-color: white; border: 2px solid white; border-radius: 50%; color: #3a3a3a; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center;"></i>
+                
+                {{-- Profile Photo --}}
+                <div class="profile-photo-container show-image-selector">
+                    <img id="profilePhoto" alt="user photo" width="100" height="100" class="rounded-circle border border-5 border-white" src="{{asset(Storage::url(Auth::user()->photo_profile?:config('app.app_default_img_profile')))}}">
+                    <i class="bi bi-camera-fill photo-edit-icon"></i>
                 </div>
+                
                 <input type="file" id="profilePhotoInput" accept="image/png, image/jpeg, image/jpg" style="display:none;">
-                <div style="position: absolute; top: 185px; left: 140px;">
-                    <p class="fs-5 fw-semibold text-center mb-0">
-                        {{ Auth::user()->name ?? '' }}&nbsp;
+                
+                {{-- User Info --}}
+                <div class="profile-info-container">
+                    <p class="fs-5 fw-semibold mb-0">
+                        {{ Auth::user()->name ?? '' }}
                     </p>
+                    <p class="fw-light mb-0" style="font-size: 12px;">{{__('Account created')}}: {{ Auth::user()->created_at->format('d-m-Y') ?? '' }}</p>
                 </div>
-                <div style="position: absolute; top: 215px; left: 140px;">
-                    <p class="fw-light text-center" style="font-size: 12px;">{{__('Account created')}}:&nbsp;{{ Auth::user()->created_at->format('d-m-Y') ?? '' }}</p>
-                </div>
-                <div class="card-body" style="margin-top: 80px">
+
+                <div class="card-body profile-card-body">
                     <ul class="nav nav-underline nav-fill mb-3">
                         <li class="nav-item"><a class="nav-link active" aria-current="true" data-bs-toggle="tab" href="#basicInfo">{{__('Basic Information')}}</a></li>
                         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#others">{{__('Others')}}</a></li>

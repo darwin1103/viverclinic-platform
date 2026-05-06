@@ -21,6 +21,17 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminRole = Role::firstOrCreate(['name' => 'ADMIN']);
         $employeeRole = Role::firstOrCreate(['name' => 'EMPLOYEE']);
         $patientRole = Role::firstOrCreate(['name' => 'PATIENT']);
+        $salesRole = Role::firstOrCreate(['name' => 'SALES']);
+
+        $salesPermissions = [
+            'admin_dashboard',
+            'ver_pacientes',
+            'crear_citas',
+        ];
+
+        foreach ($salesPermissions as $permission) {
+            $salesRole->givePermissionTo(Permission::firstOrCreate(['name' => $permission]));
+        }
 
         $ownerPermissions = [
             'admin_dashboard',

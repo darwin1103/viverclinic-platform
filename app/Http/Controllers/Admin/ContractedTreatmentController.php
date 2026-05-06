@@ -8,6 +8,7 @@ use App\Models\BranchTreatment;
 use App\Models\ContractedTreatment;
 use App\Models\Treatment;
 use App\Models\TreatmentOrder;
+use App\Models\ContractedTreatmentNote;
 use App\Services\ReferralService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -71,10 +72,61 @@ class ContractedTreatmentController extends Controller
     public function show(ContractedTreatment $contractedTreatment)
     {
 
-        $contractedTreatment->load(['user', 'branch', 'treatment', 'installments', 'orders']);
+        $contractedTreatment->load(['user', 'branch', 'treatment', 'installments', 'orders', 'notes.user']);
 
         return view('admin.contracted-treatment.show', compact('contractedTreatment'));
 
+    }
+
+    /**
+     * Guardar una nueva nota interna.
+     */
+    public function storeNote(Request $request, ContractedTreatment $contractedTreatment)
+    {
+        $request->validate([
+            'content' => 'required|string|max:2000',
+        ]);
+
+        $contractedTreatment->notes()->create([
+            'user_id' => auth()->id(),
+            'content' => $request->content,
+        ]);
+
+        return back()->with('success', 'Nota agregada correctamente.');
+    }
+
+    /**
+     * Actualizar una nota existente.
+     */
+    public function updateNote(Request $request, ContractedTreatmentNote $note)
+    {
+        if (!auth()->user()->hasRole(['SUPER_ADMIN', 'OWNER'])) {
+            abort(403);
+        }
+
+        $request->validate([
+            'content' => 'required|string|max:2000',
+        ]);
+
+        $note->update([
+            'content' => $request->content,
+        ]);
+
+        return back()->with('success', 'Nota actualizada correctamente.');
+    }
+
+    /**
+     * Eliminar una nota.
+     */
+    public function destroyNote(ContractedTreatmentNote $note)
+    {
+        if (!auth()->user()->hasRole(['SUPER_ADMIN', 'OWNER'])) {
+            abort(403);
+        }
+
+        $note->delete();
+
+        return back()->with('success', 'Nota eliminada correctamente.');
     }
 
     /**

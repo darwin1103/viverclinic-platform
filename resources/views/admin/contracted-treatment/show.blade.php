@@ -341,6 +341,94 @@
 
                     </div>
 
+                    {{-- 3. NOTAS INTERNAS --}}
+                    <hr class="my-5">
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="mb-3 fw-bold text-primary">
+                                <i class="bi bi-journal-text me-2"></i> Notas Internas
+                            </h5>
+
+                            {{-- Formulario para Nueva Nota --}}
+                            <form action="{{ route('admin.contracted-treatment.notes.store', $contractedTreatment->id) }}" method="POST" class="mb-4">
+                                @csrf
+                                <div class="input-group">
+                                    <textarea name="content" class="form-control" rows="2" placeholder="Escribe una nota interna sobre este tratamiento..." required></textarea>
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="bi bi-plus-circle me-1"></i> Agregar Nota
+                                    </button>
+                                </div>
+                            </form>
+
+                            {{-- Listado de Notas --}}
+                            <div class="list-group">
+                                @forelse($contractedTreatment->notes as $note)
+                                    <div class="list-group-item list-group-item-action flex-column align-items-start border-start border-4 @if($note->user->hasRole(['SUPER_ADMIN', 'OWNER'])) border-primary @else border-info @endif">
+                                        <div class="d-flex w-100 justify-content-between align-items-center">
+                                            <h6 class="mb-1 fw-bold text-dark">
+                                                <i class="bi bi-person-circle me-1"></i> {{ $note->user->name }}
+                                                @if($note->user->hasRole(['SUPER_ADMIN', 'OWNER']))
+                                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle small ms-1">Owner</span>
+                                                @endif
+                                            </h6>
+                                            <div class="d-flex align-items-center">
+                                                <small class="text-muted me-3">
+                                                    <i class="bi bi-calendar3 me-1"></i> {{ $note->created_at->format('d/m/Y H:i') }}
+                                                </small>
+
+                                                @role('SUPER_ADMIN|OWNER')
+                                                    <div class="btn-group btn-group-sm">
+                                                        {{-- Botón Editar --}}
+                                                        <button type="button" class="btn btn-outline-secondary border-0" data-bs-toggle="modal" data-bs-target="#editNoteModal-{{ $note->id }}">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </button>
+                                                        {{-- Botón Eliminar --}}
+                                                        <form action="{{ route('admin.contracted-treatment.notes.destroy', $note->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar esta nota?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-outline-danger border-0">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+
+                                                    {{-- Modal Editar Nota --}}
+                                                    <div class="modal fade" id="editNoteModal-{{ $note->id }}" tabindex="-1" aria-hidden="true">
+                                                        <div class="modal-dialog">
+                                                            <form action="{{ route('admin.contracted-treatment.notes.update', $note->id) }}" method="POST">
+                                                                @csrf
+                                                                @method('PUT')
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title text-dark">Editar Nota Interna</h5>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                                    </div>
+                                                                    <div class="modal-body text-start">
+                                                                        <textarea name="content" class="form-control" rows="4" required>{{ $note->content }}</textarea>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                                        <button type="submit" class="btn btn-primary">Actualizar Nota</button>
+                                                                    </div>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                @endrole
+                                            </div>
+                                        </div>
+                                        <p class="mb-1 text-muted mt-2" style="white-space: pre-wrap;">{{ $note->content }}</p>
+                                    </div>
+                                @empty
+                                    <div class="text-center py-4 bg-light rounded">
+                                        <i class="bi bi-journal-x fs-1 text-muted mb-2"></i>
+                                        <p class="text-muted mb-0">No hay notas registradas para este tratamiento.</p>
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+
 
 
 

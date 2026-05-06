@@ -34,6 +34,9 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
     // Contracted treatments & payment actions (available to ADMIN too)
     Route::middleware('permission:admin_dashboard_treatment_management')->group(function () {
         Route::resource('contracted-treatment', ContractedTreatmentController::class);
+        Route::post('/contracted-treatment/{contracted_treatment}/notes', [ContractedTreatmentController::class, 'storeNote'])->name('contracted-treatment.notes.store');
+        Route::put('/contracted-treatment/notes/{note}', [ContractedTreatmentController::class, 'updateNote'])->name('contracted-treatment.notes.update');
+        Route::delete('/contracted-treatment/notes/{note}', [ContractedTreatmentController::class, 'destroyNote'])->name('contracted-treatment.notes.destroy');
         Route::post('/treatment-order/{order}/approve', [ContractedTreatmentController::class, 'approvePayment'])->name('contracted-treatment.approve-payment');
         Route::post('/treatment-order/{order}/reject', [ContractedTreatmentController::class, 'rejectPayment'])->name('contracted-treatment.reject-payment');
     });

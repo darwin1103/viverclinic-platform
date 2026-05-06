@@ -70,6 +70,11 @@ class ContractedTreatment extends Model
         return $this->hasMany(TreatmentOrder::class);
     }
 
+    public function notes(): HasMany
+    {
+        return $this->hasMany(ContractedTreatmentNote::class)->latest();
+    }
+
     // Helper para saber si tiene cuotas
     public function hasInstallments(): bool
     {

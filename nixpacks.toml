@@ -17,6 +17,14 @@ cmd = '/assets/start.sh'
 "start.sh" = '''
 #!/bin/bash
 
+# Ensure storage and cache directories are writable
+mkdir -p /app/storage/logs /app/storage/framework/views /app/storage/framework/sessions /app/storage/framework/cache
+chmod -R 777 /app/storage /app/bootstrap/cache
+
+# Run migrations and seeders safely in production
+php /app/artisan migrate --force
+php /app/artisan db:seed --class=RolesAndPermissionsSeeder --force
+
 # Transform the nginx configuration
 node /assets/scripts/prestart.mjs /assets/nginx.template.conf /etc/nginx.conf
 

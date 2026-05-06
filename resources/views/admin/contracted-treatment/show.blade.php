@@ -20,12 +20,12 @@
                     <div class="p-3 mb-4 rounded bg-primary-subtle">
                         <div class="row align-items-center gy-3">
                             <div class="col-12 col-md-6">
-                                <h5 class="text-muted mb-1">Cliente</h5>
-                                <p class="h4 fw-light mb-0">{{ $contractedTreatment->user->name ?? 'N/A' }}</p>
-                                <small>{{ $contractedTreatment->user->email ?? '' }}</small>
+                                <h5 class="text-white-50 mb-1">Cliente</h5>
+                                <p class="h4 fw-light mb-0 text-white">{{ $contractedTreatment->user->name ?? 'N/A' }}</p>
+                                <small class="text-white-50">{{ $contractedTreatment->user->email ?? '' }}</small>
                             </div>
                             <div class="col-12 col-md-3 text-md-center">
-                                <h5 class="text-muted mb-1">Estado</h5>
+                                <h5 class="text-white-50 mb-1">Estado</h5>
                                 @if($contractedTreatment->status == 'Paid')
                                     <span class="badge fs-6 bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill">Pagado</span>
                                 @elseif($contractedTreatment->status == 'Pending')
@@ -35,7 +35,7 @@
                                 @endif
                             </div>
                             <div class="col-12 col-md-3 text-md-end">
-                                <h5 class="text-muted mb-1">Total</h5>
+                                <h5 class="text-white-50 mb-1">Total</h5>
                                 <p class="h4 fw-bold text-white mb-0">${{ number_format($contractedTreatment->total_price, 2) }}</p>
                             </div>
                         </div>
@@ -166,7 +166,7 @@
 
                             {{-- Fallback for empty zones --}}
                             @if(empty($contractedTreatment->selected_zones['big']) && empty($contractedTreatment->selected_zones['mini']))
-                                <p class="text-muted">No se especificaron zonas para este tratamiento.</p>
+                                <p class="text-white-50">No se especificaron zonas para este tratamiento.</p>
                             @endif
 
                         </div>
@@ -201,7 +201,7 @@
                             @else
                                 <div class="table-responsive border rounded">
                                     <table class="table table-hover mb-0">
-                                        <thead class="table-light">
+                                        <thead class="bg-transparent">
                                             <tr>
                                                 <th class="text-white">#</th>
                                                 <th class="text-white">Monto</th>
@@ -221,7 +221,7 @@
                                                             <span class="badge bg-secondary">Pendiente</span>
                                                         @endif
                                                     </td>
-                                                    <td class="small text-muted">
+                                                    <td class="small text-white-50">
                                                         {{ $inst->paid_at ? $inst->paid_at->format('d/m/Y H:i') : '-' }}
                                                     </td>
                                                 </tr>
@@ -229,7 +229,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="mt-2 text-end small text-muted">
+                                <div class="mt-2 text-end small text-white-50">
                                     Progreso:
                                     <strong>{{ $contractedTreatment->installments->where('status', 'PAID')->count() }}</strong>
                                     de
@@ -246,7 +246,7 @@
 
                             <div class="table-responsive">
                                 <table class="table align-middle">
-                                    <thead class="table-light">
+                                    <thead class="bg-transparent">
                                         <tr>
                                             <th class="text-white">Fecha</th>
                                             <th class="text-white">Método</th>
@@ -260,11 +260,11 @@
                                             <tr>
                                                 <td class="small">
                                                     {{ $order->created_at->format('d/m/Y') }}<br>
-                                                    <span class="text-muted">{{ $order->created_at->format('H:i') }}</span>
+                                                    <span class="text-white-50">{{ $order->created_at->format('H:i') }}</span>
                                                 </td>
                                                 <td>
                                                     <span class="fw-bold d-block">{{ $order->payment_method }}</span>
-                                                    <small class="text-muted text-truncate d-block" style="max-width: 150px;" title="{{ $order->payment_description }}">
+                                                    <small class="text-white-50 text-truncate d-block" style="max-width: 150px;" title="{{ $order->payment_description }}">
                                                         {{ $order->payment_description }}
                                                     </small>
                                                     @if($order->payment_receipt)
@@ -280,7 +280,7 @@
                                                     @elseif($order->status == 'Cancelado')
                                                         <span class="badge bg-danger"><i class="bi bi-x-lg"></i> Rechazado</span>
                                                     @elseif($order->status == 'Pago por verificar')
-                                                        <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Por Verificar</span>
+                                                        <span class="badge bg-warning text-white"><i class="bi bi-hourglass-split"></i> Por Verificar</span>
                                                     @else
                                                         <span class="badge bg-secondary">{{ $order->status }}</span>
                                                     @endif
@@ -325,13 +325,13 @@
                                                             </div>
                                                         </div>
                                                     @else
-                                                        <span class="text-muted small">-</span>
+                                                        <span class="text-white-50 small">-</span>
                                                     @endif
                                                 </td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="5" class="text-center text-muted py-3">No hay transacciones registradas.</td>
+                                                <td colspan="5" class="text-center text-white-50 py-3">No hay transacciones registradas.</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -363,16 +363,16 @@
                             {{-- Listado de Notas --}}
                             <div class="list-group">
                                 @forelse($contractedTreatment->notes as $note)
-                                    <div class="list-group-item list-group-item-action flex-column align-items-start border-start border-4 @if($note->user->hasRole(['SUPER_ADMIN', 'OWNER'])) border-primary @else border-info @endif">
+                                    <div class="list-group-item bg-transparent flex-column align-items-start border-start border-4 @if($note->user->hasRole(['SUPER_ADMIN', 'OWNER'])) border-primary @else border-info @endif">
                                         <div class="d-flex w-100 justify-content-between align-items-center">
-                                            <h6 class="mb-1 fw-bold text-dark">
+                                            <h6 class="mb-1 fw-bold text-white">
                                                 <i class="bi bi-person-circle me-1"></i> {{ $note->user->name }}
                                                 @if($note->user->hasRole(['SUPER_ADMIN', 'OWNER']))
                                                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle small ms-1">Owner</span>
                                                 @endif
                                             </h6>
                                             <div class="d-flex align-items-center">
-                                                <small class="text-muted me-3">
+                                                <small class="text-white-50 me-3">
                                                     <i class="bi bi-calendar3 me-1"></i> {{ $note->created_at->format('d/m/Y H:i') }}
                                                 </small>
 
@@ -400,7 +400,7 @@
                                                                 @method('PUT')
                                                                 <div class="modal-content">
                                                                     <div class="modal-header">
-                                                                        <h5 class="modal-title text-dark">Editar Nota Interna</h5>
+                                                                        <h5 class="modal-title text-white">Editar Nota Interna</h5>
                                                                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                                     </div>
                                                                     <div class="modal-body text-start">
@@ -417,12 +417,12 @@
                                                 @endrole
                                             </div>
                                         </div>
-                                        <p class="mb-1 text-muted mt-2" style="white-space: pre-wrap;">{{ $note->content }}</p>
+                                        <p class="mb-1 text-white mt-2" style="white-space: pre-wrap;">{{ $note->content }}</p>
                                     </div>
                                 @empty
-                                    <div class="text-center py-4 bg-light rounded">
-                                        <i class="bi bi-journal-x fs-1 text-muted mb-2"></i>
-                                        <p class="text-muted mb-0">No hay notas registradas para este tratamiento.</p>
+                                    <div class="text-center py-4 bg-transparent rounded border border-secondary border-opacity-25">
+                                        <i class="bi bi-journal-x fs-1 text-white-50 mb-2"></i>
+                                        <p class="text-white-50 mb-0">No hay notas registradas para este tratamiento.</p>
                                     </div>
                                 @endforelse
                             </div>

@@ -27,7 +27,7 @@
             Clientes
         </a>
       </li>
-      @role('SUPER_ADMIN|ADMIN|OWNER')
+      @role('SUPER_ADMIN|OWNER')
       <li>
         <a href="{{ route('admin.legacy-treatments.create') }}" class="nav-link @if(Route::is('admin.legacy-treatments.*')) active @endif">
             <i class="bi bi-person-down me-2"></i>

@@ -4,13 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContractedTreatment;
+use App\Models\AccountingRecord;
 use App\Models\Order;
 use App\Models\TreatmentOrder;
 use App\Models\User;
 use App\Services\ReferralService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 
 class PaymentController extends Controller
@@ -135,12 +138,33 @@ class PaymentController extends Controller
      */
     public function create(): View
     {
-        $patients = User::role('PATIENT')->select(['id', 'name'])->get();
-        $contractedTreatments = ContractedTreatment::with('treatment')
-            ->whereIn('status', ['Activo', 'Pending', 'In Progress'])
-            ->get();
-            
-        return view('admin.payments.create', compact('patients', 'contractedTreatments'));
+        $patients = User::role('PATIENT')
+            ->select(['id', 'name'])
+            ->orderBy('name')
+            ->get()
+            ->map(fn($p) => [
+                'id' => $p->id,
+                'name' => $p->name,
+            ]);
+
+        return view('admin.payments.create', compact('patients'));
+    }
+
+    /**
+     * Get contracted treatments for a specific patient (AJAX).
+     */
+    public function getPatientTreatments(User $user): JsonResponse
+    {
+        $treatments = ContractedTreatment::with('treatment')
+            ->where('user_id', $user->id)
+            ->whereIn('status', ['Activo', 'Pending', 'In Progress', 'Paid'])
+            ->get()
+            ->map(fn($ct) => [
+                'id' => $ct->id,
+                'name' => ($ct->treatment->name ?? 'Tratamiento') . ' (' . $ct->status . ')',
+            ]);
+
+        return response()->json($treatments);
     }
 
     /**
@@ -156,10 +180,26 @@ class PaymentController extends Controller
         ]);
 
         $validated['status'] = 'Pagado';
+        $validated['payment_status'] = 'APPROVED';
         $contractedTreatment = ContractedTreatment::find($validated['contracted_treatment_id']);
         $validated['branch_id'] = session('selected_branch_id') ?: ($contractedTreatment->branch_id ?? 1);
 
-        TreatmentOrder::create($validated);
+        $order = TreatmentOrder::create($validated);
+
+        // Process referral reward if applicable
+        ReferralService::processReward($order->user);
+
+        // Register income in accounting
+        AccountingRecord::create([
+            'branch_id' => $validated['branch_id'],
+            'user_id' => $validated['user_id'],
+            'type' => 'income',
+            'amount' => $validated['total'],
+            'description' => 'Pago de tratamiento: ' . ($contractedTreatment->treatment->name ?? 'N/A') . ' - Paciente: ' . ($order->user->name ?? 'N/A'),
+            'category' => 'Tratamientos',
+            'reference_id' => $order->id,
+            'reference_type' => TreatmentOrder::class,
+        ]);
 
         return redirect()->route('admin.payments.index')->with('success', 'Pago registrado exitosamente.');
     }
@@ -203,6 +243,18 @@ class PaymentController extends Controller
 
             // Process referral reward if applicable
             ReferralService::processReward($order->user);
+
+            // Register income in accounting
+            AccountingRecord::create([
+                'branch_id' => $order->branch_id ?? session('selected_branch_id') ?? 1,
+                'user_id' => $order->user_id,
+                'type' => 'income',
+                'amount' => $order->total,
+                'description' => 'Pago aprobado: ' . ($order->contractedTreatment?->treatment?->name ?? 'Tratamiento') . ' - Paciente: ' . ($order->user->name ?? 'N/A'),
+                'category' => 'Tratamientos',
+                'reference_id' => $order->id,
+                'reference_type' => TreatmentOrder::class,
+            ]);
 
             DB::commit();
             return back()->with('success', 'Pago aprobado correctamente.');

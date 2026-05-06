@@ -177,6 +177,18 @@ class ContractedTreatmentController extends Controller
             // Procesar recompensa de referido (si aplica)
             ReferralService::processReward($order->user);
 
+            // Register income in accounting
+            \App\Models\AccountingRecord::create([
+                'branch_id' => $order->branch_id ?? session('selected_branch_id') ?? 1,
+                'user_id' => $order->user_id,
+                'type' => 'income',
+                'amount' => $order->total,
+                'description' => 'Pago aprobado: ' . ($order->contractedTreatment?->treatment?->name ?? 'Tratamiento') . ' - Paciente: ' . ($order->user->name ?? 'N/A'),
+                'category' => 'Tratamientos',
+                'reference_id' => $order->id,
+                'reference_type' => TreatmentOrder::class,
+            ]);
+
             DB::commit();
             return back()->with('success', 'Pago aprobado correctamente. Las cuotas han sido actualizadas.');
 

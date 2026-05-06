@@ -75,7 +75,13 @@
                                 @forelse ($treatments as $treatment)
                                     <tr>
                                         <td>
-                                            <img src="{{ $treatment->main_image ? Storage::url($treatment->main_image) : '' }}" alt="{{ $treatment->name }}" class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
+                                            @if($treatment->main_image)
+                                                <img src="{{ Storage::url($treatment->main_image) }}" alt="{{ $treatment->name }}" class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
+                                            @else
+                                                <div class="bg-secondary bg-opacity-25 rounded d-flex justify-content-center align-items-center" style="width: 80px; height: 80px;">
+                                                    <i class="bi bi-image text-secondary"></i>
+                                                </div>
+                                            @endif
                                         </td>
                                         <td>{{ $treatment->name }}</td>
                                         <td>

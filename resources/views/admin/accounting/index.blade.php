@@ -104,17 +104,7 @@
                         @endforeach
                     </select>
                 </div>
-                @if($isSuperAdmin)
-                <div class="col-6 col-md-2">
-                    <label class="form-label small mb-1">Sucursal</label>
-                    <select name="branch_id" class="form-select form-select-sm">
-                        <option value="">Todas</option>
-                        @foreach($branches as $branch)
-                            <option value="{{ $branch->id }}" {{ $selectedBranchID == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                @endif
+
                 <div class="col-12 col-md-2 d-flex gap-2">
                     <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-search me-1"></i>Filtrar</button>
                     <a href="{{ route('admin.accounting.index') }}" class="btn btn-sm btn-outline-secondary">Limpiar</a>
@@ -209,16 +199,7 @@
                             @endforeach
                         </select>
                     </div>
-                    @if($isSuperAdmin)
-                    <div class="mb-3">
-                        <label for="branch_id" class="form-label">Sucursal</label>
-                        <select class="form-select" id="branch_id" name="branch_id">
-                            @foreach($branches as $branch)
-                                <option value="{{ $branch->id }}" {{ $selectedBranchID == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    @endif
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>

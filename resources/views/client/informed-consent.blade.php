@@ -18,7 +18,7 @@
                 <div class="card-body m-0 m-lg-3">
                     <div class="row d-flex justify-content-center align-items-center">
                         <div class="col-12 col-lg-4 text-center">
-                            <img alt="app logo" style="width: 70%;" class="rounded" src="{{asset(Storage::url(config('app.app_img_logo')))}}">
+                            <img alt="app logo" style="width: 70%;" class="rounded" src="{{ asset('images/logo-viverclinic.png') }}">
                         </div>
                     </div>
                     <div class="row d-flex justify-content-center align-items-center mb-2">

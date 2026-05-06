@@ -68,7 +68,7 @@
                 
                 {{-- Profile Photo --}}
                 <div class="profile-photo-container show-image-selector">
-                    <img id="profilePhoto" alt="user photo" width="100" height="100" class="rounded-circle border border-5 border-white" src="{{asset(Storage::url(Auth::user()->photo_profile?:config('app.app_default_img_profile')))}}">
+                    <img id="profilePhoto" alt="user photo" width="100" height="100" class="rounded-circle border border-5 border-white" src="{{ Auth::user()->photo_profile ? asset(Storage::url(Auth::user()->photo_profile)) : asset('images/icons/default-avatar.svg') }}" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&size=100&background=6c757d&color=fff'">
                     <i class="bi bi-camera-fill photo-edit-icon"></i>
                 </div>
                 
@@ -201,8 +201,8 @@
                         $("#profilePhoto").attr('src',response.profileURL);
                         $(".navbar-photo").attr('src',response.profileURL);
                     } else {
-                        $("#profilePhoto").attr('src',"{{ asset(Storage::url(config('app.app_default_img_profile'))) }}");
-                        $(".navbar-photo").attr('src',"{{ asset(Storage::url(config('app.app_default_img_profile'))) }}");
+                        $("#profilePhoto").attr('src',"{{ asset('images/icons/default-avatar.svg') }}");
+                        $(".navbar-photo").attr('src',"{{ asset('images/icons/default-avatar.svg') }}");
                     }
                     iziToast.success({
                         message: "{{ __('Successful operation') }}"

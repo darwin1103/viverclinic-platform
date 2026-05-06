@@ -15,7 +15,13 @@
 
                     <a href="{{ route('client.treatment.show', ['treatment' => $treatment->id]) }}" class="text-decoration-none d-flex flex-column h-100">
 
-                        <img src="{{ $treatment->main_image ? Storage::url($treatment->main_image) : 'https://via.placeholder.com/400x250' }}" class="card-img-top" alt="{{ $treatment->name }}" style="height: 250px; object-fit: cover;">
+                        @if($treatment->main_image)
+                            <img src="{{ Storage::url($treatment->main_image) }}" class="card-img-top" alt="{{ $treatment->name }}" style="height: 250px; object-fit: cover;">
+                        @else
+                            <div class="card-img-top bg-secondary bg-opacity-25 d-flex justify-content-center align-items-center" style="height: 250px;">
+                                <i class="bi bi-image text-secondary" style="font-size: 4rem;"></i>
+                            </div>
+                        @endif
 
                         <div class="card-body d-flex flex-column pb-0">
                             <h5 class="card-title fw-bold">{{ $treatment->name }}</h5>

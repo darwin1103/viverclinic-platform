@@ -12,10 +12,6 @@
     <div class="card shadow-sm border-0">
         @if($careTip->image)
             <img src="{{ Storage::url($careTip->image) }}" class="card-img-top" alt="{{ $careTip->title }}" style="max-height: 400px; object-fit: cover;">
-        @else
-            <div class="card-img-top bg-secondary d-flex justify-content-center align-items-center" style="height: 300px;">
-                <i class="bi bi-heart-pulse text-white" style="font-size: 5rem;"></i>
-            </div>
         @endif
         <div class="card-body p-5">
             <h1 class="fw-bold text-primary mb-3">{{ $careTip->title }}</h1>

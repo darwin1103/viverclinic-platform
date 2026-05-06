@@ -325,6 +325,18 @@ class ShopController extends Controller
             // Enviar Email
             if ($status === 'APPROVED') {
                 Mail::to($user->email)->queue(new OrderConfirmation($order));
+
+                // Register income in accounting
+                \App\Models\AccountingRecord::create([
+                    'branch_id' => $profile->branch_id,
+                    'user_id' => $user->id,
+                    'type' => 'income',
+                    'amount' => $order->total,
+                    'description' => 'Compra de productos Wompi Ref: ' . $reference . ' - Paciente: ' . $user->name,
+                    'category' => 'Productos',
+                    'reference_id' => $order->id,
+                    'reference_type' => Order::class,
+                ]);
             }
 
             return view('client.shop.thank-you', compact('order'));

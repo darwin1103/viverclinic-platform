@@ -14,10 +14,6 @@
                 <div class="card h-100 shadow-sm border-0">
                     @if($tip->image)
                         <img src="{{ Storage::url($tip->image) }}" class="card-img-top" alt="{{ $tip->title }}" style="height: 200px; object-fit: cover;">
-                    @else
-                        <div class="card-img-top bg-secondary d-flex justify-content-center align-items-center" style="height: 200px;">
-                            <i class="bi bi-heart-pulse text-white" style="font-size: 4rem;"></i>
-                        </div>
                     @endif
                     <div class="card-body">
                         <h5 class="card-title fw-bold">{{ $tip->title }}</h5>

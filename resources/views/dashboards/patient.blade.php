@@ -129,7 +129,7 @@
                         <div class="card-body px-4">
                             <div class="row">
                                 <div class="col-3">
-                                    <img alt="photo profile" width="68px" height="68px" class="rounded-circle navbar-photo me-2" src="{{asset(Storage::url(Auth::user()->photo_profile?:config('app.app_default_img_profile')))}}">
+                                    <img alt="photo profile" width="68px" height="68px" class="rounded-circle navbar-photo me-2" src="{{ Auth::user()->photo_profile ? asset(Storage::url(Auth::user()->photo_profile)) : asset('images/icons/default-avatar.svg') }}" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&size=68&background=6c757d&color=fff'">
                                 </div>
                                 <div class="col text-start">
                                     <p class="fw-bold m-0">{{ __('Next Appointment') }}</p>

@@ -240,6 +240,18 @@ class TreatmentPaymentController extends Controller
 
                 // Procesar recompensa de referido (si aplica)
                 ReferralService::processReward(Auth::user());
+
+                // Register income in accounting
+                \App\Models\AccountingRecord::create([
+                    'branch_id' => $contractedTreatment->branch_id,
+                    'user_id' => Auth::id(),
+                    'type' => 'income',
+                    'amount' => $sessionData['amount'],
+                    'description' => 'Pago Wompi aprobado: ' . $sessionData['description'] . ' - Paciente: ' . (Auth::user()->name ?? 'N/A'),
+                    'category' => 'Tratamientos',
+                    'reference_id' => $order->id,
+                    'reference_type' => TreatmentOrder::class,
+                ]);
             }
 
             DB::commit();

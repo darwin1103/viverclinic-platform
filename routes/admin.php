@@ -173,6 +173,7 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
         Route::post('/payments/{order}/approve', [\App\Http\Controllers\Admin\PaymentController::class, 'approve'])->name('payments.approve');
         Route::post('/payments/{order}/reject', [\App\Http\Controllers\Admin\PaymentController::class, 'reject'])->name('payments.reject');
         Route::get('/payments/export', [\App\Http\Controllers\Admin\PaymentController::class, 'export'])->name('payments.export');
+        Route::get('/patients/{user}/treatments', [\App\Http\Controllers\Admin\PaymentController::class, 'getPatientTreatments'])->name('patients.treatments');
         
         // Appointments reschedule list
         Route::get('/appointments/reschedule-list', [\App\Http\Controllers\Admin\AdminAppointmentController::class, 'rescheduleList'])->name('appointments.reschedule-list');

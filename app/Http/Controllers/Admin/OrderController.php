@@ -79,9 +79,25 @@ class OrderController extends Controller
             'status' => 'required|in:' . implode(',', self::STATUSES),
         ]);
 
+        $previousStatus = $order->status;
+
         $order->update([
             'status' => $request->status
         ]);
+
+        // Register income when order is approved (status changes to 'Pago completado')
+        if ($request->status === 'Pago completado' && $previousStatus !== 'Pago completado') {
+            \App\Models\AccountingRecord::create([
+                'branch_id' => $order->branch_id,
+                'user_id' => $order->user_id,
+                'type' => 'income',
+                'amount' => $order->total,
+                'description' => 'Pago de productos aprobado - Paciente: ' . ($order->user->name ?? 'N/A'),
+                'category' => 'Productos',
+                'reference_id' => $order->id,
+                'reference_type' => Order::class,
+            ]);
+        }
 
         return redirect()->route('admin.orders.show', $order)
             ->with('success', 'El estado de la orden se ha actualizado correctamente.');

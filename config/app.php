@@ -21,7 +21,7 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'app_img_logo' => config('app.app_img_logo', 'viver-clinic-logo.png'),
+    'app_img_logo' => env('APP_IMG_LOGO', 'viver-clinic-logo.png'),
 
     /*
     |--------------------------------------------------------------------------
@@ -29,7 +29,7 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'app_default_img_profile' => config('app.app_default_img_profile', 'blank-profile-picture.png'),
+    'app_default_img_profile' => env('APP_DEFAULT_IMG_PROFILE', 'blank-profile-picture.png'),
 
     /*
     |--------------------------------------------------------------------------

@@ -14,7 +14,7 @@ class LegacyTreatmentController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('role:SUPER_ADMIN|role:OWNER');
+        $this->middleware('role:SUPER_ADMIN|OWNER');
     }
 
     public function create()

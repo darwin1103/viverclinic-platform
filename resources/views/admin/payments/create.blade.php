@@ -39,6 +39,14 @@
                         </select>
                         @error('contracted_treatment_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
+
+                    <div class="col-12" id="installmentsContainer" style="display: none;">
+                        <label class="form-label fw-semibold text-primary"><i class="bi bi-list-check me-1"></i> Seleccionar Cuotas a Pagar</label>
+                        <div id="installmentsList" class="d-flex flex-wrap gap-3 py-2">
+                            <!-- Se llena por JS -->
+                        </div>
+                    </div>
+
                     <div class="col-12 col-md-6">
                         <label class="form-label">Monto <span class="text-danger">*</span></label>
                         <input type="number" step="0.01" name="total" class="form-control @error('total') is-invalid @enderror" value="{{ old('total') }}" placeholder="Ej. 10000" required>
@@ -74,6 +82,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const treatmentSelect = document.getElementById('treatmentSelect');
     const selectedBadge = document.getElementById('selectedPatientBadge');
     const selectedName = document.getElementById('selectedPatientName');
+    const installmentsContainer = document.getElementById('installmentsContainer');
+    const installmentsList = document.getElementById('installmentsList');
+    const totalInput = document.querySelector('input[name="total"]');
+    
+    let currentTreatmentsData = [];
 
     // Patient search functionality
     searchInput.addEventListener('input', function() {
@@ -129,7 +142,47 @@ document.addEventListener('DOMContentLoaded', function() {
         searchInput.value = '';
         treatmentSelect.innerHTML = '<option value="">Seleccione primero un paciente</option>';
         treatmentSelect.disabled = true;
+        installmentsContainer.style.display = 'none';
+        installmentsList.innerHTML = '';
     };
+
+    treatmentSelect.addEventListener('change', function() {
+        const treatmentId = this.value;
+        const treatment = currentTreatmentsData.find(t => t.id == treatmentId);
+        
+        installmentsList.innerHTML = '';
+        if (treatment && treatment.installments && treatment.installments.length > 0) {
+            installmentsContainer.style.display = 'block';
+            treatment.installments.forEach(inst => {
+                const div = document.createElement('div');
+                div.className = 'form-check form-check-inline';
+                div.innerHTML = `
+                    <input class="form-check-input installment-checkbox" type="checkbox" name="paid_installments_ids[]" value="${inst.id}" id="inst_${inst.id}" data-price="${inst.price}">
+                    <label class="form-check-label" for="inst_${inst.id}">
+                        ${inst.label}
+                    </label>
+                `;
+                installmentsList.appendChild(div);
+            });
+            
+            // Add listener to checkboxes to update total
+            document.querySelectorAll('.installment-checkbox').forEach(cb => {
+                cb.addEventListener('change', calculateTotal);
+            });
+        } else {
+            installmentsContainer.style.display = 'none';
+        }
+    });
+
+    function calculateTotal() {
+        let total = 0;
+        document.querySelectorAll('.installment-checkbox:checked').forEach(cb => {
+            total += parseFloat(cb.dataset.price);
+        });
+        if (total > 0) {
+            totalInput.value = total;
+        }
+    }
 
     function loadTreatments(patientId) {
         if (!patientId) return;
@@ -155,6 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.length === 0) {
                 treatmentSelect.innerHTML = '<option value="">Este paciente no tiene tratamientos activos</option>';
             } else {
+                currentTreatmentsData = data;
                 data.forEach(t => {
                     const opt = document.createElement('option');
                     opt.value = t.id;

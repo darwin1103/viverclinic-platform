@@ -80,8 +80,10 @@ class ScheduleAppointmentController extends Controller
                 $targetInstallmentNumber = ($nextSessionNumber > $totalInstallments) ? $totalInstallments : $nextSessionNumber;
 
                 // Verificar si esa cuota (y las anteriores) están pagadas
+                // Ignoramos cuotas con precio 0 ya que no bloquean el proceso
                 $pendingInstallment = $installments->where('status', 'PENDING')
                                                    ->where('installment_number', '<=', $targetInstallmentNumber)
+                                                   ->where('price', '>', 0)
                                                    ->first();
 
                 if (!$pendingInstallment) {

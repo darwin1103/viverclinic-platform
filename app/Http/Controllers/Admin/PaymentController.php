@@ -162,6 +162,15 @@ class PaymentController extends Controller
             ->map(fn($ct) => [
                 'id' => $ct->id,
                 'name' => ($ct->treatment->name ?? 'Tratamiento') . ' (' . $ct->status . ')',
+                'installments' => $ct->installments()
+                    ->where('status', 'PENDING')
+                    ->get()
+                    ->map(fn($i) => [
+                        'id' => $i->id,
+                        'number' => $i->installment_number,
+                        'price' => $i->price,
+                        'label' => "Cuota #{$i->installment_number} ($" . number_format($i->price, 0, ',', '.') . ")"
+                    ])
             ]);
 
         return response()->json($treatments);
@@ -177,31 +186,71 @@ class PaymentController extends Controller
             'contracted_treatment_id' => 'required|exists:contracted_treatments,id',
             'total' => 'required|numeric|min:0',
             'payment_method' => 'required|string|max:255',
+            'paid_installments_ids' => 'nullable|array',
+            'paid_installments_ids.*' => 'exists:contracted_treatment_installments,id',
         ]);
 
-        $validated['status'] = 'Pagado';
-        $validated['payment_status'] = 'APPROVED';
-        $contractedTreatment = ContractedTreatment::find($validated['contracted_treatment_id']);
-        $validated['branch_id'] = session('selected_branch_id') ?: ($contractedTreatment->branch_id ?? 1);
+        DB::beginTransaction();
+        try {
+            $validated['status'] = 'Pago completado';
+            $validated['payment_status'] = 'APPROVED';
+            $contractedTreatment = ContractedTreatment::find($validated['contracted_treatment_id']);
+            $validated['branch_id'] = session('selected_branch_id') ?: ($contractedTreatment->branch_id ?? 1);
 
-        $order = TreatmentOrder::create($validated);
+            $order = TreatmentOrder::create([
+                'user_id' => $validated['user_id'],
+                'branch_id' => $validated['branch_id'],
+                'contracted_treatment_id' => $validated['contracted_treatment_id'],
+                'total' => $validated['total'],
+                'payment_method' => $validated['payment_method'],
+                'status' => $validated['status'],
+                'payment_status' => $validated['payment_status'],
+                'paid_installments_ids' => $validated['paid_installments_ids'] ?? []
+            ]);
 
-        // Process referral reward if applicable
-        ReferralService::processReward($order->user);
+            // Update installments if they were selected
+            if (!empty($validated['paid_installments_ids'])) {
+                $contractedTreatment->installments()
+                    ->whereIn('id', $validated['paid_installments_ids'])
+                    ->update([
+                        'status' => 'PAID',
+                        'paid_at' => now()
+                    ]);
 
-        // Register income in accounting
-        AccountingRecord::create([
-            'branch_id' => $validated['branch_id'],
-            'user_id' => $validated['user_id'],
-            'type' => 'income',
-            'amount' => $validated['total'],
-            'description' => 'Pago de tratamiento: ' . ($contractedTreatment->treatment->name ?? 'N/A') . ' - Paciente: ' . ($order->user->name ?? 'N/A'),
-            'category' => 'Tratamientos',
-            'reference_id' => $order->id,
-            'reference_type' => TreatmentOrder::class,
-        ]);
+                // Check if all installments are paid to update treatment status
+                $pendingCount = $contractedTreatment->installments()->where('status', 'PENDING')->count();
+                if ($pendingCount === 0) {
+                    $contractedTreatment->update(['status' => 'Paid']);
+                }
+            } else {
+                // If no installments but paid full, update treatment status
+                if ($contractedTreatment->status !== 'Paid') {
+                    $contractedTreatment->update(['status' => 'Paid']);
+                }
+            }
 
-        return redirect()->route('admin.payments.index')->with('success', 'Pago registrado exitosamente.');
+            // Process referral reward if applicable
+            ReferralService::processReward($order->user);
+
+            // Register income in accounting
+            AccountingRecord::create([
+                'branch_id' => $validated['branch_id'],
+                'user_id' => $validated['user_id'],
+                'type' => 'income',
+                'amount' => $validated['total'],
+                'description' => 'Pago manual de tratamiento: ' . ($contractedTreatment->treatment->name ?? 'N/A') . ' - Paciente: ' . ($order->user->name ?? 'N/A'),
+                'category' => 'Tratamientos',
+                'reference_id' => $order->id,
+                'reference_type' => TreatmentOrder::class,
+            ]);
+
+            DB::commit();
+            return redirect()->route('admin.payments.index')->with('success', 'Pago registrado exitosamente. Las cuotas han sido actualizadas.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Error al registrar el pago: ' . $e->getMessage())->withInput();
+        }
     }
 
     /**

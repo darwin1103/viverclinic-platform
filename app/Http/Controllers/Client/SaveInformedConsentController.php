@@ -114,14 +114,14 @@ class SaveInformedConsentController extends Controller
             'profession' => 'nullable|string',
             'phone' => 'nullable|string',
             'address' => 'nullable|string',
-            'pathologicalHistory' => 'nullable|exists:pathological_conditions,id',
-            'toxicologicalHistory' => 'nullable|exists:toxicological_conditions,id',
-            'gynecoObstetricHistory' => 'nullable|exists:gyneco_obstetric_conditions,id',
-            'medications' => 'nullable|exists:medications,id',
-            'dietaryHistory' => 'nullable|exists:dietary_conditions,id',
-            'treatment' => 'nullable|exists:treatments,id',
-            'surgery' => 'nullable|string',
-            'recommendation' => 'nullable|string',
+            'pathologicalHistory' => 'required|exists:pathological_conditions,id',
+            'toxicologicalHistory' => 'required|exists:toxicological_conditions,id',
+            'gynecoObstetricHistory' => 'required|exists:gyneco_obstetric_conditions,id',
+            'medications' => 'required|exists:medications,id',
+            'dietaryHistory' => 'required|exists:dietary_conditions,id',
+            'treatment' => 'required|exists:treatments,id',
+            'surgery' => 'required|string',
+            'recommendation' => 'required|string',
         ], $messages, $attributes);
 
 

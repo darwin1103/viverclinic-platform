@@ -278,5 +278,52 @@ class ClientController extends Controller
         ]);
 
     }
+
+    public function updateClinicalHistory(Request $request, User $client)
+    {
+        $request->validate([
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|string|email|max:255|unique:users,email,' . $client->id,
+            'citizenship' => 'nullable|string|max:255',
+            'documentType' => 'nullable|exists:document_types,id',
+            'documentNumber' => 'nullable|string|max:255',
+            'birthday' => 'nullable|date',
+            'gender' => 'nullable|exists:genres,id',
+            'profession' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
+            'pathologicalHistory' => 'nullable|exists:pathological_conditions,id',
+            'toxicologicalHistory' => 'nullable|exists:toxicological_conditions,id',
+            'gynecoObstetricHistory' => 'nullable|exists:gyneco_obstetric_conditions,id',
+            'medications' => 'nullable|exists:medications,id',
+            'dietaryHistory' => 'nullable|exists:dietary_conditions,id',
+            'treatment' => 'nullable|exists:treatments,id',
+            'surgery' => 'nullable|string|max:255',
+            'recommendation' => 'nullable|string|max:255',
+        ]);
+
+        $client->name = $request->name;
+        $client->email = $request->email;
+        $client->citizenship = $request->citizenship;
+        $client->document_type_id = $request->documentType;
+        $client->document_number = $request->documentNumber;
+        $client->birthday = $request->birthday;
+        $client->gender_id = $request->gender;
+        $client->profession = $request->profession;
+        $client->phone = $request->phone;
+        $client->address = $request->address;
+        $client->pathological_id = $request->pathologicalHistory;
+        $client->toxicological_id = $request->toxicologicalHistory;
+        $client->gyneco_obstetric_id = $request->gynecoObstetricHistory;
+        $client->medication_id = $request->medications;
+        $client->dietary_id = $request->dietaryHistory;
+        $client->treatment_id = $request->treatment;
+        $client->surgery = $request->surgery;
+        $client->recommendation = $request->recommendation;
+        
+        $client->save();
+
+        return redirect()->back()->with('success', 'Historia clínica actualizada correctamente.');
+    }
     
 }

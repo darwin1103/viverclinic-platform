@@ -9,7 +9,7 @@
       <li>
         <a href="{{ route('dashboard') }}" class="nav-link @if(Route::is('dashboard')) active @endif">
           <i class="bi bi-speedometer2 me-2"></i>
-            Dashboard
+            Inicio
         </a>
       </li>
       <li class="mt-2 text-uppercase text-secondary small px-2">

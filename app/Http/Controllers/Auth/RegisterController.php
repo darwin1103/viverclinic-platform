@@ -44,8 +44,10 @@ class RegisterController extends Controller
     public function showRegistrationForm(\Illuminate\Http\Request $request)
     {
         $branches = Branch::all();
+        $documentTypes = \App\Models\DocumentType::where('status', true)->get();
+        $genres = \App\Models\Gender::where('status', true)->get();
         $isLegacy = $request->query('legacy') == 1;
-        return view('auth.register', compact('branches', 'isLegacy'));
+        return view('auth.register', compact('branches', 'documentTypes', 'genres', 'isLegacy'));
     }
 
     /**
@@ -82,6 +84,14 @@ class RegisterController extends Controller
             'branchId' => ['required'], // ***
             'referral_code' => ['nullable', 'string', 'max:10'],
             'is_legacy' => ['nullable', 'boolean'],
+            'citizenship' => ['required', 'string', 'max:255'],
+            'documentType' => ['required', 'exists:document_types,id'],
+            'documentNumber' => ['required', 'string', 'max:255'],
+            'birthday' => ['required', 'date'],
+            'gender' => ['required', 'exists:genres,id'],
+            'profession' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:255'],
+            'address' => ['required', 'string', 'max:255'],
         ]);
 
     }
@@ -111,6 +121,16 @@ class RegisterController extends Controller
             'referral_code' => User::generateReferralCode(),
             'is_legacy' => $data['is_legacy'] ?? false,
         ]);
+        
+        $user->citizenship = $data['citizenship'];
+        $user->document_type_id = $data['documentType'];
+        $user->document_number = $data['documentNumber'];
+        $user->birthday = $data['birthday'];
+        $user->gender_id = $data['gender'];
+        $user->profession = $data['profession'];
+        $user->phone = $data['phone'];
+        $user->address = $data['address'];
+        $user->save();
 
         $user->assignRole('PATIENT');
 

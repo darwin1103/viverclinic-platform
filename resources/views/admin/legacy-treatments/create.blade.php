@@ -125,14 +125,86 @@
 </div>
 @endsection
 
-@push('scripts')
+@push('styles')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+<style>
+    /* Select2 container override to match dashboard.css inputs (#0d2a30 background, #18464f borders, #d7ffff text) */
+    .select2-container--bootstrap-5 .select2-selection {
+        background-color: #0d2a30 !important;
+        border: 1px solid #18464f !important;
+        color: #d7ffff !important;
+    }
+    
+    .select2-container--bootstrap-5 .select2-selection--single {
+        padding: 0.375rem 2.25rem 0.375rem 0.75rem !important;
+        height: calc(2.25rem + 2px) !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23d7ffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+        background-position: right 0.75rem center;
+        background-size: 16px 12px;
+        background-repeat: no-repeat;
+    }
+    
+    .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
+        display: none !important;
+    }
+
+    .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+        color: #d7ffff !important;
+        padding-left: 0 !important;
+        line-height: 1.5 !important;
+    }
+
+    .select2-container--bootstrap-5 .select2-selection--single .select2-selection__placeholder {
+        color: #6c757d !important;
+    }
+
+    .select2-container--bootstrap-5 .select2-dropdown {
+        background-color: #0d2a30 !important;
+        border: 1px solid #18464f !important;
+        color: #d7ffff !important;
+    }
+
+    .select2-container--bootstrap-5 .select2-search__field {
+        background-color: #0c2024 !important;
+        border: 1px solid #18464f !important;
+        color: #d7ffff !important;
+    }
+
+    .select2-container--bootstrap-5 .select2-results__option {
+        background-color: #0d2a30 !important;
+        color: #d7ffff !important;
+        padding: 6px 12px;
+    }
+
+    .select2-container--bootstrap-5 .select2-results__option--highlighted[aria-selected],
+    .select2-container--bootstrap-5 .select2-results__option--highlighted[aria-selected="true"] {
+        background-color: #18464f !important;
+        color: #ffffff !important;
+    }
+
+    .select2-container--bootstrap-5 .select2-results__option[aria-selected="true"] {
+        background-color: #123c44 !important;
+        color: #ffffff !important;
+    }
+</style>
+@endpush
+
+@push('scripts')
 <script>
-    $(document).ready(function() {
-        $('.select2').select2({
-            theme: 'bootstrap-5'
-        });
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof window.jQuery !== 'undefined') {
+            const script = document.createElement('script');
+            script.src = "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js";
+            script.onload = function() {
+                $('.select2').select2({
+                    theme: 'bootstrap-5'
+                });
+            };
+            document.head.appendChild(script);
+        } else {
+            console.error('jQuery is not loaded. Select2 search will not function.');
+        }
     });
 </script>
 @endpush

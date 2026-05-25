@@ -18,6 +18,7 @@ class PayrollSettlement extends Model
         'period_year',
         'base_salary',
         'referral_commissions',
+        'upgrade_commissions',
         'sales_commissions',
         'total',
         'status',
@@ -28,6 +29,7 @@ class PayrollSettlement extends Model
     protected $casts = [
         'base_salary' => 'decimal:2',
         'referral_commissions' => 'decimal:2',
+        'upgrade_commissions' => 'decimal:2',
         'sales_commissions' => 'decimal:2',
         'total' => 'decimal:2',
         'paid_at' => 'datetime',

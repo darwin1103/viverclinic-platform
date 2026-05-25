@@ -101,6 +101,33 @@
                 </div>
             </div>
         </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="card h-100 shadow border-0" style="background: linear-gradient(135deg, #1e2a38 0%, #161f2b 100%);">
+                <div class="card-body text-center p-3">
+                    <i class="bi bi-arrow-up-right-circle fs-3 text-success mb-2 d-block"></i>
+                    <h3 class="fw-bold text-white mb-0" style="font-size: 1.2rem;">${{ number_format($upgradeIncome, 0, ',', '.') }}</h3>
+                    <small class="text-secondary" style="font-size: 0.8rem;">Ingresos Agrandamientos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="card h-100 shadow border-0" style="background: linear-gradient(135deg, #1e2a38 0%, #161f2b 100%);">
+                <div class="card-body text-center p-3">
+                    <i class="bi bi-box-arrow-up fs-3 text-info mb-2 d-block"></i>
+                    <h3 class="fw-bold text-white mb-0">{{ $upgradeCount }}</h3>
+                    <small class="text-secondary" style="font-size: 0.8rem;">Cant. Agrandamientos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="card h-100 shadow border-0" style="background: linear-gradient(135deg, #1e2a38 0%, #161f2b 100%);">
+                <div class="card-body text-center p-3">
+                    <i class="bi bi-cash-stack fs-3 text-warning mb-2 d-block"></i>
+                    <h3 class="fw-bold text-white mb-0" style="font-size: 1.2rem;">${{ number_format($upgradeCommissions, 0, ',', '.') }}</h3>
+                    <small class="text-secondary" style="font-size: 0.8rem;">Comisiones Agrandamientos</small>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="row g-3">

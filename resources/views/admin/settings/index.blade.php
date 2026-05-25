@@ -37,34 +37,34 @@
 
             {{-- Sección Referidos --}}
             <div class="col-12 mt-4">
-                <h5 class="fw-bold border-bottom pb-2 mb-3">
+                <h5 class="fw-bold border-bottom pb-2 mb-3 text-info">
                     <i class="bi bi-send-check me-2"></i>Sistema de Referidos
                 </h5>
             </div>
 
-            <div class="col-12">
+            <div class="col-12 mb-2">
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" role="switch"
                            id="referral_enabled" name="referral_enabled" value="1"
                            {{ $referralEnabled == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label fw-bold" for="referral_enabled">
+                    <label class="form-check-label fw-bold text-white" for="referral_enabled">
                         Habilitar sistema de referidos
                     </label>
                 </div>
                 <small class="text-secondary">Si está desactivado, los pacientes no podrán ver su enlace de referido.</small>
             </div>
 
-            <div class="col-12 col-md-4">
-                <label for="referral_bonus_sessions" class="form-label fw-bold">Sesiones extra para el referidor</label>
-                <input type="number" class="form-control" id="referral_bonus_sessions"
+            <div class="col-12 col-md-3">
+                <label for="referral_bonus_sessions" class="form-label fw-bold text-white">Sesiones extra para el referidor</label>
+                <input type="number" class="form-control bg-dark text-white border-secondary" id="referral_bonus_sessions"
                        name="referral_bonus_sessions" value="{{ $referralBonusSessions }}"
                        min="1" max="50" placeholder="3">
                 <small class="text-secondary">Sesiones gratuitas que recibe el paciente que refiere.</small>
             </div>
 
-            <div class="col-12 col-md-4">
-                <label for="referral_commission_type" class="form-label fw-bold">Tipo de comisión (empleada)</label>
-                <select class="form-select" id="referral_commission_type" name="referral_commission_type">
+            <div class="col-12 col-md-3">
+                <label for="referral_commission_type" class="form-label fw-bold text-white">Tipo de comisión (empleada)</label>
+                <select class="form-select bg-dark text-white border-secondary" id="referral_commission_type" name="referral_commission_type">
                     <option value="fixed" {{ $referralCommissionType === 'fixed' ? 'selected' : '' }}>
                         Pago fijo (COP)
                     </option>
@@ -75,34 +75,70 @@
                 <small class="text-secondary">La comisión se asigna a la última empleada que atendió al referidor.</small>
             </div>
 
-            <div class="col-12 col-md-4">
-                <label for="referral_commission_value" class="form-label fw-bold">Valor de la comisión</label>
+            <div class="col-12 col-md-3">
+                <label for="referral_commission_value" class="form-label fw-bold text-white">Valor de la comisión</label>
                 <div class="input-group">
-                    <input type="number" class="form-control" id="referral_commission_value"
+                    <input type="number" class="form-control bg-dark text-white border-secondary" id="referral_commission_value"
                            name="referral_commission_value" value="{{ $referralCommissionValue }}"
                            min="0" step="0.01" placeholder="0">
-                    <span class="input-group-text" id="commission-suffix">
+                    <span class="input-group-text bg-secondary text-white border-secondary" id="commission-suffix">
                         {{ $referralCommissionType === 'percentage' ? '%' : 'COP' }}
                     </span>
                 </div>
                 <small class="text-secondary">Ingresa 0 para desactivar la comisión de empleada.</small>
             </div>
 
-            {{-- Sección Empleados --}}
+            <div class="col-12 col-md-3">
+                <label for="staff_commission_target" class="form-label fw-bold text-white">Meta mensual de referidos</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-secondary text-white border-secondary">COP</span>
+                    <input type="number" class="form-control bg-dark text-white border-secondary" id="staff_commission_target" name="staff_commission_target"
+                           value="{{ $staffCommissionTarget }}" min="0" step="1000">
+                </div>
+                <small class="text-secondary">Meta de comisiones por referidos que el staff debe alcanzar.</small>
+            </div>
+
+            {{-- Sección Agrandamientos --}}
             <div class="col-12 mt-4">
-                <h5 class="fw-bold border-bottom pb-2 mb-3">
-                    <i class="bi bi-person-badge me-2"></i>Staff y Empleadas
+                <h5 class="fw-bold border-bottom pb-2 mb-3 text-warning">
+                    <i class="bi bi-arrow-up-right-circle me-2"></i>Sistema de Agrandamientos
                 </h5>
             </div>
 
-            <div class="col-12 col-md-6">
-                <label for="staff_commission_target" class="form-label fw-bold">Meta mensual de comisiones</label>
+            <div class="col-12 col-md-4">
+                <label for="upgrade_commission_type" class="form-label fw-bold text-white">Tipo de comisión (empleada)</label>
+                <select class="form-select bg-dark text-white border-secondary" id="upgrade_commission_type" name="upgrade_commission_type">
+                    <option value="fixed" {{ $upgradeCommissionType === 'fixed' ? 'selected' : '' }}>
+                        Pago fijo (COP)
+                    </option>
+                    <option value="percentage" {{ $upgradeCommissionType === 'percentage' ? 'selected' : '' }}>
+                        Porcentaje (%)
+                    </option>
+                </select>
+                <small class="text-secondary">Tipo de comisión asignada por agrandamiento de paquete.</small>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <label for="upgrade_commission_value" class="form-label fw-bold text-white">Valor de la comisión</label>
                 <div class="input-group">
-                    <span class="input-group-text">COP</span>
-                    <input type="number" class="form-control" id="staff_commission_target" name="staff_commission_target"
-                           value="{{ $staffCommissionTarget }}" min="0" step="1000">
+                    <input type="number" class="form-control bg-dark text-white border-secondary" id="upgrade_commission_value"
+                           name="upgrade_commission_value" value="{{ $upgradeCommissionValue }}"
+                           min="0" step="0.01" placeholder="0">
+                    <span class="input-group-text bg-secondary text-white border-secondary" id="upgrade-commission-suffix">
+                        {{ $upgradeCommissionType === 'percentage' ? '%' : 'COP' }}
+                    </span>
                 </div>
-                <small class="text-secondary">Si alcanzan la meta, su comisión aumenta de 2% a 4%.</small>
+                <small class="text-secondary">Se calcula sobre la diferencia pagada por el cliente.</small>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <label for="upgrade_commission_target" class="form-label fw-bold text-white">Meta mensual de agrandamientos</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-secondary text-white border-secondary">COP</span>
+                    <input type="number" class="form-control bg-dark text-white border-secondary" id="upgrade_commission_target" name="upgrade_commission_target"
+                           value="{{ $upgradeCommissionTarget }}" min="0" step="1000">
+                </div>
+                <small class="text-secondary">Meta de comisiones por agrandamiento que el staff debe alcanzar.</small>
             </div>
 
             {{-- Sección Disparos --}}
@@ -140,6 +176,11 @@
 <script>
     document.getElementById('referral_commission_type').addEventListener('change', function() {
         const suffix = document.getElementById('commission-suffix');
+        suffix.textContent = this.value === 'percentage' ? '%' : 'COP';
+    });
+
+    document.getElementById('upgrade_commission_type').addEventListener('change', function() {
+        const suffix = document.getElementById('upgrade-commission-suffix');
         suffix.textContent = this.value === 'percentage' ? '%' : 'COP';
     });
 </script>

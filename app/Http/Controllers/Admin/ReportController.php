@@ -10,6 +10,7 @@ use App\Models\ContractedTreatment;
 use App\Models\Appointment;
 use App\Models\User;
 use App\Models\Referral;
+use App\Models\PackageUpgrade;
 
 class ReportController extends Controller
 {
@@ -147,6 +148,17 @@ class ReportController extends Controller
             ->whereDate('rewarded_at', '<=', $to)
             ->count();
 
+        // Agrandamientos KPIs
+        $upgradeIncomeQuery = PackageUpgrade::where('payment_status', 'APPROVED')
+            ->whereDate('created_at', '>=', $from)
+            ->whereDate('created_at', '<=', $to);
+        if ($branchId) {
+            $upgradeIncomeQuery->where('branch_id', $branchId);
+        }
+        $upgradeIncome = $upgradeIncomeQuery->sum('price_difference');
+        $upgradeCount = (clone $upgradeIncomeQuery)->count();
+        $upgradeCommissions = (clone $upgradeIncomeQuery)->sum('commission_amount');
+
         // --- 6. Revenue by Payment Method ---
         $revenueByMethodQuery = TreatmentOrder::whereIn('status', ['Pagado', 'Completado', 'Paid', 'Completed', 'Pago completado', 'Aprobado', 'APPROVED'])
             ->whereDate('created_at', '>=', $from)
@@ -189,6 +201,7 @@ class ReportController extends Controller
             'staffPerformance',
             'newPatients', 'finishedPatients', 'treatmentIncome', 'productIncome', 'totalExpenses', 'attendedPatients',
             'recurringPatients', 'convertedReferrals',
+            'upgradeIncome', 'upgradeCount', 'upgradeCommissions',
             'revenueByMethod', 'maxMethodTotal',
             'shotsRecords'
         ));

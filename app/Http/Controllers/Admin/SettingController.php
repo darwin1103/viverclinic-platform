@@ -24,6 +24,11 @@ class SettingController extends Controller
         $shotsPerZone = Setting::get('shots_per_zone', '600');
         $shotsPerMinizone = Setting::get('shots_per_minizone', '200');
 
+        // Configuración de Agrandamientos
+        $upgradeCommissionType = Setting::get('upgrade_commission_type', 'fixed');
+        $upgradeCommissionValue = Setting::get('upgrade_commission_value', '0');
+        $upgradeCommissionTarget = Setting::get('upgrade_commission_target', '0');
+
         return view('admin.settings.index', compact(
             'wompiPublicKey',
             'wompiIntegritySecret',
@@ -33,7 +38,10 @@ class SettingController extends Controller
             'referralCommissionValue',
             'staffCommissionTarget',
             'shotsPerZone',
-            'shotsPerMinizone'
+            'shotsPerMinizone',
+            'upgradeCommissionType',
+            'upgradeCommissionValue',
+            'upgradeCommissionTarget'
         ));
     }
 
@@ -49,6 +57,9 @@ class SettingController extends Controller
             'staff_commission_target' => 'nullable|numeric|min:0',
             'shots_per_zone' => 'nullable|integer|min:1',
             'shots_per_minizone' => 'nullable|integer|min:1',
+            'upgrade_commission_type' => 'nullable|in:fixed,percentage',
+            'upgrade_commission_value' => 'nullable|numeric|min:0',
+            'upgrade_commission_target' => 'nullable|numeric|min:0',
         ]);
 
         Setting::updateOrCreate(['key' => 'wompi_public_key'], ['value' => $request->wompi_public_key]);
@@ -64,6 +75,11 @@ class SettingController extends Controller
         // Guardar configuración de disparos
         Setting::updateOrCreate(['key' => 'shots_per_zone'], ['value' => $request->shots_per_zone ?? '600']);
         Setting::updateOrCreate(['key' => 'shots_per_minizone'], ['value' => $request->shots_per_minizone ?? '200']);
+
+        // Guardar configuración de comisión de agrandamiento
+        Setting::updateOrCreate(['key' => 'upgrade_commission_type'], ['value' => $request->upgrade_commission_type ?? 'fixed']);
+        Setting::updateOrCreate(['key' => 'upgrade_commission_value'], ['value' => $request->upgrade_commission_value ?? '0']);
+        Setting::updateOrCreate(['key' => 'upgrade_commission_target'], ['value' => $request->upgrade_commission_target ?? '0']);
 
         return back()->with('success', 'Configuración actualizada correctamente.');
     }

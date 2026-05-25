@@ -107,7 +107,9 @@
                         <th>Rol</th>
                         <th>Sucursal</th>
                         <th>Sueldo Base</th>
-                        <th>Comisiones</th>
+                        <th>Referidos</th>
+                        <th>Agrandamientos</th>
+                        <th>Ventas</th>
                         <th>Total</th>
                         <th>Estado</th>
                         <th>Acciones</th>
@@ -129,10 +131,25 @@
                         <td>
                             @if($settlement->role_type === 'EMPLOYEE')
                                 ${{ number_format($settlement->referral_commissions, 0, ',', '.') }}
-                                <small class="text-muted d-block">Referidos</small>
                             @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($settlement->role_type === 'EMPLOYEE')
+                                @php
+                                    $upgradeComm = $settlement->upgrade_commissions ?: $settlement->sales_commissions;
+                                @endphp
+                                ${{ number_format($upgradeComm, 0, ',', '.') }}
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($settlement->role_type !== 'EMPLOYEE')
                                 ${{ number_format($settlement->sales_commissions, 0, ',', '.') }}
-                                <small class="text-muted d-block">Ventas</small>
+                            @else
+                                <span class="text-muted">-</span>
                             @endif
                         </td>
                         <td class="fw-bold">${{ number_format($settlement->total, 0, ',', '.') }}</td>

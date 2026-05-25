@@ -10,6 +10,12 @@
                     <h4 class="mb-0">Detalles del Tratamiento Contratado</h4>
                     <div class="d-flex gap-2">
                         @role('SUPER_ADMIN|OWNER')
+                            @if($contractedTreatment->canBeUpgraded())
+                                <a href="{{ route('admin.contracted-treatment.upgrade', $contractedTreatment->id) }}" class="btn btn-success">
+                                    <i class="bi bi-arrow-up-circle me-1"></i>
+                                    Agrandar Paquete
+                                </a>
+                            @endif
                             <a href="{{ route('admin.contracted-treatment.edit', $contractedTreatment->id) }}" class="btn btn-warning">
                                 <i class="bi bi-pencil-square me-1"></i>
                                 Editar Tratamiento
@@ -48,6 +54,38 @@
                             </div>
                         </div>
                     </div>
+
+                    @if($contractedTreatment->packageUpgrade)
+                        @php
+                            $upgrade = $contractedTreatment->packageUpgrade;
+                        @endphp
+                        <div class="alert alert-success border-success bg-success-subtle text-success-emphasis p-3 mb-4 rounded">
+                            <h5 class="alert-heading fw-bold mb-2">
+                                <i class="bi bi-check-circle-fill me-2"></i>Paquete Agrandado Exitosamente
+                            </h5>
+                            <div class="row text-start fs-6">
+                                <div class="col-md-6 mb-2 mb-md-0 border-end">
+                                    <strong>Paquete Anterior:</strong> {{ $upgrade->old_package_data['name'] ?? 'N/A' }} (${{ number_format($upgrade->old_package_data['price_at_purchase'] ?? 0, 2) }})<br>
+                                    <strong>Nuevo Paquete:</strong> {{ $upgrade->new_package_data['name'] ?? 'N/A' }} (${{ number_format($upgrade->new_package_data['price'] ?? 0, 2) }})<br>
+                                    <strong>Diferencia Pagada:</strong> ${{ number_format($upgrade->price_difference, 2) }} COP
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Empleada que vendió:</strong> {{ $upgrade->staff->name ?? 'N/A' }} 
+                                    (Comisión: ${{ number_format($upgrade->commission_amount, 2) }} COP - 
+                                    @if($upgrade->commission_type === 'percentage')
+                                        {{ $upgrade->commission_value }}%
+                                    @else
+                                        Fijo
+                                    @endif)<br>
+                                    <strong>Método de Pago:</strong> {{ $upgrade->payment_method === 'CASH' ? 'Efectivo' : 'Transferencia' }} 
+                                    <span class="badge {{ $upgrade->payment_status === 'APPROVED' ? 'bg-success' : 'bg-warning text-dark' }} ms-1">
+                                        {{ $upgrade->payment_status === 'APPROVED' ? 'Aprobado' : 'Pendiente Verificación' }}
+                                    </span><br>
+                                    <strong>Procesado por:</strong> {{ $upgrade->processedBy->name ?? 'N/A' }} el {{ $upgrade->created_at->format('d/m/Y H:i') }}
+                                </div>
+                            </div>
+                        </div>
+                    @endif
 
                     {{-- DETALLES ADICIONALES --}}
                     <div class="row g-4">

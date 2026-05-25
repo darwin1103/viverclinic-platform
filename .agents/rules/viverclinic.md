@@ -23,5 +23,3 @@ trigger: always_on
 - Automatically identify available layout slots (e.g., `@yield`, `$slot`, or empty UI spaces within existing panels) and integrate the new component precisely into those existing spaces.
 - // All generated code comments must be exclusively in English.
 
-# 5. PRE-EXECUTION PLAN 📋
-- Before outputting modified code, briefly list the exact files you intend to touch and the specific functions you will alter. Wait for confirmation if the list includes core files.

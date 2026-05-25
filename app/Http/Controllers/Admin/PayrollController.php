@@ -11,6 +11,7 @@ use App\Models\Referral;
 use App\Models\StaffProfile;
 use App\Models\TreatmentOrder;
 use App\Models\User;
+use App\Models\PackageUpgrade;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -95,8 +96,15 @@ class PayrollController extends Controller
                     ->whereYear('rewarded_at', $year)
                     ->sum('staff_commission');
 
+                // Calculate package upgrade commissions for this employee in this month
+                $upgradeCommissions = PackageUpgrade::where('staff_user_id', $profile->user_id)
+                    ->where('payment_status', 'APPROVED')
+                    ->whereMonth('created_at', $month)
+                    ->whereYear('created_at', $year)
+                    ->sum('commission_amount');
+
                 $baseSalary = $profile->salary ?? 0;
-                $total = $baseSalary + $referralCommissions;
+                $total = $baseSalary + $referralCommissions + $upgradeCommissions;
 
                 PayrollSettlement::create([
                     'branch_id'             => $profile->branch_id,
@@ -106,6 +114,7 @@ class PayrollController extends Controller
                     'period_year'           => $year,
                     'base_salary'           => $baseSalary,
                     'referral_commissions'  => $referralCommissions,
+                    'upgrade_commissions'   => $upgradeCommissions,
                     'sales_commissions'     => 0,
                     'total'                 => $total,
                 ]);

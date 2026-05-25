@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ContractedTreatment extends Model
 {
@@ -75,9 +76,29 @@ class ContractedTreatment extends Model
         return $this->hasMany(ContractedTreatmentNote::class)->latest();
     }
 
+    public function packageUpgrade(): HasOne
+    {
+        return $this->hasOne(PackageUpgrade::class);
+    }
+
     // Helper para saber si tiene cuotas
     public function hasInstallments(): bool
     {
         return $this->installments()->exists();
+    }
+
+    // Helper para saber si califica para agrandamiento de paquete
+    public function canBeUpgraded(): bool
+    {
+        if ($this->packageUpgrade()->exists()) {
+            return false;
+        }
+
+        $firstAppointment = $this->appointments()->where('session_number', 1)->first();
+        if (!$firstAppointment) {
+            return false;
+        }
+
+        return $firstAppointment->status === 'Atendida' && !is_null($firstAppointment->staff_user_id);
     }
 }

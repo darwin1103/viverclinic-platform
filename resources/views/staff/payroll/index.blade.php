@@ -9,27 +9,53 @@
     </div>
 
     <div class="row g-4 mb-4">
-        {{-- Meta de Comisiones --}}
-        <div class="col-12">
+        {{-- Meta de Referidos --}}
+        <div class="col-12 col-lg-6">
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
-                    <h5 class="card-title fw-bold text-muted mb-3"><i class="bi bi-bullseye me-2"></i>Meta de Comisiones</h5>
+                    <h5 class="card-title fw-bold text-muted mb-3"><i class="bi bi-send-check me-2"></i>Meta de Referidos</h5>
                     <div class="d-flex justify-content-between align-items-end mb-2">
-                        <span class="fs-4 fw-bold text-primary">${{ number_format($currentCommissions, 0, ',', '.') }}</span>
-                        <span class="text-muted">de ${{ number_format($commissionTarget, 0, ',', '.') }}</span>
+                        <span class="fs-4 fw-bold text-info">${{ number_format($currentReferralCommissions, 0, ',', '.') }}</span>
+                        <span class="text-muted">de ${{ number_format($referralTarget, 0, ',', '.') }}</span>
                     </div>
                     <div class="progress" style="height: 25px;">
-                        <div class="progress-bar bg-{{ $progressPercentage >= 100 ? 'success' : 'primary' }} progress-bar-striped progress-bar-animated" 
+                        <div class="progress-bar bg-{{ $referralProgress >= 100 ? 'success' : 'info' }} progress-bar-striped progress-bar-animated" 
                              role="progressbar" 
-                             style="width: {{ $progressPercentage }}%;" 
-                             aria-valuenow="{{ $progressPercentage }}" 
+                             style="width: {{ $referralProgress }}%;" 
+                             aria-valuenow="{{ $referralProgress }}" 
                              aria-valuemin="0" 
                              aria-valuemax="100">
-                            {{ number_format($progressPercentage, 1) }}%
+                            {{ number_format($referralProgress, 1) }}%
                         </div>
                     </div>
-                    @if($progressPercentage >= 100)
-                        <div class="text-success mt-2 fw-bold"><i class="bi bi-stars"></i> ¡Felicidades! Has alcanzado tu meta de comisiones este mes.</div>
+                    @if($referralProgress >= 100 && $referralTarget > 0)
+                        <div class="text-success mt-2 fw-bold"><i class="bi bi-stars"></i> ¡Felicidades! Has alcanzado tu meta de referidos este mes.</div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Meta de Agrandamientos --}}
+        <div class="col-12 col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h5 class="card-title fw-bold text-muted mb-3"><i class="bi bi-arrow-up-right-circle me-2"></i>Meta de Agrandamientos</h5>
+                    <div class="d-flex justify-content-between align-items-end mb-2">
+                        <span class="fs-4 fw-bold text-warning">${{ number_format($currentUpgradeCommissions, 0, ',', '.') }}</span>
+                        <span class="text-muted">de ${{ number_format($upgradeTarget, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-{{ $upgradeProgress >= 100 ? 'success' : 'warning' }} progress-bar-striped progress-bar-animated {{ $upgradeProgress >= 100 ? '' : 'text-dark' }}" 
+                             role="progressbar" 
+                             style="width: {{ $upgradeProgress }}%;" 
+                             aria-valuenow="{{ $upgradeProgress }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            {{ number_format($upgradeProgress, 1) }}%
+                        </div>
+                    </div>
+                    @if($upgradeProgress >= 100 && $upgradeTarget > 0)
+                        <div class="text-success mt-2 fw-bold"><i class="bi bi-stars"></i> ¡Felicidades! Has alcanzado tu meta de agrandamientos este mes.</div>
                     @endif
                 </div>
             </div>
@@ -58,7 +84,8 @@
                                 <tr>
                                     <th>Fecha</th>
                                     <th>Sueldo Base</th>
-                                    <th>Comisiones</th>
+                                    <th>Referidos</th>
+                                    <th>Agrandamientos</th>
                                     <th>Total Pagado</th>
                                 </tr>
                             </thead>
@@ -67,12 +94,18 @@
                                     <tr>
                                         <td>{{ \Carbon\Carbon::parse($settlement->created_at)->format('d/m/Y') }}</td>
                                         <td>${{ number_format($settlement->base_salary, 0, ',', '.') }}</td>
-                                        <td>${{ number_format($settlement->referral_commissions + $settlement->sales_commissions, 0, ',', '.') }}</td>
+                                        <td>${{ number_format($settlement->referral_commissions, 0, ',', '.') }}</td>
+                                        <td>
+                                            @php
+                                                $upgradeComm = $settlement->upgrade_commissions ?: $settlement->sales_commissions;
+                                            @endphp
+                                            ${{ number_format($upgradeComm, 0, ',', '.') }}
+                                        </td>
                                         <td class="fw-bold text-success">${{ number_format($settlement->total, 0, ',', '.') }}</td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center py-4 text-muted">No tienes liquidaciones registradas en el historial.</td>
+                                        <td colspan="5" class="text-center py-4 text-muted">No tienes liquidaciones registradas en el historial.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

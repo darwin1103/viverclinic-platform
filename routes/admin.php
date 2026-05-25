@@ -54,6 +54,7 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
 
     Route::middleware('permission:ver_pacientes')->group(function () {
         Route::resource('client', ClientController::class);
+        Route::patch('client/{client}/toggle-active', [ClientController::class, 'toggleActive'])->name('client.toggle-active');
         Route::get('/client/getUsers/{id}',[ClientController::class,'getusers'])->name('client.list');
         Route::put('clients/{client}/clinical-history', [ClientController::class, 'updateClinicalHistory'])->name('clients.clinical-history.update');
     });

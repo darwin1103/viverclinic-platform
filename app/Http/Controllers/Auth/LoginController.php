@@ -53,6 +53,13 @@ class LoginController extends Controller
         $this->validateLogin($request);
 
         if ($this->attemptLogin($request)) {
+            $user = Auth::user();
+            if (!$user->active) {
+                Auth::logout();
+                return redirect()->back()
+                    ->withInput($request->only($this->username(), 'remember'))
+                    ->withErrors([$this->username() => 'Su cuenta está desactivada. Por favor, póngase en contacto con el administrador para más información.']);
+            }
             \Illuminate\Support\Facades\RateLimiter::clear($key);
             return $this->sendLoginResponse($request);
         }

@@ -27,6 +27,7 @@
                                     <th scope="col">Nombre</th>
                                     <th scope="col">Fecha de registro</th>
                                     <th scope="col">Sucursal</th>
+                                    <th scope="col">Estado</th>
                                     <th scope="col">Acciones</th>
                                 </tr>
                             </thead>
@@ -45,7 +46,14 @@
                                                 {{ $client->patientProfile?->branch?->name ?? 'No asignada' }}
                                             </span>
                                         </td>
-                                        <td style="min-width: 160px;">
+                                        <td style="min-width: 100px;">
+                                            @if ($client->active)
+                                                <span class="badge bg-success">Activo</span>
+                                            @else
+                                                <span class="badge bg-secondary">Inactivo</span>
+                                            @endif
+                                        </td>
+                                        <td style="min-width: 100px;">
                                             <a class="mx-2" href="{{ route('admin.client.show', $client) }}"
                                                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Ver">
                                                <i class="bi bi-eye-fill"></i>
@@ -54,11 +62,6 @@
                                                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Editar">
                                                <i class="bi bi-pencil-square"></i>
                                             </a>
-                                            <button class="btn btn-sm btn-danger" type="button"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Eliminar"
-                                                    onclick="showDeleteConfirmation('{{ $client->id }}', '{{ url("/admin/client") }}')">
-                                                <i class="bi bi-trash-fill"></i>
-                                            </button>
                                         </td>
                                     </tr>
                                 @empty
@@ -84,11 +87,8 @@
     </div>
 </div>
 
-@include('common.deleteConfirmationModal')
-
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/admin/client/index/showDeleteConfirmation.js') }}"></script>
     <script src="{{ asset('js/admin/client/index/filter.js') }}"></script>
 @endpush

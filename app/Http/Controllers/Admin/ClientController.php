@@ -43,7 +43,7 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         // Query base
-        $query = User::select('id', 'name', 'email', 'created_at')
+        $query = User::select('id', 'name', 'email', 'created_at', 'active')
             ->role('PATIENT')
             ->with('patientProfile.branch'); // use select ***
 
@@ -245,7 +245,7 @@ class ClientController extends Controller
 
         try {
             $client->delete();
-            return redirect()->back()->with('success', 'User deleted successfully');
+            return redirect()->route('admin.client.index')->with('success', 'User deleted successfully');
         } catch (Exception $e) {
             return redirect()->back()->withErrors(['error' => 'No se puede eliminar este registro porque tiene datos dependientes asociados.']);
         }
@@ -324,6 +324,19 @@ class ClientController extends Controller
         $client->save();
 
         return redirect()->back()->with('success', 'Historia clínica actualizada correctamente.');
+    }
+
+    public function toggleActive(User $client)
+    {
+        if (!$client->hasRole('PATIENT')) {
+            return redirect()->back()->withErrors(['error' => 'Solo se pueden activar o desactivar pacientes.']);
+        }
+
+        $client->active = !$client->active;
+        $client->save();
+
+        $status = $client->active ? 'activado' : 'desactivado';
+        return redirect()->back()->with('success', "Paciente {$status} correctamente.");
     }
     
 }

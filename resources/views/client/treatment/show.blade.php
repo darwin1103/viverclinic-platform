@@ -138,7 +138,7 @@
                                                                 <input type="radio" name="payment_type" value="installment" id="pt_installment" class="form-check-input me-3">
                                                                 <div class="flex-grow-1">
                                                                     <div class="fw-bold text-primary">Pago Inicial (1ª Cuota)</div>
-                                                                    <small class="text-muted">Cancela el 50% del tratamiento para comenzar y el otro 50% en la tercera sesión</small>
+                                                                    <small class="text-muted" id="installment-conditions-text">Cancela el 50% del tratamiento para comenzar y el otro 50% en la tercera sesión</small>
                                                                 </div>
                                                                 <div class="fw-bold fs-5" id="modal-installment-amount">$0</div>
                                                             </div>
@@ -270,6 +270,6 @@
         const additionalZones = @json($additionalZones);
     </script>
 
-    <script type="text/javascript" src="{{ asset('js/client/treatment/show/form.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/client/treatment/show/form.js') }}?v={{ time() }}"></script>
 
 @endpush

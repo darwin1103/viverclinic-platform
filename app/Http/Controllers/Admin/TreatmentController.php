@@ -170,6 +170,7 @@ class TreatmentController extends Controller
             'branches.*.packages.*.price' => 'required|numeric|min:0',
             'branches.*.packages.*.big_zones' => 'required|integer|min:0',
             'branches.*.packages.*.mini_zones' => 'required|integer|min:0',
+            'branches.*.packages.*.installment_conditions' => 'nullable|string|max:500',
             'terms_conditions' => 'nullable|string',
         ], $messages, $attributes);
 
@@ -206,6 +207,7 @@ class TreatmentController extends Controller
                             'big_zones' => $packageData['big_zones'],
                             'mini_zones' => $packageData['mini_zones'],
                             'allow_installments' => $allowInstallments,
+                            'installment_conditions' => !empty($packageData['installment_conditions']) ? $packageData['installment_conditions'] : 'Cancela el 50% del tratamiento para comenzar y el otro 50% en la tercera sesión',
                         ]);
 
                         // Guardar Cuotas si aplica
@@ -335,6 +337,7 @@ class TreatmentController extends Controller
             'branches.*.packages.*.big_zones' => 'required|integer|min:0',
             'branches.*.packages.*.mini_zones' => 'required|integer|min:0',
             'branches.*.packages.*.allow_installments' => 'nullable|boolean',
+            'branches.*.packages.*.installment_conditions' => 'nullable|string|max:500',
             'branches.*.packages.*.installments' => [
                 'nullable',
                 'array',
@@ -386,6 +389,7 @@ class TreatmentController extends Controller
                             'big_zones' => $packageData['big_zones'],
                             'mini_zones' => $packageData['mini_zones'],
                             'allow_installments' => $allowInstallments,
+                            'installment_conditions' => !empty($packageData['installment_conditions']) ? $packageData['installment_conditions'] : 'Cancela el 50% del tratamiento para comenzar y el otro 50% en la tercera sesión',
                         ]);
 
                         if ($allowInstallments && isset($packageData['installments'])) {

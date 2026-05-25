@@ -145,6 +145,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <div class="installments-wrapper mt-3 ps-3 border-start border-3 border-info d-none">
                         <h6>Configuración de Cuotas</h6>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Condiciones de cuotas</label>
+                            <input type="text" name="branches[${branchId}][packages][${index}][installment_conditions]" class="form-control"
+                                value="Cancela el 50% del tratamiento para comenzar y el otro 50% en la tercera sesión" placeholder="Ej: Cancela el 50% del tratamiento para comenzar..." required>
+                        </div>
                         <div class="installments-container" id="installments-container-${branchId}-${index}">
                             <!-- Las cuotas se agregarán aquí -->
                         </div>

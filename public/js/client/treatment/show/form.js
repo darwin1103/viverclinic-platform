@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const modalTotalAmount = document.getElementById('modal-total-amount');
     const modalInstallmentAmount = document.getElementById('modal-installment-amount');
     const optionInstallmentContainer = document.getElementById('option-installment-container');
+    const installmentConditionsText = document.getElementById('installment-conditions-text');
 
     // Radios de Modalidad (Cuota vs Total)
     const radioTypeFull = document.getElementById('pt_full');
@@ -54,6 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let installmentAccumulator = 0;
         let atLeastOnePkgHasInstallments = false;
         let summaryHtml = '';
+        let selectedInstallmentConditions = [];
 
         allowedLargeZones = 0;
         allowedMiniZones = 0;
@@ -86,6 +88,11 @@ document.addEventListener('DOMContentLoaded', function () {
                             // Sumamos solo el valor de la 1ra cuota
                             const firstInstPrice = parseFloat(pkg.installments[0].price);
                             installmentAccumulator += firstInstPrice * quantity;
+
+                            const cond = pkg.installment_conditions || 'Cancela el 50% del tratamiento para comenzar y el otro 50% en la tercera sesión';
+                            if (!selectedInstallmentConditions.includes(cond)) {
+                                selectedInstallmentConditions.push(cond);
+                            }
                         } else {
                             // Si NO tiene cuotas, se suma el PRECIO TOTAL al acumulador inicial
                             installmentAccumulator += lineTotal;
@@ -147,6 +154,14 @@ document.addEventListener('DOMContentLoaded', function () {
         // --- D. Actualizar UI Resumen ---
         if (purchaseSummary) purchaseSummary.innerHTML = summaryHtml;
         if (totalToPayDisplay) totalToPayDisplay.innerText = `$${total.toLocaleString('es-CO')}`;
+
+        if (installmentConditionsText) {
+            if (selectedInstallmentConditions.length > 0) {
+                installmentConditionsText.innerText = selectedInstallmentConditions.join(' / ');
+            } else {
+                installmentConditionsText.innerText = 'Cancela el 50% del tratamiento para comenzar y el otro 50% en la tercera sesión';
+            }
+        }
 
         if (purchaseSummaryContainer) {
             purchaseSummaryContainer.style.display = total > 0 ? 'block' : 'none';

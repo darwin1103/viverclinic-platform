@@ -31,9 +31,13 @@
             <label class="form-check-label" for="allow_installments_{{ $branch->id }}_{{ $key }}">Habilitar pago en cuotas</label>
         </div>
 
-        {{-- Contenedor de cuotas (oculto si el switch está off) --}}
         <div class="installments-wrapper mt-3 ps-3 border-start border-3 border-info {{ (isset($package->allow_installments) && $package->allow_installments) ? '' : 'd-none' }}">
             <h6>Configuración de Cuotas</h6>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Condiciones de cuotas</label>
+                <input type="text" name="branches[{{ $branch->id }}][packages][{{ $key }}][installment_conditions]" class="form-control"
+                       value="{{ $package->installment_conditions ?? 'Cancela el 50% del tratamiento para comenzar y el otro 50% en la tercera sesión' }}" placeholder="Ej: Cancela el 50% del tratamiento para comenzar..." required>
+            </div>
             <div class="installments-container" id="installments-container-{{ $branch->id }}-{{ $key }}">
                 @php
                     $installments = $package->installments ?? [];

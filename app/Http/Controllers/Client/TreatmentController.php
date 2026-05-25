@@ -65,7 +65,7 @@ class TreatmentController extends Controller
             ->with(['installments' => function($q) {
                 $q->orderBy('installment_number');
             }])
-            ->select('id', 'name', 'price', 'big_zones', 'mini_zones', 'allow_installments')
+            ->select('id', 'name', 'price', 'big_zones', 'mini_zones', 'allow_installments', 'installment_conditions')
             ->get();
 
         $additionalZones = [

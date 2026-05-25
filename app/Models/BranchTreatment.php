@@ -20,6 +20,7 @@ class BranchTreatment extends Model
         'big_zones',
         'mini_zones',
         'allow_installments',
+        'installment_conditions',
     ];
 
     // Relación opcional para acceder al tratamiento desde un paquete

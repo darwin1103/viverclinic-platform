@@ -39,6 +39,7 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
         Route::delete('/contracted-treatment/notes/{note}', [ContractedTreatmentController::class, 'destroyNote'])->name('contracted-treatment.notes.destroy');
         Route::post('/treatment-order/{order}/approve', [ContractedTreatmentController::class, 'approvePayment'])->name('contracted-treatment.approve-payment');
         Route::post('/treatment-order/{order}/reject', [ContractedTreatmentController::class, 'rejectPayment'])->name('contracted-treatment.reject-payment');
+        Route::post('/contracted-treatment-installment/{installment}/toggle-status', [ContractedTreatmentController::class, 'toggleInstallmentStatus'])->name('contracted-treatment.installment.toggle-status');
     });
 
     Route::middleware('permission:admin_dashboard_role_management')->group(function () {

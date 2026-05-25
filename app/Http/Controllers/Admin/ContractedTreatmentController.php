@@ -9,6 +9,7 @@ use App\Models\ContractedTreatment;
 use App\Models\Treatment;
 use App\Models\TreatmentOrder;
 use App\Models\ContractedTreatmentNote;
+use App\Models\ContractedTreatmentInstallment;
 use App\Services\ReferralService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -220,4 +221,148 @@ class ContractedTreatmentController extends Controller
         return back()->with('success', 'El pago ha sido rechazado.');
     }
 
+    public function edit(ContractedTreatment $contractedTreatment)
+    {
+        if (!auth()->user()->hasRole(['SUPER_ADMIN', 'OWNER'])) {
+            abort(403);
+        }
+
+        $contractedTreatment->load(['user', 'branch', 'treatment']);
+
+        $bigZones = Treatment::$bigZones;
+        $smallZones = Treatment::$smallZones;
+        $miniZones = Treatment::$miniZones;
+
+        return view('admin.contracted-treatment.edit', compact(
+            'contractedTreatment',
+            'bigZones',
+            'smallZones',
+            'miniZones'
+        ));
+    }
+
+    public function update(Request $request, ContractedTreatment $contractedTreatment)
+    {
+        if (!auth()->user()->hasRole(['SUPER_ADMIN', 'OWNER'])) {
+            abort(403);
+        }
+
+        $request->validate([
+            'sessions' => 'required|integer|min:1',
+            'days_between_sessions' => 'required|integer|min:0',
+            'selected_zones' => 'nullable|array',
+            'another_big_zone' => 'nullable|string|max:100',
+            'another_mini_zone' => 'nullable|string|max:100',
+        ]);
+
+        $oldSessions = $contractedTreatment->sessions;
+        $oldDays = $contractedTreatment->days_between_sessions;
+        $oldZones = $contractedTreatment->selected_zones ?? ['big' => [], 'mini' => []];
+
+        $selectedZones = $request->selected_zones ?? ['big' => [], 'mini' => []];
+        if (!empty($request->another_big_zone)) {
+            if (!isset($selectedZones['big'])) {
+                $selectedZones['big'] = [];
+            }
+            $selectedZones['big'][] = $request->another_big_zone;
+        }
+        if (!empty($request->another_mini_zone)) {
+            if (!isset($selectedZones['mini'])) {
+                $selectedZones['mini'] = [];
+            }
+            $selectedZones['mini'][] = $request->another_mini_zone;
+        }
+
+        // Ensure keys big and mini exist and are arrays
+        if (!isset($selectedZones['big'])) {
+            $selectedZones['big'] = [];
+        }
+        if (!isset($selectedZones['mini'])) {
+            $selectedZones['mini'] = [];
+        }
+
+        $contractedTreatment->update([
+            'sessions' => $request->sessions,
+            'days_between_sessions' => $request->days_between_sessions,
+            'selected_zones' => $selectedZones,
+        ]);
+
+        // Audit changes
+        $changes = [];
+        if ($oldSessions != $contractedTreatment->sessions) {
+            $changes[] = "- Sesiones: de {$oldSessions} a {$contractedTreatment->sessions}";
+        }
+        if ($oldDays != $contractedTreatment->days_between_sessions) {
+            $changes[] = "- Días entre sesiones: de {$oldDays} a {$contractedTreatment->days_between_sessions}";
+        }
+
+        $oldBig = $oldZones['big'] ?? [];
+        $newBig = $selectedZones['big'] ?? [];
+        $oldMini = $oldZones['mini'] ?? [];
+        $newMini = $selectedZones['mini'] ?? [];
+
+        // Sort arrays to compare properly
+        sort($oldBig);
+        sort($newBig);
+        sort($oldMini);
+        sort($newMini);
+
+        if ($oldBig != $newBig) {
+            $changes[] = "- Zonas Grandes/Pequeñas: de [" . implode(', ', $oldBig) . "] a [" . implode(', ', $newBig) . "]";
+        }
+        if ($oldMini != $newMini) {
+            $changes[] = "- Zonas Mini: de [" . implode(', ', $oldMini) . "] a [" . implode(', ', $newMini) . "]";
+        }
+
+        if (!empty($changes)) {
+            $contractedTreatment->notes()->create([
+                'user_id' => auth()->id(),
+                'content' => "Tratamiento editado por " . auth()->user()->name . ":\n" . implode("\n", $changes),
+            ]);
+        }
+
+        return redirect()->route('admin.contracted-treatment.show', $contractedTreatment->id)
+            ->with('success', 'Tratamiento actualizado correctamente.');
+    }
+
+    public function toggleInstallmentStatus(ContractedTreatmentInstallment $installment)
+    {
+        if (!auth()->user()->hasRole(['SUPER_ADMIN', 'OWNER'])) {
+            abort(403);
+        }
+
+        $contractedTreatment = $installment->contractedTreatment;
+        $oldStatus = $installment->status;
+        $newStatus = $oldStatus == 'PAID' ? 'PENDING' : 'PAID';
+        $paidAt = $newStatus == 'PAID' ? now() : null;
+
+        $installment->update([
+            'status' => $newStatus,
+            'paid_at' => $paidAt
+        ]);
+
+        // Recalculate treatment status
+        $totalInstallments = $contractedTreatment->installments()->count();
+        $paidInstallments = $contractedTreatment->installments()->where('status', 'PAID')->count();
+
+        if ($totalInstallments > 0) {
+            if ($paidInstallments === $totalInstallments) {
+                if ($contractedTreatment->status !== 'Paid') {
+                    $contractedTreatment->update(['status' => 'Paid']);
+                }
+            } else {
+                if ($contractedTreatment->status === 'Paid') {
+                    $contractedTreatment->update(['status' => 'Pending']);
+                }
+            }
+        }
+
+        // Add internal note
+        $contractedTreatment->notes()->create([
+            'user_id' => auth()->id(),
+            'content' => "Cuota #{$installment->installment_number} marcada como " . ($newStatus == 'PAID' ? 'PAGADA' : 'PENDIENTE') . " manualmente por " . auth()->user()->name . ".",
+        ]);
+
+        return back()->with('success', "Estado de la cuota #{$installment->installment_number} actualizado correctamente.");
+    }
 }

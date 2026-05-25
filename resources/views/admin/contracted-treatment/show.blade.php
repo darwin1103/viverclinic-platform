@@ -8,10 +8,18 @@
             <div class="card shadow-sm">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">Detalles del Tratamiento Contratado</h4>
-                    <a href="{{ route('admin.contracted-treatment.index') }}" class="btn btn-primary">
-                        <i class="bi bi-arrow-left-circle me-1"></i>
-                        Volver al listado
-                    </a>
+                    <div class="d-flex gap-2">
+                        @role('SUPER_ADMIN|OWNER')
+                            <a href="{{ route('admin.contracted-treatment.edit', $contractedTreatment->id) }}" class="btn btn-warning">
+                                <i class="bi bi-pencil-square me-1"></i>
+                                Editar Tratamiento
+                            </a>
+                        @endrole
+                        <a href="{{ route('admin.contracted-treatment.index') }}" class="btn btn-primary">
+                            <i class="bi bi-arrow-left-circle me-1"></i>
+                            Volver al listado
+                        </a>
+                    </div>
                 </div>
 
                 <div class="card-body p-4">
@@ -215,11 +223,24 @@
                                                     <td class="fw-bold">{{ $inst->installment_number }}</td>
                                                     <td>${{ number_format($inst->price, 2) }}</td>
                                                     <td>
-                                                        @if($inst->status == 'PAID')
-                                                            <span class="badge bg-success">Pagada</span>
+                                                        @role('SUPER_ADMIN|OWNER')
+                                                            <form action="{{ route('admin.contracted-treatment.installment.toggle-status', $inst->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de marcar la cuota #{{ $inst->installment_number }} como {{ $inst->status == 'PAID' ? 'PENDIENTE' : 'PAGADA' }}?');" class="d-inline">
+                                                                @csrf
+                                                                <button type="submit" class="btn btn-sm p-0 border-0 bg-transparent" title="Haz clic para cambiar el estado" style="vertical-align: middle;">
+                                                                    @if($inst->status == 'PAID')
+                                                                        <span class="badge bg-success" style="cursor: pointer;"><i class="bi bi-check-circle me-1"></i>Pagada</span>
+                                                                    @else
+                                                                        <span class="badge bg-secondary" style="cursor: pointer;"><i class="bi bi-hourglass me-1"></i>Pendiente</span>
+                                                                    @endif
+                                                                </button>
+                                                            </form>
                                                         @else
-                                                            <span class="badge bg-secondary">Pendiente</span>
-                                                        @endif
+                                                            @if($inst->status == 'PAID')
+                                                                <span class="badge bg-success">Pagada</span>
+                                                            @else
+                                                                <span class="badge bg-secondary">Pendiente</span>
+                                                            @endif
+                                                        @endrole
                                                     </td>
                                                     <td class="small text-white-50">
                                                         {{ $inst->paid_at ? $inst->paid_at->format('d/m/Y H:i') : '-' }}

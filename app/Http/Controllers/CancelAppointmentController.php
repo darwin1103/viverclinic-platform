@@ -17,7 +17,7 @@ class CancelAppointmentController extends Controller
                 $query->where('user_id', $user->id);
             })
             ->where('schedule', '>=', now())
-            ->whereIn('status', ['Agendado', 'Confirmado', 'Pendiente', 'Pending', 'Scheduled', 'Confirmed', 'Por confirmar'])
+            ->whereIn('status', ['Agendado', 'Confirmado', 'Pendiente', 'Pending', 'Scheduled', 'Confirmed', 'Por confirmar', 'Confirmada', 'Agendada'])
             ->orderBy('schedule', 'asc')
             ->first();
 

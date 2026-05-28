@@ -5,6 +5,40 @@
             <h1 class="fw-bold m-0" style="color: #fffffd;">¡{{ __('Hello') }}, {{ Auth::user()->name }}!</h1>
         </div>
 
+        <!-- Mobile only: Next Appointment and Treatment Progress -->
+        <div class="row d-lg-none my-2 px-2">
+            <!-- Next Appointment Card -->
+            <div class="col-12 mb-3">
+                <div class="card shadow" style="border: 1px solid rgba(255, 255, 255, 0.06); background: var(--vc-card, #0f2a30);">
+                    <div class="card-body px-4 py-3">
+                        <div class="row align-items-center">
+                            <div class="col-3 col-sm-2 text-center">
+                                <img alt="photo profile" width="55px" height="55px" class="rounded-circle navbar-photo" src="{{ Auth::user()->photo_profile ? asset(Storage::url(Auth::user()->photo_profile)) : asset('images/icons/default-avatar.svg') }}" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&size=55&background=6c757d&color=fff'">
+                            </div>
+                            <div class="col text-start">
+                                <p class="fw-bold m-0" style="font-size: 0.9rem; color: #fffffd;">{{ __('Next Appointment') }}</p>
+                                <p class="{{ $nextAppointment ? 'fs-5 text-uppercase' : 'small fw-normal' }} fw-bold m-0" style="color: #b6d3db;">
+                                    {{ $nextAppointment ? \Carbon\Carbon::parse($nextAppointment->schedule)->isoFormat('D MMM YYYY, h:mm a') : 'No tienes citas programadas' }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Treatment Progress Card -->
+            <div class="col-12 mb-3">
+                <div class="card shadow" style="border: 1px solid rgba(255, 255, 255, 0.06); background: var(--vc-card, #0f2a30);">
+                    <div class="card-body px-4 py-3">
+                        <h6 class="card-title fw-bold m-0 mb-2" style="font-size: 0.9rem; color: #fffffd;">{{ __('Treatment Progress') }}</h6>
+                        <div class="progress mb-2" role="progressbar" style="height: 12px;" aria-valuenow="{{ $treatmentProgress }}" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar" style="width: {{ $treatmentProgress }}%"></div>
+                        </div>
+                        <p class="fw-bold m-0 small" style="color: #33a1d6;">{{ $treatmentProgress }}% - {{ $treatmentName }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row justify-content-center my-2">
             <div class="col-12 col-lg-8 mb-3">
                 <div class="row gx-3 gy-3 my-2">
@@ -127,17 +161,19 @@
                 <div class="col-12">
                     <div class="card shadow">
                         <div class="card-body px-4">
-                            <div class="row">
-                                <div class="col-3">
-                                    <img alt="photo profile" width="68px" height="68px" class="rounded-circle navbar-photo me-2" src="{{ Auth::user()->photo_profile ? asset(Storage::url(Auth::user()->photo_profile)) : asset('images/icons/default-avatar.svg') }}" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&size=68&background=6c757d&color=fff'">
-                                </div>
-                                <div class="col text-start">
-                                    <p class="fw-bold m-0">{{ __('Next Appointment') }}</p>
-                                    <p class="{{ $nextAppointment ? 'fs-4 text-uppercase' : 'small fw-normal' }} fw-bold m-0" style="color: #b6d3db;">
-                                        {{ $nextAppointment ? \Carbon\Carbon::parse($nextAppointment->schedule)->isoFormat('D MMM YYYY, h:mm a') : 'No tienes citas programadas' }}
-                                    </p>
-                                </div>
-                            </div><hr>
+                            <div class="d-none d-lg-block">
+                                <div class="row">
+                                    <div class="col-3">
+                                        <img alt="photo profile" width="68px" height="68px" class="rounded-circle navbar-photo me-2" src="{{ Auth::user()->photo_profile ? asset(Storage::url(Auth::user()->photo_profile)) : asset('images/icons/default-avatar.svg') }}" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&size=68&background=6c757d&color=fff'">
+                                    </div>
+                                    <div class="col text-start">
+                                        <p class="fw-bold m-0">{{ __('Next Appointment') }}</p>
+                                        <p class="{{ $nextAppointment ? 'fs-4 text-uppercase' : 'small fw-normal' }} fw-bold m-0" style="color: #b6d3db;">
+                                            {{ $nextAppointment ? \Carbon\Carbon::parse($nextAppointment->schedule)->isoFormat('D MMM YYYY, h:mm a') : 'No tienes citas programadas' }}
+                                        </p>
+                                    </div>
+                                </div><hr>
+                            </div>
                             <div class="row">
                                 <div class="col text-start">
                                     <p class="fw-bold m-0">{{ __('Active Packages') }}</p>
@@ -167,7 +203,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 mt-3">
+                <div class="col-12 mt-3 d-none d-lg-block">
                     <div class="card shadow">
                         <div class="card-body px-4">
                             <h5 class="card-title fw-bold">{{ __('Treatment Progress') }}</h5>

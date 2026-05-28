@@ -290,7 +290,7 @@ class DashboardController extends Controller
                 $query->where('user_id', $user->id);
             })
             ->where('schedule', '>=', now())
-            ->whereIn('status', ['Agendado', 'Confirmado', 'Pendiente', 'Pending', 'Scheduled', 'Confirmed'])
+            ->whereIn('status', ['Agendado', 'Confirmado', 'Pendiente', 'Pending', 'Scheduled', 'Confirmed', 'Confirmada', 'Por confirmar', 'Agendada'])
             ->orderBy('schedule', 'asc')
             ->first();
 

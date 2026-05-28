@@ -3,7 +3,8 @@ const SessionsTableModule = (function() {
     const elements = {
         tableBody: null,
         modalAgendar: null,
-        modalRate: null
+        modalRate: null,
+        modalActions: null
     };
 
     let sessions = [];
@@ -18,6 +19,7 @@ const SessionsTableModule = (function() {
         elements.tableBody = document.getElementById('sessionTableBody');
         elements.modalAgendar = document.getElementById('modalAgendar');
         elements.modalRate = document.getElementById('modalRate');
+        elements.modalActions = document.getElementById('appointmentActionsModal');
     }
 
     function loadSessionsData() {
@@ -84,6 +86,86 @@ const SessionsTableModule = (function() {
             openSchedulerModal(sessionNumber, branchId, reschedUrl, '');
             return;
         }
+
+        // Open appointment actions modal
+        const btnActions = target.closest('.btn-open-appointment-actions');
+        if (btnActions) {
+            const sessionNumber = btnActions.getAttribute('data-session');
+            const dateFormatted = btnActions.getAttribute('data-date-formatted');
+            const time = btnActions.getAttribute('data-time');
+            const status = btnActions.getAttribute('data-status');
+            const canManage = btnActions.getAttribute('data-can-manage') === 'true';
+            const isConfirmed = btnActions.getAttribute('data-is-confirmed') === 'true';
+            const isNearLimit = btnActions.getAttribute('data-is-near-limit') === 'true';
+            const confirmUrl = btnActions.getAttribute('data-confirm-url');
+            const reschedUrl = btnActions.getAttribute('data-resched-url');
+            const cancelUrl = btnActions.getAttribute('data-cancel-url');
+            const branchId = btnActions.getAttribute('data-branch-id');
+
+            openActionsModal(sessionNumber, dateFormatted, time, status, canManage, isConfirmed, isNearLimit, confirmUrl, reschedUrl, cancelUrl, branchId);
+            return;
+        }
+    }
+
+    function openActionsModal(sessionNumber, dateFormatted, time, status, canManage, isConfirmed, isNearLimit, confirmUrl, reschedUrl, cancelUrl, branchId) {
+        if (!elements.modalActions) return;
+
+        // Set labels
+        elements.modalActions.querySelector('#actionsModalSessionNumber').textContent = sessionNumber;
+        elements.modalActions.querySelector('#actionsModalDateTime').textContent = `${dateFormatted} - ${time}`;
+
+        const statusBadge = elements.modalActions.querySelector('#actionsModalStatus');
+        statusBadge.textContent = status;
+        if (status === 'Confirmada') {
+            statusBadge.className = 'badge bg-success text-white';
+        } else {
+            statusBadge.className = 'badge bg-info text-white';
+        }
+
+        const btnConfirm = elements.modalActions.querySelector('#btnConfirmAction');
+        const btnResched = elements.modalActions.querySelector('#btnReschedAction');
+        const btnCancel = elements.modalActions.querySelector('#btnCancelAction');
+        const noActionsMsg = elements.modalActions.querySelector('#noActionsMessage');
+
+        // Reset display
+        btnConfirm.classList.add('d-none');
+        btnResched.classList.add('d-none');
+        btnCancel.classList.add('d-none');
+        noActionsMsg.classList.add('d-none');
+
+        if (canManage) {
+            // Confirm action (only if near limit [less than 48h] and not confirmed yet)
+            if (!isConfirmed && isNearLimit) {
+                btnConfirm.classList.remove('d-none');
+                btnConfirm.onclick = function() {
+                    const modalInst = bootstrap.Modal.getInstance(elements.modalActions);
+                    if (modalInst) modalInst.hide();
+                    confirmSession(confirmUrl);
+                };
+            }
+
+            // Reschedule action
+            btnResched.classList.remove('d-none');
+            btnResched.onclick = function() {
+                const modalInst = bootstrap.Modal.getInstance(elements.modalActions);
+                if (modalInst) modalInst.hide();
+                openSchedulerModal(sessionNumber, branchId, reschedUrl, '');
+            };
+
+            // Cancel action
+            btnCancel.classList.remove('d-none');
+            btnCancel.onclick = function() {
+                const modalInst = bootstrap.Modal.getInstance(elements.modalActions);
+                if (modalInst) modalInst.hide();
+                cancelSession(cancelUrl);
+            };
+        } else {
+            noActionsMsg.classList.remove('d-none');
+        }
+
+        // Show modal
+        const modal = bootstrap.Modal.getOrCreateInstance(elements.modalActions);
+        modal.show();
     }
 
     function openSchedulerModal(sessionNumber, branchId, url, contractedTreatmentId) {

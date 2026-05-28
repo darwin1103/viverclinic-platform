@@ -200,6 +200,10 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
     // Marketing Management
     Route::middleware('permission:ver_promociones')->group(function () {
         Route::get('/referrals-report', [\App\Http\Controllers\Admin\ReferralReportController::class, 'index'])->name('referrals-report.index');
+        Route::patch('promotions/{promotion}/toggle-active', [\App\Http\Controllers\Admin\PromotionController::class, 'toggleActive'])
+            ->name('promotions.toggle-active');
+        Route::get('promotions/get-packages', [\App\Http\Controllers\Admin\PromotionController::class, 'getPackages'])
+            ->name('promotions.get-packages');
         Route::resource('promotions', \App\Http\Controllers\Admin\PromotionController::class);
     });
 

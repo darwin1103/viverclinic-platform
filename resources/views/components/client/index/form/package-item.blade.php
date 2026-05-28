@@ -15,10 +15,21 @@
     <div class="flex-grow-1">
         @if($type === 'package')
             <strong>{{ $item['name'] }}:</strong> ({{ $item['big_zones'] }} zona + {{ $item['mini_zones'] }} mini zonas)
+            @if(isset($item['has_promo']) && $item['has_promo'])
+                <span class="badge bg-primary text-white ms-1">Promo</span>
+            @endif
         @else
             <strong>{{ $item['name'] }}</strong>
         @endif
-        <div class="text-muted">${{ number_format($item['price'], 0, ',', '.') }}</div>
+        
+        <div>
+            @if($type === 'package' && isset($item['has_promo']) && $item['has_promo'])
+                <span class="text-decoration-line-through text-muted me-2">${{ number_format($item['original_price'], 0, ',', '.') }}</span>
+                <span class="text-primary fw-bold">${{ number_format($item['price'], 0, ',', '.') }}</span>
+            @else
+                <span class="text-muted">${{ number_format($item['price'], 0, ',', '.') }}</span>
+            @endif
+        </div>
     </div>
 
     <!-- Input Numérico -->

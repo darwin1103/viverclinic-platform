@@ -68,6 +68,9 @@ class TreatmentController extends Controller
             ->select('id', 'name', 'price', 'big_zones', 'mini_zones', 'allow_installments', 'installment_conditions')
             ->get();
 
+        $promotions = $this->getActivePromotions($branch->id, $treatment->id);
+        $packages = $this->applyPromotions($packages, $promotions);
+
         $additionalZones = [
             [
                 'id' => 'mini',
@@ -143,8 +146,10 @@ class TreatmentController extends Controller
                 ->where('branch_id', $branch->id)
                 ->whereIn('id', $submittedPackageIds)
                 ->with(['installments' => fn($q) => $q->orderBy('installment_number')])
-                ->get()
-                ->keyBy('id');
+                ->get();
+
+            $promotions = $this->getActivePromotions($branch->id, $treatment->id);
+            $validPackages = $this->applyPromotions($validPackages, $promotions)->keyBy('id');
 
             if (count($submittedPackageIds) !== $validPackages->count()) {
                 throw ValidationException::withMessages(['package' => 'Paquete inválido.']);
@@ -342,4 +347,56 @@ class TreatmentController extends Controller
         return view('client.payment.wompi-checkout', compact('wompiData', 'amount', 'description'));
     }
 
+    /**
+     * Get active promotions for a branch and treatment.
+     */
+    private function getActivePromotions($branchId, $treatmentId)
+    {
+        return \App\Models\Promotion::where('branch_id', $branchId)
+            ->where('treatment_id', $treatmentId)
+            ->get()
+            ->filter(function ($promotion) {
+                return $promotion->is_currently_active;
+            });
+    }
+
+    /**
+     * Apply active promotions to package collection/models.
+     */
+    private function applyPromotions($packages, $promotions)
+    {
+        foreach ($packages as $package) {
+            $originalPrice = (float) $package->price;
+            $package->setAttribute('original_price', $originalPrice);
+            $package->setAttribute('has_promo', false);
+            $package->setAttribute('promo_price', $originalPrice);
+
+            $activePromo = $promotions->first(function ($promo) use ($package) {
+                return $promo->branch_treatment_id === $package->id;
+            });
+
+            if ($activePromo) {
+                $package->setAttribute('has_promo', true);
+                if ($activePromo->discount_type === 'percentage') {
+                    $discountAmount = ($originalPrice * (float)$activePromo->discount) / 100;
+                } else {
+                    $discountAmount = (float)$activePromo->discount;
+                }
+                $promoPrice = max(0.0, $originalPrice - $discountAmount);
+                $package->setAttribute('promo_price', $promoPrice);
+                $package->price = $promoPrice;
+
+                // Adjust installment prices proportionally if any
+                if ($package->installments && $package->installments->isNotEmpty() && $originalPrice > 0) {
+                    $ratio = $promoPrice / $originalPrice;
+                    foreach ($package->installments as $installment) {
+                        $originalInstPrice = (float) $installment->price;
+                        $installment->setAttribute('original_price', $originalInstPrice);
+                        $installment->price = round($originalInstPrice * $ratio, 2);
+                    }
+                }
+            }
+        }
+        return $packages;
+    }
 }

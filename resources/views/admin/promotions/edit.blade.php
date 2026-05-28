@@ -3,7 +3,7 @@
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="m-0 fw-semibold text-white">Crear Promoción</h4>
+        <h4 class="m-0 fw-semibold text-white">Editar Promoción</h4>
         <a href="{{ route('admin.promotions.index') }}" class="btn btn-secondary btn-sm">
             <i class="bi bi-arrow-left me-1"></i> Volver
         </a>
@@ -11,16 +11,17 @@
 
     <div class="card mt-3">
         <div class="card-header fw-semibold">
-            <span><i class="bi bi-plus-circle me-2"></i>Nueva Promoción</span>
+            <span><i class="bi bi-pencil me-2"></i>Modificar Promoción</span>
         </div>
         <div class="card-body">
-            <form action="{{ route('admin.promotions.store') }}" method="POST">
+            <form action="{{ route('admin.promotions.update', $promotion->id) }}" method="POST">
                 @csrf
+                @method('PUT')
                 <div class="row g-3">
                     <!-- Título -->
                     <div class="col-12 col-md-6">
                         <label class="form-label">Título <span class="text-danger">*</span></label>
-                        <input type="text" name="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title') }}" placeholder="Ej. Promoción de Verano" required>
+                        <input type="text" name="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title', $promotion->title) }}" placeholder="Ej. Promoción de Verano" required>
                         @error('title')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 
@@ -30,7 +31,7 @@
                         <select name="branch_id" id="branch_id" class="form-select @error('branch_id') is-invalid @enderror" required>
                             <option value="">Seleccione una sucursal</option>
                             @foreach($branches as $branch)
-                                <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
+                                <option value="{{ $branch->id }}" {{ old('branch_id', $promotion->branch_id) == $branch->id ? 'selected' : '' }}>
                                     {{ $branch->name }}
                                 </option>
                             @endforeach
@@ -44,7 +45,7 @@
                         <select name="treatment_id" id="treatment_id" class="form-select @error('treatment_id') is-invalid @enderror" required>
                             <option value="">Seleccione un tratamiento</option>
                             @foreach($treatments as $treatment)
-                                <option value="{{ $treatment->id }}" {{ old('treatment_id') == $treatment->id ? 'selected' : '' }}>
+                                <option value="{{ $treatment->id }}" {{ old('treatment_id', $promotion->treatment_id) == $treatment->id ? 'selected' : '' }}>
                                     {{ $treatment->name }}
                                 </option>
                             @endforeach
@@ -65,8 +66,8 @@
                     <div class="col-12 col-md-3">
                         <label class="form-label">Tipo de Descuento <span class="text-danger">*</span></label>
                         <select name="discount_type" id="discount_type" class="form-select @error('discount_type') is-invalid @enderror" required>
-                            <option value="percentage" {{ old('discount_type') == 'percentage' ? 'selected' : '' }}>Porcentaje (%)</option>
-                            <option value="fixed" {{ old('discount_type') == 'fixed' ? 'selected' : '' }}>Monto Fijo ($)</option>
+                            <option value="percentage" {{ old('discount_type', $promotion->discount_type) == 'percentage' ? 'selected' : '' }}>Porcentaje (%)</option>
+                            <option value="fixed" {{ old('discount_type', $promotion->discount_type) == 'fixed' ? 'selected' : '' }}>Monto Fijo ($)</option>
                         </select>
                         @error('discount_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
@@ -74,14 +75,14 @@
                     <!-- Monto Descuento -->
                     <div class="col-12 col-md-3">
                         <label class="form-label">Descuento <span class="text-danger">*</span></label>
-                        <input type="number" step="0.01" name="discount" class="form-control @error('discount') is-invalid @enderror" value="{{ old('discount') }}" placeholder="Ej. 15 o 50000" required>
+                        <input type="number" step="0.01" name="discount" class="form-control @error('discount') is-invalid @enderror" value="{{ old('discount', $promotion->discount) }}" placeholder="Ej. 15 o 50000" required>
                         @error('discount')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 
                     <!-- Descripción -->
                     <div class="col-12">
                         <label class="form-label">Descripción</label>
-                        <textarea name="description" class="form-control @error('description') is-invalid @enderror" rows="3" placeholder="Detalles de la promoción...">{{ old('description') }}</textarea>
+                        <textarea name="description" class="form-control @error('description') is-invalid @enderror" rows="3" placeholder="Detalles de la promoción...">{{ old('description', $promotion->description) }}</textarea>
                         @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 
@@ -89,8 +90,8 @@
                     <div class="col-12 col-md-4">
                         <label class="form-label">Modo de Activación <span class="text-danger">*</span></label>
                         <select name="activation_mode" id="activation_mode" class="form-select @error('activation_mode') is-invalid @enderror" required>
-                            <option value="manual" {{ old('activation_mode', 'manual') == 'manual' ? 'selected' : '' }}>Manual (Toggle Activo/Inactivo)</option>
-                            <option value="scheduled" {{ old('activation_mode') == 'scheduled' ? 'selected' : '' }}>Agendada (Por fechas)</option>
+                            <option value="manual" {{ old('activation_mode', $promotion->activation_mode) == 'manual' ? 'selected' : '' }}>Manual (Toggle Activo/Inactivo)</option>
+                            <option value="scheduled" {{ old('activation_mode', $promotion->activation_mode) == 'scheduled' ? 'selected' : '' }}>Agendada (Por fechas)</option>
                         </select>
                         @error('activation_mode')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
@@ -100,12 +101,12 @@
                         <div class="row">
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Fecha Inicio <span class="text-danger">*</span></label>
-                                <input type="date" name="start_date" id="start_date" class="form-control @error('start_date') is-invalid @enderror" value="{{ old('start_date') }}">
+                                <input type="date" name="start_date" id="start_date" class="form-control @error('start_date') is-invalid @enderror" value="{{ old('start_date', $promotion->start_date ? $promotion->start_date->format('Y-m-d') : '') }}">
                                 @error('start_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Fecha Fin <span class="text-danger">*</span></label>
-                                <input type="date" name="end_date" id="end_date" class="form-control @error('end_date') is-invalid @enderror" value="{{ old('end_date') }}">
+                                <input type="date" name="end_date" id="end_date" class="form-control @error('end_date') is-invalid @enderror" value="{{ old('end_date', $promotion->end_date ? $promotion->end_date->format('Y-m-d') : '') }}">
                                 @error('end_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                         </div>
@@ -113,7 +114,8 @@
                 </div>
 
                 <div class="mt-4 text-end">
-                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="submit" class="btn btn-primary">Actualizar</button>
+                    <a href="{{ route('admin.promotions.index') }}" class="btn btn-secondary">Cancelar</a>
                 </div>
             </form>
         </div>
@@ -196,15 +198,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initial triggers on load
     toggleDates();
-
-    // Set initial packages text if empty
-    if (!$branch.val() || !$treatment.val()) {
+    
+    // Load packages with promotion package pre-selected
+    const initialBranchId = "{{ old('branch_id', $promotion->branch_id) }}";
+    const initialTreatmentId = "{{ old('treatment_id', $promotion->treatment_id) }}";
+    const initialPackageId = "{{ old('branch_treatment_id', $promotion->branch_treatment_id) }}";
+    
+    if (initialBranchId && initialTreatmentId) {
+        loadPackages(initialBranchId, initialTreatmentId, initialPackageId);
+    } else {
         $package.html('<option value="">Seleccione sucursal y tratamiento</option>');
     }
-
-    @if(old('branch_id') && old('treatment_id'))
-        loadPackages("{{ old('branch_id') }}", "{{ old('treatment_id') }}", "{{ old('branch_treatment_id') }}");
-    @endif
 });
 </script>
 @endpush

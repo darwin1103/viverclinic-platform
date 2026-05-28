@@ -77,7 +77,7 @@
                         {{-- PAGINACIÓN --}}
                         @if ($clients->hasPages())
                             <div class="d-flex justify-content-center mt-4">
-                                {{ $clients->links('layouts.numbers-pagination') }}
+                                {{ $clients->links() }}
                             </div>
                         @endif
                     </div>

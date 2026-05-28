@@ -6,44 +6,27 @@
             <table class="table table-hover table-striped align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th class="text-white">Cliente</th>
-                        <th class="text-white">Tratamiento</th>
                         <th class="text-white">Paquete Contratado</th>
-                        <th class="text-white">Fecha de Contratación</th>
-                        <th class="text-end text-white">Total</th>
-                        <th class="text-white">Pago</th>
+                        <th class="text-white">Estado</th>
                         <th class="text-center text-white">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($contractedTreatments as $contract)
-                        <tr>
-                            <td>
-                                <div class="fw-bold">{{ $contract->user->name }}</div>
-                                <small class="text-muted">{{ $contract->user->email }}</small>
-                            </td>
-                            <td>{{ $contract->treatment->name ?? 'N/A' }}</td>
-                            <td>
-                                @php
-                                    // The 'contracted_packages' attribute is already cast to an array by the Eloquent model.
-                                    $packages = $contract->contracted_packages;
+                        @php
+                            // The 'contracted_packages' attribute is already cast to an array by the Eloquent model.
+                            $packages = $contract->contracted_packages;
 
-                                    // Check if $packages is a non-empty array before accessing its first element.
-                                    $firstPackageName = (is_array($packages) && !empty($packages))
-                                                        ? ($packages[0]['name'] ?? 'Nombre no encontrado')
-                                                        : 'No especificado';
-                                @endphp
-                                {{ $firstPackageName }}
-                            </td>
+                            // Check if $packages is a non-empty array before accessing its first element.
+                            $firstPackageName = (is_array($packages) && !empty($packages))
+                                                ? ($packages[0]['name'] ?? 'Nombre no encontrado')
+                                                : 'No especificado';
+                        @endphp
+                        <tr style="cursor: pointer;" onclick="window.location.href='{{ route('client.schedule-appointment.index', ['contracted_treatment' => $contract->id]) }}'">
                             <td>
-                                @php
-                                    \Carbon\Carbon::setLocale('es');
-                                    $formattedDate = \Carbon\Carbon::parse($contract->created_at)
-                                        ->isoFormat('dddd, D \d\e MMMM, YYYY');
-                                @endphp
-                                {{ $formattedDate }}
+                                <div class="fw-semibold">{{ $firstPackageName }}</div>
+                                <small class="text-muted">{{ $contract->treatment->name ?? 'N/A' }}</small>
                             </td>
-                            <td class="text-end fw-bold">${{ number_format($contract->total_price, 2) }}</td>
                             <td>
                                 {{-- Ejemplo de badges para el estado --}}
                                 @if($contract->status == 'Paid')
@@ -54,7 +37,7 @@
                                     <span class="badge bg-secondary">{{ $contract->status }}</span>
                                 @endif
                             </td>
-                            <td class="text-center">
+                            <td class="text-center" onclick="event.stopPropagation();">
                                 <a href="{{ route('client.schedule-appointment.index', ['contracted_treatment' => $contract->id]) }}" class="btn btn-sm btn-outline-success" title="Gestionar citas">
                                     <i class="bi bi-calendar-check"></i>
                                 </a>
@@ -65,7 +48,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center py-4">
+                            <td colspan="3" class="text-center py-4">
                                 No se encontraron tratamientos contratados.
                             </td>
                         </tr>
@@ -82,3 +65,4 @@
         @endif
     </div>
 </div>
+

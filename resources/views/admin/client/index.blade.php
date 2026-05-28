@@ -76,7 +76,7 @@
 
                         {{-- PAGINACIÓN --}}
                         @if ($clients->hasPages())
-                            <div class="d-flex justify-content-center mt-4">
+                            <div class="d-flex justify-content-center mt-4 pagination-container">
                                 {{ $clients->links() }}
                             </div>
                         @endif
@@ -88,6 +88,14 @@
 </div>
 
 @endsection
+
+@push('styles')
+    <style>
+        .pagination-container nav {
+            width: 100% !important;
+        }
+    </style>
+@endpush
 
 @push('scripts')
     <script src="{{ asset('js/admin/client/index/filter.js') }}"></script>

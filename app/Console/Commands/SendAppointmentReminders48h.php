@@ -52,7 +52,7 @@ class SendAppointmentReminders48h extends Command
             $notificationService->sendAppointmentReminder($appointment);
 
             // Marca la notificación como enviada
-            $appointment->notification_reminder_sent = true;
+            $appointment->notification_reminder_sent_48 = true;
             $appointment->save();
         }
 

@@ -12,6 +12,7 @@ use App\Traits\ValidatesAppointmentSlot;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\NotificationService;
 
 class AdminScheduleAppointmentController extends Controller
 {
@@ -94,12 +95,14 @@ class AdminScheduleAppointmentController extends Controller
             ->select(['id', 'user_id'])
             ->first();
 
-        Appointment::create([
+        $appointment = Appointment::create([
             'contracted_treatment_id' => $contractedTreatmentId,
             'schedule' => $schedule->toDateTimeString(),
             'session_number' => $validated['session_number'],
             'status' => $status,
         ]);
+
+        app(NotificationService::class)->sendAppointmentScheduled($appointment);
 
         return redirect()
             ->route('admin.schedule-appointment.index', ['contracted_treatment' => $contractedTreatmentId])
@@ -154,6 +157,8 @@ class AdminScheduleAppointmentController extends Controller
             'schedule' => $schedule->toDateTimeString(),
             'status' => $status,
         ]);
+
+        app(NotificationService::class)->sendAppointmentScheduled($appointment);
 
         return redirect()
             ->route('admin.schedule-appointment.index', ['contracted_treatment' => $contractedTreatmentId])
@@ -229,6 +234,8 @@ class AdminScheduleAppointmentController extends Controller
             'status' => 'Confirmada',
         ]);
 
+        app(NotificationService::class)->sendAppointmentConfirmed($appointment);
+
         return redirect()
             ->route('admin.schedule-appointment.index', ['contracted_treatment' => $contractedTreatmentId])
             ->with('success', 'Cita confirmada como asistida');
@@ -247,6 +254,8 @@ class AdminScheduleAppointmentController extends Controller
             ->first();
 
         // Check payment status ***
+
+        app(NotificationService::class)->sendAppointmentCancelled($appointment);
 
         $appointment->delete();
 

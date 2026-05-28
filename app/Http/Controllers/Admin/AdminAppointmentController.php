@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\Admin\UpdateAppointmentRequest;
+use App\Services\NotificationService;
 
 class AdminAppointmentController extends Controller
 {
@@ -48,12 +49,14 @@ class AdminAppointmentController extends Controller
         $previousAppointmentsCount = Appointment::where('contracted_treatment_id', $contractedTreatment->id)->count();
         $sessionNumber = $previousAppointmentsCount + 1;
 
-        Appointment::create([
+        $appointment = Appointment::create([
             'contracted_treatment_id' => $contractedTreatment->id,
             'schedule' => $schedule,
             'session_number' => $sessionNumber,
             'status' => 'Agendado',
         ]);
+
+        app(NotificationService::class)->sendAppointmentScheduled($appointment);
 
         return redirect()->route('admin.appointments.index')->with('success', 'Cita agendada exitosamente.');
     }
@@ -293,6 +296,8 @@ class AdminAppointmentController extends Controller
             'status' => 'Confirmada'
         ]);
 
+        app(NotificationService::class)->sendAppointmentConfirmed($appointment);
+
         return response()->json([
             'success' => true,
             'message' => 'Cita confirmada exitosamente'
@@ -320,6 +325,8 @@ class AdminAppointmentController extends Controller
             'status' => $status,
         ]);
 
+        app(NotificationService::class)->sendAppointmentScheduled($appointment);
+
         return response()->json([
             'success' => true,
             'message' => 'Cita reagendada exitosamente'
@@ -331,6 +338,8 @@ class AdminAppointmentController extends Controller
      */
     public function cancel(Appointment $appointment)
     {
+        app(NotificationService::class)->sendAppointmentCancelled($appointment);
+
         $appointment->delete();
 
         return response()->json([

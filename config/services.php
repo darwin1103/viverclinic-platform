@@ -43,4 +43,10 @@ return [
         'business_account_id' => env('WHATSAPP_BUSINESS_ACCOUNT_ID'),
     ],
 
+    'openwa' => [
+        'base_url' => env('OPENWA_BASE_URL', 'http://localhost:2785'),
+        'api_key' => env('OPENWA_API_KEY'),
+        'session_id' => env('OPENWA_SESSION_ID', 'default'),
+    ],
+
 ];

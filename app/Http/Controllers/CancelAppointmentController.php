@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\NotificationService;
 
 class CancelAppointmentController extends Controller
 {
@@ -81,6 +82,8 @@ class CancelAppointmentController extends Controller
         // Cancel logic: We delete the appointment or change status.
         // The business logic says "devuelva o libere esa sesión". As analyzed, deleting the appointment 
         // completely removes it from the 'attended'/'missed' count, thereby freeing the pending session count.
+        app(NotificationService::class)->sendAppointmentCancelled($appointment);
+
         $appointment->delete();
 
         return redirect()->route('dashboard')

@@ -190,6 +190,15 @@ class TreatmentController extends Controller
             if (!empty($validatedData['another_big_zone'])) $selectedZones['big'][] = $validatedData['another_big_zone'];
             if (!empty($validatedData['another_mini_zone'])) $selectedZones['mini'][] = $validatedData['another_mini_zone'];
 
+            // Determinar sesiones (sobrescribir si un paquete tiene custom_sessions activo)
+            $sessions = $treatment->sessions;
+            foreach ($validPackages as $pkg) {
+                if ($pkg->custom_sessions && !is_null($pkg->sessions)) {
+                    $sessions = $pkg->sessions;
+                    break;
+                }
+            }
+
             // Crear Contrato
             $contractedTreatment = ContractedTreatment::create([
                 'user_id' => $user->id,
@@ -200,7 +209,7 @@ class TreatmentController extends Controller
                 'selected_zones' => $selectedZones,
                 'total_price' => $totalContractPrice,
                 'status' => 'Pending',
-                'sessions' => $treatment->sessions,
+                'sessions' => $sessions,
                 'days_between_sessions' => $treatment->days_between_sessions,
                 'terms_acepted' => ($validatedData['termsConditions'] == 1),
                 'is_pregnant' => ($validatedData['notPregnant'] ?? 0) == 1,

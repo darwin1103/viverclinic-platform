@@ -584,10 +584,19 @@ class ContractedTreatmentController extends Controller
             
             $newTotalPrice = $contractedTreatment->total_price + $priceDifference;
             
+            $oldSessions = $contractedTreatment->sessions;
+            $newSessions = $oldSessions;
+            if ($newPackage->custom_sessions && !is_null($newPackage->sessions)) {
+                $newSessions = $newPackage->sessions;
+            } else {
+                $newSessions = $contractedTreatment->treatment->sessions;
+            }
+
             $contractedTreatment->update([
                 'contracted_packages' => $newPackagesArray,
                 'selected_zones' => $selectedZones,
                 'total_price' => $newTotalPrice,
+                'sessions' => $newSessions,
             ]);
 
             // Register accounting entry immediately if CASH
@@ -611,6 +620,10 @@ class ContractedTreatmentController extends Controller
                            "- Diferencia a pagar: $" . number_format($priceDifference, 2) . " (Método: " . ($request->payment_method === 'CASH' ? 'Efectivo' : 'Transferencia') . ")\n" .
                            "- Empleada comisionista: " . ($firstAppointment->staff->name ?? 'N/A') . " (Comisión: $" . number_format($commissionAmount, 2) . " - " . ($commissionType === 'percentage' ? "{$commissionValue}%" : "fijo") . ")";
             
+            if ($oldSessions != $newSessions) {
+                $noteContent .= "\n- Sesiones: de {$oldSessions} a {$newSessions}";
+            }
+
             $contractedTreatment->notes()->create([
                 'user_id' => auth()->id(),
                 'content' => $noteContent,

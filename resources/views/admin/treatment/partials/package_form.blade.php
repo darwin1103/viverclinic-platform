@@ -20,15 +20,34 @@
         <input type="number" name="branches[{{ $branch->id }}][packages][{{ $key }}][mini_zones]" class="form-control" step="1" min="0" value="{{ $package->mini_zones ?? '' }}" required>
     </div>
 
-    {{-- Sección de Cuotas --}}
+    {{-- Sección de Cuotas y Sesiones Personalizadas --}}
     <div class="col-12 mt-3">
-        <div class="form-check form-switch">
-            <input class="form-check-input toggle-installments" type="checkbox" role="switch"
-                   id="allow_installments_{{ $branch->id }}_{{ $key }}"
-                   name="branches[{{ $branch->id }}][packages][{{ $key }}][allow_installments]"
-                   value="1"
-                   {{ (isset($package->allow_installments) && $package->allow_installments) ? 'checked' : '' }}>
-            <label class="form-check-label" for="allow_installments_{{ $branch->id }}_{{ $key }}">Habilitar pago en cuotas</label>
+        <div class="d-flex flex-wrap gap-4 align-items-center mb-3">
+            <div class="form-check form-switch">
+                <input class="form-check-input toggle-installments" type="checkbox" role="switch"
+                       id="allow_installments_{{ $branch->id }}_{{ $key }}"
+                       name="branches[{{ $branch->id }}][packages][{{ $key }}][allow_installments]"
+                       value="1"
+                       {{ (isset($package->allow_installments) && $package->allow_installments) ? 'checked' : '' }}>
+                <label class="form-check-label" for="allow_installments_{{ $branch->id }}_{{ $key }}">Habilitar pago en cuotas</label>
+            </div>
+
+            <div class="form-check form-switch">
+                <input class="form-check-input toggle-custom-sessions" type="checkbox" role="switch"
+                       id="custom_sessions_{{ $branch->id }}_{{ $key }}"
+                       name="branches[{{ $branch->id }}][packages][{{ $key }}][custom_sessions]"
+                       value="1"
+                       {{ (isset($package->custom_sessions) && $package->custom_sessions) ? 'checked' : '' }}>
+                <label class="form-check-label" for="custom_sessions_{{ $branch->id }}_{{ $key }}">Personalizar número de sesiones</label>
+            </div>
+
+            <div class="custom-sessions-wrapper {{ (isset($package->custom_sessions) && $package->custom_sessions) ? '' : 'd-none' }}">
+                <div class="d-flex align-items-center">
+                    <label class="me-2 mb-0 fw-semibold">Nº de Sesiones:</label>
+                    <input type="number" name="branches[{{ $branch->id }}][packages][{{ $key }}][sessions]" class="form-control form-control-sm package-sessions-input"
+                           value="{{ $package->sessions ?? '' }}" style="width: 80px;" min="1" {{ (isset($package->custom_sessions) && $package->custom_sessions) ? 'required' : '' }}>
+                </div>
+            </div>
         </div>
 
         <div class="installments-wrapper mt-3 ps-3 border-start border-3 border-info {{ (isset($package->allow_installments) && $package->allow_installments) ? '' : 'd-none' }}">

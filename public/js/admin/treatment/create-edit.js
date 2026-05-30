@@ -42,14 +42,27 @@ document.addEventListener('DOMContentLoaded', function() {
             const container = document.getElementById(`installments-container-${branchId}-${packageKey}`);
 
             // Validación: No exceder sesiones
-            const maxSessions = parseInt(sessionsInput.value) || 0;
-            const currentInstallments = container.querySelectorAll('.installment-row').length;
-
-            if (maxSessions === 0) {
+            const row = btn.closest('.package-form-row');
+            const customSessionsToggle = row.querySelector('.toggle-custom-sessions');
+            const packageSessionsInput = row.querySelector('.package-sessions-input');
+            
+            let maxSessions = parseInt(sessionsInput.value) || 0;
+            if (customSessionsToggle && customSessionsToggle.checked) {
+                const customVal = parseInt(packageSessionsInput.value) || 0;
+                if (customVal > 0) {
+                    maxSessions = customVal;
+                } else {
+                    alert('Por favor ingrese primero la cantidad de sesiones personalizadas del paquete.');
+                    packageSessionsInput.focus();
+                    return;
+                }
+            } else if (maxSessions === 0) {
                 alert('Por favor ingrese primero la cantidad de sesiones del tratamiento.');
                 sessionsInput.focus();
                 return;
             }
+
+            const currentInstallments = container.querySelectorAll('.installment-row').length;
 
             if (currentInstallments >= maxSessions) {
                 alert(`No puedes agregar más de ${maxSessions} cuotas (límite de sesiones).`);
@@ -89,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // --- Manejo del Switch de Cuotas (Change event) ---
+    // --- Manejo de Switches (Change event) ---
     document.body.addEventListener('change', function(event) {
         if (event.target.classList.contains('toggle-installments')) {
             const wrapper = event.target.closest('.package-form-row').querySelector('.installments-wrapper');
@@ -97,7 +110,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 wrapper.classList.remove('d-none');
             } else {
                 wrapper.classList.add('d-none');
-                // Opcional: Limpiar inputs al ocultar? Mejor no, por si fue error de clic.
+            }
+        }
+
+        if (event.target.classList.contains('toggle-custom-sessions')) {
+            const row = event.target.closest('.package-form-row');
+            const wrapper = row.querySelector('.custom-sessions-wrapper');
+            const input = row.querySelector('.package-sessions-input');
+            if (event.target.checked) {
+                wrapper.classList.remove('d-none');
+                input.setAttribute('required', 'required');
+            } else {
+                wrapper.classList.add('d-none');
+                input.removeAttribute('required');
+                input.value = '';
             }
         }
     });
@@ -137,11 +163,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
 
                 <div class="col-12 mt-3">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input toggle-installments" type="checkbox" role="switch"
-                            id="allow_installments_${branchId}_${index}"
-                            name="branches[${branchId}][packages][${index}][allow_installments]" value="1">
-                        <label class="form-check-label" for="allow_installments_${branchId}_${index}">Habilitar pago en cuotas</label>
+                    <div class="d-flex flex-wrap gap-4 align-items-center mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input toggle-installments" type="checkbox" role="switch"
+                                id="allow_installments_${branchId}_${index}"
+                                name="branches[${branchId}][packages][${index}][allow_installments]" value="1">
+                            <label class="form-check-label" for="allow_installments_${branchId}_${index}">Habilitar pago en cuotas</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input toggle-custom-sessions" type="checkbox" role="switch"
+                                id="custom_sessions_${branchId}_${index}"
+                                name="branches[${branchId}][packages][${index}][custom_sessions]" value="1">
+                            <label class="form-check-label" for="custom_sessions_${branchId}_${index}">Personalizar número de sesiones</label>
+                        </div>
+                        <div class="custom-sessions-wrapper d-none">
+                            <div class="d-flex align-items-center">
+                                <label class="me-2 mb-0 fw-semibold">Nº de Sesiones:</label>
+                                <input type="number" name="branches[${branchId}][packages][${index}][sessions]" class="form-control form-control-sm package-sessions-input"
+                                    value="" style="width: 80px;" min="1">
+                            </div>
+                        </div>
                     </div>
                     <div class="installments-wrapper mt-3 ps-3 border-start border-3 border-info d-none">
                         <h6>Configuración de Cuotas</h6>

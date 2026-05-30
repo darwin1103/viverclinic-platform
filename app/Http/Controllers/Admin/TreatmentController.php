@@ -122,6 +122,10 @@ class TreatmentController extends Controller
             'branches.*.packages.*.mini_zones.required' => 'Las mini zonas son obligatorias.',
             'branches.*.packages.*.mini_zones.integer'  => 'Las mini zonas deben ser un número entero.',
             'branches.*.packages.*.mini_zones.min'      => 'El número de mini zonas no puede ser menor a :min.',
+
+            'branches.*.packages.*.sessions.required_if' => 'El número de sesiones del paquete es obligatorio si se activa la personalización.',
+            'branches.*.packages.*.sessions.integer' => 'El número de sesiones del paquete debe ser un número entero.',
+            'branches.*.packages.*.sessions.min' => 'El número de sesiones del paquete mínimo es :min.',
         ];
 
         $attributes = [
@@ -142,6 +146,8 @@ class TreatmentController extends Controller
             'branches.*.packages.*.price'  => 'Precio del Paquete',
             'branches.*.packages.*.big_zones'  => 'Zonas Grandes',
             'branches.*.packages.*.mini_zones' => 'Mini Zonas',
+            'branches.*.packages.*.custom_sessions' => 'Personalizar Sesiones del Paquete',
+            'branches.*.packages.*.sessions' => 'Sesiones del Paquete',
         ];
 
         $validated = $request->validate([
@@ -160,8 +166,24 @@ class TreatmentController extends Controller
                 'array',
                 // Validación personalizada: count(installments) <= sessions
                 function ($attribute, $value, $fail) use ($request) {
-                    if (count($value) > $request->input('sessions')) {
-                        $fail('El número de cuotas no puede ser mayor que la cantidad de sesiones (' . $request->input('sessions') . ').');
+                    preg_match('/branches\.(\d+)\.packages\.([^\.]+)\.installments/', $attribute, $matches);
+                    if (count($matches) === 3) {
+                        $branchId = $matches[1];
+                        $pkgIndex = $matches[2];
+                        
+                        $packageInput = $request->input("branches.{$branchId}.packages.{$pkgIndex}");
+                        $hasCustomSessions = isset($packageInput['custom_sessions']) && $packageInput['custom_sessions'] == '1';
+                        $maxSessions = $hasCustomSessions && isset($packageInput['sessions']) 
+                            ? (int)$packageInput['sessions'] 
+                            : (int)$request->input('sessions');
+                            
+                        if (count($value) > $maxSessions) {
+                            $fail('El número de cuotas no puede ser mayor que la cantidad de sesiones (' . $maxSessions . ').');
+                        }
+                    } else {
+                        if (count($value) > $request->input('sessions')) {
+                            $fail('El número de cuotas no puede ser mayor que la cantidad de sesiones (' . $request->input('sessions') . ').');
+                        }
                     }
                 },
             ],
@@ -170,6 +192,8 @@ class TreatmentController extends Controller
             'branches.*.packages.*.price' => 'required|numeric|min:0',
             'branches.*.packages.*.big_zones' => 'required|integer|min:0',
             'branches.*.packages.*.mini_zones' => 'required|integer|min:0',
+            'branches.*.packages.*.custom_sessions' => 'nullable|boolean',
+            'branches.*.packages.*.sessions' => 'required_if:branches.*.packages.*.custom_sessions,1|nullable|integer|min:1',
             'branches.*.packages.*.installment_conditions' => 'nullable|string|max:500',
             'terms_conditions' => 'nullable|string',
         ], $messages, $attributes);
@@ -199,6 +223,7 @@ class TreatmentController extends Controller
                     foreach ($branchData['packages'] as $packageData) {
 
                         $allowInstallments = isset($packageData['allow_installments']) && $packageData['allow_installments'] == '1';
+                        $customSessions = isset($packageData['custom_sessions']) && $packageData['custom_sessions'] == '1';
 
                         $package = $treatment->packages()->create([
                             'branch_id' => $branchId,
@@ -208,6 +233,8 @@ class TreatmentController extends Controller
                             'mini_zones' => $packageData['mini_zones'],
                             'allow_installments' => $allowInstallments,
                             'installment_conditions' => !empty($packageData['installment_conditions']) ? $packageData['installment_conditions'] : 'Cancela el 50% del tratamiento para comenzar y el otro 50% en la tercera sesión',
+                            'custom_sessions' => $customSessions,
+                            'sessions' => $customSessions ? $packageData['sessions'] : null,
                         ]);
 
                         // Guardar Cuotas si aplica
@@ -296,6 +323,10 @@ class TreatmentController extends Controller
             'branches.*.packages.*.mini_zones.required' => 'Las mini zonas son obligatorias.',
             'branches.*.packages.*.mini_zones.integer'  => 'Las mini zonas deben ser un número entero.',
             'branches.*.packages.*.mini_zones.min'      => 'El número de mini zonas no puede ser menor a :min.',
+
+            'branches.*.packages.*.sessions.required_if' => 'El número de sesiones del paquete es obligatorio si se activa la personalización.',
+            'branches.*.packages.*.sessions.integer' => 'El número de sesiones del paquete debe ser un número entero.',
+            'branches.*.packages.*.sessions.min' => 'El número de sesiones del paquete mínimo es :min.',
         ];
 
         $attributes = [
@@ -316,6 +347,8 @@ class TreatmentController extends Controller
             'branches.*.packages.*.price'  => 'Precio del Paquete',
             'branches.*.packages.*.big_zones'  => 'Zonas Grandes',
             'branches.*.packages.*.mini_zones' => 'Mini Zonas',
+            'branches.*.packages.*.custom_sessions' => 'Personalizar Sesiones del Paquete',
+            'branches.*.packages.*.sessions' => 'Sesiones del Paquete',
         ];
 
         $validated = $request->validate([
@@ -336,14 +369,32 @@ class TreatmentController extends Controller
             'branches.*.packages.*.price' => 'required|numeric|min:0',
             'branches.*.packages.*.big_zones' => 'required|integer|min:0',
             'branches.*.packages.*.mini_zones' => 'required|integer|min:0',
+            'branches.*.packages.*.custom_sessions' => 'nullable|boolean',
+            'branches.*.packages.*.sessions' => 'required_if:branches.*.packages.*.custom_sessions,1|nullable|integer|min:1',
             'branches.*.packages.*.allow_installments' => 'nullable|boolean',
             'branches.*.packages.*.installment_conditions' => 'nullable|string|max:500',
             'branches.*.packages.*.installments' => [
                 'nullable',
                 'array',
                 function ($attribute, $value, $fail) use ($request) {
-                    if (count($value) > $request->input('sessions')) {
-                        $fail('El número de cuotas no puede ser mayor que la cantidad de sesiones.');
+                    preg_match('/branches\.(\d+)\.packages\.([^\.]+)\.installments/', $attribute, $matches);
+                    if (count($matches) === 3) {
+                        $branchId = $matches[1];
+                        $pkgIndex = $matches[2];
+                        
+                        $packageInput = $request->input("branches.{$branchId}.packages.{$pkgIndex}");
+                        $hasCustomSessions = isset($packageInput['custom_sessions']) && $packageInput['custom_sessions'] == '1';
+                        $maxSessions = $hasCustomSessions && isset($packageInput['sessions']) 
+                            ? (int)$packageInput['sessions'] 
+                            : (int)$request->input('sessions');
+                            
+                        if (count($value) > $maxSessions) {
+                            $fail('El número de cuotas no puede ser mayor que la cantidad de sesiones (' . $maxSessions . ').');
+                        }
+                    } else {
+                        if (count($value) > $request->input('sessions')) {
+                            $fail('El número de cuotas no puede ser mayor que la cantidad de sesiones (' . $request->input('sessions') . ').');
+                        }
                     }
                 },
             ],
@@ -381,6 +432,7 @@ class TreatmentController extends Controller
                     foreach ($branchData['packages'] as $packageData) {
 
                         $allowInstallments = isset($packageData['allow_installments']) && $packageData['allow_installments'] == '1';
+                        $customSessions = isset($packageData['custom_sessions']) && $packageData['custom_sessions'] == '1';
 
                         $package = $treatment->packages()->create([
                             'branch_id' => $branchId,
@@ -390,6 +442,8 @@ class TreatmentController extends Controller
                             'mini_zones' => $packageData['mini_zones'],
                             'allow_installments' => $allowInstallments,
                             'installment_conditions' => !empty($packageData['installment_conditions']) ? $packageData['installment_conditions'] : 'Cancela el 50% del tratamiento para comenzar y el otro 50% en la tercera sesión',
+                            'custom_sessions' => $customSessions,
+                            'sessions' => $customSessions ? $packageData['sessions'] : null,
                         ]);
 
                         if ($allowInstallments && isset($packageData['installments'])) {

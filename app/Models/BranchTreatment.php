@@ -21,6 +21,14 @@ class BranchTreatment extends Model
         'mini_zones',
         'allow_installments',
         'installment_conditions',
+        'custom_sessions',
+        'sessions',
+    ];
+
+    protected $casts = [
+        'allow_installments' => 'boolean',
+        'custom_sessions' => 'boolean',
+        'sessions' => 'integer',
     ];
 
     // Relación opcional para acceder al tratamiento desde un paquete

@@ -143,10 +143,10 @@
                         <small class="text-muted d-block mb-3">Se generará una cuota por cada sesión restante. Todas se crearán en estado PENDIENTE. Si una cuota tiene valor mayor a $0, se le pedirá al paciente pagarla antes de agendar la cita correspondiente.</small>
                         <div class="table-responsive">
                             <table class="table table-bordered align-middle">
-                                <thead class="table-light">
+                                <thead class="bg-transparent">
                                     <tr>
-                                        <th class="text-dark" style="width: 25%;">Sesión / Cuota</th>
-                                        <th class="text-dark">Precio/Monto de la Cuota (COP)</th>
+                                        <th class="text-white" style="width: 25%;">Sesión / Cuota</th>
+                                        <th class="text-white">Precio/Monto de la Cuota (COP)</th>
                                     </tr>
                                 </thead>
                                 <tbody id="installments_table_body">
@@ -283,7 +283,8 @@
                 <td>
                     <input type="number" 
                            name="installments[${i}][price]" 
-                           class="form-control installment-price-input bg-dark text-white border-secondary" 
+                           class="form-control installment-price-input text-white" 
+                           style="background-color: #0d2a30; border: 1px solid #18464f;"
                            data-number="${i}" 
                            min="0" 
                            value="${value}" 

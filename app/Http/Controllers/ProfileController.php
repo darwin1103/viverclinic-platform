@@ -56,7 +56,7 @@ class ProfileController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, User $profile)
     {
         $request->validate([
             'name' => 'required|string',
@@ -64,18 +64,18 @@ class ProfileController extends Controller
             'genderSelect' => 'required|not_in:-1'
         ]);
         try {
-            if (!$user) {
+            if (!$profile) {
                 return redirect()->back()->with('info', 'Operation failed, try again');
             }
-            $user->name = $request->input('name');
+            $profile->name = $request->input('name');
             if (isset($request->birthday) && !empty($request->birthday)) {
-                $user->birthday = $request->birthday;
+                $profile->birthday = $request->birthday;
             }
             if(isset($request->genderSelect) && !empty($request->genderSelect) && $request->genderSelect != '-1') {
                 $gender = Gender::where('code',$request->genderSelect)->first();
-                $user->gender_id = $gender->id;
+                $profile->gender_id = $gender->id;
             }
-            $user->save();
+            $profile->save();
             return redirect()->back()->with('success', 'Successful operation');
         } catch (Exception $e) {
             logger($e);
@@ -86,20 +86,20 @@ class ProfileController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
+    public function destroy(User $profile)
     {
 
         try {
-            if (!$user) {
+            if (!$profile) {
                 return redirect()->back()->with('info', 'Operation failed, try again');
             }
-            if ($user->hasRole('SUPER_ADMIN')) {
+            if ($profile->hasRole('SUPER_ADMIN')) {
                 return redirect()->back()->with('info', 'Administrator users cannot be deleted from the interface');
             } else {
-                if ($user->photo_profile) {
-                    Storage::disk('public')->delete($user->photo_profile);
+                if ($profile->photo_profile) {
+                    Storage::disk('public')->delete($profile->photo_profile);
                 }
-                $user->delete();
+                $profile->delete();
                 Auth::logout();
                 return redirect('/login')->with('success', 'Account deleted successfully');
             }

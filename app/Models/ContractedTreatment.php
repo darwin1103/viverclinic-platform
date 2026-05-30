@@ -26,6 +26,7 @@ class ContractedTreatment extends Model
         'days_between_sessions',
         'terms_acepted',
         'is_pregnant',
+        'legacy_paid_amount',
     ];
 
     /**
@@ -106,9 +107,11 @@ class ContractedTreatment extends Model
     // Helper para calcular el total pagado en órdenes aprobadas
     public function totalPaid(): float
     {
-        return (float) $this->orders()
+        $ordersTotal = (float) $this->orders()
             ->whereIn('status', ['Pagado', 'Paid', 'Pago completado', 'Aprobado'])
             ->sum('total');
+            
+        return $ordersTotal + (float) ($this->legacy_paid_amount ?? 0);
     }
 
     // Helper para obtener el saldo restante

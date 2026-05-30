@@ -24,9 +24,10 @@ class TreatmentPaymentController extends Controller
     {
         $request->validate([
             'contracted_treatment_id' => 'required|exists:contracted_treatments,id',
-            'payment_type' => 'required|in:full,installment', // Qué paga (Cuota vs Total)
+            'payment_type' => 'required|in:full,installment,abono', // Qué paga (Cuota vs Total vs Abono)
             'payment_method' => 'required|in:CASH,TRANSFER,WOMPI', // Cómo paga
             'payment_receipt' => 'nullable|required_if:payment_method,TRANSFER|image|max:4096',
+            'abono_amount' => 'nullable|required_if:payment_type,abono|integer',
         ]);
 
         $user = Auth::user();
@@ -54,6 +55,21 @@ class TreatmentPaymentController extends Controller
                 $description = "Pago Cuota #{$installment->installment_number} - {$contractedTreatment->treatment->name}";
                 $targetInstallments[] = $installment;
 
+            } elseif ($request->payment_type === 'abono') {
+                $minAbono = (int) Setting::get('minimum_abono_amount', '50000');
+                if (!$request->filled('abono_amount')) {
+                    return back()->with('error', 'El monto del abono es obligatorio.');
+                }
+                $abonoAmount = (int) $request->abono_amount;
+                if ($abonoAmount < $minAbono) {
+                    return back()->with('error', 'El monto mínimo de abono es $' . number_format($minAbono, 0, ',', '.'));
+                }
+                $remainingBalance = $contractedTreatment->remainingBalance();
+                if ($abonoAmount > $remainingBalance) {
+                    return back()->with('error', 'El abono no puede exceder el saldo restante ($' . number_format($remainingBalance, 0, ',', '.') . ')');
+                }
+                $amount = $abonoAmount;
+                $description = "Abono - {$contractedTreatment->treatment->name}";
             } else {
                 // Pago Total Restante
                 if ($contractedTreatment->hasInstallments()) {
@@ -61,7 +77,7 @@ class TreatmentPaymentController extends Controller
                     $amount = $pending->sum('price');
                     $targetInstallments = $pending;
                 } else {
-                    $amount = $contractedTreatment->total_price;
+                    $amount = $contractedTreatment->remainingBalance();
                 }
                 $description = "Pago Total Restante - {$contractedTreatment->treatment->name}";
             }
@@ -233,8 +249,7 @@ class TreatmentPaymentController extends Controller
                 }
 
                 // Verificar si se completó todo el contrato
-                $pendingCount = $contractedTreatment->installments()->where('status', 'PENDING')->count();
-                if ($pendingCount === 0) {
+                if ($contractedTreatment->isFullyPaid()) {
                     $contractedTreatment->update(['status' => 'Paid']);
                 }
 

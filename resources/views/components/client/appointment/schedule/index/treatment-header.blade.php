@@ -13,6 +13,8 @@
     'paymentVerificationPending',
     'lastOrderRejected',
     'lastOrderMessage',
+    'paymentType' => 'installment',
+    'minimumAbonoAmount' => 50000,
 ])
 
 @php
@@ -34,8 +36,8 @@
                 <i class="bi bi-check-circle-fill me-1"></i> Pagos al día
             </span>
         @else
-            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill">
-                <i class="bi bi-exclamation-circle-fill me-1"></i> Pago pendiente
+            <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill">
+                <i class="bi bi-info-circle-fill me-1"></i>{{ $paymentType === 'abono' ? 'Abono incompleto' : 'Pago pendiente' }}
             </span>
         @endif
     </div>
@@ -131,8 +133,12 @@
                             <h6 class="text-muted text-uppercase small fw-bold mb-3">1. ¿Qué deseas pagar?</h6>
 
                             <div class="d-grid gap-3">
-                                {{-- Opción Cuota (Si aplica) --}}
-                                @if($canPayInstallment && !(isset($isLastInstallment) && $isLastInstallment))
+                                @php
+                                    $hasInstallments = ($paymentType === 'installment');
+                                @endphp
+
+                                {{-- 1. Opción Cuota (Si aplica) --}}
+                                @if($hasInstallments && $canPayInstallment && !(isset($isLastInstallment) && $isLastInstallment))
                                     <label class="card p-3 payment-option-card cursor-pointer border-primary shadow-sm">
                                         <div class="d-flex align-items-center">
                                             <input type="radio" name="payment_type" value="installment" class="form-check-input me-3" checked onchange="updatePaymentUI('installment', {{ $nextPaymentAmount }})">
@@ -145,12 +151,30 @@
                                     </label>
                                 @endif
 
-                                {{-- Opción Total --}}
-                                <label class="card p-3 payment-option-card cursor-pointer {{ (!$canPayInstallment || (isset($isLastInstallment) && $isLastInstallment)) ? 'border-primary shadow-sm' : '' }}">
+                                {{-- 2. Opción Abono (Siempre disponible) --}}
+                                <label class="card p-3 payment-option-card cursor-pointer {{ (!$hasInstallments || !$canPayInstallment || (isset($isLastInstallment) && $isLastInstallment)) ? 'border-primary shadow-sm' : '' }}">
+                                    <div class="d-flex flex-column gap-2">
+                                        <div class="d-flex align-items-center">
+                                            <input type="radio" name="payment_type" value="abono" id="pt_abono_radio" class="form-check-input me-3" {{ (!$hasInstallments || !$canPayInstallment || (isset($isLastInstallment) && $isLastInstallment)) ? 'checked' : '' }} onchange="updatePaymentUI('abono', document.getElementById('abono_amount').value)">
+                                            <div class="flex-grow-1">
+                                                <div class="fw-bold text-info">Realizar Abono</div>
+                                                <small class="text-muted">Ingresa un monto personalizado</small>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2" id="abono-amount-input-container" style="display: {{ (!$hasInstallments || !$canPayInstallment || (isset($isLastInstallment) && $isLastInstallment)) ? 'block' : 'none' }}">
+                                            @php
+                                                $defaultVal = min($minimumAbonoAmount, $totalRemainingAmount);
+                                            @endphp
+                                            <input type="number" class="form-control text-white bg-dark border-secondary" name="abono_amount" id="abono_amount" placeholder="Monto" min="{{ $defaultVal }}" max="{{ $totalRemainingAmount }}" value="{{ $defaultVal }}" required onchange="updatePaymentUI('abono', this.value)" oninput="updatePaymentUI('abono', this.value)">
+                                            <span class="text-muted small">Mínimo: ${{ number_format($defaultVal, 0, ',', '.') }} | Máximo: ${{ number_format($totalRemainingAmount, 0, ',', '.') }}</span>
+                                        </div>
+                                    </div>
+                                </label>
+
+                                {{-- 3. Opción Total --}}
+                                <label class="card p-3 payment-option-card cursor-pointer {{ ((!$hasInstallments || !$canPayInstallment || (isset($isLastInstallment) && $isLastInstallment)) && false) ? 'border-primary shadow-sm' : '' }}">
                                     <div class="d-flex align-items-center">
-                                        <input type="radio" name="payment_type" value="full" class="form-check-input me-3"
-                                            {{ (!$canPayInstallment || (isset($isLastInstallment) && $isLastInstallment)) ? 'checked' : '' }}
-                                            onchange="updatePaymentUI('full', {{ $totalRemainingAmount }})">
+                                        <input type="radio" name="payment_type" value="full" class="form-check-input me-3" onchange="updatePaymentUI('full', {{ $totalRemainingAmount }})">
                                         <div class="flex-grow-1">
                                             <div class="fw-bold text-success">{{ isset($isLastInstallment) && $isLastInstallment ? 'Cuota Final' : 'Totalidad Restante' }}</div>
                                             <small class="text-muted">Paga todo y olvídate de cuotas</small>
@@ -228,7 +252,7 @@
 
                                 {{-- Info Transferencia --}}
                                 <div id="info-transfer" class="method-info d-none">
-                                    <div class="card bg-warning-subtle border-0 mb-3">
+                                    <div class="card bg-info-subtle border-0 mb-3 text-info-emphasis">
                                         <div class="card-body">
                                             <h6 class="fw-bold"><i class="bi bi-info-circle me-1"></i> Datos Bancarios</h6>
                                             <ul class="mb-0 small list-unstyled">
@@ -283,6 +307,12 @@
         document.getElementById('ui-subtotal').innerText = formatted;
         document.getElementById('ui-total').innerText = formatted;
 
+        // Toggle abono input container visibility
+        const abonoContainer = document.getElementById('abono-amount-input-container');
+        if (abonoContainer) {
+            abonoContainer.style.display = (type === 'abono') ? 'block' : 'none';
+        }
+
         // Estilos de selección (borde azul)
         document.querySelectorAll('.payment-option-card').forEach(card => {
             const radio = card.querySelector('input[type="radio"]');
@@ -307,10 +337,20 @@
 
     // Inicializar
     document.addEventListener('DOMContentLoaded', () => {
-        // Seleccionar opción por defecto
-        const defaultType = (isLastInstallment || !{{ $canPayInstallment ? 'true' : 'false' }}) ? 'full' : 'installment';
-        const defaultAmount = defaultType === 'installment' ? amountInstallment : amountFull;
-        updatePaymentUI(defaultType, defaultAmount);
+        const activeRadio = document.querySelector('input[name="payment_type"]:checked');
+        if (activeRadio) {
+            const type = activeRadio.value;
+            let amount = 0;
+            if (type === 'abono') {
+                const abonoInput = document.getElementById('abono_amount');
+                amount = abonoInput ? abonoInput.value : 0;
+            } else if (type === 'installment') {
+                amount = amountInstallment;
+            } else {
+                amount = amountFull;
+            }
+            updatePaymentUI(type, amount);
+        }
         toggleMethodDetails();
     });
 </script>

@@ -24,7 +24,14 @@
                         @endphp
                         <tr style="cursor: pointer;" onclick="window.location.href='{{ route('client.schedule-appointment.index', ['contracted_treatment' => $contract->id]) }}'">
                             <td>
-                                <div class="fw-semibold">{{ $firstPackageName }}</div>
+                                <div class="d-flex align-items-center flex-wrap gap-2">
+                                    <span class="fw-semibold">{{ $firstPackageName }}</span>
+                                    @if(!$contract->isPaymentUpToDate())
+                                        <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill" style="font-size: 0.75rem;">
+                                            <i class="bi bi-info-circle-fill me-1"></i>{{ $contract->payment_type === 'abono' ? 'Abono incompleto' : 'Pago pendiente' }}
+                                        </span>
+                                    @endif
+                                </div>
                                 <small class="text-muted">{{ $contract->treatment->name ?? 'N/A' }}</small>
                             </td>
                             <td>
@@ -32,7 +39,7 @@
                                 @if($contract->status == 'Paid')
                                     <span class="badge bg-success">Pagado</span>
                                 @elseif($contract->status == 'Pending')
-                                    <span class="badge bg-warning text-dark">Pendiente</span>
+                                    <span class="badge bg-info text-dark">Pendiente</span>
                                 @else
                                     <span class="badge bg-secondary">{{ $contract->status }}</span>
                                 @endif

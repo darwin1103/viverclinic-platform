@@ -5,6 +5,29 @@
             <h1 class="fw-bold m-0" style="color: #fffffd;">¡{{ __('Hello') }}, {{ Auth::user()->name }}!</h1>
         </div>
 
+        @if(isset($hasBlockedScheduling) && $hasBlockedScheduling)
+            <div class="row justify-content-center my-3 px-2">
+                <div class="col-12">
+                    <div class="alert alert-info border-info d-flex align-items-center gap-3 p-3 shadow-sm mb-2" style="border-radius: 12px; background-color: rgba(13, 110, 253, 0.1);">
+                        <i class="bi bi-info-circle-fill fs-3 text-info"></i>
+                        <div>
+                            <h5 class="alert-heading fw-bold mb-1 text-info">Pago pendiente / Abono incompleto</h5>
+                            <p class="mb-0 text-white-50 small">
+                                Tienes tratamientos con saldos pendientes. Recuerda completar tus abonos o cuotas para poder iniciar tu tratamiento y agendar tus citas.
+                            </p>
+                            <div class="mt-2 d-flex flex-wrap gap-1">
+                                @foreach($blockedTreatments as $bt)
+                                    <span class="badge bg-info text-dark">
+                                        {{ $bt->treatment->name ?? 'Tratamiento' }} (Saldo: ${{ number_format($bt->remainingBalance(), 0, ',', '.') }})
+                                    </span>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Mobile only: Next Appointment and Treatment Progress -->
         <div class="row d-lg-none my-2 px-2">
             <!-- Next Appointment Card -->
@@ -183,8 +206,8 @@
                             @if($pendingBalance > 0)
                             <div class="row">
                                 <div class="col text-start">
-                                    <p class="fw-bold m-0 text-warning">Saldo por pagar</p>
-                                    <p class="fs-1 fw-bold m-0 text-uppercase text-warning">${{ number_format($pendingBalance, 0, ',', '.') }}</p>
+                                    <p class="fw-bold m-0 text-info">Saldo por pagar</p>
+                                    <p class="fs-1 fw-bold m-0 text-uppercase text-info">${{ number_format($pendingBalance, 0, ',', '.') }}</p>
                                 </div>
                             </div><hr>
                             @endif

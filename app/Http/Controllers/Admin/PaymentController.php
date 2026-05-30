@@ -159,19 +159,31 @@ class PaymentController extends Controller
             ->where('user_id', $user->id)
             ->whereIn('status', ['Activo', 'Pending', 'In Progress', 'Paid'])
             ->get()
-            ->map(fn($ct) => [
-                'id' => $ct->id,
-                'name' => ($ct->treatment->name ?? 'Tratamiento') . ' (' . $ct->status . ')',
-                'installments' => $ct->installments()
-                    ->where('status', 'PENDING')
-                    ->get()
-                    ->map(fn($i) => [
-                        'id' => $i->id,
-                        'number' => $i->installment_number,
-                        'price' => $i->price,
-                        'label' => "Cuota #{$i->installment_number} ($" . number_format($i->price, 0, ',', '.') . ")"
-                    ])
-            ]);
+            ->map(function ($ct) {
+                // Obtener nombres de los paquetes contratados
+                $packageNames = collect($ct->contracted_packages)->pluck('name')->implode(', ');
+                $name = $packageNames ?: ($ct->treatment->name ?? 'Tratamiento');
+
+                return [
+                    'id' => $ct->id,
+                    'name' => $name,
+                    'created_at' => $ct->created_at ? $ct->created_at->format('Y-m-d') : null,
+                    'created_at_formatted' => $ct->created_at ? $ct->created_at->format('d/m/Y') : null,
+                    'status' => $ct->status,
+                    'payment_type' => $ct->payment_type ?? 'installment',
+                    'remaining_balance' => $ct->remainingBalance(),
+                    'total_price' => $ct->total_price,
+                    'installments' => $ct->installments()
+                        ->where('status', 'PENDING')
+                        ->get()
+                        ->map(fn($i) => [
+                            'id' => $i->id,
+                            'number' => $i->installment_number,
+                            'price' => $i->price,
+                            'label' => "Cuota #{$i->installment_number} ($" . number_format($i->price, 0, ',', '.') . ")"
+                        ])
+                ];
+            });
 
         return response()->json($treatments);
     }
@@ -195,6 +207,14 @@ class PaymentController extends Controller
             $validated['status'] = 'Pago completado';
             $validated['payment_status'] = 'APPROVED';
             $contractedTreatment = ContractedTreatment::find($validated['contracted_treatment_id']);
+
+            if ($contractedTreatment->payment_type === 'abono') {
+                $remainingBalance = $contractedTreatment->remainingBalance();
+                if ($validated['total'] > $remainingBalance) {
+                    return back()->with('error', 'El monto a registrar no puede exceder el saldo restante ($' . number_format($remainingBalance, 0, ',', '.') . ')')->withInput();
+                }
+            }
+
             $validated['branch_id'] = session('selected_branch_id') ?: ($contractedTreatment->branch_id ?? 1);
 
             $order = TreatmentOrder::create([
@@ -216,17 +236,11 @@ class PaymentController extends Controller
                         'status' => 'PAID',
                         'paid_at' => now()
                     ]);
+            }
 
-                // Check if all installments are paid to update treatment status
-                $pendingCount = $contractedTreatment->installments()->where('status', 'PENDING')->count();
-                if ($pendingCount === 0) {
-                    $contractedTreatment->update(['status' => 'Paid']);
-                }
-            } else {
-                // If no installments but paid full, update treatment status
-                if ($contractedTreatment->status !== 'Paid') {
-                    $contractedTreatment->update(['status' => 'Paid']);
-                }
+            // Check if treatment status should transition to Paid
+            if ($contractedTreatment->isFullyPaid()) {
+                $contractedTreatment->update(['status' => 'Paid']);
             }
 
             // Process referral reward if applicable
@@ -245,7 +259,7 @@ class PaymentController extends Controller
             ]);
 
             DB::commit();
-            return redirect()->route('admin.payments.index')->with('success', 'Pago registrado exitosamente. Las cuotas han sido actualizadas.');
+            return redirect()->route('admin.payments.index')->with('success', 'Pago registrado exitosamente. Las cuotas/abonos han sido actualizados.');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -279,15 +293,10 @@ class PaymentController extends Controller
                         'status' => 'PAID',
                         'paid_at' => now()
                     ]);
+            }
 
-                $pendingCount = $contractedTreatment->installments()->where('status', 'PENDING')->count();
-                if ($pendingCount === 0) {
-                    $contractedTreatment->update(['status' => 'Paid']);
-                }
-            } else {
-                if ($order->contractedTreatment && $order->contractedTreatment->status !== 'Paid') {
-                    $order->contractedTreatment->update(['status' => 'Paid']);
-                }
+            if ($order->contractedTreatment && $order->contractedTreatment->isFullyPaid()) {
+                $order->contractedTreatment->update(['status' => 'Paid']);
             }
 
             // Process referral reward if applicable

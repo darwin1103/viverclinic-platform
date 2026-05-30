@@ -61,14 +61,23 @@ class ScheduleAppointmentController extends Controller
 
         $totalRemainingAmount = 0;
 
-        if ($contracted_treatment->status === 'Paid') {
+        if ($contracted_treatment->isFullyPaid()) {
             // Si está pagado totalmente, todo está al día
             $paymentIsUpToDate = true;
             $totalRemainingAmount = 0;
         } else {
 
+            // Si es abono
+            if ($contracted_treatment->payment_type === 'abono') {
+                $paymentIsUpToDate = false;
+                $totalRemainingAmount = $contracted_treatment->remainingBalance();
+                $minAbono = (int) \App\Models\Setting::get('minimum_abono_amount', '50000');
+                $nextPaymentAmount = min($minAbono, $totalRemainingAmount);
+                $nextPaymentDescription = "Abono Mínimo";
+                $canPayInstallment = false;
+            }
             // Si tiene cuotas definidas
-            if ($contracted_treatment->hasInstallments()) {
+            elseif ($contracted_treatment->hasInstallments()) {
 
                 // Buscar la cuota correspondiente a la próxima sesión
                 // Regla: Para agendar sesión N, la cuota N debe estar pagada.
@@ -105,10 +114,10 @@ class ScheduleAppointmentController extends Controller
             } else {
                 // No tiene cuotas, debe pagar el total
                 $paymentIsUpToDate = false; // Porque status no es 'Paid'
-                $nextPaymentAmount = $contracted_treatment->total_price;
+                $totalRemainingAmount = $contracted_treatment->remainingBalance();
+                $nextPaymentAmount = $totalRemainingAmount;
                 $nextPaymentDescription = "Pago Total del Tratamiento";
                 $canPayInstallment = false; // Solo pago total
-                $totalRemainingAmount = $contracted_treatment->total_price;
             }
         }
 

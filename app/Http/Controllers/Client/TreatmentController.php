@@ -91,6 +91,7 @@ class TreatmentController extends Controller
         $treatment = $treatment;
 
         $wompiPublicKey = Setting::get('wompi_public_key');
+        $minimumAbonoAmount = (int) Setting::get('minimum_abono_amount', '50000');
 
         return view('client.treatment.show', compact(
             'packages',
@@ -100,6 +101,7 @@ class TreatmentController extends Controller
             'miniZones',
             'treatment',
             'wompiPublicKey',
+            'minimumAbonoAmount',
         ));
 
     }
@@ -108,12 +110,13 @@ class TreatmentController extends Controller
     {
         // 1. Validaciones Adicionales de Pago
         $request->validate([
-            'payment_type' => 'required|in:full,installment',
+            'payment_type' => 'required|in:full,installment,abono',
             'payment_method' => 'required|in:CASH,TRANSFER,WOMPI',
             'payment_receipt' => 'nullable|required_if:payment_method,TRANSFER|image|max:4096',
+            'abono_amount' => 'nullable|required_if:payment_type,abono|integer',
         ], [
             // Mensajes para payment_type
-            'payment_type.required' => 'Debe seleccionar la modalidad de pago (Total o Cuota).',
+            'payment_type.required' => 'Debe seleccionar la modalidad de pago (Total, Cuota o Abono).',
             'payment_type.in' => 'La modalidad de pago seleccionada no es válida.',
 
             // Mensajes para payment_method
@@ -185,6 +188,21 @@ class TreatmentController extends Controller
                 }
             }
 
+            // Validar monto del abono
+            if ($paymentType === 'abono') {
+                $minAbono = (int) Setting::get('minimum_abono_amount', '50000');
+                if (!$request->filled('abono_amount')) {
+                    throw ValidationException::withMessages(['abono_amount' => 'El monto del abono es obligatorio.']);
+                }
+                $abonoAmount = (int) $request->abono_amount;
+                if ($abonoAmount < $minAbono) {
+                    throw ValidationException::withMessages(['abono_amount' => 'El monto mínimo de abono es $' . number_format($minAbono, 0, ',', '.')]);
+                }
+                if ($abonoAmount > $totalContractPrice) {
+                    throw ValidationException::withMessages(['abono_amount' => 'El abono no puede exceder el precio total del paquete ($' . number_format($totalContractPrice, 0, ',', '.') . ')']);
+                }
+            }
+
             // Zonas
             $selectedZones = $validatedData['selected_zones'] ?? ['big' => [], 'mini' => []];
             if (!empty($validatedData['another_big_zone'])) $selectedZones['big'][] = $validatedData['another_big_zone'];
@@ -208,6 +226,7 @@ class TreatmentController extends Controller
                 'contracted_additionals' => $contractedAdditionals,
                 'selected_zones' => $selectedZones,
                 'total_price' => $totalContractPrice,
+                'payment_type' => $paymentType,
                 'status' => 'Pending',
                 'sessions' => $sessions,
                 'days_between_sessions' => $treatment->days_between_sessions,
@@ -215,16 +234,18 @@ class TreatmentController extends Controller
                 'is_pregnant' => ($validatedData['notPregnant'] ?? 0) == 1,
             ]);
 
-            // Generar Cuotas DB
-            foreach (($validatedData['package'] ?? []) as $id => $quantity) {
-                $pkg = $validPackages->get($id);
-                if ($pkg->allow_installments && $pkg->installments->isNotEmpty()) {
-                    foreach ($pkg->installments as $inst) {
-                        $contractedTreatment->installments()->create([
-                            'installment_number' => $inst->installment_number,
-                            'price' => $inst->price * $quantity,
-                            'status' => 'PENDING'
-                        ]);
+            // Generar Cuotas DB (Solamente si la modalidad elegida es cuotas)
+            if ($paymentType === 'installment') {
+                foreach (($validatedData['package'] ?? []) as $id => $quantity) {
+                    $pkg = $validPackages->get($id);
+                    if ($pkg->allow_installments && $pkg->installments->isNotEmpty()) {
+                        foreach ($pkg->installments as $inst) {
+                            $contractedTreatment->installments()->create([
+                                'installment_number' => $inst->installment_number,
+                                'price' => $inst->price * $quantity,
+                                'status' => 'PENDING'
+                            ]);
+                        }
                     }
                 }
             }
@@ -259,6 +280,9 @@ class TreatmentController extends Controller
                 $paymentDescription = "Pago Inicial (Cuota 1 + Adicionales) - {$treatment->name}";
                 $targetInstallments = $firstInstallments; // Colección de cuotas afectadas
 
+            } elseif ($paymentType === 'abono') {
+                $amountToPay = (int) $request->abono_amount;
+                $paymentDescription = "Abono Inicial - {$treatment->name}";
             } else {
                 // Pago Total
                 $amountToPay = $totalContractPrice;

@@ -234,17 +234,45 @@
 
                     <div class="row g-4">
 
-                        {{-- 1. ESTADO DE LAS CUOTAS --}}
+                        {{-- 1. ESTADO DE LAS CUOTAS O ABONOS --}}
                         <div class="col-12">
-                            <h5 class="mb-3 fw-bold text-primary">
-                                <i class="bi bi-list-ol me-2"></i> Plan de Cuotas
-                            </h5>
-
-                            @if($contractedTreatment->installments->isEmpty())
+                            @if($contractedTreatment->payment_type === 'abono')
+                                <h5 class="mb-3 fw-bold text-primary">
+                                    <i class="bi bi-wallet2 me-2"></i> Estado de Abonos
+                                </h5>
+                                
+                                <div class="card text-white mb-3" style="border: 1px solid rgba(255, 255, 255, 0.06); background: var(--vc-card, #0f2a30);">
+                                    <div class="card-body">
+                                        @php
+                                            $totalPaid = $contractedTreatment->totalPaid();
+                                            $totalPrice = $contractedTreatment->total_price;
+                                            $remaining = $contractedTreatment->remainingBalance();
+                                            $percent = $totalPrice > 0 ? min(100, round(($totalPaid / $totalPrice) * 100)) : 0;
+                                        @endphp
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Progreso de Pago: <strong>{{ $percent }}%</strong></span>
+                                            <span>${{ number_format($totalPaid, 0, ',', '.') }} / ${{ number_format($totalPrice, 0, ',', '.') }}</span>
+                                        </div>
+                                        <div class="progress mb-3" style="height: 15px;">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ $percent }}%;" aria-valuenow="{{ $percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <div class="d-flex justify-content-between text-white-50 small">
+                                            <span>Total Pagado: ${{ number_format($totalPaid, 0, ',', '.') }}</span>
+                                            <span>Saldo Restante: <strong class="text-warning">${{ number_format($remaining, 0, ',', '.') }}</strong></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            @elseif($contractedTreatment->installments->isEmpty())
+                                <h5 class="mb-3 fw-bold text-primary">
+                                    <i class="bi bi-list-ol me-2"></i> Plan de Cuotas
+                                </h5>
                                 <div class="alert alert-secondary">
                                     Este tratamiento no tiene cuotas configuradas (Pago único).
                                 </div>
                             @else
+                                <h5 class="mb-3 fw-bold text-primary">
+                                    <i class="bi bi-list-ol me-2"></i> Plan de Cuotas
+                                </h5>
                                 <div class="table-responsive border rounded">
                                     <table class="table table-hover mb-0">
                                         <thead class="bg-transparent">

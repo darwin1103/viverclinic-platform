@@ -29,6 +29,9 @@ class SettingController extends Controller
         $upgradeCommissionValue = Setting::get('upgrade_commission_value', '0');
         $upgradeCommissionTarget = Setting::get('upgrade_commission_target', '0');
 
+        // Configuración de abonos
+        $minimumAbonoAmount = Setting::get('minimum_abono_amount', '50000');
+
         return view('admin.settings.index', compact(
             'wompiPublicKey',
             'wompiIntegritySecret',
@@ -41,7 +44,8 @@ class SettingController extends Controller
             'shotsPerMinizone',
             'upgradeCommissionType',
             'upgradeCommissionValue',
-            'upgradeCommissionTarget'
+            'upgradeCommissionTarget',
+            'minimumAbonoAmount'
         ));
     }
 
@@ -60,6 +64,7 @@ class SettingController extends Controller
             'upgrade_commission_type' => 'nullable|in:fixed,percentage',
             'upgrade_commission_value' => 'nullable|numeric|min:0',
             'upgrade_commission_target' => 'nullable|numeric|min:0',
+            'minimum_abono_amount' => 'nullable|integer|min:0',
         ]);
 
         Setting::updateOrCreate(['key' => 'wompi_public_key'], ['value' => $request->wompi_public_key]);
@@ -80,6 +85,9 @@ class SettingController extends Controller
         Setting::updateOrCreate(['key' => 'upgrade_commission_type'], ['value' => $request->upgrade_commission_type ?? 'fixed']);
         Setting::updateOrCreate(['key' => 'upgrade_commission_value'], ['value' => $request->upgrade_commission_value ?? '0']);
         Setting::updateOrCreate(['key' => 'upgrade_commission_target'], ['value' => $request->upgrade_commission_target ?? '0']);
+
+        // Guardar configuración de abonos
+        Setting::updateOrCreate(['key' => 'minimum_abono_amount'], ['value' => $request->minimum_abono_amount ?? '50000']);
 
         return back()->with('success', 'Configuración actualizada correctamente.');
     }

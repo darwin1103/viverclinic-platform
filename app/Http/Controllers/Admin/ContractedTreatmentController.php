@@ -168,18 +168,11 @@ class ContractedTreatmentController extends Controller
                         'status' => 'PAID',
                         'paid_at' => now()
                     ]);
+            }
 
-                // 3. Verificar si se completó todo el contrato
-                $pendingCount = $contractedTreatment->installments()->where('status', 'PENDING')->count();
-                if ($pendingCount === 0) {
-                    $contractedTreatment->update(['status' => 'Paid']);
-                }
-            } else {
-                // Si no hay IDs de cuotas (ej. pago total antiguo o lógica diferida),
-                // asumimos lógica por defecto o pago total
-                if($contractedTreatment && $contractedTreatment->status !== 'Paid'){
-                     $contractedTreatment->update(['status' => 'Paid']);
-                }
+            // 3. Verificar si se completó todo el contrato
+            if ($contractedTreatment && $contractedTreatment->isFullyPaid()) {
+                $contractedTreatment->update(['status' => 'Paid']);
             }
 
             // Opcional: Enviar correo de aprobación

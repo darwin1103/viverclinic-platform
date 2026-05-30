@@ -32,12 +32,32 @@
                         </div>
                         @error('user_id')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                     </div>
-                    <div class="col-12 col-md-6">
-                        <label class="form-label">Tratamiento Contratado <span class="text-danger">*</span></label>
-                        <select class="form-select @error('contracted_treatment_id') is-invalid @enderror" name="contracted_treatment_id" id="treatmentSelect" required disabled>
-                            <option value="">Seleccione primero un paciente</option>
-                        </select>
-                        @error('contracted_treatment_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    <div class="col-12">
+                        <label class="form-label fw-bold text-white mb-2">Paquetes Contratados <span class="text-danger">*</span></label>
+                        <input type="hidden" name="contracted_treatment_id" id="selectedContractedTreatmentId" required>
+                        <div id="treatmentsTableContainer" style="display: none;">
+                            <div class="table-responsive border border-secondary rounded">
+                                <table class="table table-dark table-hover mb-0 align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-success border-secondary" style="width: 40px;"></th>
+                                            <th class="text-white border-secondary">Paquete / Tratamiento</th>
+                                            <th class="text-white border-secondary text-center">F. Contratación</th>
+                                            <th class="text-white border-secondary text-center">Estado</th>
+                                            <th class="text-white border-secondary text-center">Forma de Pago</th>
+                                            <th class="text-white border-secondary text-end">Saldo Pendiente</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="treatmentsTableBody">
+                                        <!-- Se llena por JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="noTreatmentsWarning" class="alert alert-secondary border-secondary mb-0 bg-dark text-white-50">
+                            <i class="bi bi-info-circle me-2"></i>Seleccione primero un paciente para ver sus paquetes contratados.
+                        </div>
+                        @error('contracted_treatment_id')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                     </div>
 
                     <div class="col-12" id="installmentsContainer" style="display: none;">
@@ -79,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('patientSearch');
     const dropdown = document.getElementById('patientDropdown');
     const hiddenInput = document.getElementById('selectedPatientId');
-    const treatmentSelect = document.getElementById('treatmentSelect');
+    const hiddenContractedTreatmentId = document.getElementById('selectedContractedTreatmentId');
     const selectedBadge = document.getElementById('selectedPatientBadge');
     const selectedName = document.getElementById('selectedPatientName');
     const installmentsContainer = document.getElementById('installmentsContainer');
@@ -140,39 +160,99 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedBadge.style.display = 'none';
         searchInput.style.display = 'block';
         searchInput.value = '';
-        treatmentSelect.innerHTML = '<option value="">Seleccione primero un paciente</option>';
-        treatmentSelect.disabled = true;
+        hiddenContractedTreatmentId.value = '';
+        
+        document.getElementById('treatmentsTableBody').innerHTML = '';
+        document.getElementById('treatmentsTableContainer').style.display = 'none';
+        document.getElementById('noTreatmentsWarning').style.display = 'block';
+        document.getElementById('noTreatmentsWarning').innerHTML = '<i class="bi bi-info-circle me-2"></i>Seleccione primero un paciente para ver sus paquetes contratados.';
+        
         installmentsContainer.style.display = 'none';
         installmentsList.innerHTML = '';
+        totalInput.value = '';
+        totalInput.removeAttribute('max');
+        totalInput.readOnly = false;
     };
 
-    treatmentSelect.addEventListener('change', function() {
-        const treatmentId = this.value;
+    function selectTreatment(treatmentId) {
         const treatment = currentTreatmentsData.find(t => t.id == treatmentId);
+        hiddenContractedTreatmentId.value = treatmentId;
         
         installmentsList.innerHTML = '';
-        if (treatment && treatment.installments && treatment.installments.length > 0) {
-            installmentsContainer.style.display = 'block';
-            treatment.installments.forEach(inst => {
-                const div = document.createElement('div');
-                div.className = 'form-check form-check-inline';
-                div.innerHTML = `
-                    <input class="form-check-input installment-checkbox" type="checkbox" name="paid_installments_ids[]" value="${inst.id}" id="inst_${inst.id}" data-price="${inst.price}">
-                    <label class="form-check-label" for="inst_${inst.id}">
-                        ${inst.label}
-                    </label>
+        if (treatment) {
+            // Apply select styling to the active row
+            document.querySelectorAll('#treatmentsTableBody tr').forEach(row => {
+                const radio = row.querySelector('.treatment-radio');
+                if (radio && radio.checked) {
+                    row.classList.add('table-active');
+                } else {
+                    row.classList.remove('table-active');
+                }
+            });
+
+            if (treatment.payment_type === 'abono') {
+                installmentsContainer.style.display = 'block';
+                installmentsList.innerHTML = `
+                    <div class="alert alert-info w-100 mb-0 border-0 bg-info-subtle text-info-emphasis">
+                        <i class="bi bi-info-circle me-1"></i> Este paquete se encuentra en modalidad de <strong>Abonos</strong>.<br>
+                        <strong>Saldo Restante:</strong> $${parseFloat(treatment.remaining_balance).toLocaleString('es-CO')}<br>
+                        <strong>Precio Total:</strong> $${parseFloat(treatment.total_price).toLocaleString('es-CO')}
+                    </div>
                 `;
-                installmentsList.appendChild(div);
-            });
-            
-            // Add listener to checkboxes to update total
-            document.querySelectorAll('.installment-checkbox').forEach(cb => {
-                cb.addEventListener('change', calculateTotal);
-            });
+                totalInput.value = treatment.remaining_balance;
+                totalInput.max = treatment.remaining_balance;
+                totalInput.readOnly = false;
+            } else if (treatment.payment_type === 'full') {
+                installmentsContainer.style.display = 'block';
+                installmentsList.innerHTML = `
+                    <div class="alert alert-warning w-100 mb-0 border-0 bg-warning-subtle text-warning-emphasis">
+                        <i class="bi bi-info-circle me-1"></i> Este paquete se encuentra en modalidad de <strong>Pago Único</strong>.<br>
+                        <strong>Saldo Restante:</strong> $${parseFloat(treatment.remaining_balance).toLocaleString('es-CO')}
+                    </div>
+                `;
+                totalInput.value = treatment.remaining_balance;
+                totalInput.max = treatment.remaining_balance;
+                totalInput.readOnly = false;
+            } else if (treatment.installments && treatment.installments.length > 0) {
+                installmentsContainer.style.display = 'block';
+                treatment.installments.forEach(inst => {
+                    const div = document.createElement('div');
+                    div.className = 'form-check form-check-inline';
+                    div.innerHTML = `
+                        <input class="form-check-input installment-checkbox" type="checkbox" name="paid_installments_ids[]" value="${inst.id}" id="inst_${inst.id}" data-price="${inst.price}">
+                        <label class="form-check-label text-white" for="inst_${inst.id}">
+                            ${inst.label}
+                        </label>
+                    `;
+                    installmentsList.appendChild(div);
+                });
+                
+                // Add listener to checkboxes to update total
+                document.querySelectorAll('.installment-checkbox').forEach(cb => {
+                    cb.addEventListener('change', calculateTotal);
+                });
+                totalInput.value = '';
+                totalInput.removeAttribute('max');
+                totalInput.readOnly = true;
+            } else {
+                installmentsContainer.style.display = 'block';
+                installmentsList.innerHTML = `
+                    <div class="alert alert-success w-100 mb-0 border-0 bg-success-subtle text-success-emphasis">
+                        <i class="bi bi-check-circle me-1"></i> El paquete ya se encuentra totalmente pagado o no tiene cuotas pendientes.<br>
+                        <strong>Saldo Restante:</strong> $${parseFloat(treatment.remaining_balance).toLocaleString('es-CO')}
+                    </div>
+                `;
+                totalInput.value = treatment.remaining_balance;
+                totalInput.max = treatment.remaining_balance;
+                totalInput.readOnly = false;
+            }
         } else {
             installmentsContainer.style.display = 'none';
+            totalInput.value = '';
+            totalInput.removeAttribute('max');
+            totalInput.readOnly = false;
         }
-    });
+    }
 
     function calculateTotal() {
         let total = 0;
@@ -181,16 +261,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         if (total > 0) {
             totalInput.value = total;
+        } else {
+            totalInput.value = '';
         }
     }
 
     function loadTreatments(patientId) {
         if (!patientId) return;
 
-        treatmentSelect.innerHTML = '<option value="">Cargando...</option>';
-        treatmentSelect.disabled = true;
+        const body = document.getElementById('treatmentsTableBody');
+        body.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Cargando paquetes...</td></tr>';
+        document.getElementById('noTreatmentsWarning').style.display = 'none';
+        document.getElementById('treatmentsTableContainer').style.display = 'block';
 
-        // Use route helper with placeholder
         const url = "{{ route('admin.patients.treatments', ':id') }}".replace(':id', patientId);
 
         fetch(url, {
@@ -204,23 +287,67 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.json();
         })
         .then(data => {
-            treatmentSelect.innerHTML = '<option value="">Seleccione un tratamiento</option>';
+            body.innerHTML = '';
             if (data.length === 0) {
-                treatmentSelect.innerHTML = '<option value="">Este paciente no tiene tratamientos activos</option>';
+                document.getElementById('treatmentsTableContainer').style.display = 'none';
+                document.getElementById('noTreatmentsWarning').style.display = 'block';
+                document.getElementById('noTreatmentsWarning').innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Este paciente no tiene paquetes contratados activos.';
             } else {
                 currentTreatmentsData = data;
+                document.getElementById('noTreatmentsWarning').style.display = 'none';
+                document.getElementById('treatmentsTableContainer').style.display = 'block';
+
                 data.forEach(t => {
-                    const opt = document.createElement('option');
-                    opt.value = t.id;
-                    opt.textContent = t.name;
-                    treatmentSelect.appendChild(opt);
+                    const tr = document.createElement('tr');
+                    tr.style.cursor = 'pointer';
+                    
+                    let pType = 'Desconocido';
+                    if (t.payment_type === 'installment') pType = '<span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill">Cuotas</span>';
+                    else if (t.payment_type === 'abono') pType = '<span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill">Abonos</span>';
+                    else if (t.payment_type === 'full') pType = '<span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">Pago Único</span>';
+
+                    let statusBadge = '';
+                    if (t.status === 'Paid' || t.status === 'Pagado') statusBadge = '<span class="badge bg-success">Pagado</span>';
+                    else if (t.status === 'Pending' || t.status === 'Pendiente') statusBadge = '<span class="badge bg-warning text-dark">Pendiente</span>';
+                    else statusBadge = `<span class="badge bg-secondary">${t.status}</span>`;
+
+                    tr.innerHTML = `
+                        <td class="text-center border-secondary">
+                            <input class="form-check-input treatment-radio" type="radio" name="temp_contracted_treatment_id" value="${t.id}" id="radio_ct_${t.id}">
+                        </td>
+                        <td class="border-secondary text-white">
+                            <label for="radio_ct_${t.id}" class="fw-semibold cursor-pointer m-0">${t.name}</label>
+                        </td>
+                        <td class="border-secondary text-center text-white-50">
+                            ${t.created_at_formatted || '-'}
+                        </td>
+                        <td class="border-secondary text-center">
+                            ${statusBadge}
+                        </td>
+                        <td class="border-secondary text-center">
+                            ${pType}
+                        </td>
+                        <td class="border-secondary text-end fw-bold text-white">
+                            $${parseFloat(t.remaining_balance).toLocaleString('es-CO')}
+                        </td>
+                    `;
+
+                    // Add click event listener to the row to select the radio button
+                    tr.addEventListener('click', () => {
+                        const radio = tr.querySelector('.treatment-radio');
+                        if (radio) {
+                            radio.checked = true;
+                            selectTreatment(t.id);
+                        }
+                    });
+
+                    body.appendChild(tr);
                 });
-                treatmentSelect.disabled = false;
             }
         })
         .catch(error => {
             console.error('Error fetching treatments:', error);
-            treatmentSelect.innerHTML = '<option value="">Error al cargar tratamientos</option>';
+            body.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-3"><i class="bi bi-x-circle me-2"></i>Error al cargar paquetes contratados.</td></tr>';
         });
     }
 });

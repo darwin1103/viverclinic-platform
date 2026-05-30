@@ -141,6 +141,21 @@
                 <small class="text-secondary">Meta de comisiones por agrandamiento que el staff debe alcanzar.</small>
             </div>
 
+            {{-- Sección Pagos --}}
+            <div class="col-12 mt-4">
+                <h5 class="fw-bold border-bottom pb-2 mb-3 text-success">
+                    <i class="bi bi-wallet2 me-2"></i>Configuración de Pagos
+                </h5>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label for="minimum_abono_amount" class="form-label fw-bold text-white">Monto Mínimo de Abono (COP)</label>
+                <input type="number" class="form-control bg-dark text-white border-secondary" id="minimum_abono_amount"
+                       name="minimum_abono_amount" value="{{ $minimumAbonoAmount }}"
+                       min="0" step="1000" placeholder="50000">
+                <small class="text-secondary">Monto mínimo en pesos (COP) que un paciente puede abonar a un tratamiento.</small>
+            </div>
+
             {{-- Sección Disparos --}}
             <div class="col-12 mt-4">
                 <h5 class="fw-bold border-bottom pb-2 mb-3">

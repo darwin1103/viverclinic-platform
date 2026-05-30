@@ -155,6 +155,24 @@
                                                                 <div class="fw-bold fs-5" id="modal-total-amount">$0</div>
                                                             </div>
                                                         </label>
+
+                                                        {{-- Opción Abono --}}
+                                                        <label class="card p-3 payment-option-card cursor-pointer" id="option-abono-container">
+                                                            <div class="d-flex flex-column gap-2">
+                                                                <div class="d-flex align-items-center">
+                                                                    <input type="radio" name="payment_type" value="abono" id="pt_abono" class="form-check-input me-3">
+                                                                    <div class="flex-grow-1">
+                                                                        <div class="fw-bold text-info">Realizar Abono</div>
+                                                                        <small class="text-muted">Realiza un pago parcial</small>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mt-2" id="abono-input-container" style="display: none;">
+                                                                    <label for="abono_amount" class="form-label small fw-bold text-muted">Monto a abonar (COP):</label>
+                                                                    <input type="number" class="form-control" name="abono_amount" id="abono_amount" placeholder="Monto" min="{{ $minimumAbonoAmount }}">
+                                                                    <span class="text-muted small" id="abono-limits-hint"></span>
+                                                                </div>
+                                                            </div>
+                                                        </label>
                                                     </div>
                                                 </div>
 
@@ -200,7 +218,7 @@
                                                         </div>
 
                                                         <div id="info-transfer" class="method-info d-none">
-                                                            <div class="card bg-warning-subtle border-0 mb-3">
+                                                            <div class="card bg-info-subtle border-0 mb-3 text-info-emphasis">
                                                                 <div class="card-body">
                                                                     <h6 class="fw-bold"><i class="bi bi-info-circle me-1"></i> Datos Bancarios</h6>
                                                                     <ul class="mb-0 small list-unstyled">
@@ -268,6 +286,7 @@
     <script>
         const packages = @json($packages);
         const additionalZones = @json($additionalZones);
+        const minimumAbonoAmount = {{ $minimumAbonoAmount }};
     </script>
 
     <script type="text/javascript" src="{{ asset('js/client/treatment/show/form.js') }}?v={{ time() }}"></script>

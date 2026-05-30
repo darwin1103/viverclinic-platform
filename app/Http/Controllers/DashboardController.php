@@ -294,10 +294,23 @@ class DashboardController extends Controller
             ->orderBy('schedule', 'asc')
             ->first();
 
-            // 2. Saldo por pagar (Cuotas pendientes)
-            $pendingBalance = \App\Models\TreatmentOrder::where('user_id', $user->id)
-                ->whereIn('status', ['Pendiente', 'Pending', 'Pago por verificar'])
-                ->sum('total');
+            // 2. Saldo por pagar (Cuotas y abonos pendientes)
+            $activeContractedTreatments = ContractedTreatment::with(['treatment', 'installments', 'appointments'])
+                ->where('user_id', $user->id)
+                ->whereIn('status', ['Pending', 'Activo', 'In Progress'])
+                ->get();
+
+            $blockedTreatments = [];
+            foreach ($activeContractedTreatments as $ct) {
+                if (!$ct->isPaymentUpToDate()) {
+                    $blockedTreatments[] = $ct;
+                }
+            }
+            $hasBlockedScheduling = count($blockedTreatments) > 0;
+
+            $pendingBalance = ContractedTreatment::where('user_id', $user->id)
+                ->get()
+                ->sum(fn($ct) => $ct->remainingBalance());
 
             // 3. Paquetes Activos
             $activePackagesCount = ContractedTreatment::where('user_id', $user->id)
@@ -337,6 +350,8 @@ class DashboardController extends Controller
                 'latestRecommendations'=> $latestRecommendations,
                 'treatmentProgress'    => $treatmentProgress,
                 'treatmentName'        => $treatmentName,
+                'hasBlockedScheduling' => $hasBlockedScheduling,
+                'blockedTreatments'    => $blockedTreatments,
             ];
 
             return view('dashboards.patient', $data);

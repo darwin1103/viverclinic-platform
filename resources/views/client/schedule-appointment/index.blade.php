@@ -28,12 +28,30 @@
                     :paymentVerificationPending="$paymentVerificationPending"
                     :lastOrderRejected="$lastOrderRejected"
                     :lastOrderMessage="$lastOrderMessage"
+                    :paymentType="$contracted_treatment->payment_type"
+                    :minimumAbonoAmount="(int) \App\Models\Setting::get('minimum_abono_amount', 50000)"
                 />
 
-                @if (!$paymentIsUpToDate)
-                    <div class="alert alert-warning" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                        Debe tener el pago completado para poder agendar una cita.
+                @if (!$paymentIsUpToDate && !$paymentVerificationPending)
+                    <div class="alert alert-info border-info d-flex align-items-center gap-3" role="alert">
+                        <i class="bi bi-info-circle-fill fs-4 text-info"></i>
+                        <div>
+                            @if($contracted_treatment->payment_type === 'abono')
+                                <strong>Abono incompleto:</strong> Este tratamiento se encuentra en modalidad de Abono (Pago Parcial). Recuerda completar el saldo total del paquete para poder iniciar tu tratamiento y agendar tus citas. 
+                                <span class="d-block mt-1">Saldo restante: <strong>${{ number_format($totalRemainingAmount, 0, ',', '.') }}</strong>. Puedes realizar un abono parcial de mínimo <strong>${{ number_format(min((int) \App\Models\Setting::get('minimum_abono_amount', 50000), $totalRemainingAmount), 0, ',', '.') }}</strong> usando el botón <strong>"Pagar"</strong>.</span>
+                            @elseif($contracted_treatment->payment_type === 'installment')
+                                <strong>Pago pendiente:</strong> Tienes una cuota pendiente de pago ({{ $nextPaymentDescription }} de <strong>${{ number_format($nextPaymentAmount, 0, ',', '.') }}</strong>). Recuerda estar al día con tus cuotas para poder iniciar tu tratamiento y agendar tus citas. Puedes realizar el pago haciendo clic en el botón <strong>"Pagar"</strong>.
+                            @else
+                                <strong>Pago pendiente:</strong> Recuerda completar el pago total de <strong>${{ number_format($totalRemainingAmount, 0, ',', '.') }}</strong> para poder iniciar tu tratamiento y agendar tus citas.
+                            @endif
+                        </div>
+                    </div>
+                @elseif($paymentVerificationPending)
+                    <div class="alert alert-info border-info d-flex align-items-center gap-3" role="alert">
+                        <i class="bi bi-hourglass-split fs-4 text-info"></i>
+                        <div>
+                            <strong>Verificación en progreso:</strong> Estamos validando tu último pago. Una vez aprobado, podrás continuar agendando tus citas si cumples con las condiciones.
+                        </div>
                     </div>
                 @endif
 

@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         // Lógica de Cuotas Mixtas:
                         // Verificamos si el paquete permite cuotas y tiene datos de cuotas
-                        const allowsInstallments = parseInt(pkg.allow_installments) === 1;
+                        const allowsInstallments = pkg.allow_installments === true || parseInt(pkg.allow_installments) === 1;
                         const hasInstallmentData = pkg.installments && pkg.installments.length > 0;
 
                         if (allowsInstallments && hasInstallmentData) {
@@ -266,6 +266,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    const radioTypeAbono = document.getElementById('pt_abono');
+    const abonoInputContainer = document.getElementById('abono-input-container');
+    const abonoAmountInput = document.getElementById('abono_amount');
+    const abonoLimitsHint = document.getElementById('abono-limits-hint');
+
     // B. Estilos visuales de tarjetas (Borde Azul al seleccionar)
     function updateCardStyles() {
         document.querySelectorAll('.payment-option-card').forEach(card => {
@@ -276,11 +281,49 @@ document.addEventListener('DOMContentLoaded', function () {
                 card.classList.remove('border-primary', 'shadow-sm');
             }
         });
+
+        // Abono sub-fields display
+        const abonoSelected = radioTypeAbono && radioTypeAbono.checked;
+        if (abonoInputContainer) {
+            abonoInputContainer.style.display = abonoSelected ? 'block' : 'none';
+        }
+        if (abonoSelected) {
+            if (abonoAmountInput) {
+                abonoAmountInput.required = true;
+                if (!abonoAmountInput.value) {
+                    abonoAmountInput.value = Math.min(minimumAbonoAmount, currentTotal);
+                }
+                abonoAmountInput.max = currentTotal;
+                abonoAmountInput.min = Math.min(minimumAbonoAmount, currentTotal);
+                if (abonoLimitsHint) {
+                    abonoLimitsHint.innerText = `Mínimo: $${parseFloat(abonoAmountInput.min).toLocaleString('es-CO')} | Máximo: $${parseFloat(abonoAmountInput.max).toLocaleString('es-CO')}`;
+                }
+            }
+        } else {
+            if (abonoAmountInput) {
+                abonoAmountInput.required = false;
+            }
+        }
     }
 
     radioInputsType.forEach(radio => {
         radio.addEventListener('change', updateCardStyles);
     });
+
+    const purchaseForm = document.getElementById('purchaseForm');
+    if (purchaseForm) {
+        purchaseForm.addEventListener('submit', function(e) {
+            if (radioTypeAbono && radioTypeAbono.checked) {
+                const amount = parseInt(abonoAmountInput.value) || 0;
+                const min = parseInt(abonoAmountInput.min) || minimumAbonoAmount;
+                const max = parseInt(abonoAmountInput.max) || currentTotal;
+                if (amount < min || amount > max) {
+                    e.preventDefault();
+                    alert(`El monto del abono debe estar entre $${min.toLocaleString('es-CO')} y $${max.toLocaleString('es-CO')}`);
+                }
+            }
+        });
+    }
 
     // C. Mostrar/Ocultar Detalles de Método de Pago
     function toggleMethodDetails() {

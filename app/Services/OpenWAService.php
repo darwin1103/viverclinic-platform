@@ -9,14 +9,22 @@ use Exception;
 class OpenWAService
 {
     protected string $baseUrl;
-    protected string $apiKey;
+    protected ?string $apiKey;
     protected string $sessionId;
 
     public function __construct()
     {
-        $this->baseUrl = rtrim(config('services.openwa.base_url', 'http://localhost:2785'), '/');
-        $this->apiKey = config('services.openwa.api_key', '');
-        $this->sessionId = config('services.openwa.session_id', 'default');
+        $this->baseUrl = rtrim(config('services.openwa.base_url') ?? 'http://localhost:2785', '/');
+        $this->apiKey = config('services.openwa.api_key');
+        $this->sessionId = config('services.openwa.session_id') ?? 'default';
+    }
+
+    /**
+     * Check if the OpenWA service is properly configured.
+     */
+    public function isConfigured(): bool
+    {
+        return !empty($this->apiKey) && !empty($this->baseUrl);
     }
 
     /**
@@ -29,6 +37,11 @@ class OpenWAService
      */
     public function sendTextMessage(string $to, string $text): array
     {
+        if (!$this->isConfigured()) {
+            Log::warning('OpenWA service is not configured. Skipping WhatsApp message.');
+            return ['skipped' => true, 'reason' => 'not_configured'];
+        }
+
         $chatId = $this->formatPhoneNumber($to);
         $url = "{$this->baseUrl}/api/sessions/{$this->sessionId}/messages/send-text";
 

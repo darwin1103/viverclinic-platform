@@ -56,7 +56,11 @@ class AdminAppointmentController extends Controller
             'status' => 'Agendado',
         ]);
 
-        app(NotificationService::class)->sendAppointmentScheduled($appointment);
+        try {
+            app(NotificationService::class)->sendAppointmentScheduled($appointment);
+        } catch (\Throwable $e) {
+            \Log::error('Notification error on appointment schedule: ' . $e->getMessage());
+        }
 
         return redirect()->route('admin.appointments.index')->with('success', 'Cita agendada exitosamente.');
     }
@@ -296,7 +300,11 @@ class AdminAppointmentController extends Controller
             'status' => 'Confirmada'
         ]);
 
-        app(NotificationService::class)->sendAppointmentConfirmed($appointment);
+        try {
+            app(NotificationService::class)->sendAppointmentConfirmed($appointment);
+        } catch (\Throwable $e) {
+            \Log::error('Notification error on appointment confirm: ' . $e->getMessage());
+        }
 
         return response()->json([
             'success' => true,
@@ -325,7 +333,11 @@ class AdminAppointmentController extends Controller
             'status' => $status,
         ]);
 
-        app(NotificationService::class)->sendAppointmentScheduled($appointment);
+        try {
+            app(NotificationService::class)->sendAppointmentScheduled($appointment);
+        } catch (\Throwable $e) {
+            \Log::error('Notification error on appointment reschedule: ' . $e->getMessage());
+        }
 
         return response()->json([
             'success' => true,
@@ -338,7 +350,11 @@ class AdminAppointmentController extends Controller
      */
     public function cancel(Appointment $appointment)
     {
-        app(NotificationService::class)->sendAppointmentCancelled($appointment);
+        try {
+            app(NotificationService::class)->sendAppointmentCancelled($appointment);
+        } catch (\Throwable $e) {
+            \Log::error('Notification error on appointment cancel: ' . $e->getMessage());
+        }
 
         $appointment->delete();
 

@@ -102,7 +102,11 @@ class AdminScheduleAppointmentController extends Controller
             'status' => $status,
         ]);
 
-        app(NotificationService::class)->sendAppointmentScheduled($appointment);
+        try {
+            app(NotificationService::class)->sendAppointmentScheduled($appointment);
+        } catch (\Throwable $e) {
+            \Log::error('Notification error on appointment schedule: ' . $e->getMessage());
+        }
 
         return redirect()
             ->route('admin.schedule-appointment.index', ['contracted_treatment' => $contractedTreatmentId])
@@ -158,7 +162,11 @@ class AdminScheduleAppointmentController extends Controller
             'status' => $status,
         ]);
 
-        app(NotificationService::class)->sendAppointmentScheduled($appointment);
+        try {
+            app(NotificationService::class)->sendAppointmentScheduled($appointment);
+        } catch (\Throwable $e) {
+            \Log::error('Notification error on appointment reschedule: ' . $e->getMessage());
+        }
 
         return redirect()
             ->route('admin.schedule-appointment.index', ['contracted_treatment' => $contractedTreatmentId])
@@ -234,7 +242,11 @@ class AdminScheduleAppointmentController extends Controller
             'status' => 'Confirmada',
         ]);
 
-        app(NotificationService::class)->sendAppointmentConfirmed($appointment);
+        try {
+            app(NotificationService::class)->sendAppointmentConfirmed($appointment);
+        } catch (\Throwable $e) {
+            \Log::error('Notification error on appointment confirm: ' . $e->getMessage());
+        }
 
         return redirect()
             ->route('admin.schedule-appointment.index', ['contracted_treatment' => $contractedTreatmentId])
@@ -255,7 +267,11 @@ class AdminScheduleAppointmentController extends Controller
 
         // Check payment status ***
 
-        app(NotificationService::class)->sendAppointmentCancelled($appointment);
+        try {
+            app(NotificationService::class)->sendAppointmentCancelled($appointment);
+        } catch (\Throwable $e) {
+            \Log::error('Notification error on appointment cancel: ' . $e->getMessage());
+        }
 
         $appointment->delete();
 

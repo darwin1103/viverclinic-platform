@@ -129,7 +129,8 @@ class ContractedTreatment extends Model
         if ($this->hasInstallments()) {
             return $this->installments()->where('status', 'PENDING')->count() === 0;
         }
-        return $this->status === 'Paid';
+        // For standard full payments: check if the total has been covered by approved orders
+        return $this->remainingBalance() <= 0;
     }
 
     // Helper to determine if scheduling is allowed based on payment status

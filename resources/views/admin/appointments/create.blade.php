@@ -23,7 +23,7 @@
                             <option value="">Seleccione un paciente</option>
                             @foreach($patients as $patient)
                                 <option value="{{ $patient->id }}" {{ old('user_id') == $patient->id ? 'selected' : '' }}>
-                                    {{ $patient->name }}
+                                    {{ $patient->name }} ({{ $patient->email }})
                                 </option>
                             @endforeach
                         </select>
@@ -75,6 +75,9 @@
         background-color: var(--bs-body-bg);
         color: var(--bs-body-color);
         border-color: var(--bs-border-color);
+    }
+    .ts-control input {
+        color: white !important;
     }
 </style>
 @endpush

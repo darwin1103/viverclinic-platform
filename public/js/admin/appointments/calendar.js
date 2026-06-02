@@ -337,6 +337,7 @@ const AdminCalendarModule = (function() {
             'Por confirmar': 'pending',
             'Atendida': 'confirmed',
             'Cancelada': 'noshow',
+            'No asistida': 'noshow',
             'Completada': 'completed',
         };
         return map[status] || 'pending';
@@ -348,6 +349,7 @@ const AdminCalendarModule = (function() {
             'Completada': ['success', 'Completada'],
             'Por confirmar': ['warning', 'Pendiente'],
             'Atendida': ['info', 'Atendida'],
+            'No asistida': ['danger', 'No asistida'],
             'Cancelada': ['danger', 'Cancelada']
         };
         const [variant, label] = map[status] || ['secondary', status];

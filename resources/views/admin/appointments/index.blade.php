@@ -25,6 +25,7 @@
 @push('scripts')
 <script>
     // Pass data to JavaScript
+    window.userCanEditStatus = {{ auth()->user()->hasRole(['SUPER_ADMIN', 'OWNER']) ? 'true' : 'false' }};
     window.apiEndpoints = {
         fetchAppointments: '{{ route('admin.appointments.fetch') }}',
         confirmAppointment: '{{ route('admin.appointments.confirm', ['appointment' => ':id']) }}',
@@ -32,6 +33,7 @@
         assignStaff: '{{ route('admin.appointments.assign-staff', ['appointment' => ':id']) }}',
         reschedule: '{{ route('admin.appointments.reschedule', ['appointment' => ':id']) }}',
         cancel: '{{ route('admin.appointments.cancel', ['appointment' => ':id']) }}',
+        updateStatus: '{{ route('admin.appointments.update-status', ['appointment' => ':id']) }}',
         getStaffList: '{{ route('admin.staff.list') }}',
         getTreatmentsList: '{{ route('admin.treatments.list') }}'
     };

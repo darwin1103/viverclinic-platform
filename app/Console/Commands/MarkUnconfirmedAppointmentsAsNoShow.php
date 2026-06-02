@@ -28,23 +28,36 @@ class MarkUnconfirmedAppointmentsAsNoShow extends Command
     public function handle()
     {
         $now = Date::now();
-        // El límite de tiempo es 24 horas a partir de ahora.
+        // The time limit is 24 hours from now for unconfirmed appointments.
         $limitDate = $now->copy()->addHours(24);
 
-        $appointmentsToUpdate = Appointment::where('status', 'Por confirmar')
+        // 1. Find unconfirmed appointments within the next 24 hours.
+        $unconfirmedAppointments = Appointment::where('status', 'Por confirmar')
             ->where('schedule', '<=', $limitDate)
             ->get();
 
-        if ($appointmentsToUpdate->isEmpty()) {
-            $this->info('No unconfirmed appointments found within the next 24 hours.');
-            return;
-        }
+        $updatedCount = 0;
 
-        foreach ($appointmentsToUpdate as $appointment) {
+        foreach ($unconfirmedAppointments as $appointment) {
             $appointment->status = 'No asistida';
+            $appointment->attended = false;
             $appointment->save();
+            $updatedCount++;
         }
 
-        $this->info($appointmentsToUpdate->count() . ' appointments have been marked as "No asistida".');
+        // 2. Find past appointments that have passed and were not marked as attended/not-attended.
+        $pastAppointments = Appointment::where('schedule', '<', $now)
+            ->whereNull('attended')
+            ->whereNotIn('status', ['No asistida', 'Cancelada'])
+            ->get();
+
+        foreach ($pastAppointments as $appointment) {
+            $appointment->status = 'No asistida';
+            $appointment->attended = false;
+            $appointment->save();
+            $updatedCount++;
+        }
+
+        $this->info($updatedCount . ' appointments have been marked as "No asistida".');
     }
 }

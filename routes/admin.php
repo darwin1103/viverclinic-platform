@@ -107,6 +107,11 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
             Route::post('/appointments/available-slots', 'availableSlots')
                 ->name('appointments.available-slots');
 
+            // Update status (SUPER_ADMIN/OWNER only)
+            Route::post('/appointments/{appointment}/status', 'updateStatus')
+                ->middleware('role:SUPER_ADMIN|OWNER')
+                ->name('appointments.update-status');
+
             // Update appointment (generic endpoint)
             Route::put('/appointments/{appointment}', 'update')
                 ->name('appointments.update');

@@ -5,11 +5,14 @@
     $futureAppointment = $sessions->first(function ($session) {
         return is_null($session['attended']) &&
                isset($session['date']) &&
+               !in_array($session['status'], ['No asistida', 'Cancelada']) &&
                Illuminate\Support\Carbon::parse($session['date'])->isFuture();
     });
 
     // Determine the next session in sequence
-    $lastCompletedSessionNumber = $sessions->whereNotNull('attended')->max('session_number') ?? 0;
+    $lastCompletedSessionNumber = $sessions->filter(function ($session) {
+        return !is_null($session['attended']) || $session['status'] === 'No asistida';
+    })->max('session_number') ?? 0;
     $nextSessionInSequence = $lastCompletedSessionNumber + 1;
 @endphp
 
@@ -27,11 +30,11 @@
             @for ($i = 1; $i <= $totalSessions; $i++)
                 @php
                     $session = $sessions->firstWhere('session_number', $i);
-                    $isPast = isset($session) && $session['attended'] !== null;
-                    $isNextSession = isset($session) && $session['date'] !== null && $session['attended'] === null;
+                    $isPast = isset($session) && ($session['attended'] !== null || $session['status'] === 'No asistida');
+                    $isNextSession = isset($session) && $session['date'] !== null && $session['attended'] === null && !in_array($session['status'], ['No asistida', 'Cancelada']);
                     $canSchedule = $i === $nextSessionInSequence && !$futureAppointment && $paymentIsUpToDate;
                     $isDisabled = !$isPast && !$isNextSession && !$canSchedule;
-                    $canManageOptions = $isNextSession && Illuminate\Support\Carbon::parse($session['schedule'])->gt(Illuminate\Support\Carbon::now()->addHours(24));
+                    $canManageOptions = $isNextSession && isset($session['schedule']) && Illuminate\Support\Carbon::parse($session['schedule'])->gt(Illuminate\Support\Carbon::now()->addHours(24));
                     $isConfirmed = isset($session) && $session['status'] === 'Confirmada';
                 @endphp
                 <tr data-session="{{ $i }}"

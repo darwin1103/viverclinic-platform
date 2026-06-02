@@ -48,11 +48,15 @@ class ScheduleAppointmentController extends Controller
         // --- LÓGICA DE VALIDACIÓN DE PAGOS ---
 
         // Determinar cuál es la próxima sesión (secuencial)
-        $lastAttended = $contracted_treatment->appointments->where('attended', true)->max('session_number') ?? 0;
-        $nextSessionNumber = $lastAttended + 1;
+        $lastCompletedOrMissed = $contracted_treatment->appointments->filter(function($appointment) {
+            return $appointment->attended !== null || $appointment->status === 'No asistida';
+        })->max('session_number') ?? 0;
+        $nextSessionNumber = $lastCompletedOrMissed + 1;
 
         // Verificar si existe una cita futura ya agendada (pendiente de asistencia)
-        $hasFutureAppointment = $contracted_treatment->appointments->where('attended', null)->count() > 0;
+        $hasFutureAppointment = $contracted_treatment->appointments->filter(function($appointment) {
+            return is_null($appointment->attended) && !in_array($appointment->status, ['No asistida', 'Cancelada']);
+        })->count() > 0;
 
         $paymentIsUpToDate = false;
         $nextPaymentAmount = 0;

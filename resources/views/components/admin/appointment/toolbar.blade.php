@@ -50,6 +50,7 @@
                         <option value="Confirmada">Confirmada</option>
                         <option value="Atendida">Atendida</option>
                         <option value="Completada">Completada</option>
+                        <option value="No asistida">No asistida</option>
                         <option value="Cancelada">Cancelada</option>
                     </select>
                 </div>
@@ -98,6 +99,12 @@
                         </select>
                         <select id="filterStatusMobile" class="form-select form-select-sm">
                             <option value="">Todos los estados</option>
+                            <option value="Por confirmar">Pendiente</option>
+                            <option value="Confirmada">Confirmada</option>
+                            <option value="Atendida">Atendida</option>
+                            <option value="Completada">Completada</option>
+                            <option value="No asistida">No asistida</option>
+                            <option value="Cancelada">Cancelada</option>
                         </select>
                         <button id="btnClearFiltersMobile" class="btn btn-outline-secondary btn-sm">
                             <i class="bi bi-x-circle me-1"></i>Limpiar filtros

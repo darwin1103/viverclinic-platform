@@ -376,4 +376,52 @@ class AdminAppointmentController extends Controller
             return response()->json(['error' => 'Could not retrieve available slots.'], 500);
         }
     }
+
+    /**
+     * Update the status of an appointment manually.
+     */
+    public function updateStatus(Appointment $appointment, Request $request)
+    {
+        $validated = $request->validate([
+            'status' => 'required|string|in:Por confirmar,Confirmada,Agendado,Atendida,No asistida,Completada',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $status = $validated['status'];
+            $appointment->status = $status;
+
+            if ($status === 'Atendida' || $status === 'Completada') {
+                $appointment->attended = true;
+
+                // Assign staff member if not already assigned
+                if (!$appointment->staff_user_id) {
+                    $staffId = $this->assignStaffSequentially($appointment);
+                    $appointment->staff_user_id = $staffId;
+                    StaffProfile::where('user_id', $staffId)->update([
+                        'last_appointment_assigned' => Carbon::now(),
+                    ]);
+                }
+            } elseif ($status === 'No asistida') {
+                $appointment->attended = false;
+            } else {
+                $appointment->attended = null;
+            }
+
+            $appointment->save();
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Estado de la cita actualizado exitosamente.',
+                'appointment' => $appointment->load(['staff', 'contractedTreatment.user'])
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el estado de la cita: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

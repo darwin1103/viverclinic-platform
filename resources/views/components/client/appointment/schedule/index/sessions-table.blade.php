@@ -14,7 +14,7 @@
             @for ($i = 1; $i <= $totalSessions; $i++)
                 @php
                     $session = $sessions->firstWhere('session_number', $i);
-                    $isPast = isset($session) && $session['attended'] !== null;
+                    $isPast = isset($session) && ($session['attended'] !== null || $session['status'] === 'No asistida');
                     $isConfirmed = isset($session) && $session['status'] === 'Confirmada';
 
                     // La siguiente sesión agendable (basado en lo que envió el controlador)

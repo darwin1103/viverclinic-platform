@@ -136,7 +136,21 @@ const AdminActionsModule = (function() {
                             <div><strong>Profesional:</strong> ${currentAppointment.professional}</div>
                             <div><strong>Fecha:</strong> ${formattedDate}</div>
                             <div><strong>Hora:</strong> ${currentAppointment.start} ${currentAppointment.duration ? `(${currentAppointment.duration} min)` : ''}</div>
-                            <div><strong>Estado:</strong> <span class="badge text-bg-${getStatusVariant(currentAppointment.status)}">${currentAppointment.status}</span></div>
+                            <div>
+                                <strong>Estado:</strong> 
+                                ${window.userCanEditStatus ? `
+                                    <select id="selectAppointmentStatus" class="form-select form-select-sm d-inline-block w-auto ms-1 bg-dark text-white border-secondary" style="vertical-align: middle;">
+                                        ${['Por confirmar', 'Confirmada', 'Agendado', 'Atendida', 'No asistida', 'Completada'].map(s => `
+                                            <option value="${s}" ${currentAppointment.status === s ? 'selected' : ''}>${s}</option>
+                                        `).join('')}
+                                    </select>
+                                    <button type="button" id="btnSaveStatus" class="btn btn-sm btn-primary ms-1" style="vertical-align: middle;">
+                                        <i class="bi bi-save me-1"></i>Guardar
+                                    </button>
+                                ` : `
+                                    <span class="badge text-bg-${getStatusVariant(currentAppointment.status)}">${currentAppointment.status}</span>
+                                `}
+                            </div>
 
                             ${(currentAppointment.zones?.big?.length > 0) ? `
                                 <div>
@@ -173,6 +187,13 @@ const AdminActionsModule = (function() {
         </div>
         `;
 
+        if (window.userCanEditStatus) {
+            const btnSaveStatus = document.getElementById('btnSaveStatus');
+            if (btnSaveStatus) {
+                btnSaveStatus.addEventListener('click', handleSaveStatus);
+            }
+        }
+
         // Show/hide action buttons based on status
         updateActionButtons();
     }
@@ -196,6 +217,48 @@ const AdminActionsModule = (function() {
         }
         if (elements.btnCancel) {
             elements.btnCancel.classList.toggle('d-none', !canCancel);
+        }
+    }
+
+    async function handleSaveStatus() {
+        const select = document.getElementById('selectAppointmentStatus');
+        if (!select || !currentAppointment) return;
+
+        const newStatus = select.value;
+        if (newStatus === currentAppointment.status) {
+            showToast('El estado es el mismo');
+            return;
+        }
+
+        if (!confirm(`¿Está seguro de cambiar el estado de esta cita de "${currentAppointment.status}" a "${newStatus}"?`)) {
+            return;
+        }
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const url = window.apiEndpoints.updateStatus.replace(':id', currentAppointment.id);
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                showToast('Estado de la cita actualizado exitosamente');
+                closeModal();
+                reloadCalendar();
+            } else {
+                showToast(data.message || 'Error al actualizar el estado de la cita', 'danger');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Error de red al procesar la solicitud', 'danger');
         }
     }
 
@@ -510,8 +573,10 @@ const AdminActionsModule = (function() {
     function getStatusVariant(status) {
         const map = {
             'Confirmada': 'success',
+            'Completada': 'success',
             'Por confirmar': 'warning',
             'Atendida': 'info',
+            'No asistida': 'danger',
             'Cancelada': 'danger'
         };
         return map[status] || 'secondary';

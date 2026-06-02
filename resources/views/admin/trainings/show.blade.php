@@ -17,7 +17,7 @@
                         <iframe src="https://www.youtube.com/embed/{{ $training->youtube_id }}" title="YouTube video" allowfullscreen></iframe>
                     </div>
                 @endif
-                <div class="card-body p-5">
+                <div class="card-body p-3 p-md-5">
                     <h1 class="card-title fw-bold text-primary mb-3">{{ $training->title }}</h1>
                     <p class="lead text-muted border-bottom pb-3 mb-4">{{ $training->description }}</p>
                     

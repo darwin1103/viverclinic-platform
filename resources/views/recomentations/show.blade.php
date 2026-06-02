@@ -13,7 +13,7 @@
         @if($recommendation->image)
             <img src="{{ Storage::url($recommendation->image) }}" class="card-img-top" alt="{{ $recommendation->title }}" style="max-height: 400px; object-fit: cover;">
         @endif
-        <div class="card-body p-5">
+        <div class="card-body p-3 p-md-5">
             <h1 class="fw-bold text-primary mb-3">{{ $recommendation->title }}</h1>
             <p class="lead text-muted border-bottom pb-3 mb-4">{{ $recommendation->description }}</p>
             

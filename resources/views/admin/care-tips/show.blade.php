@@ -15,7 +15,7 @@
                 @if($careTip->image)
                     <img src="{{ Storage::url($careTip->image) }}" class="card-img-top" alt="{{ $careTip->title }}" style="max-height: 400px; object-fit: cover;">
                 @endif
-                <div class="card-body p-5">
+                <div class="card-body p-3 p-md-5">
                     <h1 class="card-title fw-bold text-primary mb-3">{{ $careTip->title }}</h1>
                     <p class="lead text-muted border-bottom pb-3 mb-4">{{ $careTip->description }}</p>
                     

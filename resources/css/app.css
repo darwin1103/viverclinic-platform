@@ -68,3 +68,14 @@ td {
 .pagination .page-item {
   background-color: #0e424f !important;
 }
+
+/* Make WYSIWYG content responsive */
+.content-body img,
+.content-body video {
+  max-width: 100%;
+  height: auto;
+}
+
+.content-body iframe {
+  max-width: 100%;
+}

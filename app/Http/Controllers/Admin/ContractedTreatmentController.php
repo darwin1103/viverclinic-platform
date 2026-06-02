@@ -277,17 +277,21 @@ class ContractedTreatmentController extends Controller
             abort(403);
         }
 
-        $request->validate([
+        $rules = [
             'sessions' => 'required|integer|min:1',
             'days_between_sessions' => 'required|integer|min:0',
             'selected_zones' => 'nullable|array',
             'another_big_zone' => 'nullable|string|max:100',
             'another_mini_zone' => 'nullable|string|max:100',
-        ]);
+            'status' => 'nullable|string|in:Pending,Paid,Completed,Cancelled',
+        ];
+
+        $request->validate($rules);
 
         $oldSessions = $contractedTreatment->sessions;
         $oldDays = $contractedTreatment->days_between_sessions;
         $oldZones = $contractedTreatment->selected_zones ?? ['big' => [], 'mini' => []];
+        $oldStatus = $contractedTreatment->status;
 
         $selectedZones = $request->selected_zones ?? ['big' => [], 'mini' => []];
         if (!empty($request->another_big_zone)) {
@@ -311,11 +315,18 @@ class ContractedTreatmentController extends Controller
             $selectedZones['mini'] = [];
         }
 
-        $contractedTreatment->update([
+        $updateData = [
             'sessions' => $request->sessions,
             'days_between_sessions' => $request->days_between_sessions,
             'selected_zones' => $selectedZones,
-        ]);
+        ];
+
+        // Only update status if submitted (SUPER_ADMIN/OWNER only)
+        if ($request->filled('status')) {
+            $updateData['status'] = $request->status;
+        }
+
+        $contractedTreatment->update($updateData);
 
         // Audit changes
         $changes = [];
@@ -324,6 +335,12 @@ class ContractedTreatmentController extends Controller
         }
         if ($oldDays != $contractedTreatment->days_between_sessions) {
             $changes[] = "- Días entre sesiones: de {$oldDays} a {$contractedTreatment->days_between_sessions}";
+        }
+        if ($oldStatus != $contractedTreatment->status) {
+            $statusLabels = ['Pending' => 'Pendiente', 'Paid' => 'Pagado', 'Completed' => 'Completado', 'Cancelled' => 'Cancelado'];
+            $oldLabel = $statusLabels[$oldStatus] ?? $oldStatus;
+            $newLabel = $statusLabels[$contractedTreatment->status] ?? $contractedTreatment->status;
+            $changes[] = "- Estado: de {$oldLabel} a {$newLabel}";
         }
 
         $oldBig = $oldZones['big'] ?? [];

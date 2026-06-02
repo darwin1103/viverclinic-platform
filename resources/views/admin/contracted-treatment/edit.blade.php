@@ -29,17 +29,37 @@
 
                 <h4 class="mb-3 text-primary border-bottom pb-2">1. Datos Generales</h4>
                 <div class="row mb-4">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-{{ auth()->user()->hasRole(['SUPER_ADMIN', 'OWNER']) ? '4' : '6' }} mb-3">
                         <label for="sessions" class="form-label fw-bold">Número de Sesiones</label>
                         <input type="number" name="sessions" id="sessions" class="form-control" min="1" value="{{ old('sessions', $contractedTreatment->sessions) }}" required>
                         <small class="text-muted">Total de sesiones contratadas en este plan.</small>
                     </div>
 
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-{{ auth()->user()->hasRole(['SUPER_ADMIN', 'OWNER']) ? '4' : '6' }} mb-3">
                         <label for="days_between_sessions" class="form-label fw-bold">Frecuencia (Días entre sesiones)</label>
                         <input type="number" name="days_between_sessions" id="days_between_sessions" class="form-control" min="0" value="{{ old('days_between_sessions', $contractedTreatment->days_between_sessions) }}" required>
                         <small class="text-muted">Días de separación recomendados entre cada cita.</small>
                     </div>
+
+                    @if(auth()->user()->hasRole(['SUPER_ADMIN', 'OWNER']))
+                        <div class="col-md-4 mb-3">
+                            <label for="status" class="form-label fw-bold">Estado del Paquete</label>
+                            <select name="status" id="status" class="form-select">
+                                @php
+                                    $statuses = [
+                                        'Pending' => 'Pendiente',
+                                        'Paid' => 'Pagado',
+                                        'Completed' => 'Completado',
+                                        'Cancelled' => 'Cancelado',
+                                    ];
+                                @endphp
+                                @foreach($statuses as $value => $label)
+                                    <option value="{{ $value }}" @selected(old('status', $contractedTreatment->status) == $value)>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                            <small class="text-muted">Cambiar el estado manualmente del paquete contratado.</small>
+                        </div>
+                    @endif
                 </div>
 
                 <h4 class="mb-3 text-primary border-bottom pb-2">2. Zonas del Tratamiento</h4>

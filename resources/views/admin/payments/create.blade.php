@@ -20,7 +20,7 @@
                     <div class="col-12 col-md-6">
                         <label class="form-label">Paciente <span class="text-danger">*</span></label>
                         <div class="position-relative">
-                            <input type="text" class="form-control" id="patientSearch" placeholder="Buscar paciente por nombre..." autocomplete="off">
+                            <input type="text" class="form-control" id="patientSearch" placeholder="Buscar paciente por nombre o email..." autocomplete="off">
                             <input type="hidden" name="user_id" id="selectedPatientId" value="{{ old('user_id') }}">
                             <div id="patientDropdown" class="dropdown-menu w-100 shadow" style="max-height: 250px; overflow-y: auto;"></div>
                         </div>
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        const filtered = patients.filter(p => p.name.toLowerCase().includes(query)).slice(0, 15);
+        const filtered = patients.filter(p => p.name.toLowerCase().includes(query) || (p.email && p.email.toLowerCase().includes(query))).slice(0, 15);
 
         if (filtered.length === 0) {
             dropdown.innerHTML = '<div class="dropdown-item text-muted">Sin resultados</div>';
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const item = document.createElement('a');
                 item.href = '#';
                 item.className = 'dropdown-item';
-                item.textContent = patient.name;
+                item.innerHTML = `${patient.name} <small class="text-muted">(${patient.email || 'Sin correo'})</small>`;
                 item.addEventListener('click', function(e) {
                     e.preventDefault();
                     selectPatient(patient);

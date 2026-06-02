@@ -139,12 +139,13 @@ class PaymentController extends Controller
     public function create(): View
     {
         $patients = User::role('PATIENT')
-            ->select(['id', 'name'])
+            ->select(['id', 'name', 'email'])
             ->orderBy('name')
             ->get()
             ->map(fn($p) => [
                 'id' => $p->id,
                 'name' => $p->name,
+                'email' => $p->email,
             ]);
 
         return view('admin.payments.create', compact('patients'));

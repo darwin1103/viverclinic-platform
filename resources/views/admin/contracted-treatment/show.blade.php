@@ -9,7 +9,7 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">Detalles del Tratamiento Contratado</h4>
                     <div class="d-flex gap-2">
-                        @hasanyrole('SUPER_ADMIN|OWNER|ADMIN_MANAGER')
+                        @hasanyrole('SUPER_ADMIN|OWNER|ADMIN')
                             @if($contractedTreatment->canBeUpgraded())
                                 <a href="{{ route('admin.contracted-treatment.upgrade', $contractedTreatment->id) }}" class="btn btn-success">
                                     <i class="bi bi-arrow-up-circle me-1"></i>

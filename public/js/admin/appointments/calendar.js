@@ -123,12 +123,28 @@ const AdminCalendarModule = (function() {
 
     function navigatePrevDay() {
         currentMobileDate.setDate(currentMobileDate.getDate() - 1);
-        renderMobileView();
+        if (currentMobileDate.getTime() < currentStart.getTime()) {
+            currentStart.setDate(currentStart.getDate() - 7);
+            renderRangeLabel();
+            loadAppointments();
+        } else {
+            renderMobileView();
+        }
     }
 
     function navigateNextDay() {
         currentMobileDate.setDate(currentMobileDate.getDate() + 1);
-        renderMobileView();
+        
+        const weekEnd = new Date(currentStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        
+        if (currentMobileDate.getTime() > weekEnd.getTime()) {
+            currentStart.setDate(currentStart.getDate() + 7);
+            renderRangeLabel();
+            loadAppointments();
+        } else {
+            renderMobileView();
+        }
     }
 
     function renderRangeLabel() {
@@ -138,8 +154,7 @@ const AdminCalendarModule = (function() {
         end.setDate(end.getDate() + 6);
 
         const isThisWeek =
-            formatYmd(currentStart) === formatYmd(mondayOf(today)) &&
-            currentStart.getDay() === 1 && end.getDay() === 7;
+            formatYmd(currentStart) === formatYmd(mondayOf(today));
 
         if (isThisWeek) {
             elements.btnOpenRange.textContent = 'Esta semana';
@@ -154,7 +169,7 @@ const AdminCalendarModule = (function() {
 
         const startDate = formatYmd(currentStart);
         const endDate = new Date(currentStart);
-        endDate.setDate(endDate.getDate() + (isMobile ? 0 : 6));
+        endDate.setDate(endDate.getDate() + 6);
         const endDateStr = formatYmd(endDate);
 
         try {
@@ -283,7 +298,11 @@ const AdminCalendarModule = (function() {
         const dateKey = formatYmd(currentMobileDate);
         const dayAppointments = appointments
             .filter(a => a.date === dateKey)
-            .sort((a, b) => a.start.localeCompare(b.start));
+            .sort((a, b) => {
+                const timeA = new Date(`01/01/2000 ${a.start}`);
+                const timeB = new Date(`01/01/2000 ${b.start}`);
+                return timeA - timeB;
+            });
 
         // Update count
         if (elements.mobileTotalCount) {
@@ -312,12 +331,12 @@ const AdminCalendarModule = (function() {
 
         card.innerHTML = `
             <div class="title" style="word-wrap: break-word;">${appointment.patient}</div>
-            <div class="meta">
-                <div>${appointment.professional}</div>
-                <div>${appointment.start}${appointment.duration ? `–${endTime(appointment.start, appointment.duration)}` : ''}</div>
+            <div class="meta mt-1 mb-2 d-flex flex-column gap-1">
+                <div class="text-truncate"><i class="bi bi-person me-1"></i>${appointment.professional}</div>
+                <div><i class="bi bi-clock me-1"></i>${appointment.start}${appointment.duration ? `–${endTime(appointment.start, appointment.duration)}` : ''}</div>
             </div>
-            <div class="">
-                <div class="">${appointment.treatment}</div>
+            <div class="d-flex align-items-center justify-content-between mt-1">
+                <div class="text-truncate small me-2">${appointment.treatment}</div>
                 ${getStatusBadge(appointment.status)}
             </div>
         `;
@@ -365,11 +384,28 @@ const AdminCalendarModule = (function() {
         setTimeout(() => toast.remove(), 2500);
     }
 
+    // Navigate calendar to a specific date
+    function goToDate(date) {
+        if (isMobile) {
+            // Mobile: set the mobile date directly and reload the week it belongs to
+            currentMobileDate = new Date(date);
+            currentMobileDate.setHours(0, 0, 0, 0);
+            currentStart = mondayOf(currentMobileDate);
+        } else {
+            // Desktop: go to the Monday of the selected date's week
+            currentStart = mondayOf(date);
+        }
+        renderRangeLabel();
+        loadAppointments();
+    }
+
     // Public API
     return {
         init: init,
         reload: loadAppointments,
-        getAppointments: () => appointments
+        getAppointments: () => appointments,
+        goToDate: goToDate,
+        isMobile: () => isMobile
     };
 })();
 

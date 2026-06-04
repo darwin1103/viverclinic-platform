@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/admin/appointments.css') }}">
+<link rel="stylesheet" href="{{ asset('css/admin/appointments.css') }}?v={{ filemtime(public_path('css/admin/appointments.css')) }}">
 @endpush
 
 @section('content')
@@ -38,7 +38,7 @@
         getTreatmentsList: '{{ route('admin.treatments.list') }}'
     };
 </script>
-<script src="{{ asset('js/admin/appointments/calendar.js') }}"></script>
-<script src="{{ asset('js/admin/appointments/actions.js') }}"></script>
-<script src="{{ asset('js/admin/appointments/filters.js') }}"></script>
+<script src="{{ asset('js/admin/appointments/calendar.js') }}?v={{ filemtime(public_path('js/admin/appointments/calendar.js')) }}"></script>
+<script src="{{ asset('js/admin/appointments/actions.js') }}?v={{ filemtime(public_path('js/admin/appointments/actions.js')) }}"></script>
+<script src="{{ asset('js/admin/appointments/filters.js') }}?v={{ filemtime(public_path('js/admin/appointments/filters.js')) }}"></script>
 @endpush

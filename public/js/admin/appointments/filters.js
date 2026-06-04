@@ -236,6 +236,30 @@ const AdminFiltersModule = (function() {
             elements.rangeApply.disabled = true;
         }
 
+        // Adapt modal text for mobile (single day) vs desktop (weekly range)
+        const mobile = window.AdminCalendarModule && window.AdminCalendarModule.isMobile();
+        const modalTitle = document.getElementById('rangeModalTitle');
+        const rangeHint = document.getElementById('rangeHint');
+        const rangeInfoAlert = document.getElementById('rangeInfoAlert');
+        const rangePreviewLabel = document.getElementById('rangePreviewLabel');
+
+        if (modalTitle) {
+            modalTitle.textContent = mobile ? 'Seleccionar día' : 'Seleccionar semana';
+        }
+        if (rangeHint) {
+            rangeHint.innerHTML = mobile
+                ? 'Elige el <strong>día</strong> que deseas ver'
+                : 'Elige el <strong>día inicial</strong> de la semana';
+        }
+        if (rangeInfoAlert) {
+            rangeInfoAlert.textContent = mobile
+                ? 'Se mostrará el día seleccionado'
+                : 'El rango mostrará la semana completa (Lun–Dom) del día seleccionado';
+        }
+        if (rangePreviewLabel) {
+            rangePreviewLabel.textContent = mobile ? 'Día seleccionado' : 'Rango seleccionado';
+        }
+
         renderRangeCalendar();
 
         const modal = new bootstrap.Modal(elements.modalRange);
@@ -290,14 +314,26 @@ const AdminFiltersModule = (function() {
     function selectRangeDate(date) {
         rangeSelected = date;
 
-        const end = new Date(date);
-        end.setDate(end.getDate() + 4);
+        const mobile = window.AdminCalendarModule && window.AdminCalendarModule.isMobile();
 
-        const startTxt = formatHuman(date, { day: '2-digit', month: 'short' }).replace('.', '');
-        const endTxt = formatHuman(end, { day: '2-digit', month: 'short' }).replace('.', '');
+        if (mobile) {
+            // Mobile: show only the selected day
+            const dayTxt = formatHuman(date, { weekday: 'long', day: '2-digit', month: 'short' }).replace('.', '');
+            if (elements.rangePreview) {
+                elements.rangePreview.textContent = dayTxt;
+            }
+        } else {
+            // Desktop: show the full week range (Mon-Sun)
+            const monday = mondayOfDate(date);
+            const sunday = new Date(monday);
+            sunday.setDate(sunday.getDate() + 6);
 
-        if (elements.rangePreview) {
-            elements.rangePreview.textContent = `${startTxt} – ${endTxt}`;
+            const startTxt = formatHuman(monday, { day: '2-digit', month: 'short' }).replace('.', '');
+            const endTxt = formatHuman(sunday, { day: '2-digit', month: 'short' }).replace('.', '');
+
+            if (elements.rangePreview) {
+                elements.rangePreview.textContent = `${startTxt} – ${endTxt}`;
+            }
         }
 
         if (elements.rangeApply) {
@@ -307,15 +343,20 @@ const AdminFiltersModule = (function() {
         renderRangeCalendar();
     }
 
+    // Helper to get Monday of a given date's week
+    function mondayOfDate(date) {
+        const d = new Date(date);
+        d.setHours(0, 0, 0, 0);
+        const k = (d.getDay() + 6) % 7;
+        d.setDate(d.getDate() - k);
+        return d;
+    }
+
     function applyRange() {
         if (!rangeSelected) return;
 
-        // Update the calendar module's current start date
-        // This is a bit hacky but works for the demo
         if (window.AdminCalendarModule) {
-            // Force update the calendar's currentStart
-            // You may need to expose this method in the calendar module
-            window.location.reload(); // Simple reload for now
+            window.AdminCalendarModule.goToDate(rangeSelected);
         }
 
         const modal = bootstrap.Modal.getInstance(elements.modalRange);

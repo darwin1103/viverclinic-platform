@@ -4,7 +4,7 @@
             <div class="modal-header">
                 <h5 class="modal-title">
                     <i class="bi bi-calendar3 me-2"></i>
-                    Seleccionar rango (5 días)
+                    <span id="rangeModalTitle">Seleccionar semana</span>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
@@ -21,8 +21,8 @@
                                     </button>
                                     <div class="text-center flex-fill">
                                         <div class="fw-semibold" id="rangeMonthLabel">Mes Año</div>
-                                        <div class="text-secondary small">
-                                            Elige el <strong>día inicial</strong> del rango
+                                        <div class="text-secondary small" id="rangeHint">
+                                            Elige el <strong>día inicial</strong> de la semana
                                         </div>
                                     </div>
                                     <button type="button" class="btn btn-outline-light btn-sm" id="rangeNextMonth">
@@ -49,12 +49,12 @@
                     <div class="col-12 col-lg-5">
                         <div class="card h-100">
                             <div class="card-body d-flex flex-column">
-                                <div class="fw-semibold mb-2">Rango seleccionado</div>
+                                <div id="rangePreviewLabel" class="fw-semibold mb-2">Rango seleccionado</div>
                                 <div id="rangePreview" class="mb-3 text-info">—</div>
 
                                 <div class="alert alert-info small mb-3">
                                     <i class="bi bi-info-circle me-1"></i>
-                                    El rango mostrará 5 días consecutivos a partir del día seleccionado
+                                    <span id="rangeInfoAlert">El rango mostrará la semana completa (Lun–Dom) del día seleccionado</span>
                                 </div>
 
                                 <div class="mt-auto d-flex gap-2">

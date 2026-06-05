@@ -13,6 +13,7 @@ use App\Models\ContractedTreatmentInstallment;
 use App\Models\PackageUpgrade;
 use App\Models\Setting;
 use App\Services\ReferralService;
+use App\Services\RepurchaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Mail\TreatmentOrderConfirmation;
@@ -180,6 +181,9 @@ class ContractedTreatmentController extends Controller
 
             // Procesar recompensa de referido (si aplica)
             ReferralService::processReward($order->user);
+
+            // Process repurchase commission (if applicable)
+            RepurchaseService::processCommission($order->user, $order);
 
             // Register income in accounting
             \App\Models\AccountingRecord::create([

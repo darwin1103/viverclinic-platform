@@ -12,6 +12,7 @@ use App\Models\StaffProfile;
 use App\Models\TreatmentOrder;
 use App\Models\User;
 use App\Models\PackageUpgrade;
+use App\Models\RepurchaseCommission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -103,8 +104,15 @@ class PayrollController extends Controller
                     ->whereYear('created_at', $year)
                     ->sum('commission_amount');
 
+                // Calculate repurchase commissions for this employee in this month
+                $repurchaseCommissions = RepurchaseCommission::where('staff_user_id', $profile->user_id)
+                    ->where('status', 'approved')
+                    ->whereMonth('created_at', $month)
+                    ->whereYear('created_at', $year)
+                    ->sum('commission_amount');
+
                 $baseSalary = $profile->salary ?? 0;
-                $total = $baseSalary + $referralCommissions + $upgradeCommissions;
+                $total = $baseSalary + $referralCommissions + $upgradeCommissions + $repurchaseCommissions;
 
                 PayrollSettlement::create([
                     'branch_id'             => $profile->branch_id,
@@ -115,6 +123,7 @@ class PayrollController extends Controller
                     'base_salary'           => $baseSalary,
                     'referral_commissions'  => $referralCommissions,
                     'upgrade_commissions'   => $upgradeCommissions,
+                    'repurchase_commissions' => $repurchaseCommissions,
                     'sales_commissions'     => 0,
                     'total'                 => $total,
                 ]);
@@ -229,5 +238,30 @@ class PayrollController extends Controller
         });
 
         return back()->with('success', 'Liquidación marcada como pagada. Se registró el egreso en contabilidad.');
+    }
+
+    /**
+     * Update manual bonus for a settlement.
+     */
+    public function updateManualBonus(Request $request, PayrollSettlement $settlement)
+    {
+        $request->validate([
+            'manual_bonus' => 'required|numeric|min:0',
+            'manual_bonus_note' => 'nullable|string|max:255',
+        ]);
+
+        $oldBonus = $settlement->manual_bonus ?? 0;
+        $newBonus = $request->manual_bonus;
+
+        // Recalculate total: remove old bonus, add new bonus
+        $newTotal = $settlement->total - $oldBonus + $newBonus;
+
+        $settlement->update([
+            'manual_bonus' => $newBonus,
+            'manual_bonus_note' => $request->manual_bonus_note,
+            'total' => $newTotal,
+        ]);
+
+        return back()->with('success', 'Bono manual actualizado correctamente para ' . ($settlement->user->name ?? ''));
     }
 }

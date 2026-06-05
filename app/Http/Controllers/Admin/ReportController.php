@@ -11,6 +11,7 @@ use App\Models\Appointment;
 use App\Models\User;
 use App\Models\Referral;
 use App\Models\PackageUpgrade;
+use App\Models\RepurchaseCommission;
 
 class ReportController extends Controller
 {
@@ -159,6 +160,16 @@ class ReportController extends Controller
         $upgradeCount = (clone $upgradeIncomeQuery)->count();
         $upgradeCommissions = (clone $upgradeIncomeQuery)->sum('commission_amount');
 
+        // Repurchase KPIs
+        $repurchaseQuery = RepurchaseCommission::where('status', 'approved')
+            ->whereDate('created_at', '>=', $from)
+            ->whereDate('created_at', '<=', $to);
+        if ($branchId) {
+            $repurchaseQuery->where('branch_id', $branchId);
+        }
+        $repurchaseCount = (clone $repurchaseQuery)->count();
+        $repurchaseCommissions = (clone $repurchaseQuery)->sum('commission_amount');
+
         // --- 6. Revenue by Payment Method ---
         $revenueByMethodQuery = TreatmentOrder::whereIn('status', ['Pagado', 'Completado', 'Paid', 'Completed', 'Pago completado', 'Aprobado', 'APPROVED'])
             ->whereDate('created_at', '>=', $from)
@@ -202,6 +213,7 @@ class ReportController extends Controller
             'newPatients', 'finishedPatients', 'treatmentIncome', 'productIncome', 'totalExpenses', 'attendedPatients',
             'recurringPatients', 'convertedReferrals',
             'upgradeIncome', 'upgradeCount', 'upgradeCommissions',
+            'repurchaseCount', 'repurchaseCommissions',
             'revenueByMethod', 'maxMethodTotal',
             'shotsRecords'
         ));

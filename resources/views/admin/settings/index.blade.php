@@ -54,7 +54,7 @@
                 <small class="text-secondary">Si está desactivado, los pacientes no podrán ver su enlace de referido.</small>
             </div>
 
-            <div class="col-12 col-md-3">
+            <div class="col-12 col-md-4">
                 <label for="referral_bonus_sessions" class="form-label fw-bold text-white">Sesiones extra para el referidor</label>
                 <input type="number" class="form-control bg-dark text-white border-secondary" id="referral_bonus_sessions"
                        name="referral_bonus_sessions" value="{{ $referralBonusSessions }}"
@@ -62,7 +62,7 @@
                 <small class="text-secondary">Sesiones gratuitas que recibe el paciente que refiere.</small>
             </div>
 
-            <div class="col-12 col-md-3">
+            <div class="col-12 col-md-4">
                 <label for="referral_commission_type" class="form-label fw-bold text-white">Tipo de comisión (empleada)</label>
                 <select class="form-select bg-dark text-white border-secondary" id="referral_commission_type" name="referral_commission_type">
                     <option value="fixed" {{ $referralCommissionType === 'fixed' ? 'selected' : '' }}>
@@ -75,7 +75,7 @@
                 <small class="text-secondary">La comisión se asigna a la última empleada que atendió al referidor.</small>
             </div>
 
-            <div class="col-12 col-md-3">
+            <div class="col-12 col-md-4">
                 <label for="referral_commission_value" class="form-label fw-bold text-white">Valor de la comisión</label>
                 <div class="input-group">
                     <input type="number" class="form-control bg-dark text-white border-secondary" id="referral_commission_value"
@@ -88,16 +88,6 @@
                 <small class="text-secondary">Ingresa 0 para desactivar la comisión de empleada.</small>
             </div>
 
-            <div class="col-12 col-md-3">
-                <label for="staff_commission_target" class="form-label fw-bold text-white">Meta mensual de referidos</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-secondary text-white border-secondary">COP</span>
-                    <input type="number" class="form-control bg-dark text-white border-secondary" id="staff_commission_target" name="staff_commission_target"
-                           value="{{ $staffCommissionTarget }}" min="0" step="1000">
-                </div>
-                <small class="text-secondary">Meta de comisiones por referidos que el staff debe alcanzar.</small>
-            </div>
-
             {{-- Sección Agrandamientos --}}
             <div class="col-12 mt-4">
                 <h5 class="fw-bold border-bottom pb-2 mb-3 text-warning">
@@ -105,7 +95,7 @@
                 </h5>
             </div>
 
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-6">
                 <label for="upgrade_commission_type" class="form-label fw-bold text-white">Tipo de comisión (empleada)</label>
                 <select class="form-select bg-dark text-white border-secondary" id="upgrade_commission_type" name="upgrade_commission_type">
                     <option value="fixed" {{ $upgradeCommissionType === 'fixed' ? 'selected' : '' }}>
@@ -118,7 +108,7 @@
                 <small class="text-secondary">Tipo de comisión asignada por agrandamiento de paquete.</small>
             </div>
 
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-6">
                 <label for="upgrade_commission_value" class="form-label fw-bold text-white">Valor de la comisión</label>
                 <div class="input-group">
                     <input type="number" class="form-control bg-dark text-white border-secondary" id="upgrade_commission_value"
@@ -131,14 +121,54 @@
                 <small class="text-secondary">Se calcula sobre la diferencia pagada por el cliente.</small>
             </div>
 
-            <div class="col-12 col-md-4">
-                <label for="upgrade_commission_target" class="form-label fw-bold text-white">Meta mensual de agrandamientos</label>
+            {{-- Sección Recompras --}}
+            <div class="col-12 mt-4">
+                <h5 class="fw-bold border-bottom pb-2 mb-3 text-primary">
+                    <i class="bi bi-arrow-repeat me-2"></i>Sistema de Recompras
+                </h5>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label for="repurchase_commission_type" class="form-label fw-bold text-white">Tipo de comisión (empleada)</label>
+                <select class="form-select bg-dark text-white border-secondary" id="repurchase_commission_type" name="repurchase_commission_type">
+                    <option value="fixed" {{ $repurchaseCommissionType === 'fixed' ? 'selected' : '' }}>
+                        Pago fijo (COP)
+                    </option>
+                    <option value="percentage" {{ $repurchaseCommissionType === 'percentage' ? 'selected' : '' }}>
+                        Porcentaje (%)
+                    </option>
+                </select>
+                <small class="text-secondary">Comisión asignada a la última empleada que atendió al paciente antes de la recompra.</small>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label for="repurchase_commission_value" class="form-label fw-bold text-white">Valor de la comisión</label>
+                <div class="input-group">
+                    <input type="number" class="form-control bg-dark text-white border-secondary" id="repurchase_commission_value"
+                           name="repurchase_commission_value" value="{{ $repurchaseCommissionValue }}"
+                           min="0" step="0.01" placeholder="0">
+                    <span class="input-group-text bg-secondary text-white border-secondary" id="repurchase-commission-suffix">
+                        {{ $repurchaseCommissionType === 'percentage' ? '%' : 'COP' }}
+                    </span>
+                </div>
+                <small class="text-secondary">Ingresa 0 para desactivar. Si es %, se calcula sobre el total del nuevo tratamiento.</small>
+            </div>
+
+            {{-- Meta Global de Comisiones --}}
+            <div class="col-12 mt-4">
+                <h5 class="fw-bold border-bottom pb-2 mb-3 text-success">
+                    <i class="bi bi-trophy me-2"></i>Meta Global de Comisiones
+                </h5>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label for="commission_target" class="form-label fw-bold text-white">Meta mensual unificada</label>
                 <div class="input-group">
                     <span class="input-group-text bg-secondary text-white border-secondary">COP</span>
-                    <input type="number" class="form-control bg-dark text-white border-secondary" id="upgrade_commission_target" name="upgrade_commission_target"
-                           value="{{ $upgradeCommissionTarget }}" min="0" step="1000">
+                    <input type="number" class="form-control bg-dark text-white border-secondary" id="commission_target" name="commission_target"
+                           value="{{ $commissionTarget }}" min="0" step="1000">
                 </div>
-                <small class="text-secondary">Meta de comisiones por agrandamiento que el staff debe alcanzar.</small>
+                <small class="text-secondary">Meta unificada que incluye comisiones por referidos, agrandamientos y recompras.</small>
             </div>
 
             {{-- Sección Pagos --}}
@@ -196,6 +226,11 @@
 
     document.getElementById('upgrade_commission_type').addEventListener('change', function() {
         const suffix = document.getElementById('upgrade-commission-suffix');
+        suffix.textContent = this.value === 'percentage' ? '%' : 'COP';
+    });
+
+    document.getElementById('repurchase_commission_type').addEventListener('change', function() {
+        const suffix = document.getElementById('repurchase-commission-suffix');
         suffix.textContent = this.value === 'percentage' ? '%' : 'COP';
     });
 </script>

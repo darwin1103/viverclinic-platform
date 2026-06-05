@@ -7,6 +7,7 @@ use App\Models\PayrollSettlement;
 use App\Models\Referral;
 use App\Models\Setting;
 use App\Models\PackageUpgrade;
+use App\Models\RepurchaseCommission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -42,23 +43,25 @@ class PayrollController extends Controller
             ->whereYear('created_at', $year)
             ->sum('commission_amount');
 
-        $referralTarget = (float) Setting::get('staff_commission_target', 0);
-        $upgradeTarget = (float) Setting::get('upgrade_commission_target', 0);
+        $currentRepurchaseCommissions = RepurchaseCommission::where('staff_user_id', $user->id)
+            ->where('status', 'approved')
+            ->whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->sum('commission_amount');
 
-        $referralProgress = 0;
-        if ($referralTarget > 0) {
-            $referralProgress = min(100, ($currentReferralCommissions / $referralTarget) * 100);
-        }
+        // Unified commission target
+        $commissionTarget = (float) Setting::get('commission_target', 0);
+        $totalCommissions = $currentReferralCommissions + $currentUpgradeCommissions + $currentRepurchaseCommissions;
 
-        $upgradeProgress = 0;
-        if ($upgradeTarget > 0) {
-            $upgradeProgress = min(100, ($currentUpgradeCommissions / $upgradeTarget) * 100);
+        $commissionProgress = 0;
+        if ($commissionTarget > 0) {
+            $commissionProgress = min(100, ($totalCommissions / $commissionTarget) * 100);
         }
 
         return view('staff.payroll.index', compact(
             'profile', 'month', 'year', 'settlements',
-            'currentReferralCommissions', 'referralTarget', 'referralProgress',
-            'currentUpgradeCommissions', 'upgradeTarget', 'upgradeProgress'
+            'currentReferralCommissions', 'currentUpgradeCommissions', 'currentRepurchaseCommissions',
+            'totalCommissions', 'commissionTarget', 'commissionProgress'
         ));
     }
 }

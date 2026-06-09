@@ -242,6 +242,7 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
         Route::post('/payroll/generate', [PayrollController::class, 'generate'])->name('payroll.generate');
         Route::post('/payroll/{settlement}/mark-paid', [PayrollController::class, 'markAsPaid'])->name('payroll.mark-paid');
         Route::post('/payroll/{settlement}/manual-bonus', [PayrollController::class, 'updateManualBonus'])->name('payroll.manual-bonus');
+        Route::get('/payroll/{settlement}', [PayrollController::class, 'show'])->name('payroll.show');
     });
 
 });

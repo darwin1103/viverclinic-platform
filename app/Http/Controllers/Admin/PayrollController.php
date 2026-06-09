@@ -241,6 +241,53 @@ class PayrollController extends Controller
     }
 
     /**
+     * Display detailed view of a settlement with all commission entries.
+     */
+    public function show(PayrollSettlement $settlement)
+    {
+        $settlement->load(['user', 'branch']);
+
+        $month = $settlement->period_month;
+        $year = $settlement->period_year;
+        $userId = $settlement->user_id;
+
+        $months = [
+            1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril',
+            5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto',
+            9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'
+        ];
+
+        // Referral commission entries
+        $referralEntries = Referral::with(['referred'])
+            ->where('staff_id', $userId)
+            ->where('status', 'rewarded')
+            ->whereMonth('rewarded_at', $month)
+            ->whereYear('rewarded_at', $year)
+            ->get();
+
+        // Upgrade commission entries
+        $upgradeEntries = PackageUpgrade::with(['contractedTreatment.user', 'contractedTreatment.treatment'])
+            ->where('staff_user_id', $userId)
+            ->where('payment_status', 'APPROVED')
+            ->whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->get();
+
+        // Repurchase commission entries
+        $repurchaseEntries = RepurchaseCommission::with(['contractedTreatment.user', 'contractedTreatment.treatment'])
+            ->where('staff_user_id', $userId)
+            ->where('status', 'approved')
+            ->whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->get();
+
+        return view('admin.payroll.show', compact(
+            'settlement', 'months', 'month', 'year',
+            'referralEntries', 'upgradeEntries', 'repurchaseEntries'
+        ));
+    }
+
+    /**
      * Update manual bonus for a settlement.
      */
     public function updateManualBonus(Request $request, PayrollSettlement $settlement)

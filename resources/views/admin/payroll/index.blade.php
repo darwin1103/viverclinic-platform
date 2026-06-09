@@ -182,10 +182,9 @@
                         <td>
                             @if($settlement->status === 'pending')
                                 <div class="d-flex gap-1">
-                                    <button type="button" class="btn btn-sm btn-outline-info" title="Agregar bono manual"
-                                            data-bs-toggle="modal" data-bs-target="#bonusModal{{ $settlement->id }}">
-                                        <i class="bi bi-plus-circle"></i>
-                                    </button>
+                                    <a href="{{ route('admin.payroll.show', $settlement) }}" class="btn btn-sm btn-outline-info" title="Ver detalle">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
                                     <form method="POST" action="{{ route('admin.payroll.mark-paid', $settlement) }}"
                                           class="d-inline"
                                           onsubmit="return confirm('¿Marcar como pagada la liquidación de {{ $settlement->user->name ?? '' }}?');">
@@ -196,43 +195,12 @@
                                     </form>
                                 </div>
                             @else
-                                <span class="text-success"><i class="bi bi-check-circle-fill"></i></span>
+                                <a href="{{ route('admin.payroll.show', $settlement) }}" class="btn btn-sm btn-outline-secondary" title="Ver detalle">
+                                    <i class="bi bi-eye"></i>
+                                </a>
                             @endif
                         </td>
                     </tr>
-
-                    {{-- Manual Bonus Modal --}}
-                    @if($settlement->status === 'pending')
-                    <div class="modal fade" id="bonusModal{{ $settlement->id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-sm">
-                            <div class="modal-content">
-                                <form method="POST" action="{{ route('admin.payroll.manual-bonus', $settlement) }}">
-                                    @csrf
-                                    <div class="modal-header">
-                                        <h6 class="modal-title">Bono Manual - {{ $settlement->user->name ?? '' }}</h6>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="mb-3">
-                                            <label class="form-label small fw-bold">Monto del Bono (COP)</label>
-                                            <input type="number" name="manual_bonus" class="form-control"
-                                                   value="{{ $settlement->manual_bonus ?? 0 }}" min="0" step="1000" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label small fw-bold">Nota (opcional)</label>
-                                            <input type="text" name="manual_bonus_note" class="form-control"
-                                                   value="{{ $settlement->manual_bonus_note ?? '' }}" placeholder="Motivo del bono...">
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn btn-sm btn-primary">Guardar Bono</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
 
                     @endforeach
                 </tbody>

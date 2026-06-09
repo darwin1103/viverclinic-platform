@@ -105,11 +105,19 @@ class OrderController extends Controller
 
     public function downloadReceipt(Order $order)
     {
-        if (!$order->payment_receipt || !Storage::exists($order->payment_receipt)) {
+        if (!$order->payment_receipt) {
             abort(404, 'Comprobante no encontrado.');
         }
 
-        return Storage::response($order->payment_receipt);
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($order->payment_receipt)) {
+            return \Illuminate\Support\Facades\Storage::disk('public')->response($order->payment_receipt);
+        }
+
+        if (\Illuminate\Support\Facades\Storage::exists($order->payment_receipt)) {
+            return \Illuminate\Support\Facades\Storage::response($order->payment_receipt);
+        }
+
+        abort(404, 'Comprobante no encontrado en los discos configurados.');
     }
 
 }

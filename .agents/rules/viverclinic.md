@@ -6,6 +6,7 @@ trigger: always_on
 - NEVER make unrequested changes, refactorings, or updates to any file, function, or configuration.
 - If modifying an existing file, alter ONLY the specific lines required for the current task.
 - If an out-of-scope change is strictly necessary to implement a requested feature, you MUST halt, explain the technical blocker, and request explicit permission before proceeding.
+- Never make any commit or push until the user request it.
 
 # 2. PATTERN REPLICATION 🪞
 - Before writing code, analyze the existing codebase structure.
@@ -22,4 +23,3 @@ trigger: always_on
 - Analyze `resources/views/layouts/` and the current parent views to understand the UI structure.
 - Automatically identify available layout slots (e.g., `@yield`, `$slot`, or empty UI spaces within existing panels) and integrate the new component precisely into those existing spaces.
 - // All generated code comments must be exclusively in English.
-

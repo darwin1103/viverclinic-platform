@@ -12,6 +12,22 @@
 </div>
 
 <div class="col-12 col-lg-6">
+    <div class="form-floating mb-3">
+        <input id="image" type="file"
+            class="form-control @error('image') is-invalid @enderror"
+            name="image" accept="image/*" style="padding-top: 2rem;">
+        <label for="image">Imagen del Producto (Opcional)</label>
+        @error('image')
+            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+        @enderror
+        @if(isset($product) && $product->image_url)
+            <div class="mt-2">
+                <img src="{{ $product->image_url }}" alt="Imagen actual" class="img-thumbnail" style="height: 100px;">
+            </div>
+        @endif
+    </div>
+</div>
+<div class="col-12 col-lg-6">
     <div class="form-floating">
         <select id="branch_id" name="branch_id" class="form-select @error('branch_id') is-invalid @enderror">
             <option value="">Selecciona una sucursal</option>

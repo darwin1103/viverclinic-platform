@@ -21,7 +21,13 @@
             @forelse($products as $product)
                 <div class="col">
                     <div class="card h-100 shadow-sm border-0">
-                        {{-- Placeholder de imagen ya que dijiste que no hay imágenes --}}
+                        @if($product->image_url)
+                            <img src="{{ $product->image_url }}" class="card-img-top" alt="{{ $product->name }}" style="height: 200px; object-fit: cover;">
+                        @else
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="bi bi-box fs-1 text-muted"></i>
+                            </div>
+                        @endif
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title">{{ $product->name }}</h5>
                             <h6 class="card-subtitle mb-2 text-primary fw-bold">

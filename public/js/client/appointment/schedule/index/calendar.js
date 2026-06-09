@@ -382,7 +382,11 @@ const CalendarModule = (function() {
     }
 
     return {
-        init: init
+        init: init,
+        resetSelection: resetSelection,
+        renderCalendar: function() {
+            renderCalendar(currentYear, currentMonth);
+        }
     };
 })();
 

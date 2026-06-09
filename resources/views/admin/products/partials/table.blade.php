@@ -13,7 +13,14 @@
             <tbody>
                 @forelse($products as $product)
                     <tr>
-                        <td>{{ $product->name }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                @if($product->image_url)
+                                    <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="img-thumbnail me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                @endif
+                                <span>{{ $product->name }}</span>
+                            </div>
+                        </td>
                         <td>
                             <span class="badge bg-info text-dark">{{ $product->branch->name }}</span>
                         </td>

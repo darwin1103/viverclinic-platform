@@ -97,16 +97,20 @@
                                 <span class="badge {{ $badgeClass }}">{{ $payment->status }}</span>
                             </td>
                             <td>
-                                @if($payment->payment_type === 'treatment' && in_array($payment->status, ['Pago por verificar', 'Pendiente', 'Pending']))
+                                @if(in_array($payment->status, ['Pago por verificar', 'Pendiente', 'Pending']))
                                     <div class="d-flex gap-1">
-                                        <form method="POST" action="{{ route('admin.payments.approve', $payment->id) }}"
+                                        @php
+                                            $approveRoute = $payment->payment_type === 'product' ? route('admin.payments.product.approve', $payment->id) : route('admin.payments.approve', $payment->id);
+                                            $rejectRoute = $payment->payment_type === 'product' ? route('admin.payments.product.reject', $payment->id) : route('admin.payments.reject', $payment->id);
+                                        @endphp
+                                        <form method="POST" action="{{ $approveRoute }}"
                                               onsubmit="return confirm('¿Aprobar este pago?');">
                                             @csrf
                                             <button type="submit" class="btn btn-sm btn-outline-success" title="Aprobar">
                                                 <i class="bi bi-check-lg"></i>
                                             </button>
                                         </form>
-                                        <form method="POST" action="{{ route('admin.payments.reject', $payment->id) }}"
+                                        <form method="POST" action="{{ $rejectRoute }}"
                                               onsubmit="return confirm('¿Rechazar este pago?');">
                                             @csrf
                                             <button type="submit" class="btn btn-sm btn-outline-danger" title="Rechazar">

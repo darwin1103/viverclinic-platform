@@ -25,7 +25,7 @@ class AdminAppointmentController extends Controller
     public function create(): \Illuminate\View\View
     {
         $patients = User::role('PATIENT')->select(['id', 'name', 'email'])->get();
-        $contractedTreatments = \App\Models\ContractedTreatment::with(['treatment', 'user'])
+        $contractedTreatments = \App\Models\ContractedTreatment::with(['treatment', 'user', 'branch'])
             ->whereIn('status', ['Activo', 'Pending', 'In Progress', 'Paid', 'Pagado'])
             ->get();
             
@@ -40,7 +40,7 @@ class AdminAppointmentController extends Controller
         $validated = $request->validate([
             'contracted_treatment_id' => 'required|exists:contracted_treatments,id',
             'date' => 'required|date',
-            'time' => 'required|date_format:H:i',
+            'time' => 'required|date_format:h:i a',
         ]);
 
         $schedule = Carbon::parse($validated['date'] . ' ' . $validated['time']);

@@ -352,6 +352,61 @@ class PaymentController extends Controller
     }
 
     /**
+     * Approve a pending product payment.
+     */
+    public function approveProduct(Order $order): RedirectResponse
+    {
+        if (in_array($order->status, ['Pago completado', 'Pagado', 'Entregado'])) {
+            return back()->with('info', 'Esta orden ya fue aprobada.');
+        }
+
+        DB::beginTransaction();
+        try {
+            $order->update([
+                'status' => 'Pago completado',
+                'payment_status' => 'APPROVED',
+            ]);
+
+            \App\Models\AccountingRecord::create([
+                'branch_id' => $order->branch_id ?? session('selected_branch_id') ?? 1,
+                'user_id' => $order->user_id,
+                'type' => 'income',
+                'amount' => $order->total,
+                'description' => 'Pago de productos aprobado - Paciente: ' . ($order->user->name ?? 'N/A'),
+                'category' => 'Productos',
+                'reference_id' => $order->id,
+                'reference_type' => Order::class,
+            ]);
+
+            DB::commit();
+            return back()->with('success', 'Pago de producto aprobado correctamente.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Error al aprobar el pago del producto: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Reject a pending product payment.
+     */
+    public function rejectProduct(Request $request, Order $order): RedirectResponse
+    {
+        $request->validate(['reason' => 'nullable|string|max:255']);
+
+        if (!in_array($order->status, ['Pago por verificar', 'Pendiente', 'Pending'])) {
+            return back()->with('error', 'No se puede rechazar esta orden en su estado actual.');
+        }
+
+        $order->update([
+            'status' => 'Cancelado',
+            'payment_status' => 'DECLINED',
+            'description' => $order->description . ' [Rechazado: ' . ($request->reason ?? 'Sin motivo') . ']'
+        ]);
+
+        return back()->with('success', 'El pago del producto ha sido rechazado.');
+    }
+
+    /**
      * Export payments.
      */
     public function export(): RedirectResponse

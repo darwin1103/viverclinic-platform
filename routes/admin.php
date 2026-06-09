@@ -182,6 +182,8 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
         Route::post('/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'store'])->name('payments.store');
         Route::post('/payments/{order}/approve', [\App\Http\Controllers\Admin\PaymentController::class, 'approve'])->name('payments.approve');
         Route::post('/payments/{order}/reject', [\App\Http\Controllers\Admin\PaymentController::class, 'reject'])->name('payments.reject');
+        Route::post('/payments/product/{order}/approve', [\App\Http\Controllers\Admin\PaymentController::class, 'approveProduct'])->name('payments.product.approve');
+        Route::post('/payments/product/{order}/reject', [\App\Http\Controllers\Admin\PaymentController::class, 'rejectProduct'])->name('payments.product.reject');
         Route::get('/payments/export', [\App\Http\Controllers\Admin\PaymentController::class, 'export'])->name('payments.export');
         Route::get('/patients/{user}/treatments', [\App\Http\Controllers\Admin\PaymentController::class, 'getPatientTreatments'])->name('patients.treatments');
         

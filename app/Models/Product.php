@@ -13,6 +13,7 @@ class Product extends Model
     protected $fillable = [
         'branch_id',
         'name',
+        'image',
         'stock',
         'price',
     ];
@@ -20,5 +21,13 @@ class Product extends Model
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
+    }
+
+    public function getImageUrlAttribute()
+    {
+        if ($this->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->image)) {
+            return \Illuminate\Support\Facades\Storage::url($this->image);
+        }
+        return null;
     }
 }

@@ -130,8 +130,8 @@ class ManualSaleController extends Controller
             // 2. Lógica de Subida (Antes de crear la orden)
             $receiptPath = null;
             if ($request->hasFile('payment_receipt')) {
-                // Se guarda en storage/app/payment-receipts (No accesible públicamente)
-                $receiptPath = $request->file('payment_receipt')->store('payment-receipts');
+                // Se guarda en storage/app/public/payment-receipts
+                $receiptPath = $request->file('payment_receipt')->store('payment-receipts', 'public');
             }
 
             // 1. Crear Orden

@@ -63,6 +63,7 @@ class AdminProductController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'image' => 'nullable|image|max:5120', // Max 5MB
             'stock' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0',
             'branch_id' => 'required|exists:branches,id',
@@ -87,6 +88,10 @@ class AdminProductController extends Controller
             'branch_id.required' => 'Debes seleccionar una sucursal para este producto.',
             'branch_id.exists' => 'La sucursal seleccionada no es válida o no existe.',
         ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        }
 
         Product::create($validated);
 
@@ -103,6 +108,7 @@ class AdminProductController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'image' => 'nullable|image|max:5120', // Max 5MB
             'stock' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0',
             'branch_id' => 'required|exists:branches,id',
@@ -127,6 +133,14 @@ class AdminProductController extends Controller
             'branch_id.required' => 'Debes seleccionar una sucursal para este producto.',
             'branch_id.exists' => 'La sucursal seleccionada no es válida o no existe.',
         ]);
+
+        if ($request->hasFile('image')) {
+            // Eliminar imagen anterior si existe
+            if ($product->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($product->image)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($product->image);
+            }
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        }
 
         $product->update($validated);
 

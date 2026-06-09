@@ -160,7 +160,7 @@ class ShopController extends Controller
 
                 // Subir archivo
                 if ($request->hasFile('payment_receipt')) {
-                    $receiptPath = $request->file('payment_receipt')->store('payment-receipts');
+                    $receiptPath = $request->file('payment_receipt')->store('payment-receipts', 'public');
                 }
             }
 

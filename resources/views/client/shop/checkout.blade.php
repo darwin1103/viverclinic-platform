@@ -34,7 +34,14 @@
                             <tbody>
                                 @foreach($selectedItems as $item)
                                     <tr class="border-bottom">
-                                        <td class="ps-4">{{ $item['product']->name }}</td>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                @if($item['product']->image_url)
+                                                    <img src="{{ $item['product']->image_url }}" alt="{{ $item['product']->name }}" class="img-thumbnail me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                                @endif
+                                                <span>{{ $item['product']->name }}</span>
+                                            </div>
+                                        </td>
                                         <td class="text-center">{{ $item['quantity'] }}</td>
                                         <td class="text-end">$ {{ number_format($item['product']->price, 2) }}</td>
                                         <td class="text-end pe-4 fw-bold">$ {{ number_format($item['subtotal'], 2) }}</td>

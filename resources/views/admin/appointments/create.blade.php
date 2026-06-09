@@ -142,6 +142,7 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script>window.holidays = @json($holidays ?? []);</script>
 <script src="{{ asset('js/client/appointment/schedule/index/calendar.js') }}?v={{ filemtime(public_path('js/client/appointment/schedule/index/calendar.js')) }}"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {

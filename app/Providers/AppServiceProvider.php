@@ -65,5 +65,17 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('selectedBranchID', session('selected_branch_id', ''));
             }
         });
+
+        // Share holidays globally for calendar blocking
+        \Illuminate\Support\Facades\View::composer('*', function ($view) {
+            if (!array_key_exists('holidays', $view->getData())) {
+                $holidays = \App\Models\Holiday::where('date', '>=', now()->toDateString())
+                    ->get()
+                    ->mapWithKeys(function ($holiday) {
+                        return [$holiday->date->format('Y-m-d') => $holiday->name];
+                    });
+                $view->with('holidays', $holidays);
+            }
+        });
     }
 }

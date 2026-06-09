@@ -215,6 +215,91 @@
 
         </div>
     </form>
+
+    {{-- Sección Días Festivos (formulario independiente) --}}
+    <hr class="my-4">
+    <div class="row g-3">
+        <div class="col-12">
+            <h5 class="fw-bold border-bottom pb-2 mb-3">
+                <i class="bi bi-calendar-x me-2"></i>Días Festivos
+            </h5>
+            <small class="text-secondary d-block mb-3">
+                Los días registrados aquí se bloquearán automáticamente en todos los calendarios de agendamiento. Los pacientes y administradores no podrán agendar citas en estas fechas.
+            </small>
+        </div>
+
+        {{-- Add new holiday --}}
+        <div class="col-12">
+            <form action="{{ route('admin.holidays.store') }}" method="POST" class="row g-2 align-items-end">
+                @csrf
+                <div class="col-12 col-md-4">
+                    <label for="holiday_date" class="form-label fw-bold">Fecha</label>
+                    <input type="date" class="form-control @error('date') is-invalid @enderror"
+                           id="holiday_date" name="date" value="{{ old('date') }}" required>
+                    @error('date')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+                <div class="col-12 col-md-5">
+                    <label for="holiday_name" class="form-label fw-bold">Motivo</label>
+                    <input type="text" class="form-control @error('name') is-invalid @enderror"
+                           id="holiday_name" name="name" value="{{ old('name') }}" placeholder="Ej: Navidad, Año Nuevo..." required>
+                    @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+                <div class="col-12 col-md-3">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-plus-circle me-1"></i>Agregar Festivo
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {{-- Holidays list --}}
+        <div class="col-12 mt-3">
+            @php
+                $allHolidays = \App\Models\Holiday::orderBy('date', 'asc')->get();
+            @endphp
+
+            @if($allHolidays->isEmpty())
+                <div class="text-secondary text-center py-3">
+                    <i class="bi bi-calendar-check me-1"></i>No hay días festivos registrados.
+                </div>
+            @else
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Motivo</th>
+                                <th class="text-end">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($allHolidays as $holiday)
+                                <tr>
+                                    <td>
+                                        <span class="badge {{ $holiday->date->isPast() ? 'bg-secondary' : 'bg-danger' }}">
+                                            {{ $holiday->date->isoFormat('DD MMM YYYY') }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $holiday->name }}</td>
+                                    <td class="text-end">
+                                        <form action="{{ route('admin.holidays.destroy', $holiday) }}" method="POST"
+                                              onsubmit="return confirm('¿Eliminar este día festivo?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
+    </div>
+
 </x-admin-card>
 
 @push('scripts')

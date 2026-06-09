@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\TreatmentController;
 use App\Http\Controllers\Admin\LegacyTreatmentController;
+use App\Http\Controllers\Admin\HolidayController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('admin')->name('admin.')->group(function () {
@@ -197,6 +198,10 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
         Route::resource('recomentations', \App\Http\Controllers\Admin\RecomentationsController::class);
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
         Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+
+        // Holidays management
+        Route::post('/holidays', [HolidayController::class, 'store'])->name('holidays.store');
+        Route::delete('/holidays/{holiday}', [HolidayController::class, 'destroy'])->name('holidays.destroy');
     });
 
     // Reports (Admin)

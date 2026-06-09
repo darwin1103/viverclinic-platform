@@ -92,6 +92,7 @@
 @endsection
 
 @push('scripts')
+<script>window.holidays = @json($holidays ?? []);</script>
 <script src="{{ asset('js/client/appointment/schedule/index/calendar.js') }}?v={{ filemtime(public_path('js/client/appointment/schedule/index/calendar.js')) }}"></script>
 <script src="{{ asset('js/client/appointment/schedule/index/rating.js') }}?v={{ filemtime(public_path('js/client/appointment/schedule/index/rating.js')) }}"></script>
 <script src="{{ asset('js/client/appointment/schedule/index/sessions-table.js') }}?v={{ filemtime(public_path('js/client/appointment/schedule/index/sessions-table.js')) }}"></script>

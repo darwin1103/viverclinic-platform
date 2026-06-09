@@ -172,6 +172,14 @@ const CalendarModule = (function() {
                 cell.style.pointerEvents = 'none';
             }
 
+            // Disable holidays
+            const dateISO = formatDateISO(date);
+            if (window.holidays && window.holidays[dateISO]) {
+                cell.classList.add('cell-holiday');
+                cell.style.pointerEvents = 'none';
+                cell.title = window.holidays[dateISO];
+            }
+
             // Highlight today
             if (date.getTime() === today.getTime()) {
                 cell.classList.add('cell-today');

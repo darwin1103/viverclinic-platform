@@ -54,7 +54,7 @@
 
                         <div class="col-12 col-md-6">
                             <div class="form-floating">
-                                <input id="salary" type="number" step="0.01" min="0" placeholder="Sueldo mensual" class="form-control @error('salary') is-invalid @enderror" name="salary" value="{{ old('salary', $staff->staffProfile->salary ?? 0) }}">
+                                <input id="salary" type="text" inputmode="numeric" placeholder="Sueldo mensual" class="form-control currency-input @error('salary') is-invalid @enderror" name="salary" value="{{ old('salary', $staff->staffProfile->salary ?? 0) }}">
                                 <label for="salary">Sueldo mensual (COP)</label>
                                 @error('salary')
                                     <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>

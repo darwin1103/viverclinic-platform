@@ -69,7 +69,7 @@
 
                     <div class="col-12 col-md-6">
                         <label class="form-label">Monto <span class="text-danger">*</span></label>
-                        <input type="number" step="0.01" name="total" class="form-control @error('total') is-invalid @enderror" value="{{ old('total') }}" placeholder="Ej. 10000" required>
+                        <input type="text" inputmode="numeric" name="total" class="form-control currency-input @error('total') is-invalid @enderror" value="{{ old('total') }}" placeholder="Ej. 10000" required>
                         @error('total')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-12 col-md-6">

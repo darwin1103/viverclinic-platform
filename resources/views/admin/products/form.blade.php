@@ -43,13 +43,12 @@
 
 <div class="col-12 col-lg-6">
     <div class="form-floating">
-        <input id="price" type="number"
-       step="0.01"
-       placeholder="Precio (COP)"
-       class="form-control @error('price') is-invalid @enderror"
-       name="price"
-       value="{{ old('price', $product->price ?? '') }}"
-       min="0">
+        <input id="price" type="text" inputmode="numeric"
+            class="form-control currency-input @error('price') is-invalid @enderror"
+            name="price"
+            value="{{ old('price', $product->price ?? '') }}"
+            placeholder="Precio (COP)"
+            required>
         <label for="price">Precio (Pesos Colombianos)</label>
         @error('price')
             <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>

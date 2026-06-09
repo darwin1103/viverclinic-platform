@@ -253,8 +253,8 @@
                                                     {{ $bonus->created_at->format('d/m/Y') }}
                                                 </div>
                                                 <div class="py-1" style="width: 25%;">
-                                                    <input type="number" name="amount" class="form-control form-control-sm"
-                                                           value="{{ $bonus->amount }}" min="0.01" step="1000" required>
+                                                    <input type="text" inputmode="numeric" name="amount" class="form-control form-control-sm currency-input"
+                                                           value="{{ $bonus->amount }}" required>
                                                 </div>
                                                 <div class="px-2 py-1" style="flex: 1;">
                                                     <input type="text" name="note" class="form-control form-control-sm"
@@ -299,8 +299,8 @@
                         @csrf
                         <div class="col-12 col-md-3">
                             <label class="form-label small fw-bold mb-1">Monto (COP)</label>
-                            <input type="number" name="amount" class="form-control form-control-sm"
-                                   min="0.01" step="1000" placeholder="0" required>
+                            <input type="text" inputmode="numeric" name="amount" class="form-control form-control-sm currency-input"
+                                   placeholder="0" required>
                         </div>
                         <div class="col-12 col-md-6">
                             <label class="form-label small fw-bold mb-1">Nota (opcional)</label>

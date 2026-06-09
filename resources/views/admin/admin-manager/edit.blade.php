@@ -49,7 +49,7 @@
 
                         <div class="col-12 col-md-4">
                             <div class="form-floating">
-                                <input id="salary" type="number" step="0.01" min="0" placeholder="Sueldo mensual" class="form-control @error('salary') is-invalid @enderror" name="salary" value="{{ old('salary', $admin_manager->adminProfile->salary ?? 0) }}" required>
+                                <input id="salary" type="text" inputmode="numeric" placeholder="Sueldo mensual" class="form-control currency-input @error('salary') is-invalid @enderror" name="salary" value="{{ old('salary', $admin_manager->adminProfile->salary ?? 0) }}" required>
                                 <label for="salary">Sueldo mensual (COP)</label>
                                 @error('salary')
                                     <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
@@ -70,7 +70,7 @@
 
                         <div class="col-12 col-md-4">
                             <div class="form-floating">
-                                <input id="commission_base" type="number" step="0.01" min="0" placeholder="Base" class="form-control @error('commission_base') is-invalid @enderror" name="commission_base" value="{{ old('commission_base', $admin_manager->adminProfile->commission_base ?? 2500000) }}">
+                                <input id="commission_base" type="text" inputmode="numeric" placeholder="Base" class="form-control currency-input @error('commission_base') is-invalid @enderror" name="commission_base" value="{{ old('commission_base', $admin_manager->adminProfile->commission_base ?? 2500000) }}">
                                 <label for="commission_base">Base a restar (COP)</label>
                                 @error('commission_base')
                                     <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>

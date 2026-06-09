@@ -75,7 +75,7 @@
                     <!-- Monto Descuento -->
                     <div class="col-12 col-md-3">
                         <label class="form-label">Descuento <span class="text-danger">*</span></label>
-                        <input type="number" step="0.01" name="discount" class="form-control @error('discount') is-invalid @enderror" value="{{ old('discount', $promotion->discount) }}" placeholder="Ej. 15 o 50000" required>
+                        <input type="text" inputmode="numeric" name="discount" class="form-control currency-input @error('discount') is-invalid @enderror" value="{{ old('discount', $promotion->discount) }}" placeholder="Ej. 15 o 50000" required>
                         @error('discount')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 

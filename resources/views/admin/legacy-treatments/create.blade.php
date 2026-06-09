@@ -126,12 +126,12 @@
                 <div class="row mb-4 d-none" id="abono_fields_container">
                     <div class="col-md-6 mb-3">
                         <label for="total_price" class="form-label fw-bold">Precio Total del Paquete</label>
-                        <input type="number" name="total_price" id="total_price" class="form-control" min="0" value="0">
+                        <input type="text" inputmode="numeric" name="total_price" id="total_price" class="form-control currency-input" value="0">
                         <small class="text-muted">El precio total configurado para el paciente migrado.</small>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="legacy_paid_amount" class="form-label fw-bold">Monto ya Pagado / Abonado</label>
-                        <input type="number" name="legacy_paid_amount" id="legacy_paid_amount" class="form-control" min="0" value="0">
+                        <input type="text" inputmode="numeric" name="legacy_paid_amount" id="legacy_paid_amount" class="form-control currency-input" value="0">
                         <small class="text-muted">El monto total que el paciente ya canceló previamente (saldo restante = precio total - monto ya pagado).</small>
                     </div>
                 </div>
@@ -281,18 +281,22 @@
             row.innerHTML = `
                 <td class="fw-bold text-white">Cuota #${i}</td>
                 <td>
-                    <input type="number" 
+                    <input type="text" inputmode="numeric" 
                            name="installments[${i}][price]" 
-                           class="form-control installment-price-input text-white" 
+                           class="form-control installment-price-input text-white currency-input" 
                            style="background-color: #0d2a30; border: 1px solid #18464f;"
                            data-number="${i}" 
-                           min="0" 
                            value="${value}" 
                            required>
                 </td>
             `;
             tableBody.appendChild(row);
         }
+        
+        // Trigger formatting on the newly added inputs
+        tableBody.querySelectorAll('.currency-input').forEach(input => {
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        });
     }
 
     document.addEventListener('DOMContentLoaded', function() {

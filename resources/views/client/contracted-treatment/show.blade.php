@@ -389,7 +389,7 @@
                                                                     @php
                                                                         $defaultVal = min($minimumAbonoAmount, $remainingBalance);
                                                                     @endphp
-                                                                    <input type="number" class="form-control bg-dark text-white border-secondary" name="abono_amount" id="abono_amount" placeholder="Monto" min="{{ $defaultVal }}" max="{{ $remainingBalance }}" value="{{ $defaultVal }}" required onchange="updatePaymentUI('abono', this.value)" oninput="updatePaymentUI('abono', this.value)">
+                                                                    <input type="text" inputmode="numeric" class="form-control bg-dark text-white border-secondary currency-input" name="abono_amount" id="abono_amount" placeholder="Monto" value="{{ $defaultVal }}" required onchange="updatePaymentUI('abono', this.value)" oninput="updatePaymentUI('abono', this.value)">
                                                                     <span class="text-muted small">Mínimo: ${{ number_format($defaultVal, 0, ',', '.') }} | Máximo: ${{ number_format($remainingBalance, 0, ',', '.') }}</span>
                                                                 </div>
                                                             </div>
@@ -516,7 +516,11 @@
                         @push('scripts')
                         <script>
                             function updatePaymentUI(type, amount) {
-                                const formatted = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(amount);
+                                if (typeof amount === 'string') {
+                                    amount = amount.replace(/\D/g, '');
+                                }
+                                const amountNum = parseInt(amount, 10) || 0;
+                                const formatted = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(amountNum);
                                 const subtotalEl = document.getElementById('ui-subtotal');
                                 const totalEl = document.getElementById('ui-total');
                                 if (subtotalEl) subtotalEl.innerText = formatted;

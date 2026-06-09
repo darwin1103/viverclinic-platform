@@ -80,9 +80,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="col-6 col-md-4">
                         <div class="input-group input-group-sm">
                             <span class="input-group-text">Precio $</span>
-                            <input type="number"
+                            <input type="text" inputmode="numeric"
                                    name="branches[${branchId}][packages][${packageKey}][installments][${installmentIndex}][price]"
-                                   class="form-control" step="0.01" min="0" required>
+                                   class="form-control currency-input" required>
                         </div>
                     </div>
                     <div class="col-auto">
@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <label class="form-label">Precio Total</label>
                     <div class="input-group">
                         <span class="input-group-text">$</span>
-                        <input type="number" name="branches[${branchId}][packages][${index}][price]" class="form-control" placeholder="0.00" step="0.01" min="0" required>
+                        <input type="text" inputmode="numeric" name="branches[${branchId}][packages][${index}][price]" class="form-control currency-input" placeholder="0" required>
                     </div>
                 </div>
                 <div class="col-12 col-md-2">

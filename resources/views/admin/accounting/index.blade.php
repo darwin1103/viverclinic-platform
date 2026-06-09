@@ -184,7 +184,7 @@
                     <input type="hidden" name="type" value="expense">
                     <div class="mb-3">
                         <label for="amount" class="form-label">Monto (COP)</label>
-                        <input type="number" class="form-control" id="amount" name="amount" step="0.01" min="0.01" required>
+                        <input type="text" inputmode="numeric" class="form-control currency-input" id="amount" name="amount" required>
                     </div>
                     <div class="mb-3">
                         <label for="description" class="form-label">Descripción</label>

@@ -51,5 +51,44 @@
             });
         }
     }
+
+    // --- Currency Formatting Logic ---
+    document.addEventListener('DOMContentLoaded', function () {
+        const currencyInputs = document.querySelectorAll('.currency-input');
+
+        function formatCurrencyValue(value) {
+            // Strip everything except digits
+            let cleanValue = value.replace(/\D/g, "");
+            if (cleanValue === "") {
+                return "";
+            }
+            // Format with dots for thousands
+            return cleanValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        currencyInputs.forEach(input => {
+            // Format initially on load
+            input.value = formatCurrencyValue(input.value);
+        });
+
+        // Use event delegation for format on input to support dynamically added fields
+        document.addEventListener('input', function (e) {
+            if (e.target && e.target.classList.contains('currency-input')) {
+                let formatted = formatCurrencyValue(e.target.value);
+                if (e.target.value !== formatted) {
+                    e.target.value = formatted;
+                }
+            }
+        });
+
+        // Strip formatting before form submit
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function () {
+                form.querySelectorAll('.currency-input').forEach(input => {
+                    input.value = input.value.replace(/\./g, '');
+                });
+            });
+        });
+    });
 </script>
 @endpush

@@ -8,7 +8,7 @@
         <label class="form-label">Precio Total</label>
         <div class="input-group">
             <span class="input-group-text">$</span>
-            <input type="number" name="branches[{{ $branch->id }}][packages][{{ $key }}][price]" class="form-control" placeholder="0.00" step="0.01" min="0" value="{{ $package->price ?? '' }}" required>
+            <input type="text" inputmode="numeric" name="branches[{{ $branch->id }}][packages][{{ $key }}][price]" class="form-control currency-input" placeholder="0" value="{{ $package->price ?? '' }}" required>
         </div>
     </div>
     <div class="col-12 col-md-2">

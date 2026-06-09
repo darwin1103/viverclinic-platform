@@ -78,9 +78,9 @@
             <div class="col-12 col-md-4">
                 <label for="referral_commission_value" class="form-label fw-bold text-white">Valor de la comisión</label>
                 <div class="input-group">
-                    <input type="number" class="form-control bg-dark text-white border-secondary" id="referral_commission_value"
+                    <input type="text" inputmode="numeric" class="form-control bg-dark text-white border-secondary currency-input" id="referral_commission_value"
                            name="referral_commission_value" value="{{ $referralCommissionValue }}"
-                           min="0" step="0.01" placeholder="0">
+                           placeholder="0">
                     <span class="input-group-text bg-secondary text-white border-secondary" id="commission-suffix">
                         {{ $referralCommissionType === 'percentage' ? '%' : 'COP' }}
                     </span>
@@ -111,9 +111,9 @@
             <div class="col-12 col-md-6">
                 <label for="upgrade_commission_value" class="form-label fw-bold text-white">Valor de la comisión</label>
                 <div class="input-group">
-                    <input type="number" class="form-control bg-dark text-white border-secondary" id="upgrade_commission_value"
+                    <input type="text" inputmode="numeric" class="form-control bg-dark text-white border-secondary currency-input" id="upgrade_commission_value"
                            name="upgrade_commission_value" value="{{ $upgradeCommissionValue }}"
-                           min="0" step="0.01" placeholder="0">
+                           placeholder="0">
                     <span class="input-group-text bg-secondary text-white border-secondary" id="upgrade-commission-suffix">
                         {{ $upgradeCommissionType === 'percentage' ? '%' : 'COP' }}
                     </span>
@@ -144,9 +144,9 @@
             <div class="col-12 col-md-6">
                 <label for="repurchase_commission_value" class="form-label fw-bold text-white">Valor de la comisión</label>
                 <div class="input-group">
-                    <input type="number" class="form-control bg-dark text-white border-secondary" id="repurchase_commission_value"
+                    <input type="text" inputmode="numeric" class="form-control bg-dark text-white border-secondary currency-input" id="repurchase_commission_value"
                            name="repurchase_commission_value" value="{{ $repurchaseCommissionValue }}"
-                           min="0" step="0.01" placeholder="0">
+                           placeholder="0">
                     <span class="input-group-text bg-secondary text-white border-secondary" id="repurchase-commission-suffix">
                         {{ $repurchaseCommissionType === 'percentage' ? '%' : 'COP' }}
                     </span>
@@ -165,8 +165,8 @@
                 <label for="commission_target" class="form-label fw-bold text-white">Meta mensual unificada</label>
                 <div class="input-group">
                     <span class="input-group-text bg-secondary text-white border-secondary">COP</span>
-                    <input type="number" class="form-control bg-dark text-white border-secondary" id="commission_target" name="commission_target"
-                           value="{{ $commissionTarget }}" min="0" step="1000">
+                    <input type="text" inputmode="numeric" class="form-control bg-dark text-white border-secondary currency-input" id="commission_target" name="commission_target"
+                           value="{{ $commissionTarget }}">
                 </div>
                 <small class="text-secondary">Meta unificada que incluye comisiones por referidos, agrandamientos y recompras.</small>
             </div>
@@ -180,9 +180,9 @@
 
             <div class="col-12 col-md-6">
                 <label for="minimum_abono_amount" class="form-label fw-bold text-white">Monto Mínimo de Abono (COP)</label>
-                <input type="number" class="form-control bg-dark text-white border-secondary" id="minimum_abono_amount"
+                <input type="text" inputmode="numeric" class="form-control bg-dark text-white border-secondary currency-input" id="minimum_abono_amount"
                        name="minimum_abono_amount" value="{{ $minimumAbonoAmount }}"
-                       min="0" step="1000" placeholder="50000">
+                       placeholder="50000">
                 <small class="text-secondary">Monto mínimo en pesos (COP) que un paciente puede abonar a un tratamiento.</small>
             </div>
 

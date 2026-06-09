@@ -56,7 +56,10 @@ class RepurchaseService
         $lastAttendedAppt = Appointment::whereHas('contractedTreatment', function ($q) use ($paidUser) {
                 $q->where('user_id', $paidUser->id);
             })
-            ->where('attended', true)
+            ->where(function($q) {
+                $q->where('attended', true)
+                  ->orWhereIn('status', ['Atendida', 'Completada']);
+            })
             ->whereNotNull('staff_user_id')
             ->latest('schedule')
             ->first();

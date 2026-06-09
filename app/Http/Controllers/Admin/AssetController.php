@@ -27,7 +27,7 @@ class AssetController extends Controller
             $query->where('branch_id', $activeBranch);
         }
 
-        $assets = $query->latest()->paginate(10);
+        $assets = $query->latest()->paginate(10)->withQueryString();
 
         if ($request->ajax()) {
             return view('admin.assets.partials.table-rows', compact('assets'))->render();

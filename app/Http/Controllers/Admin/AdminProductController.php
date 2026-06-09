@@ -24,7 +24,15 @@ class AdminProductController extends Controller
             $query->where('branch_id', $activeBranch);
         }
 
-        $products = $query->latest()->paginate(10);
+        // Filtro por fecha
+        if ($request->filled('from')) {
+            $query->whereDate('created_at', '>=', $request->from);
+        }
+        if ($request->filled('to')) {
+            $query->whereDate('created_at', '<=', $request->to);
+        }
+
+        $products = $query->latest()->paginate(10)->withQueryString();
 
         $branches = Branch::all();
 

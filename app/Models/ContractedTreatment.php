@@ -101,7 +101,7 @@ class ContractedTreatment extends Model
             return false;
         }
 
-        return $firstAppointment->status === 'Atendida' && !is_null($firstAppointment->staff_user_id);
+        return in_array($firstAppointment->status, ['Atendida', 'Completada']) && !is_null($firstAppointment->staff_user_id);
     }
 
     // Helper para calcular el total pagado en órdenes aprobadas

@@ -256,6 +256,9 @@ class TreatmentPaymentController extends Controller
                 // Procesar recompensa de referido (si aplica)
                 ReferralService::processReward(Auth::user());
 
+                // Procesar comisión por recompra (si aplica)
+                \App\Services\RepurchaseService::processCommission(Auth::user(), $order);
+
                 // Register income in accounting
                 \App\Models\AccountingRecord::create([
                     'branch_id' => $contractedTreatment->branch_id,

@@ -45,7 +45,7 @@ class OrderController extends Controller
             $query->whereDate('created_at', '<=', $request->date_to);
         }
 
-        $orders = $query->latest()->paginate(10);
+        $orders = $query->latest()->paginate(10)->withQueryString();
 
         $branches = Branch::all();
 

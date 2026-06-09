@@ -15,25 +15,27 @@
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-body">
-            <form action="{{ route('admin.products.index') }}" method="GET" id="filter-form">
-                <div class="row g-3 align-items-end">
-                    {{-- Campo de búsqueda por nombre --}}
-                    <div class="col-12 col-md-10">
-                        <label for="search" class="form-label">Buscar por nombre de producto</label>
-                        <input type="text" class="form-control" id="search" name="search" placeholder="Buscar por nombre..." value="{{ request('search') }}">
-                    </div>
-
-                    {{-- Campo oculto para el filtro de sucursal (controlado por JS desde el header) --}}
-                    <input type="hidden" name="branch_id" id="branch_id_filter" value="{{ request('branch_id') }}">
-
-                    {{-- Botones --}}
-                    <div class="col-12 col-md-2 d-flex gap-2 justify-content-md-end">
-                        <a href="{{ route('admin.products.index') }}" class="btn btn-secondary w-100">
-                            <i class="bi bi-eraser-fill"></i> Limpiar
-                        </a>
-                    </div>
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <form method="GET" action="{{ route('admin.products.index') }}" class="row g-2 align-items-end" id="filter-form">
+                <div class="col-12 col-md-5">
+                    <label class="form-label small mb-1">Buscar por nombre de producto</label>
+                    <input type="text" name="search" class="form-control form-control-sm" placeholder="Buscar por nombre..." value="{{ request('search') }}">
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label small mb-1">Desde</label>
+                    <input type="date" name="from" class="form-control form-control-sm" value="{{ request('from') }}">
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label small mb-1">Hasta</label>
+                    <input type="date" name="to" class="form-control form-control-sm" value="{{ request('to') }}">
+                </div>
+                
+                <input type="hidden" name="branch_id" id="branch_id_filter" value="{{ request('branch_id') }}">
+                
+                <div class="col-12 col-md-1 d-flex gap-1">
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-search"></i></button>
+                    <a href="{{ route('admin.products.index') }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
                 </div>
             </form>
         </div>

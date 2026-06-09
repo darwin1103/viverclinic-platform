@@ -12,8 +12,7 @@
         </div>
     </div>
 
-    {{-- SECCIÓN DE FILTROS --}}
-    <x-admin.owner.index.filter />
+
 
     <div class="row">
         <div class="col-12">

@@ -16,26 +16,19 @@
     <div class="row">
         <div class="col-12">
 
-            {{-- Filtros (Estilo solicitado) --}}
-            <div class="card mb-4 shadow-sm">
-                <div class="card-body">
-                    <form id="filter-form" onsubmit="return false;"> <!-- Evita submit tradicional -->
-                        <div class="row g-3 align-items-end">
-                            {{-- Campo de búsqueda por nombre --}}
-                            <div class="col-12 col-md-10">
-                                <label for="search" class="form-label">Buscar por nombre</label>
-                                <input type="text" class="form-control" id="search" name="search" placeholder="Buscar por nombre...">
-                            </div>
-
-                            {{-- Filtro de sucursal oculto (sincronizado con el header via JS) --}}
-                            <input type="hidden" name="branch_id" id="branch_id_filter">
-
-                            {{-- Botones --}}
-                            <div class="col-12 col-md-2 d-flex gap-2">
-                                <button type="button" class="btn btn-secondary w-100" id="btn-clear-filters">
-                                    <i class="bi bi-eraser-fill"></i> Limpiar
-                                </button>
-                            </div>
+            <div class="card mb-3">
+                <div class="card-body py-2">
+                    <form method="GET" action="{{ route('admin.assets.index') }}" class="row g-2 align-items-end" id="filter-form">
+                        <div class="col-12 col-md-5">
+                            <label class="form-label small mb-1">Buscar por nombre</label>
+                            <input type="text" name="search" class="form-control form-control-sm" placeholder="Buscar por nombre..." value="{{ request('search') }}">
+                        </div>
+                        
+                        <input type="hidden" name="branch_id" id="branch_id_filter" value="{{ request('branch_id') }}">
+                        
+                        <div class="col-12 col-md-1 d-flex gap-1">
+                            <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-search"></i></button>
+                            <a href="{{ route('admin.assets.index') }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
                         </div>
                     </form>
                 </div>

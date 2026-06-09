@@ -48,6 +48,14 @@ class ContractedTreatmentController extends Controller
             $query->where('treatment_id', $request->treatment_id);
         }
 
+        // Filter by date range
+        if ($request->filled('from')) {
+            $query->whereDate('created_at', '>=', $request->from);
+        }
+        if ($request->filled('to')) {
+            $query->whereDate('created_at', '<=', $request->to);
+        }
+
         $contractedTreatments = $query->paginate(15)->withQueryString();
 
         // Data for filters

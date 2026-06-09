@@ -15,39 +15,27 @@
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-body">
-            <form action="{{ route('admin.orders.index') }}" method="GET" id="filter-form">
-                <div class="row g-3 align-items-end">
-
-                    {{-- Buscador --}}
-                    <div class="col-12 col-md-4">
-                        <label for="search" class="form-label">Buscar cliente</label>
-                        <input type="text" class="form-control" id="search" name="search"
-                               placeholder="Buscar por nombre o email del paciente..." value="{{ request('search') }}">
-                    </div>
-
-                    {{-- Fechas --}}
-                    <div class="col-6 col-md-3">
-                        <label for="date_from" class="form-label">Desde</label>
-                        <input type="date" class="form-control" id="date_from" name="date_from"
-                               value="{{ request('date_from') }}">
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <label for="date_to" class="form-label">Hasta</label>
-                        <input type="date" class="form-control" id="date_to" name="date_to"
-                               value="{{ request('date_to') }}">
-                    </div>
-
-                    {{-- Input oculto para Sucursal --}}
-                    <input type="hidden" name="branch_id" id="branch_id_filter" value="{{ request('branch_id') }}">
-
-                    {{-- Botón Limpiar --}}
-                    <div class="col-12 col-md-2">
-                        <a href="{{ route('admin.orders.index') }}" class="btn btn-secondary w-100">
-                            <i class="bi bi-eraser-fill"></i> Limpiar Filtros
-                        </a>
-                    </div>
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <form method="GET" action="{{ route('admin.orders.index') }}" class="row g-2 align-items-end" id="filter-form">
+                <div class="col-12 col-md-5">
+                    <label class="form-label small mb-1">Buscar cliente</label>
+                    <input type="text" name="search" id="search" class="form-control form-control-sm" placeholder="Buscar por nombre o email..." value="{{ request('search') }}">
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label small mb-1">Desde</label>
+                    <input type="date" name="date_from" id="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label small mb-1">Hasta</label>
+                    <input type="date" name="date_to" id="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
+                </div>
+                
+                <input type="hidden" name="branch_id" id="branch_id_filter" value="{{ request('branch_id') }}">
+                
+                <div class="col-12 col-md-1 d-flex gap-1">
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-search"></i></button>
+                    <a href="{{ route('admin.orders.index') }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
                 </div>
             </form>
         </div>

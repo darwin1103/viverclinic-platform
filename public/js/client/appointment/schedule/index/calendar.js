@@ -65,6 +65,32 @@ const CalendarModule = (function() {
             elements.modal.addEventListener('hidden.bs.modal', handleModalHidden);
         }
 
+        // Prevent duplicate form submissions
+        if (elements.form) {
+            let isSubmitting = false;
+            elements.form.addEventListener('submit', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+                isSubmitting = true;
+                if (elements.btnConfirm) {
+                    elements.btnConfirm.disabled = true;
+                    elements.btnConfirm.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Agendando...';
+                }
+            });
+
+            // Reset submission state when modal is closed
+            if (elements.modal) {
+                elements.modal.addEventListener('hidden.bs.modal', function() {
+                    isSubmitting = false;
+                    if (elements.btnConfirm) {
+                        elements.btnConfirm.innerHTML = 'Agendar cita';
+                    }
+                });
+            }
+        }
+
     }
 
     function navigateToPreviousMonth() {

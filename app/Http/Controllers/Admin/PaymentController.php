@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\TreatmentOrder;
 use App\Models\User;
 use App\Services\ReferralService;
+use App\Services\RepurchaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -247,6 +248,9 @@ class PaymentController extends Controller
             // Process referral reward if applicable
             ReferralService::processReward($order->user);
 
+            // Process repurchase commission (if applicable)
+            RepurchaseService::processCommission($order->user, $order);
+
             // Register income in accounting
             AccountingRecord::create([
                 'branch_id' => $validated['branch_id'],
@@ -302,6 +306,9 @@ class PaymentController extends Controller
 
             // Process referral reward if applicable
             ReferralService::processReward($order->user);
+
+            // Process repurchase commission (if applicable)
+            RepurchaseService::processCommission($order->user, $order);
 
             // Register income in accounting
             AccountingRecord::create([

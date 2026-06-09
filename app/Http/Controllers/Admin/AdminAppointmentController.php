@@ -35,8 +35,14 @@ class AdminAppointmentController extends Controller
     /**
      * Store a newly created appointment manually.
      */
-    public function store(Request $request): \Illuminate\Http\RedirectResponse
+    public function store(Request $request)
     {
+        if ($request->has('time')) {
+            $request->merge([
+                'time' => str_replace(['a. m.', 'p. m.'], ['am', 'pm'], $request->time),
+            ]);
+        }
+
         $validated = $request->validate([
             'contracted_treatment_id' => 'required|exists:contracted_treatments,id',
             'date' => 'required|date',

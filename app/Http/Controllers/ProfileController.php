@@ -111,7 +111,7 @@ class ProfileController extends Controller
 
     public function uploadProfilePhoto(Request $request) {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,jpg,png|max:2048'
+            'image' => 'required|image|mimes:jpeg,jpg,png|max:5120'
         ]);
         try {
             $user = Auth::user();
@@ -133,7 +133,9 @@ class ProfileController extends Controller
             ]);
         } catch (Exception $e) {
             logger($e);
-            return response()->json(null,500);
+            return response()->json([
+                'error' => 'Error al subir la imagen: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

@@ -37,6 +37,23 @@
     function ajaxErrorHandle(error) {
         if (error.status == 401 || error.status == 419) {
             bootstrap.Modal.getOrCreateInstance('#loginModal').show();
+        } else if(error.status == 422) {
+            let errorMsg = '';
+            if (error.responseJSON && error.responseJSON.errors) {
+                const errors = error.responseJSON.errors;
+                for (const key in errors) {
+                    if (errors.hasOwnProperty(key)) {
+                        errorMsg += errors[key][0] + '<br>';
+                    }
+                }
+            } else if (error.responseJSON && error.responseJSON.message) {
+                errorMsg = error.responseJSON.message;
+            } else {
+                errorMsg = "{{ __('Validation error') }}";
+            }
+            iziToast.warning({
+                message: errorMsg
+            });
         } else if(error.status == 409) {
             iziToast.info({
                 message: "{{ __('Restricted operation, please notify to administrator') }}"
@@ -46,9 +63,22 @@
                 message: "{{ __('Operation not allowed') }}"
             });
         } else {
-            iziToast.error({
-                message: "{{ __('Something went wrong, please try again, if the problem persists, please report it to administrator') }}"
-            });
+            let serverMsg = '';
+            if (error.responseJSON && error.responseJSON.error) {
+                serverMsg = error.responseJSON.error;
+            } else if (error.responseJSON && error.responseJSON.message) {
+                serverMsg = error.responseJSON.message;
+            }
+            
+            if (serverMsg) {
+                iziToast.error({
+                    message: serverMsg
+                });
+            } else {
+                iziToast.error({
+                    message: "{{ __('Something went wrong, please try again, if the problem persists, please report it to administrator') }}"
+                });
+            }
         }
     }
 

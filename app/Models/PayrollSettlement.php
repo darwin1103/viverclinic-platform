@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PayrollSettlement extends Model
 {
@@ -48,5 +49,28 @@ class PayrollSettlement extends Model
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
+    }
+
+    public function manualBonuses(): HasMany
+    {
+        return $this->hasMany(ManualBonus::class, 'payroll_settlement_id');
+    }
+
+    /**
+     * Recalculate the total from all components including manual bonuses.
+     */
+    public function recalculateTotal(): void
+    {
+        $bonusesTotal = $this->manualBonuses()->sum('amount');
+
+        $this->update([
+            'manual_bonus' => $bonusesTotal,
+            'total' => $this->base_salary
+                + $this->referral_commissions
+                + $this->upgrade_commissions
+                + $this->repurchase_commissions
+                + $this->sales_commissions
+                + $bonusesTotal,
+        ]);
     }
 }

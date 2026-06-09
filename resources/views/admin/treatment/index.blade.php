@@ -17,34 +17,32 @@
         <div class="col-12">
 
             {{-- SECCIÓN DE FILTROS --}}
-            <div class="card mb-4">
-                <div class="card-body">
-                    <form action="{{ route('admin.treatment.index') }}" method="GET" id="filter-form">
-                        <div class="row g-3 align-items-end">
-                            {{-- Campo de búsqueda por nombre --}}
-                            <div class="col-12 col-md-6">
-                                <label for="search" class="form-label">Buscar por nombre de tratamiento</label>
-                                <input type="text" class="form-control" id="search" name="search" placeholder="Ej: Reducción" value="{{ request('search') }}">
-                            </div>
+            <div class="card mb-3">
+                <div class="card-body py-2">
+                    <form action="{{ route('admin.treatment.index') }}" method="GET" id="filter-form" class="row g-2 align-items-end">
+                        {{-- Campo de búsqueda por nombre --}}
+                        <div class="col-12 col-md-5">
+                            <label for="search" class="form-label small mb-1">Buscar por nombre de tratamiento</label>
+                            <input type="text" class="form-control form-control-sm" id="search" name="search" placeholder="Ej: Reducción" value="{{ request('search') }}">
+                        </div>
 
-                            {{-- Selector de estado --}}
-                            <div class="col-12 col-md-3">
-                                <label for="active" class="form-label">Estado</label>
-                                <select class="form-select" id="active" name="active">
-                                    <option value="all" @selected(request('active') == 'all')>Todos</option>
-                                    <option value="active" @selected(request('active') == 'active')>Activo</option>
-                                    <option value="inactive" @selected(request('active') == 'inactive')>Inactivo</option>
-                                </select>
-                            </div>
+                        {{-- Selector de estado --}}
+                        <div class="col-6 col-md-2">
+                            <label for="active" class="form-label small mb-1">Estado</label>
+                            <select class="form-select form-select-sm" id="active" name="active">
+                                <option value="all" @selected(request('active') == 'all')>Todos</option>
+                                <option value="active" @selected(request('active') == 'active')>Activo</option>
+                                <option value="inactive" @selected(request('active') == 'inactive')>Inactivo</option>
+                            </select>
+                        </div>
 
-                            {{-- Campo oculto para el filtro de sucursal (controlado por JS) --}}
-                            <input type="hidden" name="branch_id" id="branch_id_filter" value="{{ request('branch_id') }}">
+                        {{-- Campo oculto para el filtro de sucursal (controlado por JS) --}}
+                        <input type="hidden" name="branch_id" id="branch_id_filter" value="{{ request('branch_id') }}">
 
-                            {{-- Botones --}}
-                            <div class="col-12 col-md-3 d-flex gap-2">
-                                <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Filtrar</button>
-                                <a href="{{ route('admin.treatment.index') }}" class="btn btn-secondary"><i class="bi bi-eraser-fill"></i> Limpiar</a>
-                            </div>
+                        {{-- Botones --}}
+                        <div class="col-12 col-md-1 d-flex gap-1">
+                            <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-search"></i></button>
+                            <a href="{{ route('admin.treatment.index') }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
                         </div>
                     </form>
                 </div>

@@ -241,7 +241,10 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
         Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
         Route::post('/payroll/generate', [PayrollController::class, 'generate'])->name('payroll.generate');
         Route::post('/payroll/{settlement}/mark-paid', [PayrollController::class, 'markAsPaid'])->name('payroll.mark-paid');
-        Route::post('/payroll/{settlement}/manual-bonus', [PayrollController::class, 'updateManualBonus'])->name('payroll.manual-bonus');
+        Route::post('/payroll/{settlement}/manual-bonus', [PayrollController::class, 'addManualBonus'])->name('payroll.manual-bonus');
+        Route::put('/payroll/{settlement}/manual-bonus/{bonus}', [PayrollController::class, 'updateManualBonusEntry'])->name('payroll.manual-bonus.update');
+        Route::delete('/payroll/{settlement}/manual-bonus/{bonus}', [PayrollController::class, 'deleteManualBonusEntry'])->name('payroll.manual-bonus.delete');
+        Route::post('/payroll/{settlement}/recalculate', [PayrollController::class, 'recalculate'])->name('payroll.recalculate');
         Route::get('/payroll/{settlement}', [PayrollController::class, 'show'])->name('payroll.show');
     });
 

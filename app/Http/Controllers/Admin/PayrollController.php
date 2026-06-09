@@ -245,7 +245,7 @@ class PayrollController extends Controller
      */
     public function show(PayrollSettlement $settlement)
     {
-        $settlement->load(['user', 'branch']);
+        $settlement->load(['user', 'branch', 'manualBonuses']);
 
         $month = $settlement->period_month;
         $year = $settlement->period_year;
@@ -288,27 +288,93 @@ class PayrollController extends Controller
     }
 
     /**
-     * Update manual bonus for a settlement.
+     * Add a manual bonus entry to a settlement.
      */
-    public function updateManualBonus(Request $request, PayrollSettlement $settlement)
+    public function addManualBonus(Request $request, PayrollSettlement $settlement)
     {
         $request->validate([
-            'manual_bonus' => 'required|numeric|min:0',
-            'manual_bonus_note' => 'nullable|string|max:255',
+            'amount' => 'required|numeric|min:0.01',
+            'note' => 'nullable|string|max:255',
         ]);
 
-        $oldBonus = $settlement->manual_bonus ?? 0;
-        $newBonus = $request->manual_bonus;
-
-        // Recalculate total: remove old bonus, add new bonus
-        $newTotal = $settlement->total - $oldBonus + $newBonus;
-
-        $settlement->update([
-            'manual_bonus' => $newBonus,
-            'manual_bonus_note' => $request->manual_bonus_note,
-            'total' => $newTotal,
+        $settlement->manualBonuses()->create([
+            'amount' => $request->amount,
+            'note' => $request->note,
         ]);
 
-        return back()->with('success', 'Bono manual actualizado correctamente para ' . ($settlement->user->name ?? ''));
+        $settlement->recalculateTotal();
+
+        return back()->with('success', 'Bono manual agregado correctamente.');
+    }
+
+    /**
+     * Update a manual bonus entry.
+     */
+    public function updateManualBonusEntry(Request $request, PayrollSettlement $settlement, \App\Models\ManualBonus $bonus)
+    {
+        $request->validate([
+            'amount' => 'required|numeric|min:0.01',
+            'note' => 'nullable|string|max:255',
+        ]);
+
+        $bonus->update([
+            'amount' => $request->amount,
+            'note' => $request->note,
+        ]);
+
+        $settlement->recalculateTotal();
+
+        return back()->with('success', 'Bono manual actualizado correctamente.');
+    }
+
+    /**
+     * Delete a manual bonus entry.
+     */
+    public function deleteManualBonusEntry(PayrollSettlement $settlement, \App\Models\ManualBonus $bonus)
+    {
+        $bonus->delete();
+        $settlement->recalculateTotal();
+
+        return back()->with('success', 'Bono manual eliminado correctamente.');
+    }
+
+    /**
+     * Recalculate settlement totals from live commission data.
+     */
+    public function recalculate(PayrollSettlement $settlement)
+    {
+        $month = $settlement->period_month;
+        $year = $settlement->period_year;
+        $userId = $settlement->user_id;
+
+        if ($settlement->role_type === 'EMPLOYEE') {
+            $referralCommissions = Referral::where('staff_id', $userId)
+                ->where('status', 'rewarded')
+                ->whereMonth('rewarded_at', $month)
+                ->whereYear('rewarded_at', $year)
+                ->sum('staff_commission');
+
+            $upgradeCommissions = PackageUpgrade::where('staff_user_id', $userId)
+                ->where('payment_status', 'APPROVED')
+                ->whereMonth('created_at', $month)
+                ->whereYear('created_at', $year)
+                ->sum('commission_amount');
+
+            $repurchaseCommissions = RepurchaseCommission::where('staff_user_id', $userId)
+                ->where('status', 'approved')
+                ->whereMonth('created_at', $month)
+                ->whereYear('created_at', $year)
+                ->sum('commission_amount');
+
+            $settlement->update([
+                'referral_commissions' => $referralCommissions,
+                'upgrade_commissions' => $upgradeCommissions,
+                'repurchase_commissions' => $repurchaseCommissions,
+            ]);
+        }
+
+        $settlement->recalculateTotal();
+
+        return back()->with('success', 'Liquidación recalculada correctamente para ' . ($settlement->user->name ?? ''));
     }
 }

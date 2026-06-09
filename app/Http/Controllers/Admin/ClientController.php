@@ -54,6 +54,21 @@ class ClientController extends Controller
             });
         }
 
+        if ($request->filled('active')) {
+            if ($request->input('active') === 'active') {
+                $query->where('active', true);
+            } elseif ($request->input('active') === 'inactive') {
+                $query->where('active', false);
+            }
+        }
+
+        if ($request->filled('from')) {
+            $query->whereDate('created_at', '>=', $request->from);
+        }
+        if ($request->filled('to')) {
+            $query->whereDate('created_at', '<=', $request->to);
+        }
+
         // Apply filters from the trait and paginate the results
         $clients = $this->applyFilters($request, $query)
                         ->latest() // Opcional: ordenar por los más recientes

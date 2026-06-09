@@ -2,6 +2,14 @@
 @section('content')
 <div class="container-fluid">
 
+    {{-- Flash messages --}}
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
     {{-- Header --}}
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
@@ -10,6 +18,13 @@
         </div>
         <div class="d-flex gap-2">
             @if($settlement->status === 'pending')
+                <form method="POST" action="{{ route('admin.payroll.recalculate', $settlement) }}"
+                      onsubmit="return confirm('¿Recalcular la liquidación con los datos actuales?');">
+                    @csrf
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Recalcular
+                    </button>
+                </form>
                 <form method="POST" action="{{ route('admin.payroll.mark-paid', $settlement) }}"
                       onsubmit="return confirm('¿Marcar como pagada la liquidación de {{ $settlement->user->name ?? '' }}?');">
                     @csrf
@@ -25,6 +40,9 @@
     </div>
 
     {{-- Summary Card --}}
+    @php
+        $totalBonuses = $settlement->manualBonuses->sum('amount');
+    @endphp
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
             <div class="card kpi h-100">
@@ -45,8 +63,8 @@
         <div class="col-6 col-md-3">
             <div class="card kpi h-100">
                 <div class="card-body">
-                    <div class="text-secondary small">Bono Manual</div>
-                    <div class="kpi-value mt-1">${{ number_format($settlement->manual_bonus ?? 0, 0, ',', '.') }}</div>
+                    <div class="text-secondary small">Bonos Manuales</div>
+                    <div class="kpi-value mt-1">${{ number_format($totalBonuses, 0, ',', '.') }}</div>
                 </div>
             </div>
         </div>
@@ -81,9 +99,7 @@
                     @forelse($referralEntries as $entry)
                         <tr>
                             <td class="ps-3">{{ $entry->rewarded_at?->format('d/m/Y') }}</td>
-                            <td>
-                                {{ $entry->referred->name ?? 'N/A' }}
-                            </td>
+                            <td>{{ $entry->referred->name ?? 'N/A' }}</td>
                             <td class="fw-semibold">${{ number_format($entry->staff_commission, 0, ',', '.') }}</td>
                         </tr>
                     @empty
@@ -202,45 +218,102 @@
 
     @endif
 
-    {{-- Manual Bonus Section --}}
+    {{-- Manual Bonuses Section --}}
     <div class="card mb-3">
         <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-gift me-2 text-success"></i>Bono Manual</span>
-            @if(($settlement->manual_bonus ?? 0) > 0)
-                <span class="badge bg-success">${{ number_format($settlement->manual_bonus, 0, ',', '.') }}</span>
+            <span><i class="bi bi-gift me-2 text-success"></i>Bonos Manuales</span>
+            @if($totalBonuses > 0)
+                <span class="badge bg-success">${{ number_format($totalBonuses, 0, ',', '.') }}</span>
             @endif
         </div>
-        <div class="card-body">
-            @if($settlement->status === 'pending')
-                <form method="POST" action="{{ route('admin.payroll.manual-bonus', $settlement) }}" class="row g-3 align-items-end">
-                    @csrf
-                    <div class="col-12 col-md-4">
-                        <label class="form-label small fw-bold">Monto del Bono (COP)</label>
-                        <input type="number" name="manual_bonus" class="form-control"
-                               value="{{ $settlement->manual_bonus ?? 0 }}" min="0" step="1000" required>
-                    </div>
-                    <div class="col-12 col-md-5">
-                        <label class="form-label small fw-bold">Nota (opcional)</label>
-                        <input type="text" name="manual_bonus_note" class="form-control"
-                               value="{{ $settlement->manual_bonus_note ?? '' }}" placeholder="Motivo del bono...">
-                    </div>
-                    <div class="col-12 col-md-3">
-                        <button type="submit" class="btn btn-success w-100">
-                            <i class="bi bi-save me-1"></i>Guardar Bono
-                        </button>
-                    </div>
-                </form>
+        <div class="card-body p-0">
+            {{-- Existing bonus entries --}}
+            @if($settlement->manualBonuses->isNotEmpty())
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">Fecha</th>
+                                <th>Monto</th>
+                                <th>Nota</th>
+                                @if($settlement->status === 'pending')
+                                    <th style="width: 180px;">Acciones</th>
+                                @endif
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($settlement->manualBonuses as $bonus)
+                                <tr>
+                                    @if($settlement->status === 'pending')
+                                        <td colspan="4" class="p-0">
+                                            <form method="POST" action="{{ route('admin.payroll.manual-bonus.update', [$settlement, $bonus]) }}" class="d-flex align-items-center">
+                                                @csrf
+                                                @method('PUT')
+                                                <div class="ps-3 py-2" style="width: 20%;">
+                                                    {{ $bonus->created_at->format('d/m/Y') }}
+                                                </div>
+                                                <div class="py-1" style="width: 25%;">
+                                                    <input type="number" name="amount" class="form-control form-control-sm"
+                                                           value="{{ $bonus->amount }}" min="0.01" step="1000" required>
+                                                </div>
+                                                <div class="px-2 py-1" style="flex: 1;">
+                                                    <input type="text" name="note" class="form-control form-control-sm"
+                                                           value="{{ $bonus->note }}" placeholder="Nota...">
+                                                </div>
+                                                <div class="pe-3 py-1 d-flex gap-1" style="width: 180px;">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Guardar">
+                                                        <i class="bi bi-check-lg"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" title="Eliminar"
+                                                            onclick="if(confirm('¿Eliminar este bono?')) document.getElementById('deleteBonus{{ $bonus->id }}').submit();">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </form>
+                                            <form id="deleteBonus{{ $bonus->id }}" method="POST"
+                                                  action="{{ route('admin.payroll.manual-bonus.delete', [$settlement, $bonus]) }}" class="d-none">
+                                                @csrf
+                                                @method('DELETE')
+                                            </form>
+                                        </td>
+                                    @else
+                                        <td class="ps-3">{{ $bonus->created_at->format('d/m/Y') }}</td>
+                                        <td class="fw-semibold">${{ number_format($bonus->amount, 0, ',', '.') }}</td>
+                                        <td>{{ $bonus->note ?? '-' }}</td>
+                                    @endif
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             @else
-                @if(($settlement->manual_bonus ?? 0) > 0)
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="fw-bold fs-5">${{ number_format($settlement->manual_bonus, 0, ',', '.') }}</span>
-                        @if($settlement->manual_bonus_note)
-                            <span class="text-muted">— {{ $settlement->manual_bonus_note }}</span>
-                        @endif
-                    </div>
-                @else
-                    <p class="text-muted mb-0">No se asignó bono manual para esta liquidación.</p>
+                @if($settlement->status !== 'pending')
+                    <div class="p-3 text-muted">No se asignaron bonos manuales para esta liquidación.</div>
                 @endif
+            @endif
+
+            {{-- Add new bonus form --}}
+            @if($settlement->status === 'pending')
+                <div class="border-top p-3">
+                    <form method="POST" action="{{ route('admin.payroll.manual-bonus', $settlement) }}" class="row g-2 align-items-end">
+                        @csrf
+                        <div class="col-12 col-md-3">
+                            <label class="form-label small fw-bold mb-1">Monto (COP)</label>
+                            <input type="number" name="amount" class="form-control form-control-sm"
+                                   min="0.01" step="1000" placeholder="0" required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-bold mb-1">Nota (opcional)</label>
+                            <input type="text" name="note" class="form-control form-control-sm"
+                                   placeholder="Motivo del bono...">
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <button type="submit" class="btn btn-sm btn-success w-100">
+                                <i class="bi bi-plus-circle me-1"></i>Agregar Bono
+                            </button>
+                        </div>
+                    </form>
+                </div>
             @endif
         </div>
     </div>

@@ -89,7 +89,6 @@ class ContractedTreatment extends Model
         return $this->installments()->exists();
     }
 
-    // Helper para saber si califica para agrandamiento de paquete
     public function canBeUpgraded(): bool
     {
         if ($this->packageUpgrade()->exists()) {
@@ -97,11 +96,21 @@ class ContractedTreatment extends Model
         }
 
         $firstAppointment = $this->appointments()->where('session_number', 1)->first();
-        if (!$firstAppointment) {
+        if (!$firstAppointment || !in_array($firstAppointment->status, ['Atendida', 'Completada']) || is_null($firstAppointment->staff_user_id)) {
             return false;
         }
 
-        return in_array($firstAppointment->status, ['Atendida', 'Completada']) && !is_null($firstAppointment->staff_user_id);
+        // Cannot upgrade if session 2 or higher is already attended/completed
+        $hasSubsequentSessions = $this->appointments()
+            ->where('session_number', '>=', 2)
+            ->whereIn('status', ['Atendida', 'Completada'])
+            ->exists();
+
+        if ($hasSubsequentSessions) {
+            return false;
+        }
+
+        return true;
     }
 
     // Helper para calcular el total pagado en órdenes aprobadas

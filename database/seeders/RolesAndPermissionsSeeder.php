@@ -61,12 +61,15 @@ class RolesAndPermissionsSeeder extends Seeder
             'admin_dashboard_user_management',
             'admin_dashboard_branch_management',
             'admin_dashboard_treatment_management',
+            'ver_contabilidad',
         ];
 
         foreach ($adminPermissions as $permission) {
             $adminRole->givePermissionTo(Permission::firstOrCreate(['name' => $permission]));
         }
 
+        $employeeRole->givePermissionTo(Permission::firstOrCreate(['name' => 'admin_dashboard']));
+        $employeeRole->givePermissionTo(Permission::firstOrCreate(['name' => 'admin_dashboard_treatment_management']));
         $employeeRole->givePermissionTo(Permission::firstOrCreate(['name' => 'employee_dashboard']));
         $employeeRole->givePermissionTo(Permission::firstOrCreate(['name' => 'employee_agenda_day_home_btn']));
         $employeeRole->givePermissionTo(Permission::firstOrCreate(['name' => 'employee_agenda_new_home_btn']));

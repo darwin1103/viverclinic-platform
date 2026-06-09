@@ -79,7 +79,7 @@
                                 <dd class="col-sm-7">{{ $contractedTreatment->terms_acepted ? 'Aceptado' : 'No aceptado' }}</dd>
 
                                 <dt class="col-sm-5">Esta en embarazo:</dt>
-                                <dd class="col-sm-7">{{ $contractedTreatment->is_pregnant ? 'Si' : 'No' }}</dd>
+                                <dd class="col-sm-7">{{ $contractedTreatment->is_pregnant ? 'No' : 'Sí' }}</dd>
 
                             </dl>
                         </div>

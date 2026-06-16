@@ -98,7 +98,13 @@
 
         currencyInputs.forEach(input => {
             // Format initially on load
-            input.value = formatCurrencyValue(input.value);
+            let initialValue = String(input.value);
+            // If the initial value has a decimal point (from database decimal fields like .00), remove it
+            // before stripping non-digits, otherwise "119000.00" becomes "11900000".
+            if (initialValue.includes('.')) {
+                initialValue = initialValue.split('.')[0];
+            }
+            input.value = formatCurrencyValue(initialValue);
         });
 
         // Use event delegation for format on input to support dynamically added fields

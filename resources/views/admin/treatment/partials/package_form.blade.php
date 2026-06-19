@@ -74,9 +74,9 @@
                         <div class="col-6 col-md-4">
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text">Precio $</span>
-                                <input type="number"
+                                <input type="text" inputmode="numeric"
                                        name="branches[{{ $branch->id }}][packages][{{ $key }}][installments][{{ $iKey }}][price]"
-                                       class="form-control" step="0.01" min="0"
+                                       class="form-control currency-input"
                                        value="{{ is_array($inst) ? $inst['price'] : $inst->price }}" required>
                             </div>
                         </div>

@@ -86,17 +86,17 @@ class RepurchaseService
         $staffId = $lastAttendedAppt->staff_user_id;
         Log::info('[RepurchaseService] Step 8: Found staff_user_id=' . $staffId . ' from appointment=' . $lastAttendedAppt->id);
 
-        // 9. Calculate commission amount
+        // 9. Calculate commission amount based on the first payment amount
         $contractedTreatment = ContractedTreatment::find($contractedTreatmentId);
-        $treatmentTotal = $contractedTreatment->total_price ?? 0;
+        $paymentAmount = $order->total ?? 0;
 
         if ($commissionType === 'percentage') {
-            $commissionAmount = round(($treatmentTotal * $commissionValue) / 100, 2);
+            $commissionAmount = round(($paymentAmount * $commissionValue) / 100, 2);
         } else {
             $commissionAmount = $commissionValue;
         }
 
-        Log::info('[RepurchaseService] Step 9: commissionAmount=' . $commissionAmount . ', treatmentTotal=' . $treatmentTotal);
+        Log::info('[RepurchaseService] Step 9: commissionAmount=' . $commissionAmount . ', paymentAmount=' . $paymentAmount);
 
         // 10. Create RepurchaseCommission record
         $commission = RepurchaseCommission::create([
@@ -106,7 +106,7 @@ class RepurchaseService
             'commission_amount' => $commissionAmount,
             'commission_type' => $commissionType,
             'commission_value' => $commissionValue,
-            'treatment_total' => $treatmentTotal,
+            'treatment_total' => $paymentAmount,
             'status' => 'approved',
         ]);
 

@@ -78,7 +78,7 @@
             <div class="col-12 col-md-4">
                 <label for="referral_commission_value" class="form-label fw-bold text-white">Valor de la comisión</label>
                 <div class="input-group">
-                    <input type="text" inputmode="numeric" class="form-control bg-dark text-white border-secondary currency-input" id="referral_commission_value"
+                    <input type="text" inputmode="{{ $referralCommissionType === 'percentage' ? 'decimal' : 'numeric' }}" class="form-control bg-dark text-white border-secondary {{ $referralCommissionType === 'fixed' ? 'currency-input' : '' }}" id="referral_commission_value"
                            name="referral_commission_value" value="{{ $referralCommissionValue }}"
                            placeholder="0">
                     <span class="input-group-text bg-secondary text-white border-secondary" id="commission-suffix">
@@ -111,7 +111,7 @@
             <div class="col-12 col-md-6">
                 <label for="upgrade_commission_value" class="form-label fw-bold text-white">Valor de la comisión</label>
                 <div class="input-group">
-                    <input type="text" inputmode="numeric" class="form-control bg-dark text-white border-secondary currency-input" id="upgrade_commission_value"
+                    <input type="text" inputmode="{{ $upgradeCommissionType === 'percentage' ? 'decimal' : 'numeric' }}" class="form-control bg-dark text-white border-secondary {{ $upgradeCommissionType === 'fixed' ? 'currency-input' : '' }}" id="upgrade_commission_value"
                            name="upgrade_commission_value" value="{{ $upgradeCommissionValue }}"
                            placeholder="0">
                     <span class="input-group-text bg-secondary text-white border-secondary" id="upgrade-commission-suffix">
@@ -144,14 +144,14 @@
             <div class="col-12 col-md-6">
                 <label for="repurchase_commission_value" class="form-label fw-bold text-white">Valor de la comisión</label>
                 <div class="input-group">
-                    <input type="text" inputmode="numeric" class="form-control bg-dark text-white border-secondary currency-input" id="repurchase_commission_value"
+                    <input type="text" inputmode="{{ $repurchaseCommissionType === 'percentage' ? 'decimal' : 'numeric' }}" class="form-control bg-dark text-white border-secondary {{ $repurchaseCommissionType === 'fixed' ? 'currency-input' : '' }}" id="repurchase_commission_value"
                            name="repurchase_commission_value" value="{{ $repurchaseCommissionValue }}"
                            placeholder="0">
                     <span class="input-group-text bg-secondary text-white border-secondary" id="repurchase-commission-suffix">
                         {{ $repurchaseCommissionType === 'percentage' ? '%' : 'COP' }}
                     </span>
                 </div>
-                <small class="text-secondary">Ingresa 0 para desactivar. Si es %, se calcula sobre el total del nuevo tratamiento.</small>
+                <small class="text-secondary">Ingresa 0 para desactivar. Si es %, se calcula sobre el primer pago del paciente.</small>
             </div>
 
             {{-- Meta Global de Comisiones --}}
@@ -304,19 +304,64 @@
 
 @push('scripts')
 <script>
-    document.getElementById('referral_commission_type').addEventListener('change', function() {
-        const suffix = document.getElementById('commission-suffix');
-        suffix.textContent = this.value === 'percentage' ? '%' : 'COP';
-    });
+    function setupCommissionToggle(typeSelectId, valueInputId, suffixId) {
+        const typeSelect = document.getElementById(typeSelectId);
+        const valueInput = document.getElementById(valueInputId);
+        const suffix = document.getElementById(suffixId);
 
-    document.getElementById('upgrade_commission_type').addEventListener('change', function() {
-        const suffix = document.getElementById('upgrade-commission-suffix');
-        suffix.textContent = this.value === 'percentage' ? '%' : 'COP';
-    });
+        function applyMode() {
+            const isPercentage = typeSelect.value === 'percentage';
+            suffix.textContent = isPercentage ? '%' : 'COP';
 
-    document.getElementById('repurchase_commission_type').addEventListener('change', function() {
-        const suffix = document.getElementById('repurchase-commission-suffix');
-        suffix.textContent = this.value === 'percentage' ? '%' : 'COP';
+            if (isPercentage) {
+                // Only strip dots if transitioning FROM fixed mode (dots are thousand separators)
+                const wasCurrency = valueInput.classList.contains('currency-input');
+                valueInput.classList.remove('currency-input');
+                valueInput.setAttribute('inputmode', 'decimal');
+                if (wasCurrency) {
+                    // Dots were thousand separators, strip them
+                    valueInput.value = valueInput.value.replace(/\./g, '') || '';
+                }
+                // If not wasCurrency, value is already a decimal (e.g. "3.33") — leave it
+            } else {
+                // Switch to currency mode: strip non-digits, re-apply formatting
+                let raw = valueInput.value.replace(/[^\d]/g, '');
+                valueInput.classList.add('currency-input');
+                valueInput.setAttribute('inputmode', 'numeric');
+                // Re-apply thousand separator formatting
+                valueInput.value = raw.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+        }
+
+        // Apply on page load
+        applyMode();
+
+        // Apply on change
+        typeSelect.addEventListener('change', applyMode);
+
+        // For percentage mode, allow only digits and one decimal point
+        valueInput.addEventListener('input', function () {
+            if (typeSelect.value === 'percentage') {
+                // Allow digits and at most one decimal separator (dot or comma → dot)
+                let val = this.value.replace(',', '.');
+                // Remove anything that is not a digit or dot
+                val = val.replace(/[^\d.]/g, '');
+                // Keep only the first dot
+                let parts = val.split('.');
+                if (parts.length > 2) {
+                    val = parts[0] + '.' + parts.slice(1).join('');
+                }
+                if (this.value !== val) {
+                    this.value = val;
+                }
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        setupCommissionToggle('referral_commission_type', 'referral_commission_value', 'commission-suffix');
+        setupCommissionToggle('upgrade_commission_type', 'upgrade_commission_value', 'upgrade-commission-suffix');
+        setupCommissionToggle('repurchase_commission_type', 'repurchase_commission_value', 'repurchase-commission-suffix');
     });
 </script>
 @endpush

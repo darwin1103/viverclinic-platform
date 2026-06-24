@@ -137,7 +137,7 @@ const AdminActionsModule = (function() {
                             <div><strong>Fecha:</strong> ${formattedDate}</div>
                             <div><strong>Hora:</strong> ${currentAppointment.start} ${currentAppointment.duration ? `(${currentAppointment.duration} min)` : ''}</div>
                             <div>
-                                <strong>Estado:</strong> 
+                                <strong>Estado Global:</strong> 
                                 ${window.userCanEditStatus ? `
                                     <select id="selectAppointmentStatus" class="form-select form-select-sm d-inline-block w-auto ms-1 bg-dark text-white border-secondary" style="vertical-align: middle;">
                                         ${['Por confirmar', 'Confirmada', 'Agendado', 'Atendida', 'No asistida', 'Completada'].map(s => `
@@ -152,34 +152,44 @@ const AdminActionsModule = (function() {
                                 `}
                             </div>
 
-                            ${(currentAppointment.zones?.big?.length > 0) ? `
-                                <div>
-                                    <strong>Zonas grandes:</strong>
-                                    <div class="d-flex flex-wrap gap-1 mt-1">
-                                        ${currentAppointment.zones.big.map(zone => `<span class="badge bg-secondary">${zone}</span>`).join('')}
+                            <!-- Sub Appointments (Paquetes) -->
+                            <div class="mt-3">
+                                <strong>Paquetes Incluidos:</strong>
+                                ${(currentAppointment.sub_appointments || []).map((sub, index) => `
+                                <div class="mt-2 p-3 border border-secondary rounded position-relative">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <strong class="text-primary">${sub.treatment}</strong>
+                                        <span class="badge text-bg-${getStatusVariant(sub.status)}">${sub.status}</span>
+                                    </div>
+                                    <div class="small">
+                                        <div class="mb-1"><strong class="text-secondary">Sesión:</strong> #${sub.session_number}</div>
+                                        
+                                        ${(sub.zones?.big?.length > 0) ? `
+                                            <div class="mb-1">
+                                                <strong class="text-secondary">Zonas grandes:</strong>
+                                                ${sub.zones.big.join(', ')}
+                                            </div>
+                                        ` : ''}
+
+                                        ${(sub.zones?.mini?.length > 0) ? `
+                                            <div class="mb-1">
+                                                <strong class="text-secondary">Mini zonas:</strong>
+                                                ${sub.zones.mini.join(', ')}
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${(!['Pendiente', 'Agendado', 'Por confirmar'].includes(sub.status) || sub.review_score) ? `<div class="mb-1"><strong class="text-secondary">Calificación:</strong> ${sub.review_score ? (reviewValues[sub.review_score] + (sub.review ? (' - ' + sub.review) : '')) : 'N/A'}</div>` : ''}
+
+                                        ${sub.shots ? `
+                                            <div class="mb-1">
+                                                <strong class="text-secondary">Disparos en cabina:</strong>
+                                                ${sub.shots}
+                                            </div>
+                                        ` : ''}
                                     </div>
                                 </div>
-                            ` : ''}
-
-                            ${(currentAppointment.zones?.mini?.length > 0) ? `
-                                <div>
-                                    <strong>Mini zonas:</strong>
-                                    <div class="d-flex flex-wrap gap-1 mt-1">
-                                        ${currentAppointment.zones.mini.map(zone => `<span class="badge bg-light text-dark">${zone}</span>`).join('')}
-                                    </div>
-                                </div>
-                            ` : ''}
-
-                            ${(!['Pendiente', 'Agendado', 'Por confirmar'].includes(currentAppointment.status) || currentAppointment.review_score) ? `<div><strong>Calificacion del cliente:</strong> ${currentAppointment.review_score ? (reviewValues[currentAppointment.review_score] + (currentAppointment.review ? (' - ' + currentAppointment.review) : '')) : 'Sin calificación.'}</div>` : ''}
-
-                            ${currentAppointment.shots ? `
-                                <div>
-                                    <strong>Disparos en cabina:</strong>
-                                    ${currentAppointment.shots}
-                                </div>
-                            ` : ''}
-
-                            ${(!['Pendiente', 'Agendado', 'Por confirmar'].includes(currentAppointment.status) && currentAppointment.attended !== null) ? `<div><strong>Asistencia:</strong> <span class="badge text-bg-${currentAppointment.attended ? 'success' : 'danger'}">${currentAppointment.attended ? 'Asistió' : 'No asistió'}</span></div>` : ''}
+                                `).join('')}
+                            </div>
                         </div>
                     </div>
                 </div>

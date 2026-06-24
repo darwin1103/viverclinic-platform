@@ -71,15 +71,12 @@ trait CalculatesAvailableSlots
      */
     private function getBookedAppointments(Carbon $date, int $branchId): Collection
     {
-        return Appointment::whereHas('contractedTreatment', function ($query) use ($branchId) {
+        return Appointment::with('contractedTreatment')
+            ->whereHas('contractedTreatment', function ($query) use ($branchId) {
                 $query->where('branch_id', $branchId);
             })
             ->whereDate('schedule', $date)
-            ->get()
-            ->map(function ($appointment) {
-                // We only care about the time for checking availability
-                return Carbon::parse($appointment->schedule)->format('H:i');
-            });
+            ->get();
     }
 
     /**
@@ -117,7 +114,12 @@ trait CalculatesAvailableSlots
     private function filterAvailableSlots(array $slotsCapacity, Collection $bookedAppointments, int $additionalCapacity, Carbon $date): array
     {
         $availableSlots = [];
-        $bookedCounts = $bookedAppointments->countBy(); // Counts occurrences of each time string, e.g., ['09:00' => 2]
+        
+        // Group appointments by user so that a patient with multiple appointments today only consumes 1 capacity slot
+        $uniqueBookings = $bookedAppointments->unique('contractedTreatment.user_id');
+        $bookedCounts = $uniqueBookings->map(function ($appointment) {
+            return Carbon::parse($appointment->schedule)->format('H:i');
+        })->countBy(); // Counts occurrences of each time string, e.g., ['09:00' => 2]
 
         // Ensure slots are sorted chronologically
         ksort($slotsCapacity);

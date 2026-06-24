@@ -162,30 +162,54 @@ class AdminAppointmentController extends Controller
 
         $appointments = $query->orderBy('schedule', 'asc')->get();
 
+        // Group appointments by date and user_id (all appointments of the same patient on the same day are unified)
+        $grouped = $appointments->groupBy(function ($app) {
+            return Carbon::parse($app->schedule)->format('Y-m-d') . '_' . $app->contractedTreatment->user_id;
+        });
+
         // Format appointments for frontend
-        $formatted = $appointments->map(function ($appointment) {
-            $schedule = Carbon::parse($appointment->schedule);
+        $formatted = $grouped->map(function ($group) {
+            $primaryApp = $group->first();
+            $schedule = Carbon::parse($primaryApp->schedule);
             $duration = 20; // Default duration in minutes
 
+            $treatments = $group->map(fn($app) => $app->contractedTreatment->treatment->name)->toArray();
+
+            $subAppointments = $group->map(function ($app) {
+                return [
+                    'id' => $app->id,
+                    'treatment' => $app->contractedTreatment->treatment->name,
+                    'zones' => $app->contractedTreatment->selected_zones,
+                    'session_number' => $app->session_number,
+                    'status' => $app->status,
+                    'attended' => $app->attended,
+                    'review' => $app->review,
+                    'review_score' => $app->review_score,
+                    'shots' => ($app->contractedTreatment->treatment->needs_report_shots && $app->uses_of_hair_removal_shots) ? $app->uses_of_hair_removal_shots : null,
+                ];
+            })->toArray();
+
             return [
-                'id' => $appointment->id,
+                'id' => $primaryApp->id,
+                'group_ids' => $group->pluck('id')->toArray(),
                 'date' => $schedule->format('Y-m-d'),
                 'start' => $schedule->format('h:i a'),
                 'duration' => $duration,
-                'patient' => $appointment->contractedTreatment->user->name,
-                'branch_id' => $appointment->contractedTreatment->branch_id,
-                'patient_email' => $appointment->contractedTreatment->user->email,
-                'professional' => $appointment->staff ? $appointment->staff->name : 'Sin asignar',
-                'treatment' => $appointment->contractedTreatment->treatment->name,
-                'zones' => $appointment->contractedTreatment->selected_zones,
-                'status' => $appointment->status,
-                'attended' => $appointment->attended,
-                'session_number' => $appointment->session_number,
-                'review' => $appointment->review,
-                'review_score' => $appointment->review_score,
-                'shots' => ($appointment->contractedTreatment->treatment->needs_report_shots && $appointment->uses_of_hair_removal_shots) ? $appointment->uses_of_hair_removal_shots : null,
+                'patient' => $primaryApp->contractedTreatment->user->name,
+                'branch_id' => $primaryApp->contractedTreatment->branch_id,
+                'patient_email' => $primaryApp->contractedTreatment->user->email,
+                'professional' => $primaryApp->staff ? $primaryApp->staff->name : 'Sin asignar',
+                'treatment' => implode(' + ', $treatments),
+                'zones' => $primaryApp->contractedTreatment->selected_zones,
+                'status' => $primaryApp->status,
+                'attended' => $primaryApp->attended,
+                'session_number' => $primaryApp->session_number,
+                'review' => $primaryApp->review,
+                'review_score' => $primaryApp->review_score,
+                'shots' => ($primaryApp->contractedTreatment->treatment->needs_report_shots && $primaryApp->uses_of_hair_removal_shots) ? $primaryApp->uses_of_hair_removal_shots : null,
+                'sub_appointments' => $subAppointments,
             ];
-        });
+        })->values();
 
         return response()->json(['appointments' => $formatted]);
     }
@@ -237,6 +261,9 @@ class AdminAppointmentController extends Controller
                 StaffProfile::where('user_id', $staffId)->update([
                     'last_appointment_assigned' => Carbon::now(),
                 ]);
+
+                // Group assignment: also assign and mark other appointments for this patient today
+                $this->assignGroupAppointments($appointment, $staffId, 'Atendida');
             }
 
             $appointment->save();
@@ -298,6 +325,38 @@ class AdminAppointmentController extends Controller
     }
 
     /**
+     * Get all other appointments for the same patient on the same day.
+     */
+    private function getSameDayAppointments(Appointment $primaryAppointment)
+    {
+        $patientId = $primaryAppointment->contractedTreatment->user_id;
+        $appointmentDate = Carbon::parse($primaryAppointment->schedule)->toDateString();
+
+        return Appointment::whereHas('contractedTreatment', function($query) use ($patientId) {
+            $query->where('user_id', $patientId);
+        })
+        ->whereDate('schedule', $appointmentDate)
+        ->where('id', '!=', $primaryAppointment->id)
+        ->get();
+    }
+
+    /**
+     * Finds and updates other appointments for the same patient on the same day,
+     * assigning them to the same staff member and marking them as attended.
+     */
+    private function assignGroupAppointments(Appointment $primaryAppointment, int $staffId, string $status)
+    {
+        $others = $this->getSameDayAppointments($primaryAppointment);
+
+        foreach($others as $other) {
+            $other->staff_user_id = $staffId;
+            $other->attended = true;
+            $other->status = $status;
+            $other->save();
+        }
+    }
+
+    /**
      * Confirm appointment
      */
     public function confirm(Appointment $appointment)
@@ -305,6 +364,12 @@ class AdminAppointmentController extends Controller
         $appointment->update([
             'status' => 'Confirmada'
         ]);
+
+        // Cascade: confirm all other appointments for this patient today
+        $others = $this->getSameDayAppointments($appointment);
+        foreach ($others as $other) {
+            $other->update(['status' => 'Confirmada']);
+        }
 
         try {
             app(NotificationService::class)->sendAppointmentConfirmed($appointment);
@@ -334,6 +399,15 @@ class AdminAppointmentController extends Controller
         $next24Hours = $now->copy()->addHours(24);
         $status = $schedule->between($now, $next24Hours) ? 'Confirmada' : 'Por confirmar';
 
+        // Cascade: reschedule all other appointments for this patient today
+        $others = $this->getSameDayAppointments($appointment);
+        foreach ($others as $other) {
+            $other->update([
+                'schedule' => $schedule->toDateTimeString(),
+                'status' => $status,
+            ]);
+        }
+
         $appointment->update([
             'schedule' => $schedule->toDateTimeString(),
             'status' => $status,
@@ -360,6 +434,12 @@ class AdminAppointmentController extends Controller
             app(NotificationService::class)->sendAppointmentCancelled($appointment);
         } catch (\Throwable $e) {
             \Log::error('Notification error on appointment cancel: ' . $e->getMessage());
+        }
+
+        // Cascade: cancel all other appointments for this patient today
+        $others = $this->getSameDayAppointments($appointment);
+        foreach ($others as $other) {
+            $other->delete();
         }
 
         $appointment->delete();
@@ -423,6 +503,9 @@ class AdminAppointmentController extends Controller
                     StaffProfile::where('user_id', $staffId)->update([
                         'last_appointment_assigned' => Carbon::now(),
                     ]);
+
+                    // Group assignment: also assign and mark other appointments for this patient today
+                    $this->assignGroupAppointments($appointment, $staffId, $status);
                 }
             } elseif ($status === 'No asistida') {
                 $appointment->attended = false;
@@ -431,6 +514,21 @@ class AdminAppointmentController extends Controller
             }
 
             $appointment->save();
+
+            // Cascade: apply the same status to all other appointments for this patient today
+            $others = $this->getSameDayAppointments($appointment);
+            foreach ($others as $other) {
+                $other->status = $status;
+                if ($status === 'Atendida' || $status === 'Completada') {
+                    $other->attended = true;
+                } elseif ($status === 'No asistida') {
+                    $other->attended = false;
+                } else {
+                    $other->attended = null;
+                }
+                $other->save();
+            }
+
             DB::commit();
 
             return response()->json([

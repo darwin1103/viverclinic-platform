@@ -181,6 +181,7 @@ class UserSeeder extends Seeder
         ]);
         $adminUser3->assignRole('ADMIN');
         $adminUser3->adminProfile()->create(['branch_id' => 1]);
+        $adminUser3->adminsBranches()->attach(1);
 
         // Test SALES
         $salesUser = User::create([

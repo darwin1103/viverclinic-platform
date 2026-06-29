@@ -30,6 +30,7 @@ class SettingController extends Controller
 
         // Meta global de comisiones (unificada)
         $commissionTarget = Setting::get('commission_target', '0');
+        $commissionTargetCount = Setting::get('commission_target_count', '0');
 
         // Configuración de abonos
         $minimumAbonoAmount = Setting::get('minimum_abono_amount', '50000');
@@ -45,6 +46,7 @@ class SettingController extends Controller
             'upgradeSalesEnabled',
             'repurchaseSalesEnabled',
             'commissionTarget',
+            'commissionTargetCount',
             'minimumAbonoAmount'
         ));
     }
@@ -62,6 +64,7 @@ class SettingController extends Controller
             'upgrade_sales_enabled' => 'nullable|in:0,1',
             'repurchase_sales_enabled' => 'nullable|in:0,1',
             'commission_target' => 'nullable|numeric|min:0',
+            'commission_target_count' => 'nullable|integer|min:0',
             'minimum_abono_amount' => 'nullable|integer|min:0',
         ]);
 
@@ -83,6 +86,7 @@ class SettingController extends Controller
 
         // Guardar meta global de ventas/comisiones
         Setting::updateOrCreate(['key' => 'commission_target'], ['value' => $request->commission_target ?? '0']);
+        Setting::updateOrCreate(['key' => 'commission_target_count'], ['value' => $request->commission_target_count ?? '0']);
 
         // Guardar configuración de abonos
         Setting::updateOrCreate(['key' => 'minimum_abono_amount'], ['value' => $request->minimum_abono_amount ?? '50000']);

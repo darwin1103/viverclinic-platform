@@ -8,37 +8,71 @@
         </div>
     </div>
 
-    {{-- Unified Sales Target --}}
+    {{-- Metas Globales y Contribución Individual --}}
     <div class="row g-4 mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm border-0">
+        {{-- Progreso del Equipo (Metas Globales) --}}
+        <div class="col-12 col-lg-8">
+            <div class="card shadow-sm border-0 h-100">
                 <div class="card-body p-4">
-                    <h5 class="card-title fw-bold text-muted mb-3"><i class="bi bi-trophy me-2"></i>Meta de Ventas del Mes</h5>
-                    <div class="d-flex justify-content-between align-items-end mb-2">
-                        <span class="fs-4 fw-bold text-info">${{ number_format($currentSalesTotal, 0, ',', '.') }}</span>
-                        <span class="text-muted">de ${{ number_format($salesTarget, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="progress" style="height: 25px;">
-                        <div class="progress-bar bg-{{ $salesProgress >= 100 ? 'success' : 'info' }} progress-bar-striped progress-bar-animated"
-                             role="progressbar"
-                             style="width: {{ $salesProgress }}%;"
-                             aria-valuenow="{{ $salesProgress }}"
-                             aria-valuemin="0"
-                             aria-valuemax="100">
-                            {{ number_format($salesProgress, 1) }}%
+                    <h5 class="card-title fw-bold text-muted mb-4"><i class="bi bi-trophy me-2"></i>Progreso del Equipo (Metas Mensuales)</h5>
+                    
+                    {{-- Meta de Monto --}}
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-end mb-2">
+                            <span class="fw-semibold">Monto Total de Ventas</span>
+                            <span>
+                                <span class="fs-5 fw-bold text-info">${{ number_format($globalSalesTotal, 0, ',', '.') }}</span>
+                                <span class="text-muted small">/ ${{ number_format($salesTargetAmount, 0, ',', '.') }}</span>
+                            </span>
+                        </div>
+                        <div class="progress" style="height: 15px;">
+                            <div class="progress-bar bg-{{ $globalAmountProgress >= 100 ? 'success' : 'info' }} progress-bar-striped progress-bar-animated"
+                                 role="progressbar"
+                                 style="width: {{ $globalAmountProgress }}%;">
+                                {{ number_format($globalAmountProgress, 1) }}%
+                            </div>
                         </div>
                     </div>
-                    @if($salesProgress >= 100 && $salesTarget > 0)
-                        <div class="text-success mt-2 fw-bold"><i class="bi bi-stars"></i> ¡Felicidades! Has alcanzado tu meta de ventas este mes.</div>
-                    @endif
 
-                    {{-- Summary --}}
-                    <div class="row mt-3 pt-3 border-top">
-                        <div class="col-12 text-center">
-                            <i class="bi bi-cart-check text-success fs-3"></i>
-                            <div class="small text-muted mt-1">Ventas Registradas Este Mes</div>
-                            <div class="fw-bold fs-4">{{ $currentSalesCount }}</div>
+                    {{-- Meta de Cantidad --}}
+                    <div>
+                        <div class="d-flex justify-content-between align-items-end mb-2">
+                            <span class="fw-semibold">Cantidad Total de Ventas</span>
+                            <span>
+                                <span class="fs-5 fw-bold text-primary">{{ $globalSalesCount }}</span>
+                                <span class="text-muted small">/ {{ $salesTargetCount }} ventas</span>
+                            </span>
                         </div>
+                        <div class="progress" style="height: 15px;">
+                            <div class="progress-bar bg-{{ $globalCountProgress >= 100 ? 'success' : 'primary' }} progress-bar-striped progress-bar-animated"
+                                 role="progressbar"
+                                 style="width: {{ $globalCountProgress }}%;">
+                                {{ number_format($globalCountProgress, 1) }}%
+                            </div>
+                        </div>
+                    </div>
+
+                    @if($globalAmountProgress >= 100 && $globalCountProgress >= 100 && $salesTargetAmount > 0 && $salesTargetCount > 0)
+                        <div class="text-success mt-4 fw-bold"><i class="bi bi-stars"></i> ¡Felicidades! El equipo ha alcanzado todas las metas del mes.</div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Contribución Individual --}}
+        <div class="col-12 col-lg-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body p-4 d-flex flex-column justify-content-center align-items-center text-center">
+                    <h5 class="fw-bold text-muted mb-4"><i class="bi bi-person-star me-2"></i>Tu Contribución</h5>
+                    
+                    <div class="mb-4 w-100">
+                        <div class="text-muted small mb-1 text-uppercase fw-semibold">Monto Vendido</div>
+                        <div class="fs-3 fw-bold text-info">${{ number_format($currentSalesTotal, 0, ',', '.') }}</div>
+                    </div>
+                    
+                    <div class="w-100">
+                        <div class="text-muted small mb-1 text-uppercase fw-semibold">Ventas Realizadas</div>
+                        <div class="fs-3 fw-bold text-primary">{{ $currentSalesCount }}</div>
                     </div>
                 </div>
             </div>

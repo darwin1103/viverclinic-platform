@@ -28,7 +28,7 @@ class PayrollController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Ventas actuales del mes
+        // 1. VENTAS INDIVIDUALES (Del Empleado Actual)
         $sales = Sale::where('staff_user_id', $user->id)
             ->whereMonth('created_at', $month)
             ->whereYear('created_at', $year)
@@ -37,18 +37,38 @@ class PayrollController extends Controller
         $currentSalesCount = $sales->count();
         $currentSalesTotal = $sales->sum('first_payment_amount');
 
-        // Sales target (instead of commission target)
-        $salesTarget = (float) Setting::get('commission_target', 0); // Keep using the same setting, but interpreted as sales volume goal
+        // 2. VENTAS GLOBALES (De Todo el Equipo)
+        $globalSales = Sale::whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->get();
+            
+        $globalSalesCount = $globalSales->count();
+        $globalSalesTotal = $globalSales->sum('first_payment_amount');
 
-        $salesProgress = 0;
-        if ($salesTarget > 0) {
-            $salesProgress = min(100, ($currentSalesTotal / $salesTarget) * 100);
+        // 3. METAS
+        // Meta mensual en Monto (Dinero)
+        $salesTargetAmount = (float) Setting::get('commission_target', 0);
+        
+        // Meta mensual en Cantidad (Número de Ventas)
+        $salesTargetCount = (int) Setting::get('commission_target_count', 0);
+
+        // 4. PROGRESOS GLOBALES (Equipo)
+        $globalAmountProgress = 0;
+        if ($salesTargetAmount > 0) {
+            $globalAmountProgress = min(100, ($globalSalesTotal / $salesTargetAmount) * 100);
+        }
+        
+        $globalCountProgress = 0;
+        if ($salesTargetCount > 0) {
+            $globalCountProgress = min(100, ($globalSalesCount / $salesTargetCount) * 100);
         }
 
         return view('staff.payroll.index', compact(
             'profile', 'month', 'year', 'settlements',
             'currentSalesCount', 'currentSalesTotal',
-            'salesTarget', 'salesProgress'
+            'globalSalesCount', 'globalSalesTotal',
+            'salesTargetAmount', 'salesTargetCount',
+            'globalAmountProgress', 'globalCountProgress'
         ));
     }
 }

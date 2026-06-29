@@ -120,13 +120,22 @@
             </div>
 
             <div class="col-12 col-md-6">
-                <label for="commission_target" class="form-label fw-bold text-white">Meta mensual de ventas</label>
+                <label for="commission_target" class="form-label fw-bold text-white">Meta mensual de ventas (Monto)</label>
                 <div class="input-group">
                     <span class="input-group-text bg-secondary text-white border-secondary">COP</span>
                     <input type="text" inputmode="numeric" class="form-control bg-dark text-white border-secondary currency-input" id="commission_target" name="commission_target"
                            value="{{ $commissionTarget }}">
                 </div>
-                <small class="text-secondary">Meta unificada de ventas para visualizar el progreso del equipo.</small>
+                <small class="text-secondary">Meta unificada de ventas en dinero para visualizar el progreso del equipo.</small>
+            </div>
+            <div class="col-12 col-md-6">
+                <label for="commission_target_count" class="form-label fw-bold text-white">Meta mensual de ventas (Cantidad)</label>
+                <div class="input-group">
+                    <input type="number" class="form-control bg-dark text-white border-secondary" id="commission_target_count" name="commission_target_count"
+                           value="{{ $commissionTargetCount }}">
+                    <span class="input-group-text bg-secondary text-white border-secondary">ventas</span>
+                </div>
+                <small class="text-secondary">Meta unificada de cantidad de ventas para visualizar el progreso del equipo.</small>
             </div>
 
             {{-- Sección Pagos --}}

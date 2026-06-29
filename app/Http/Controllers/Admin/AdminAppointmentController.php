@@ -77,7 +77,8 @@ class AdminAppointmentController extends Controller
     public function index(Request $request)
     {
 
-        $branches = Branch::all();
+        $user = auth()->user();
+        $branches = $user->hasRole('ADMIN') ? $user->adminsBranches : Branch::all();
 
         if ($request->has('branch_id')) {
             if ($request->filled('branch_id')) {
@@ -87,6 +88,11 @@ class AdminAppointmentController extends Controller
             }
         }
         $selectedBranchID = session('selected_branch_id', '');
+        
+        if (!$selectedBranchID && $user->hasRole('ADMIN') && $branches->isNotEmpty()) {
+            $selectedBranchID = $branches->first()->id;
+            session(['selected_branch_id' => $selectedBranchID]);
+        }
 
         return view('admin.appointments.index', [
             'branches' => $branches,
@@ -119,7 +125,12 @@ class AdminAppointmentController extends Controller
 
         $startDate = Carbon::parse($validated['start_date'])->startOfDay();
         $endDate = Carbon::parse($validated['end_date'])->endOfDay();
+        
         $branchId = $validated['branch_id'] ?? session('selected_branch_id');
+        $user = auth()->user();
+        if (empty($branchId) && $user->hasRole('ADMIN')) {
+            $branchId = $user->adminsBranches()->first()?->id;
+        }
 
         $query = Appointment::with([
             'contractedTreatment.user',

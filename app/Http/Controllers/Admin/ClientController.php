@@ -42,15 +42,32 @@ class ClientController extends Controller
      */
     public function index(Request $request)
     {
+        $user = Auth::user();
+        $branches = $user->hasRole('ADMIN') ? $user->adminsBranches : Branch::all();
+
+        if ($request->has('branch_id')) {
+            if ($request->filled('branch_id')) {
+                session(['selected_branch_id' => $request->input('branch_id')]);
+            } else {
+                session()->forget('selected_branch_id');
+            }
+        }
+        $selectedBranchID = session('selected_branch_id', '');
+        
+        if (!$selectedBranchID && $user->hasRole('ADMIN') && $branches->isNotEmpty()) {
+            $selectedBranchID = $branches->first()->id;
+            session(['selected_branch_id' => $selectedBranchID]);
+        }
+
         // Query base
         $query = User::select('id', 'name', 'email', 'created_at', 'active')
             ->role('PATIENT')
             ->with('patientProfile.branch'); // use select ***
 
         // Filter by branch using the relationship
-        if ($request->filled('branch_id') || session('selected_branch_id')) {
-            $query->whereHas('patientProfile', function ($q) use ($request) {
-                $q->where('branch_id', $request->input('branch_id') ?? session('selected_branch_id'));
+        if (!empty($selectedBranchID)) {
+            $query->whereHas('patientProfile', function ($q) use ($selectedBranchID) {
+                $q->where('branch_id', $selectedBranchID);
             });
         }
 
@@ -74,17 +91,6 @@ class ClientController extends Controller
                         ->latest() // Opcional: ordenar por los más recientes
                         ->paginate(10)
                         ->withQueryString(); // Importante para mantener los filtros en la paginación
-
-        $branches = Branch::all();
-
-        if ($request->has('branch_id')) {
-            if ($request->filled('branch_id')) {
-                session(['selected_branch_id' => $request->input('branch_id')]);
-            } else {
-                session()->forget('selected_branch_id');
-            }
-        }
-        $selectedBranchID = session('selected_branch_id', '');
 
         return view('admin.client.index', compact('clients', 'branches', 'selectedBranchID'));
     }

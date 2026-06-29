@@ -111,7 +111,7 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
 
             // Update status (SUPER_ADMIN/OWNER only)
             Route::post('/appointments/{appointment}/status', 'updateStatus')
-                ->middleware('role:SUPER_ADMIN|OWNER')
+                ->middleware('role:SUPER_ADMIN|OWNER|ADMIN')
                 ->name('appointments.update-status');
 
             // Update appointment (generic endpoint)

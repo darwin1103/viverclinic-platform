@@ -20,8 +20,8 @@
                     @forelse ($contractedTreatments as $contract)
                         <tr>
                             <td>
-                                <div class="fw-bold">{{ $contract->user->name }}</div>
-                                <small class="text-muted">{{ $contract->user->email }}</small>
+                                <div class="fw-bold">{{ $contract->user->name ?? 'Usuario Eliminado' }}</div>
+                                <small class="text-muted">{{ $contract->user->email ?? 'N/A' }}</small>
                             </td>
                             <td>{{ $contract->treatment->name ?? 'N/A' }}</td>
                             <td>

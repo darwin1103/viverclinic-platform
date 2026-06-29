@@ -228,6 +228,7 @@ class ReportController extends Controller
         $appointmentsQuery = \App\Models\Appointment::with(['contractedTreatment.user', 'contractedTreatment.treatment'])
             ->where('staff_user_id', $user->id)
             ->whereIn('status', ['Atendida', 'Completada'])
+            ->whereNotNull('review_score')
             ->whereDate('schedule', '>=', $from)
             ->whereDate('schedule', '<=', $to);
 

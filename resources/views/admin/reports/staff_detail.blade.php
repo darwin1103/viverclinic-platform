@@ -103,7 +103,7 @@
             </div>
             
             @if($appointments->hasPages())
-                <div class="card-footer bg-white border-top p-3 d-flex justify-content-center">
+                <div class="card-footer bg-transparent border-secondary border-top p-3 d-flex justify-content-center">
                     {{ $appointments->appends(request()->query())->links('pagination::bootstrap-5') }}
                 </div>
             @endif

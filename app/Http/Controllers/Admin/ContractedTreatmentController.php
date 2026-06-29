@@ -12,6 +12,7 @@ use App\Models\ContractedTreatmentNote;
 use App\Models\ContractedTreatmentInstallment;
 use App\Models\PackageUpgrade;
 use App\Models\Setting;
+use App\Models\User;
 use App\Services\ReferralService;
 use App\Services\RepurchaseService;
 use Illuminate\Http\Request;
@@ -86,7 +87,9 @@ class ContractedTreatmentController extends Controller
 
         $contractedTreatment->load(['user', 'branch', 'treatment', 'installments', 'orders', 'notes.user']);
 
-        return view('admin.contracted-treatment.show', compact('contractedTreatment'));
+        $staffUsers = User::role(['EMPLOYEE'])->get();
+
+        return view('admin.contracted-treatment.show', compact('contractedTreatment', 'staffUsers'));
 
     }
 
@@ -190,8 +193,8 @@ class ContractedTreatmentController extends Controller
             // Procesar recompensa de referido (si aplica)
             ReferralService::processReward($order->user);
 
-            // Process repurchase commission (if applicable)
-            RepurchaseService::processCommission($order->user, $order);
+            // Process repurchase sale (if applicable)
+            RepurchaseService::processSale($order->user, $order);
 
             // Register income in accounting
             \App\Models\AccountingRecord::create([
@@ -456,9 +459,6 @@ class ContractedTreatmentController extends Controller
         $firstAppointment = $contractedTreatment->appointments()->where('session_number', 1)->first();
         $staffUser = $firstAppointment?->staff;
 
-        $commissionType = Setting::get('upgrade_commission_type', 'fixed');
-        $commissionValue = (float) Setting::get('upgrade_commission_value', '0');
-
         $bigZones = Treatment::$bigZones;
         $smallZones = Treatment::$smallZones;
         $miniZones = Treatment::$miniZones;
@@ -468,8 +468,6 @@ class ContractedTreatmentController extends Controller
             'currentPackage',
             'availablePackages',
             'staffUser',
-            'commissionType',
-            'commissionValue',
             'bigZones',
             'smallZones',
             'miniZones'
@@ -508,15 +506,10 @@ class ContractedTreatmentController extends Controller
             return back()->withErrors(['new_package_id' => 'El paquete seleccionado debe tener un precio mayor al paquete actual.'])->withInput();
         }
 
-        // Calculate commission
-        $commissionType = Setting::get('upgrade_commission_type', 'fixed');
-        $commissionValue = (float) Setting::get('upgrade_commission_value', '0');
-
-        if ($commissionType === 'percentage') {
-            $commissionAmount = $priceDifference * ($commissionValue / 100.0);
-        } else {
-            $commissionAmount = $commissionValue;
-        }
+        // No commission calculated here anymore, dummy values for DB constraints
+        $commissionType = 'none';
+        $commissionValue = 0;
+        $commissionAmount = 0;
 
         $firstAppointment = $contractedTreatment->appointments()->where('session_number', 1)->first();
         $staffUserId = $firstAppointment?->staff_user_id;
@@ -634,13 +627,25 @@ class ContractedTreatmentController extends Controller
                     'reference_type' => TreatmentOrder::class,
                 ]);
             }
+            
+            // Create Sale if enabled
+            if (Setting::get('upgrade_sales_enabled', '1')) {
+                \App\Models\Sale::create([
+                    'branch_id' => $contractedTreatment->branch_id,
+                    'staff_user_id' => $staffUserId,
+                    'patient_user_id' => $contractedTreatment->user_id,
+                    'contracted_treatment_id' => $contractedTreatment->id,
+                    'type' => 'upgrade',
+                    'first_payment_amount' => $priceDifference,
+                ]);
+            }
 
             // Internal Note
             $noteContent = "Agrandamiento de paquete por " . auth()->user()->name . ":\n" .
                            "- Paquete anterior: " . $currentPackage['name'] . " ($" . number_format($currentPackage['price_at_purchase'], 2) . ")\n" .
                            "- Nuevo paquete: " . $newPackage->name . " ($" . number_format($newPackage->price, 2) . ")\n" .
                            "- Diferencia a pagar: $" . number_format($priceDifference, 2) . " (Método: " . ($request->payment_method === 'CASH' ? 'Efectivo' : 'Transferencia') . ")\n" .
-                           "- Empleada comisionista: " . ($firstAppointment->staff->name ?? 'N/A') . " (Comisión: $" . number_format($commissionAmount, 2) . " - " . ($commissionType === 'percentage' ? "{$commissionValue}%" : "fijo") . ")";
+                           "- Empleada que vendió: " . ($firstAppointment->staff->name ?? 'N/A');
             
             if ($oldSessions != $newSessions) {
                 $noteContent .= "\n- Sesiones: de {$oldSessions} a {$newSessions}";
@@ -660,5 +665,57 @@ class ContractedTreatmentController extends Controller
             DB::rollBack();
             return back()->withErrors(['error' => 'Error al procesar el agrandamiento: ' . $e->getMessage()])->withInput();
         }
+    }
+
+    public function changeStaff(Request $request, ContractedTreatment $contractedTreatment)
+    {
+        $request->validate([
+            'staff_user_id' => 'required|exists:users,id',
+            'sale_type' => 'required|in:upgrade,repurchase,referral'
+        ]);
+
+        $newStaff = User::findOrFail($request->staff_user_id);
+
+        if ($request->sale_type === 'upgrade') {
+            $upgrade = $contractedTreatment->packageUpgrade;
+            if ($upgrade) {
+                $oldStaff = $upgrade->staff;
+                $upgrade->update(['staff_user_id' => $newStaff->id]);
+
+                // Also update the Sale record so reports reflect the change
+                \App\Models\Sale::where('contracted_treatment_id', $contractedTreatment->id)
+                    ->where('type', 'upgrade')
+                    ->update(['staff_user_id' => $newStaff->id]);
+                
+                $contractedTreatment->notes()->create([
+                    'user_id' => auth()->id(),
+                    'content' => 'Cambio de empleada en agrandamiento de paquete. Anterior: ' . ($oldStaff->name ?? 'Ninguna') . ' -> Nueva: ' . $newStaff->name
+                ]);
+            }
+        } elseif ($request->sale_type === 'repurchase') {
+            $repurchase = $contractedTreatment->repurchaseSale;
+            if ($repurchase) {
+                $oldStaff = $repurchase->staff;
+                $repurchase->update(['staff_user_id' => $newStaff->id]);
+                
+                $contractedTreatment->notes()->create([
+                    'user_id' => auth()->id(),
+                    'content' => 'Cambio de empleada en recompra de paquete. Anterior: ' . ($oldStaff->name ?? 'Ninguna') . ' -> Nueva: ' . $newStaff->name
+                ]);
+            }
+        } elseif ($request->sale_type === 'referral') {
+            $referralSale = $contractedTreatment->referralSale;
+            if ($referralSale) {
+                $oldStaff = $referralSale->staff;
+                $referralSale->update(['staff_user_id' => $newStaff->id]);
+                
+                $contractedTreatment->notes()->create([
+                    'user_id' => auth()->id(),
+                    'content' => 'Cambio de empleada en venta por referido. Anterior: ' . ($oldStaff->name ?? 'Ninguna') . ' -> Nueva: ' . $newStaff->name
+                ]);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Empleada actualizada correctamente.');
     }
 }

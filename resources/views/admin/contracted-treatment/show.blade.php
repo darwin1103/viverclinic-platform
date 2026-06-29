@@ -21,6 +21,10 @@
                                 Editar Tratamiento
                             </a>
                         @endhasanyrole
+                        <a href="{{ route('admin.schedule-appointment.index', $contractedTreatment->id) }}" class="btn btn-info">
+                            <i class="bi bi-calendar-check me-1"></i>
+                            Ver Agenda
+                        </a>
                         <a href="{{ route('admin.contracted-treatment.index') }}" class="btn btn-primary">
                             <i class="bi bi-arrow-left-circle me-1"></i>
                             Volver al listado
@@ -70,18 +74,73 @@
                                     <strong>Diferencia Pagada:</strong> ${{ number_format($upgrade->price_difference, 2) }} COP
                                 </div>
                                 <div class="col-md-6">
-                                    <strong>Empleada que vendió:</strong> {{ $upgrade->staff->name ?? 'N/A' }} 
-                                    (Comisión: ${{ number_format($upgrade->commission_amount, 2) }} COP - 
-                                    @if($upgrade->commission_type === 'percentage')
-                                        {{ $upgrade->commission_value }}%
-                                    @else
-                                        Fijo
-                                    @endif)<br>
+                                    <strong>Empleada que vendió:</strong> {{ $upgrade->staff->name ?? 'N/A' }}
+                                    @hasanyrole('SUPER_ADMIN|OWNER')
+                                        <button type="button" class="btn btn-sm btn-link text-success p-0 ms-1" data-bs-toggle="modal" data-bs-target="#changeStaffUpgradeModal" title="Cambiar empleada">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    @endhasanyrole
+                                    <br>
                                     <strong>Método de Pago:</strong> {{ $upgrade->payment_method === 'CASH' ? 'Efectivo' : 'Transferencia' }} 
                                     <span class="badge {{ $upgrade->payment_status === 'APPROVED' ? 'bg-success' : 'bg-warning text-dark' }} ms-1">
                                         {{ $upgrade->payment_status === 'APPROVED' ? 'Aprobado' : 'Pendiente Verificación' }}
                                     </span><br>
                                     <strong>Procesado por:</strong> {{ $upgrade->processedBy->name ?? 'N/A' }} el {{ $upgrade->created_at->format('d/m/Y H:i') }}
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($contractedTreatment->repurchaseSale)
+                        @php
+                            $repurchase = $contractedTreatment->repurchaseSale;
+                        @endphp
+                        <div class="alert alert-info border-info bg-info-subtle text-info-emphasis p-3 mb-4 rounded">
+                            <h5 class="alert-heading fw-bold mb-2">
+                                <i class="bi bi-arrow-repeat me-2"></i>Paquete de Recompra
+                            </h5>
+                            <div class="row text-start fs-6">
+                                <div class="col-md-6 mb-2 mb-md-0 border-end border-info">
+                                    <strong>Empleada que vendió:</strong> {{ $repurchase->staff->name ?? 'N/A' }}
+                                    @hasanyrole('SUPER_ADMIN|OWNER')
+                                        <button type="button" class="btn btn-sm btn-link text-info p-0 ms-1" data-bs-toggle="modal" data-bs-target="#changeStaffRepurchaseModal" title="Cambiar empleada">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    @endhasanyrole
+                                    <br>
+                                    <strong>Monto del primer pago:</strong> ${{ number_format($repurchase->first_payment_amount, 2) }} COP<br>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Fecha de registro:</strong> {{ $repurchase->created_at->format('d/m/Y H:i') }}<br>
+                                    @if($repurchase->notes)
+                                        <strong>Notas:</strong> {{ $repurchase->notes }}
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($contractedTreatment->referralSale)
+                        @php
+                            $referralSale = $contractedTreatment->referralSale;
+                        @endphp
+                        <div class="alert alert-warning border-warning bg-warning-subtle text-warning-emphasis p-3 mb-4 rounded">
+                            <h5 class="alert-heading fw-bold mb-2">
+                                <i class="bi bi-people-fill me-2"></i>Paquete por Referido
+                            </h5>
+                            <div class="row text-start fs-6">
+                                <div class="col-md-6 mb-2 mb-md-0 border-end border-warning">
+                                    <strong>Empleada que vendió:</strong> {{ $referralSale->staff->name ?? 'N/A' }}
+                                    @hasanyrole('SUPER_ADMIN|OWNER')
+                                        <button type="button" class="btn btn-sm btn-link text-warning p-0 ms-1" data-bs-toggle="modal" data-bs-target="#changeStaffReferralModal" title="Cambiar empleada">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    @endhasanyrole
+                                    <br>
+                                    <strong>Monto del primer pago:</strong> ${{ number_format($referralSale->first_payment_amount, 2) }} COP<br>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Fecha de registro:</strong> {{ $referralSale->created_at->format('d/m/Y H:i') }}<br>
                                 </div>
                             </div>
                         </div>
@@ -533,3 +592,115 @@
     </div>
 </div>
 @endsection
+
+@hasanyrole('SUPER_ADMIN|OWNER')
+@if($contractedTreatment->packageUpgrade)
+<!-- Modal Cambiar Empleada Agrandamiento -->
+<div class="modal fade" id="changeStaffUpgradeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cambiar Empleada (Agrandamiento)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('admin.contracted-treatment.change-staff', $contractedTreatment->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="sale_type" value="upgrade">
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">Este cambio generará una nota automática en el historial del paquete.</p>
+                    <div class="mb-3">
+                        <label class="form-label">Nueva Empleada</label>
+                        <select name="staff_user_id" class="form-select" required>
+                            <option value="">Selecciona una empleada...</option>
+                            @foreach($staffUsers as $staff)
+                                <option value="{{ $staff->id }}" {{ ($contractedTreatment->packageUpgrade->staff_user_id == $staff->id) ? 'selected' : '' }}>
+                                    {{ $staff->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endif
+
+@if($contractedTreatment->repurchaseSale)
+<!-- Modal Cambiar Empleada Recompra -->
+<div class="modal fade" id="changeStaffRepurchaseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cambiar Empleada (Recompra)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('admin.contracted-treatment.change-staff', $contractedTreatment->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="sale_type" value="repurchase">
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">Este cambio generará una nota automática en el historial del paquete.</p>
+                    <div class="mb-3">
+                        <label class="form-label">Nueva Empleada</label>
+                        <select name="staff_user_id" class="form-select" required>
+                            <option value="">Selecciona una empleada...</option>
+                            @foreach($staffUsers as $staff)
+                                <option value="{{ $staff->id }}" {{ ($contractedTreatment->repurchaseSale->staff_user_id == $staff->id) ? 'selected' : '' }}>
+                                    {{ $staff->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endif
+@if($contractedTreatment->referralSale)
+<!-- Modal Cambiar Empleada Referido -->
+<div class="modal fade" id="changeStaffReferralModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cambiar Empleada (Referido)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('admin.contracted-treatment.change-staff', $contractedTreatment->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="sale_type" value="referral">
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">Este cambio generará una nota automática en el historial del paquete.</p>
+                    <div class="mb-3">
+                        <label class="form-label">Nueva Empleada</label>
+                        <select name="staff_user_id" class="form-select" required>
+                            <option value="">Selecciona una empleada...</option>
+                            @foreach($staffUsers as $staff)
+                                <option value="{{ $staff->id }}" {{ ($contractedTreatment->referralSale->staff_user_id == $staff->id) ? 'selected' : '' }}>
+                                    {{ $staff->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endif
+@endhasanyrole

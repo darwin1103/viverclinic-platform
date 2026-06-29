@@ -10,8 +10,7 @@ use App\Models\ContractedTreatment;
 use App\Models\Appointment;
 use App\Models\User;
 use App\Models\Referral;
-use App\Models\PackageUpgrade;
-use App\Models\RepurchaseCommission;
+use App\Models\Sale;
 
 class ReportController extends Controller
 {
@@ -149,26 +148,21 @@ class ReportController extends Controller
             ->whereDate('rewarded_at', '<=', $to)
             ->count();
 
-        // Agrandamientos KPIs
-        $upgradeIncomeQuery = PackageUpgrade::where('payment_status', 'APPROVED')
-            ->whereDate('created_at', '>=', $from)
+        // Sales KPIs (Referrals, Upgrades, Repurchases)
+        $salesQuery = Sale::whereDate('created_at', '>=', $from)
             ->whereDate('created_at', '<=', $to);
         if ($branchId) {
-            $upgradeIncomeQuery->where('branch_id', $branchId);
+            $salesQuery->where('branch_id', $branchId);
         }
-        $upgradeIncome = $upgradeIncomeQuery->sum('price_difference');
-        $upgradeCount = (clone $upgradeIncomeQuery)->count();
-        $upgradeCommissions = (clone $upgradeIncomeQuery)->sum('commission_amount');
+        $salesCount = (clone $salesQuery)->count();
+        $salesIncome = (clone $salesQuery)->sum('first_payment_amount');
 
-        // Repurchase KPIs
-        $repurchaseQuery = RepurchaseCommission::where('status', 'approved')
-            ->whereDate('created_at', '>=', $from)
-            ->whereDate('created_at', '<=', $to);
-        if ($branchId) {
-            $repurchaseQuery->where('branch_id', $branchId);
-        }
-        $repurchaseCount = (clone $repurchaseQuery)->count();
-        $repurchaseCommissions = (clone $repurchaseQuery)->sum('commission_amount');
+        $salesByEmployee = (clone $salesQuery)
+            ->with('staff')
+            ->selectRaw('staff_user_id, count(*) as count, sum(first_payment_amount) as total')
+            ->groupBy('staff_user_id')
+            ->orderByDesc('total')
+            ->get();
 
         // --- 6. Revenue by Payment Method ---
         $revenueByMethodQuery = TreatmentOrder::whereIn('status', ['Pagado', 'Completado', 'Paid', 'Completed', 'Pago completado', 'Aprobado', 'APPROVED'])
@@ -212,8 +206,7 @@ class ReportController extends Controller
             'staffPerformance',
             'newPatients', 'finishedPatients', 'treatmentIncome', 'productIncome', 'totalExpenses', 'attendedPatients',
             'recurringPatients', 'convertedReferrals',
-            'upgradeIncome', 'upgradeCount', 'upgradeCommissions',
-            'repurchaseCount', 'repurchaseCommissions',
+            'salesCount', 'salesIncome', 'salesByEmployee',
             'revenueByMethod', 'maxMethodTotal',
             'shotsRecords'
         ));

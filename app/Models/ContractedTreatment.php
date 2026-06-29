@@ -75,12 +75,30 @@ class ContractedTreatment extends Model
 
     public function notes(): HasMany
     {
-        return $this->hasMany(ContractedTreatmentNote::class)->latest();
+        return $this->hasMany(ContractedTreatmentNote::class)->orderBy('created_at', 'desc');
     }
 
     public function packageUpgrade(): HasOne
     {
         return $this->hasOne(PackageUpgrade::class);
+    }
+
+    public function sales(): HasMany
+    {
+        return $this->hasMany(Sale::class);
+    }
+
+    public function repurchaseSale(): HasOne
+    {
+        return $this->hasOne(Sale::class)->where('type', 'repurchase');
+    }
+
+    /**
+     * Obtener la venta por referido.
+     */
+    public function referralSale(): HasOne
+    {
+        return $this->hasOne(Sale::class)->where('type', 'referral');
     }
 
     // Helper para saber si tiene cuotas

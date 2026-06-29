@@ -82,7 +82,7 @@ class RegisterController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'branchId' => ['required'], // ***
-            'referral_code' => ['nullable', 'string', 'max:10'],
+            'referral_code' => ['nullable', 'string', 'max:255'],
             'is_legacy' => ['nullable', 'boolean'],
             'citizenship' => ['required', 'string', 'max:255'],
             'documentType' => ['required', 'exists:document_types,id'],
@@ -145,6 +145,9 @@ class RegisterController extends Controller
                 Referral::create([
                     'referrer_id' => $referrer->id,
                     'referred_id' => $user->id,
+                    'referred_name' => $user->name,
+                    'referred_email' => $user->email,
+                    'referred_phone' => $data['phone'] ?? null,
                     'status' => 'registered',
                 ]);
             }

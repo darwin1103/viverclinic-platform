@@ -104,45 +104,18 @@
         <div class="col-6 col-md-4 col-xl-2">
             <div class="card h-100 shadow border-0" style="background: linear-gradient(135deg, #1e2a38 0%, #161f2b 100%);">
                 <div class="card-body text-center p-3">
-                    <i class="bi bi-arrow-up-right-circle fs-3 text-success mb-2 d-block"></i>
-                    <h3 class="fw-bold text-white mb-0" style="font-size: 1.2rem;">${{ number_format($upgradeIncome, 0, ',', '.') }}</h3>
-                    <small class="text-secondary" style="font-size: 0.8rem;">Ingresos Agrandamientos</small>
+                    <i class="bi bi-shop fs-3 text-success mb-2 d-block"></i>
+                    <h3 class="fw-bold text-white mb-0" style="font-size: 1.2rem;">${{ number_format($salesIncome, 0, ',', '.') }}</h3>
+                    <small class="text-secondary" style="font-size: 0.8rem;">Monto Ventas Reg.</small>
                 </div>
             </div>
         </div>
         <div class="col-6 col-md-4 col-xl-2">
             <div class="card h-100 shadow border-0" style="background: linear-gradient(135deg, #1e2a38 0%, #161f2b 100%);">
                 <div class="card-body text-center p-3">
-                    <i class="bi bi-box-arrow-up fs-3 text-info mb-2 d-block"></i>
-                    <h3 class="fw-bold text-white mb-0">{{ $upgradeCount }}</h3>
-                    <small class="text-secondary" style="font-size: 0.8rem;">Cant. Agrandamientos</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-xl-2">
-            <div class="card h-100 shadow border-0" style="background: linear-gradient(135deg, #1e2a38 0%, #161f2b 100%);">
-                <div class="card-body text-center p-3">
-                    <i class="bi bi-cash-stack fs-3 text-warning mb-2 d-block"></i>
-                    <h3 class="fw-bold text-white mb-0" style="font-size: 1.2rem;">${{ number_format($upgradeCommissions, 0, ',', '.') }}</h3>
-                    <small class="text-secondary" style="font-size: 0.8rem;">Comisiones Agrandamientos</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-xl-2">
-            <div class="card h-100 shadow border-0" style="background: linear-gradient(135deg, #1e2a38 0%, #161f2b 100%);">
-                <div class="card-body text-center p-3">
-                    <i class="bi bi-arrow-repeat fs-3 text-primary mb-2 d-block"></i>
-                    <h3 class="fw-bold text-white mb-0">{{ $repurchaseCount }}</h3>
-                    <small class="text-secondary" style="font-size: 0.8rem;">Cant. Recompras</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-xl-2">
-            <div class="card h-100 shadow border-0" style="background: linear-gradient(135deg, #1e2a38 0%, #161f2b 100%);">
-                <div class="card-body text-center p-3">
-                    <i class="bi bi-cash-coin fs-3 text-success mb-2 d-block"></i>
-                    <h3 class="fw-bold text-white mb-0" style="font-size: 1.2rem;">${{ number_format($repurchaseCommissions, 0, ',', '.') }}</h3>
-                    <small class="text-secondary" style="font-size: 0.8rem;">Comisiones Recompras</small>
+                    <i class="bi bi-cart-check fs-3 text-info mb-2 d-block"></i>
+                    <h3 class="fw-bold text-white mb-0">{{ $salesCount }}</h3>
+                    <small class="text-secondary" style="font-size: 0.8rem;">Cant. Ventas Reg.</small>
                 </div>
             </div>
         </div>
@@ -344,6 +317,45 @@
                     @empty
                         <p class="text-muted fw-semibold mb-0 text-center mt-3">Sin pagos registrados este mes</p>
                     @endforelse
+                </div>
+            </div>
+        </div>
+
+        {{-- 7. Detalle de Ventas por Empleada --}}
+        <div class="col-12 col-lg-6">
+            <div class="card h-100">
+                <div class="card-header fw-semibold">
+                    <i class="bi bi-cart-check me-2"></i>Ventas por Empleada (Mes actual)
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-3">Nombre</th>
+                                    <th class="text-center">Cant. Ventas</th>
+                                    <th class="text-end pe-3">Total Ventas ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($salesByEmployee as $saleRow)
+                                <tr>
+                                    <td class="ps-3">{{ $saleRow->staff->name ?? 'Desconocido' }}</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success">{{ $saleRow->count }}</span>
+                                    </td>
+                                    <td class="text-end pe-3 fw-bold text-success">
+                                        ${{ number_format($saleRow->total, 0, ',', '.') }}
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="3" class="text-center py-3 text-muted">Sin ventas este mes</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

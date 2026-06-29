@@ -42,54 +42,43 @@ class ReferralService
 
         // 3. Obtener configuración
         $bonusSessions = (int) Setting::get('referral_bonus_sessions', 3);
-        $commissionType = Setting::get('referral_commission_type', 'fixed');
-        $commissionValue = (float) Setting::get('referral_commission_value', 0);
 
         $referrer = $referral->referrer;
         // The sessions are no longer automatically applied to an active treatment.
         // They remain in referral.bonus_sessions to be redeemed manually by the user.
 
-        // 5. Calcular comisión para la última empleada que atendió al referidor
-        $lastAttendedAppt = Appointment::whereHas('contractedTreatment', function ($q) use ($referrer) {
-                $q->where('user_id', $referrer->id);
-            })
-            ->where('attended', true)
-            ->whereNotNull('staff_user_id')
-            ->latest('schedule')
-            ->first();
-
-        $commissionAmount = 0;
-        if ($lastAttendedAppt && $commissionValue > 0) {
-            $staffId = $lastAttendedAppt->staff_user_id;
-
-            if ($commissionType === 'percentage') {
-                // Calcular porcentaje sobre el total de la primera orden del referido
-                $orderTotal = TreatmentOrder::where('user_id', $paidUser->id)
-                    ->where('payment_status', 'APPROVED')
-                    ->first()->total ?? 0;
-                $commissionAmount = round(($orderTotal * $commissionValue) / 100, 2);
-            } else {
-                $commissionAmount = $commissionValue;
-            }
-
-            $referral->staff_id = $staffId;
-            $referral->staff_commission = $commissionAmount;
-            $referral->staff_commission_status = 'pending';
-        }
-
-        // 6. Marcar referido como recompensado
+        // 4. Marcar referido como recompensado
         $referral->status = 'rewarded';
         $referral->bonus_sessions = $bonusSessions;
         $referral->rewarded_at = now();
         $referral->save();
-    }
 
-    /**
-     * Aplicar sesiones pendientes de referidos al contratar un nuevo tratamiento.
-     * Se puede llamar al crear un ContractedTreatment.
-     */
-    public static function applyPendingSessions(ContractedTreatment $contractedTreatment): void
-    {
-        // Deprecated: sessions are now redeemed manually via the patient dashboard.
+        // 5. Registrar la venta si está habilitado
+        if (Setting::get('referral_sales_enabled', '1')) {
+            $lastAttendedAppt = Appointment::whereHas('contractedTreatment', function ($q) use ($referrer) {
+                    $q->where('user_id', $referrer->id);
+                })
+                ->where('attended', true)
+                ->whereNotNull('staff_user_id')
+                ->latest('schedule')
+                ->first();
+
+            $staffId = $lastAttendedAppt ? $lastAttendedAppt->staff_user_id : null;
+
+            $firstOrder = TreatmentOrder::where('user_id', $paidUser->id)
+                ->where('payment_status', 'APPROVED')
+                ->first();
+
+            if ($firstOrder) {
+                \App\Models\Sale::create([
+                    'branch_id' => $firstOrder->contractedTreatment->branch_id ?? session('branch_id'),
+                    'staff_user_id' => $staffId,
+                    'patient_user_id' => $paidUser->id,
+                    'contracted_treatment_id' => $firstOrder->contracted_treatment_id,
+                    'type' => 'referral',
+                    'first_payment_amount' => $firstOrder->total,
+                ]);
+            }
+        }
     }
 }

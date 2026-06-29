@@ -159,7 +159,10 @@ const AdminActionsModule = (function() {
                                 <div class="mt-2 p-3 border border-secondary rounded position-relative">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <strong class="text-primary">${sub.treatment}</strong>
-                                        <span class="badge text-bg-${getStatusVariant(sub.status)}">${sub.status}</span>
+                                        <div>
+                                            <span class="badge text-bg-${getStatusVariant(sub.status)} me-2">${sub.status}</span>
+                                            <a href="/admin/contracted-treatment/${sub.contracted_treatment_id}" class="btn btn-sm btn-outline-info" title="Ver detalle del paquete"><i class="bi bi-box-arrow-up-right"></i></a>
+                                        </div>
                                     </div>
                                     <div class="small">
                                         <div class="mb-1"><strong class="text-secondary">Sesión:</strong> #${sub.session_number}</div>

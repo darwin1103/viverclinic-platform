@@ -18,12 +18,7 @@ class PayrollSettlement extends Model
         'period_month',
         'period_year',
         'base_salary',
-        'referral_commissions',
-        'upgrade_commissions',
-        'repurchase_commissions',
-        'sales_commissions',
-        'manual_bonus',
-        'manual_bonus_note',
+        'commission_amount',
         'total',
         'status',
         'paid_at',
@@ -32,11 +27,7 @@ class PayrollSettlement extends Model
 
     protected $casts = [
         'base_salary' => 'decimal:2',
-        'referral_commissions' => 'decimal:2',
-        'upgrade_commissions' => 'decimal:2',
-        'repurchase_commissions' => 'decimal:2',
-        'sales_commissions' => 'decimal:2',
-        'manual_bonus' => 'decimal:2',
+        'commission_amount' => 'decimal:2',
         'total' => 'decimal:2',
         'paid_at' => 'datetime',
     ];
@@ -64,12 +55,8 @@ class PayrollSettlement extends Model
         $bonusesTotal = $this->manualBonuses()->sum('amount');
 
         $this->update([
-            'manual_bonus' => $bonusesTotal,
             'total' => $this->base_salary
-                + $this->referral_commissions
-                + $this->upgrade_commissions
-                + $this->repurchase_commissions
-                + $this->sales_commissions
+                + $this->commission_amount
                 + $bonusesTotal,
         ]);
     }

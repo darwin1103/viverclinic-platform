@@ -7,12 +7,9 @@ use App\Models\AccountingRecord;
 use App\Models\AdminProfile;
 use App\Models\Branch;
 use App\Models\PayrollSettlement;
-use App\Models\Referral;
+use App\Models\Sale;
 use App\Models\StaffProfile;
-use App\Models\TreatmentOrder;
 use App\Models\User;
-use App\Models\PackageUpgrade;
-use App\Models\RepurchaseCommission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -37,6 +34,21 @@ class PayrollController extends Controller
         }
 
         $settlements = $query->orderBy('role_type')->orderBy('base_salary', 'desc')->get();
+
+        // Load sales count and total for each employee settlement dynamically
+        foreach ($settlements as $settlement) {
+            if ($settlement->role_type === 'EMPLOYEE') {
+                $sales = Sale::where('staff_user_id', $settlement->user_id)
+                    ->whereMonth('created_at', $month)
+                    ->whereYear('created_at', $year)
+                    ->get();
+                $settlement->sales_count = $sales->count();
+                $settlement->sales_total = $sales->sum('first_payment_amount');
+            } else {
+                $settlement->sales_count = 0;
+                $settlement->sales_total = 0;
+            }
+        }
 
         // KPIs
         $totalToSettle = $settlements->sum('total');
@@ -90,42 +102,17 @@ class PayrollController extends Controller
             $staffProfiles = $staffQuery->get();
 
             foreach ($staffProfiles as $profile) {
-                // Calculate referral commissions for this employee in this month
-                $referralCommissions = Referral::where('staff_id', $profile->user_id)
-                    ->where('status', 'rewarded')
-                    ->whereMonth('rewarded_at', $month)
-                    ->whereYear('rewarded_at', $year)
-                    ->sum('staff_commission');
-
-                // Calculate package upgrade commissions for this employee in this month
-                $upgradeCommissions = PackageUpgrade::where('staff_user_id', $profile->user_id)
-                    ->where('payment_status', 'APPROVED')
-                    ->whereMonth('created_at', $month)
-                    ->whereYear('created_at', $year)
-                    ->sum('commission_amount');
-
-                // Calculate repurchase commissions for this employee in this month
-                $repurchaseCommissions = RepurchaseCommission::where('staff_user_id', $profile->user_id)
-                    ->where('status', 'approved')
-                    ->whereMonth('created_at', $month)
-                    ->whereYear('created_at', $year)
-                    ->sum('commission_amount');
-
                 $baseSalary = $profile->salary ?? 0;
-                $total = $baseSalary + $referralCommissions + $upgradeCommissions + $repurchaseCommissions;
 
                 PayrollSettlement::create([
-                    'branch_id'             => $profile->branch_id,
-                    'user_id'               => $profile->user_id,
-                    'role_type'             => 'EMPLOYEE',
-                    'period_month'          => $month,
-                    'period_year'           => $year,
-                    'base_salary'           => $baseSalary,
-                    'referral_commissions'  => $referralCommissions,
-                    'upgrade_commissions'   => $upgradeCommissions,
-                    'repurchase_commissions' => $repurchaseCommissions,
-                    'sales_commissions'     => 0,
-                    'total'                 => $total,
+                    'branch_id'         => $profile->branch_id,
+                    'user_id'           => $profile->user_id,
+                    'role_type'         => 'EMPLOYEE',
+                    'period_month'      => $month,
+                    'period_year'       => $year,
+                    'base_salary'       => $baseSalary,
+                    'commission_amount' => 0,
+                    'total'             => $baseSalary,
                 ]);
             }
 
@@ -137,72 +124,41 @@ class PayrollController extends Controller
             $adminProfiles = $adminQuery->get();
 
             foreach ($adminProfiles as $profile) {
-                // Calculate sales commission: (ventas_mes / divisor) - base, minimum 0
-                $monthlySales = TreatmentOrder::whereIn('status', ['Pagado', 'Pago completado', 'Paid', 'Completado'])
-                    ->where('branch_id', $profile->branch_id)
-                    ->whereMonth('created_at', $month)
-                    ->whereYear('created_at', $year)
-                    ->sum('total');
-
-                $divisor = $profile->commission_divisor ?: 30;
-                $base = $profile->commission_base ?? 2500000;
-                $salesCommission = max(0, ($monthlySales / $divisor) - $base);
-
                 $baseSalary = $profile->salary ?? 0;
-                $total = $baseSalary + $salesCommission;
 
                 PayrollSettlement::create([
-                    'branch_id'             => $profile->branch_id,
-                    'user_id'               => $profile->user_id,
-                    'role_type'             => 'ADMIN',
-                    'period_month'          => $month,
-                    'period_year'           => $year,
-                    'base_salary'           => $baseSalary,
-                    'referral_commissions'  => 0,
-                    'sales_commissions'     => $salesCommission,
-                    'total'                 => $total,
+                    'branch_id'         => $profile->branch_id,
+                    'user_id'           => $profile->user_id,
+                    'role_type'         => 'ADMIN',
+                    'period_month'      => $month,
+                    'period_year'       => $year,
+                    'base_salary'       => $baseSalary,
+                    'commission_amount' => 0,
+                    'total'             => $baseSalary,
                 ]);
             }
 
             // --- SALES ---
             $salesUsers = User::role('SALES')->with('salesProfile')->get();
             foreach ($salesUsers as $user) {
-                // Determine branch from salesProfile if exists, else skip or use session
                 $userBranchId = $user->salesProfile->branch_id ?? session('selected_branch_id');
                 if ($branchId && $userBranchId != $branchId) {
-                    continue; // Skip if filtering by branch and it doesn't match
+                    continue;
                 }
                 
-                if (!$userBranchId) continue; // Cannot determine branch
+                if (!$userBranchId) continue;
 
-                $divisor = $user->salesProfile->commission_divisor ?? 26;
-                $divisor = max(1, $divisor); // Ensure divisor is at least 1
-
-                // Calculate commission: ventas totales paquetes / divisor
-                $monthlyPackagesSales = TreatmentOrder::whereIn('status', ['Pagado', 'Pago completado', 'Paid', 'Completado', 'Aprobado', 'APPROVED'])
-                    ->where('branch_id', $userBranchId)
-                    ->whereMonth('created_at', $month)
-                    ->whereYear('created_at', $year)
-                    ->sum('total');
-
-                $salesCommission = max(0, $monthlyPackagesSales / $divisor);
-                
-                // Net commissions (0 base salary)
-                $total = $salesCommission;
-
-                if ($total > 0) {
-                    PayrollSettlement::create([
-                        'branch_id'             => $userBranchId,
-                        'user_id'               => $user->id,
-                        'role_type'             => 'SALES',
-                        'period_month'          => $month,
-                        'period_year'           => $year,
-                        'base_salary'           => 0,
-                        'referral_commissions'  => 0,
-                        'sales_commissions'     => $salesCommission,
-                        'total'                 => $total,
-                    ]);
-                }
+                // Base salary for sales is 0 by default, commissions are manually added later
+                PayrollSettlement::create([
+                    'branch_id'         => $userBranchId,
+                    'user_id'           => $user->id,
+                    'role_type'         => 'SALES',
+                    'period_month'      => $month,
+                    'period_year'       => $year,
+                    'base_salary'       => 0,
+                    'commission_amount' => 0,
+                    'total'             => 0,
+                ]);
             }
         });
 
@@ -257,34 +213,37 @@ class PayrollController extends Controller
             9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'
         ];
 
-        // Referral commission entries
-        $referralEntries = Referral::with(['referred'])
-            ->where('staff_id', $userId)
-            ->where('status', 'rewarded')
-            ->whereMonth('rewarded_at', $month)
-            ->whereYear('rewarded_at', $year)
-            ->get();
-
-        // Upgrade commission entries
-        $upgradeEntries = PackageUpgrade::with(['contractedTreatment.user', 'contractedTreatment.treatment'])
+        // Sales entries
+        $sales = Sale::with(['patient'])
             ->where('staff_user_id', $userId)
-            ->where('payment_status', 'APPROVED')
             ->whereMonth('created_at', $month)
             ->whereYear('created_at', $year)
             ->get();
-
-        // Repurchase commission entries
-        $repurchaseEntries = RepurchaseCommission::with(['contractedTreatment.user', 'contractedTreatment.treatment'])
-            ->where('staff_user_id', $userId)
-            ->where('status', 'approved')
-            ->whereMonth('created_at', $month)
-            ->whereYear('created_at', $year)
-            ->get();
+            
+        $salesCount = $sales->count();
+        $salesTotal = $sales->sum('first_payment_amount');
 
         return view('admin.payroll.show', compact(
-            'settlement', 'months', 'month', 'year',
-            'referralEntries', 'upgradeEntries', 'repurchaseEntries'
+            'settlement', 'months', 'month', 'year', 'sales', 'salesCount', 'salesTotal'
         ));
+    }
+    
+    /**
+     * Update the manual commission amount for a settlement.
+     */
+    public function updateCommission(Request $request, PayrollSettlement $settlement)
+    {
+        $request->validate([
+            'commission_amount' => 'required|numeric|min:0',
+        ]);
+        
+        $settlement->update([
+            'commission_amount' => $request->commission_amount
+        ]);
+        
+        $settlement->recalculateTotal();
+        
+        return back()->with('success', 'Comisión actualizada correctamente.');
     }
 
     /**
@@ -336,45 +295,5 @@ class PayrollController extends Controller
         $settlement->recalculateTotal();
 
         return back()->with('success', 'Bono manual eliminado correctamente.');
-    }
-
-    /**
-     * Recalculate settlement totals from live commission data.
-     */
-    public function recalculate(PayrollSettlement $settlement)
-    {
-        $month = $settlement->period_month;
-        $year = $settlement->period_year;
-        $userId = $settlement->user_id;
-
-        if ($settlement->role_type === 'EMPLOYEE') {
-            $referralCommissions = Referral::where('staff_id', $userId)
-                ->where('status', 'rewarded')
-                ->whereMonth('rewarded_at', $month)
-                ->whereYear('rewarded_at', $year)
-                ->sum('staff_commission');
-
-            $upgradeCommissions = PackageUpgrade::where('staff_user_id', $userId)
-                ->where('payment_status', 'APPROVED')
-                ->whereMonth('created_at', $month)
-                ->whereYear('created_at', $year)
-                ->sum('commission_amount');
-
-            $repurchaseCommissions = RepurchaseCommission::where('staff_user_id', $userId)
-                ->where('status', 'approved')
-                ->whereMonth('created_at', $month)
-                ->whereYear('created_at', $year)
-                ->sum('commission_amount');
-
-            $settlement->update([
-                'referral_commissions' => $referralCommissions,
-                'upgrade_commissions' => $upgradeCommissions,
-                'repurchase_commissions' => $repurchaseCommissions,
-            ]);
-        }
-
-        $settlement->recalculateTotal();
-
-        return back()->with('success', 'Liquidación recalculada correctamente para ' . ($settlement->user->name ?? ''));
     }
 }

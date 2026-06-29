@@ -257,7 +257,7 @@ class TreatmentPaymentController extends Controller
                 ReferralService::processReward(Auth::user());
 
                 // Procesar comisión por recompra (si aplica)
-                \App\Services\RepurchaseService::processCommission(Auth::user(), $order);
+                \App\Services\RepurchaseService::processSale(Auth::user(), $order);
 
                 // Register income in accounting
                 \App\Models\AccountingRecord::create([

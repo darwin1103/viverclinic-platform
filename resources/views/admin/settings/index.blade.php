@@ -62,30 +62,16 @@
                 <small class="text-secondary">Sesiones gratuitas que recibe el paciente que refiere.</small>
             </div>
 
-            <div class="col-12 col-md-4">
-                <label for="referral_commission_type" class="form-label fw-bold text-white">Tipo de comisión (empleada)</label>
-                <select class="form-select bg-dark text-white border-secondary" id="referral_commission_type" name="referral_commission_type">
-                    <option value="fixed" {{ $referralCommissionType === 'fixed' ? 'selected' : '' }}>
-                        Pago fijo (COP)
-                    </option>
-                    <option value="percentage" {{ $referralCommissionType === 'percentage' ? 'selected' : '' }}>
-                        Porcentaje (%)
-                    </option>
-                </select>
-                <small class="text-secondary">La comisión se asigna a la última empleada que atendió al referidor.</small>
-            </div>
-
-            <div class="col-12 col-md-4">
-                <label for="referral_commission_value" class="form-label fw-bold text-white">Valor de la comisión</label>
-                <div class="input-group">
-                    <input type="text" inputmode="{{ $referralCommissionType === 'percentage' ? 'decimal' : 'numeric' }}" class="form-control bg-dark text-white border-secondary {{ $referralCommissionType === 'fixed' ? 'currency-input' : '' }}" id="referral_commission_value"
-                           name="referral_commission_value" value="{{ $referralCommissionValue }}"
-                           placeholder="0">
-                    <span class="input-group-text bg-secondary text-white border-secondary" id="commission-suffix">
-                        {{ $referralCommissionType === 'percentage' ? '%' : 'COP' }}
-                    </span>
+            <div class="col-12 mt-3">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch"
+                           id="referral_sales_enabled" name="referral_sales_enabled" value="1"
+                           {{ $referralSalesEnabled == '1' ? 'checked' : '' }}>
+                    <label class="form-check-label fw-bold text-white" for="referral_sales_enabled">
+                        Registrar referidos como ventas
+                    </label>
                 </div>
-                <small class="text-secondary">Ingresa 0 para desactivar la comisión de empleada.</small>
+                <small class="text-secondary">Si está activado, los pagos de referidos se registrarán como ventas para la empleada.</small>
             </div>
 
             {{-- Sección Agrandamientos --}}
@@ -95,30 +81,16 @@
                 </h5>
             </div>
 
-            <div class="col-12 col-md-6">
-                <label for="upgrade_commission_type" class="form-label fw-bold text-white">Tipo de comisión (empleada)</label>
-                <select class="form-select bg-dark text-white border-secondary" id="upgrade_commission_type" name="upgrade_commission_type">
-                    <option value="fixed" {{ $upgradeCommissionType === 'fixed' ? 'selected' : '' }}>
-                        Pago fijo (COP)
-                    </option>
-                    <option value="percentage" {{ $upgradeCommissionType === 'percentage' ? 'selected' : '' }}>
-                        Porcentaje (%)
-                    </option>
-                </select>
-                <small class="text-secondary">Tipo de comisión asignada por agrandamiento de paquete.</small>
-            </div>
-
-            <div class="col-12 col-md-6">
-                <label for="upgrade_commission_value" class="form-label fw-bold text-white">Valor de la comisión</label>
-                <div class="input-group">
-                    <input type="text" inputmode="{{ $upgradeCommissionType === 'percentage' ? 'decimal' : 'numeric' }}" class="form-control bg-dark text-white border-secondary {{ $upgradeCommissionType === 'fixed' ? 'currency-input' : '' }}" id="upgrade_commission_value"
-                           name="upgrade_commission_value" value="{{ $upgradeCommissionValue }}"
-                           placeholder="0">
-                    <span class="input-group-text bg-secondary text-white border-secondary" id="upgrade-commission-suffix">
-                        {{ $upgradeCommissionType === 'percentage' ? '%' : 'COP' }}
-                    </span>
+            <div class="col-12 mb-2">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch"
+                           id="upgrade_sales_enabled" name="upgrade_sales_enabled" value="1"
+                           {{ $upgradeSalesEnabled == '1' ? 'checked' : '' }}>
+                    <label class="form-check-label fw-bold text-white" for="upgrade_sales_enabled">
+                        Registrar agrandamientos como ventas
+                    </label>
                 </div>
-                <small class="text-secondary">Se calcula sobre la diferencia pagada por el cliente.</small>
+                <small class="text-secondary">Si está activado, se registrará la venta para la empleada que atendió la primera cita.</small>
             </div>
 
             {{-- Sección Recompras --}}
@@ -128,47 +100,33 @@
                 </h5>
             </div>
 
-            <div class="col-12 col-md-6">
-                <label for="repurchase_commission_type" class="form-label fw-bold text-white">Tipo de comisión (empleada)</label>
-                <select class="form-select bg-dark text-white border-secondary" id="repurchase_commission_type" name="repurchase_commission_type">
-                    <option value="fixed" {{ $repurchaseCommissionType === 'fixed' ? 'selected' : '' }}>
-                        Pago fijo (COP)
-                    </option>
-                    <option value="percentage" {{ $repurchaseCommissionType === 'percentage' ? 'selected' : '' }}>
-                        Porcentaje (%)
-                    </option>
-                </select>
-                <small class="text-secondary">Comisión asignada a la última empleada que atendió al paciente antes de la recompra.</small>
-            </div>
-
-            <div class="col-12 col-md-6">
-                <label for="repurchase_commission_value" class="form-label fw-bold text-white">Valor de la comisión</label>
-                <div class="input-group">
-                    <input type="text" inputmode="{{ $repurchaseCommissionType === 'percentage' ? 'decimal' : 'numeric' }}" class="form-control bg-dark text-white border-secondary {{ $repurchaseCommissionType === 'fixed' ? 'currency-input' : '' }}" id="repurchase_commission_value"
-                           name="repurchase_commission_value" value="{{ $repurchaseCommissionValue }}"
-                           placeholder="0">
-                    <span class="input-group-text bg-secondary text-white border-secondary" id="repurchase-commission-suffix">
-                        {{ $repurchaseCommissionType === 'percentage' ? '%' : 'COP' }}
-                    </span>
+            <div class="col-12 mb-2">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch"
+                           id="repurchase_sales_enabled" name="repurchase_sales_enabled" value="1"
+                           {{ $repurchaseSalesEnabled == '1' ? 'checked' : '' }}>
+                    <label class="form-check-label fw-bold text-white" for="repurchase_sales_enabled">
+                        Registrar recompras como ventas
+                    </label>
                 </div>
-                <small class="text-secondary">Ingresa 0 para desactivar. Si es %, se calcula sobre el primer pago del paciente.</small>
+                <small class="text-secondary">Si está activado, las compras de nuevos paquetes por pacientes existentes contarán como venta para la última empleada que lo atendió.</small>
             </div>
 
-            {{-- Meta Global de Comisiones --}}
+            {{-- Meta Global de Ventas --}}
             <div class="col-12 mt-4">
                 <h5 class="fw-bold border-bottom pb-2 mb-3 text-success">
-                    <i class="bi bi-trophy me-2"></i>Meta Global de Comisiones
+                    <i class="bi bi-trophy me-2"></i>Meta Global de Ventas
                 </h5>
             </div>
 
             <div class="col-12 col-md-6">
-                <label for="commission_target" class="form-label fw-bold text-white">Meta mensual unificada</label>
+                <label for="commission_target" class="form-label fw-bold text-white">Meta mensual de ventas</label>
                 <div class="input-group">
                     <span class="input-group-text bg-secondary text-white border-secondary">COP</span>
                     <input type="text" inputmode="numeric" class="form-control bg-dark text-white border-secondary currency-input" id="commission_target" name="commission_target"
                            value="{{ $commissionTarget }}">
                 </div>
-                <small class="text-secondary">Meta unificada que incluye comisiones por referidos, agrandamientos y recompras.</small>
+                <small class="text-secondary">Meta unificada de ventas para visualizar el progreso del equipo.</small>
             </div>
 
             {{-- Sección Pagos --}}
@@ -301,68 +259,4 @@
     </div>
 
 </x-admin-card>
-
-@push('scripts')
-<script>
-    function setupCommissionToggle(typeSelectId, valueInputId, suffixId) {
-        const typeSelect = document.getElementById(typeSelectId);
-        const valueInput = document.getElementById(valueInputId);
-        const suffix = document.getElementById(suffixId);
-
-        function applyMode() {
-            const isPercentage = typeSelect.value === 'percentage';
-            suffix.textContent = isPercentage ? '%' : 'COP';
-
-            if (isPercentage) {
-                // Only strip dots if transitioning FROM fixed mode (dots are thousand separators)
-                const wasCurrency = valueInput.classList.contains('currency-input');
-                valueInput.classList.remove('currency-input');
-                valueInput.setAttribute('inputmode', 'decimal');
-                if (wasCurrency) {
-                    // Dots were thousand separators, strip them
-                    valueInput.value = valueInput.value.replace(/\./g, '') || '';
-                }
-                // If not wasCurrency, value is already a decimal (e.g. "3.33") — leave it
-            } else {
-                // Switch to currency mode: strip non-digits, re-apply formatting
-                let raw = valueInput.value.replace(/[^\d]/g, '');
-                valueInput.classList.add('currency-input');
-                valueInput.setAttribute('inputmode', 'numeric');
-                // Re-apply thousand separator formatting
-                valueInput.value = raw.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-            }
-        }
-
-        // Apply on page load
-        applyMode();
-
-        // Apply on change
-        typeSelect.addEventListener('change', applyMode);
-
-        // For percentage mode, allow only digits and one decimal point
-        valueInput.addEventListener('input', function () {
-            if (typeSelect.value === 'percentage') {
-                // Allow digits and at most one decimal separator (dot or comma → dot)
-                let val = this.value.replace(',', '.');
-                // Remove anything that is not a digit or dot
-                val = val.replace(/[^\d.]/g, '');
-                // Keep only the first dot
-                let parts = val.split('.');
-                if (parts.length > 2) {
-                    val = parts[0] + '.' + parts.slice(1).join('');
-                }
-                if (this.value !== val) {
-                    this.value = val;
-                }
-            }
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        setupCommissionToggle('referral_commission_type', 'referral_commission_value', 'commission-suffix');
-        setupCommissionToggle('upgrade_commission_type', 'upgrade_commission_value', 'upgrade-commission-suffix');
-        setupCommissionToggle('repurchase_commission_type', 'repurchase_commission_value', 'repurchase-commission-suffix');
-    });
-</script>
-@endpush
 @endsection

@@ -43,7 +43,6 @@ class AppServiceProvider extends ServiceProvider
         Paginator::useBootstrapFive();
 
         User::observe(\App\Observers\UserObserver::class);
-        \App\Models\ContractedTreatment::observe(\App\Observers\ContractedTreatmentObserver::class);
 
         RateLimiter::for('login', function (Request $request) {
             return Limit::perMinute(5)->by($request->input('email') ?: $request->ip());

@@ -5,10 +5,22 @@
         <div class="col-12 col-lg-8">
             <div class="card shadow">
                 <div class="card-body my-5">
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <form method="POST" action="{{ route('register') }}">
                         @csrf
-                        @if(request()->query('ref'))
-                            <input type="hidden" name="referral_code" value="{{ request()->query('ref') }}">
+                        @if(old('referral_code', request()->query('ref')))
+                            <input type="hidden" name="referral_code" value="{{ old('referral_code', request()->query('ref')) }}">
+                            @error('referral_code')
+                                <div class="alert alert-danger mt-2">{{ $message }}</div>
+                            @enderror
                         @endif
                         @if(isset($isLegacy) && $isLegacy)
                             <input type="hidden" name="is_legacy" value="1">

@@ -249,7 +249,7 @@ class PaymentController extends Controller
             ReferralService::processReward($order->user);
 
             // Process repurchase commission (if applicable)
-            RepurchaseService::processCommission($order->user, $order);
+            RepurchaseService::processSale($order->user, $order);
 
             // Register income in accounting
             AccountingRecord::create([
@@ -308,7 +308,7 @@ class PaymentController extends Controller
             ReferralService::processReward($order->user);
 
             // Process repurchase commission (if applicable)
-            RepurchaseService::processCommission($order->user, $order);
+            RepurchaseService::processSale($order->user, $order);
 
             // Register income in accounting
             AccountingRecord::create([

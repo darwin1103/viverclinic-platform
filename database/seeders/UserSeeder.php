@@ -173,6 +173,37 @@ class UserSeeder extends Seeder
 
         $owner02->assignRole('OWNER');
 
-    }
+        // Test ADMIN
+        $adminUser3 = User::create([
+            'name' => 'Admin de Prueba',
+            'email' => 'admin@1.com',
+            'password' => Hash::make('1'),
+        ]);
+        $adminUser3->assignRole('ADMIN');
+        $adminUser3->adminProfile()->create(['branch_id' => 1]);
 
+        // Test SALES
+        $salesUser = User::create([
+            'name' => 'Vendedor de Prueba',
+            'email' => 'ventas@1.com',
+            'password' => Hash::make('1'),
+        ]);
+        $salesUser->assignRole('SALES');
+        $salesUser->salesProfile()->create(['branch_id' => 1]);
+
+        // Add Schedules to Staff
+        $staffProfiles = \App\Models\StaffProfile::whereIn('user_id', [$staff01->id, $staff02->id, $staff03->id])->get();
+        $days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
+        foreach ($staffProfiles as $profile) {
+            foreach ($days as $day) {
+                \App\Models\WorkSchedule::create([
+                    'staff_profile_id' => $profile->id,
+                    'day_of_week' => $day,
+                    'start_time' => '06:00:00',
+                    'end_time' => '18:00:00',
+                ]);
+            }
+        }
+    }
 }

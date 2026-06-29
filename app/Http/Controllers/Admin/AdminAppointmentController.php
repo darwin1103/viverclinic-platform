@@ -178,6 +178,7 @@ class AdminAppointmentController extends Controller
             $subAppointments = $group->map(function ($app) {
                 return [
                     'id' => $app->id,
+                    'contracted_treatment_id' => $app->contracted_treatment_id,
                     'treatment' => $app->contractedTreatment->treatment->name,
                     'zones' => $app->contractedTreatment->selected_zones,
                     'session_number' => $app->session_number,

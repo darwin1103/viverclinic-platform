@@ -107,10 +107,9 @@
                         <th>Rol</th>
                         <th>Sucursal</th>
                         <th>Sueldo Base</th>
-                        <th>Referidos</th>
-                        <th>Agrandamientos</th>
-                        <th>Recompras</th>
-                        <th>Ventas</th>
+                        <th>Ventas Reg. (Cant)</th>
+                        <th>Ventas Reg. (Total)</th>
+                        <th>Comisión</th>
                         <th>Bono Manual</th>
                         <th>Total</th>
                         <th>Estado</th>
@@ -134,31 +133,20 @@
                         <td>${{ number_format($settlement->base_salary, 0, ',', '.') }}</td>
                         <td>
                             @if($settlement->role_type === 'EMPLOYEE')
-                                ${{ number_format($settlement->referral_commissions, 0, ',', '.') }}
+                                {{ $settlement->sales_count ?? 0 }}
                             @else
                                 <span class="text-muted">-</span>
                             @endif
                         </td>
                         <td>
                             @if($settlement->role_type === 'EMPLOYEE')
-                                ${{ number_format($settlement->upgrade_commissions, 0, ',', '.') }}
+                                ${{ number_format($settlement->sales_total ?? 0, 0, ',', '.') }}
                             @else
                                 <span class="text-muted">-</span>
                             @endif
                         </td>
                         <td>
-                            @if($settlement->role_type === 'EMPLOYEE')
-                                ${{ number_format($settlement->repurchase_commissions, 0, ',', '.') }}
-                            @else
-                                <span class="text-muted">-</span>
-                            @endif
-                        </td>
-                        <td>
-                            @if($settlement->role_type !== 'EMPLOYEE')
-                                ${{ number_format($settlement->sales_commissions, 0, ',', '.') }}
-                            @else
-                                <span class="text-muted">-</span>
-                            @endif
+                            ${{ number_format($settlement->commission_amount, 0, ',', '.') }}
                         </td>
                         <td>
                             @if(($settlement->manual_bonus ?? 0) > 0)

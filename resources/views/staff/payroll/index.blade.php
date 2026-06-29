@@ -4,50 +4,40 @@
     <div class="row mb-4">
         <div class="col-12">
             <h1 class="fw-bold">Mi Liquidación</h1>
-            <p class="text-muted">Resumen de tu sueldo base y comisiones del mes actual.</p>
+            <p class="text-muted">Resumen de tu sueldo base y ventas del mes actual.</p>
         </div>
     </div>
 
-    {{-- Unified Commission Target --}}
+    {{-- Unified Sales Target --}}
     <div class="row g-4 mb-4">
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
-                    <h5 class="card-title fw-bold text-muted mb-3"><i class="bi bi-trophy me-2"></i>Meta de Comisiones del Mes</h5>
+                    <h5 class="card-title fw-bold text-muted mb-3"><i class="bi bi-trophy me-2"></i>Meta de Ventas del Mes</h5>
                     <div class="d-flex justify-content-between align-items-end mb-2">
-                        <span class="fs-4 fw-bold text-info">${{ number_format($totalCommissions, 0, ',', '.') }}</span>
-                        <span class="text-muted">de ${{ number_format($commissionTarget, 0, ',', '.') }}</span>
+                        <span class="fs-4 fw-bold text-info">${{ number_format($currentSalesTotal, 0, ',', '.') }}</span>
+                        <span class="text-muted">de ${{ number_format($salesTarget, 0, ',', '.') }}</span>
                     </div>
                     <div class="progress" style="height: 25px;">
-                        <div class="progress-bar bg-{{ $commissionProgress >= 100 ? 'success' : 'info' }} progress-bar-striped progress-bar-animated"
+                        <div class="progress-bar bg-{{ $salesProgress >= 100 ? 'success' : 'info' }} progress-bar-striped progress-bar-animated"
                              role="progressbar"
-                             style="width: {{ $commissionProgress }}%;"
-                             aria-valuenow="{{ $commissionProgress }}"
+                             style="width: {{ $salesProgress }}%;"
+                             aria-valuenow="{{ $salesProgress }}"
                              aria-valuemin="0"
                              aria-valuemax="100">
-                            {{ number_format($commissionProgress, 1) }}%
+                            {{ number_format($salesProgress, 1) }}%
                         </div>
                     </div>
-                    @if($commissionProgress >= 100 && $commissionTarget > 0)
-                        <div class="text-success mt-2 fw-bold"><i class="bi bi-stars"></i> ¡Felicidades! Has alcanzado tu meta de comisiones este mes.</div>
+                    @if($salesProgress >= 100 && $salesTarget > 0)
+                        <div class="text-success mt-2 fw-bold"><i class="bi bi-stars"></i> ¡Felicidades! Has alcanzado tu meta de ventas este mes.</div>
                     @endif
 
-                    {{-- Breakdown by source --}}
+                    {{-- Summary --}}
                     <div class="row mt-3 pt-3 border-top">
-                        <div class="col-4 text-center">
-                            <i class="bi bi-send-check text-info"></i>
-                            <div class="small text-muted">Referidos</div>
-                            <div class="fw-bold">${{ number_format($currentReferralCommissions, 0, ',', '.') }}</div>
-                        </div>
-                        <div class="col-4 text-center">
-                            <i class="bi bi-arrow-up-right-circle text-warning"></i>
-                            <div class="small text-muted">Agrandamientos</div>
-                            <div class="fw-bold">${{ number_format($currentUpgradeCommissions, 0, ',', '.') }}</div>
-                        </div>
-                        <div class="col-4 text-center">
-                            <i class="bi bi-arrow-repeat text-primary"></i>
-                            <div class="small text-muted">Recompras</div>
-                            <div class="fw-bold">${{ number_format($currentRepurchaseCommissions, 0, ',', '.') }}</div>
+                        <div class="col-12 text-center">
+                            <i class="bi bi-cart-check text-success fs-3"></i>
+                            <div class="small text-muted mt-1">Ventas Registradas Este Mes</div>
+                            <div class="fw-bold fs-4">{{ $currentSalesCount }}</div>
                         </div>
                     </div>
                 </div>
@@ -77,10 +67,8 @@
                                 <tr>
                                     <th>Fecha</th>
                                     <th>Sueldo Base</th>
-                                    <th>Referidos</th>
-                                    <th>Agrandamientos</th>
-                                    <th>Recompras</th>
-                                    <th>Bono</th>
+                                    <th>Comisión por Ventas</th>
+                                    <th>Bonos Manuales</th>
                                     <th>Total Pagado</th>
                                 </tr>
                             </thead>
@@ -89,12 +77,13 @@
                                     <tr>
                                         <td>{{ \Carbon\Carbon::parse($settlement->created_at)->format('d/m/Y') }}</td>
                                         <td>${{ number_format($settlement->base_salary, 0, ',', '.') }}</td>
-                                        <td>${{ number_format($settlement->referral_commissions, 0, ',', '.') }}</td>
-                                        <td>${{ number_format($settlement->upgrade_commissions, 0, ',', '.') }}</td>
-                                        <td>${{ number_format($settlement->repurchase_commissions, 0, ',', '.') }}</td>
+                                        <td>${{ number_format($settlement->commission_amount, 0, ',', '.') }}</td>
                                         <td>
-                                            @if(($settlement->manual_bonus ?? 0) > 0)
-                                                ${{ number_format($settlement->manual_bonus, 0, ',', '.') }}
+                                            @php
+                                                $manualBonusesTotal = $settlement->manualBonuses->sum('amount');
+                                            @endphp
+                                            @if($manualBonusesTotal > 0)
+                                                ${{ number_format($manualBonusesTotal, 0, ',', '.') }}
                                             @else
                                                 <span class="text-muted">-</span>
                                             @endif
@@ -103,7 +92,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center py-4 text-muted">No tienes liquidaciones registradas en el historial.</td>
+                                        <td colspan="5" class="text-center py-4 text-muted">No tienes liquidaciones registradas en el historial.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

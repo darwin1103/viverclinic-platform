@@ -43,6 +43,7 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
         Route::post('/contracted-treatment-installment/{installment}/toggle-status', [ContractedTreatmentController::class, 'toggleInstallmentStatus'])->name('contracted-treatment.installment.toggle-status');
         Route::get('/contracted-treatment/{contracted_treatment}/upgrade', [ContractedTreatmentController::class, 'upgradeForm'])->name('contracted-treatment.upgrade');
         Route::post('/contracted-treatment/{contracted_treatment}/upgrade', [ContractedTreatmentController::class, 'processUpgrade'])->name('contracted-treatment.upgrade.process');
+        Route::put('/contracted-treatment/{contracted_treatment}/change-staff', [ContractedTreatmentController::class, 'changeStaff'])->name('contracted-treatment.change-staff');
     });
 
     Route::middleware('permission:admin_dashboard_role_management')->group(function () {
@@ -252,6 +253,7 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
         Route::put('/payroll/{settlement}/manual-bonus/{bonus}', [PayrollController::class, 'updateManualBonusEntry'])->name('payroll.manual-bonus.update');
         Route::delete('/payroll/{settlement}/manual-bonus/{bonus}', [PayrollController::class, 'deleteManualBonusEntry'])->name('payroll.manual-bonus.delete');
         Route::post('/payroll/{settlement}/recalculate', [PayrollController::class, 'recalculate'])->name('payroll.recalculate');
+        Route::post('/payroll/{settlement}/update-commission', [PayrollController::class, 'updateCommission'])->name('payroll.update-commission');
         Route::get('/payroll/{settlement}', [PayrollController::class, 'show'])->name('payroll.show');
     });
 

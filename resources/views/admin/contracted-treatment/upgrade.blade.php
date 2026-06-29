@@ -206,27 +206,7 @@
                                 </div>
                             </div>
 
-                            {{-- Información de Comisión --}}
-                            <div class="p-3 rounded mb-4 border transaction-commission-box text-white">
-                                <h6 class="fw-bold text-white mb-2"><i class="bi bi-award text-warning me-2"></i>Comisión de Empleada</h6>
-                                <p class="mb-1 text-white-50">
-                                    Asignada a: <strong class="text-white">{{ $staffUser->name ?? 'Sin empleada asignada' }}</strong>
-                                </p>
-                                <p class="mb-0 text-white-50">
-                                    Comisión Configurada: 
-                                    <strong class="text-white">
-                                        @if($commissionType === 'percentage')
-                                            {{ $commissionValue }}% de la diferencia
-                                        @else
-                                            $ {{ number_format($commissionValue, 2) }} COP (Fijo)
-                                        @endif
-                                    </strong>
-                                </p>
-                                <div class="d-flex justify-content-between border-top border-secondary border-opacity-25 mt-2 pt-2">
-                                    <span class="text-white-50 small">Comisión Estimada:</span>
-                                    <strong class="text-primary small" id="txt-estimated-commission">$ 0.00</strong>
-                                </div>
-                            </div>
+
 
                             {{-- Formulario de Pago --}}
                             <h6 class="fw-bold text-white mb-3">3. Registrar Método de Pago</h6>
@@ -309,10 +289,7 @@
         background-color: rgba(19, 160, 178, 0.15) !important;
         border-color: var(--vc-primary) !important;
     }
-    .transaction-commission-box {
-        background: rgba(8,30,34,.75) !important;
-        border: 1px solid rgba(255,255,255,.08) !important;
-    }
+
 </style>
 @endpush
 
@@ -321,8 +298,6 @@
     let limitBig = 0;
     let limitMini = 0;
     const oldPackagePrice = {{ $currentPackage['price_at_purchase'] }};
-    const commissionType = '{{ $commissionType }}';
-    const commissionValue = {{ $commissionValue }};
 
     function selectPackage(id, name, price, big, mini) {
         // Deseleccionar tarjetas
@@ -358,14 +333,7 @@
         document.getElementById('txt-new-price').textContent = '$ ' + price.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         document.getElementById('txt-diff-price').textContent = '$ ' + diff.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-        // Calcular comisión
-        let commission = 0;
-        if (commissionType === 'percentage') {
-            commission = diff * (commissionValue / 100);
-        } else {
-            commission = commissionValue;
-        }
-        document.getElementById('txt-estimated-commission').textContent = '$ ' + commission.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
 
         // Habilitar botón de enviar
         document.getElementById('btn-submit-upgrade').disabled = false;

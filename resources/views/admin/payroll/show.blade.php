@@ -55,8 +55,8 @@
         <div class="col-6 col-md-3">
             <div class="card kpi h-100">
                 <div class="card-body">
-                    <div class="text-secondary small">Total Comisiones</div>
-                    <div class="kpi-value mt-1">${{ number_format($settlement->referral_commissions + $settlement->upgrade_commissions + $settlement->repurchase_commissions, 0, ',', '.') }}</div>
+                    <div class="text-secondary small">Comisión por Ventas</div>
+                    <div class="kpi-value mt-1">${{ number_format($settlement->commission_amount, 0, ',', '.') }}</div>
                 </div>
             </div>
         </div>
@@ -78,145 +78,80 @@
         </div>
     </div>
 
-    @if($settlement->role_type === 'EMPLOYEE')
-
-    {{-- Referral Commissions --}}
-    <div class="card mb-3">
-        <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-send-check me-2 text-info"></i>Comisiones por Referidos</span>
-            <span class="badge bg-info">{{ $referralEntries->count() }} {{ $referralEntries->count() === 1 ? 'entrada' : 'entradas' }} — ${{ number_format($settlement->referral_commissions, 0, ',', '.') }}</span>
+    {{-- Ingreso manual de comisión --}}
+    @if($settlement->status === 'pending')
+    <div class="card mb-3 border-info">
+        <div class="card-header bg-info bg-opacity-10 text-info fw-bold">
+            <i class="bi bi-cash-stack me-2"></i>Asignar Comisión por Ventas
         </div>
-        <div class="table-responsive">
-            <table class="table table-sm table-hover align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th class="ps-3">Fecha</th>
-                        <th>Cliente Referido</th>
-                        <th>Comisión</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($referralEntries as $entry)
-                        <tr>
-                            <td class="ps-3">{{ $entry->rewarded_at?->format('d/m/Y') }}</td>
-                            <td>{{ $entry->referred->name ?? 'N/A' }}</td>
-                            <td class="fw-semibold">${{ number_format($entry->staff_commission, 0, ',', '.') }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="3" class="text-center py-3 text-muted">Sin comisiones por referidos este mes.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+        <div class="card-body">
+            <form method="POST" action="{{ route('admin.payroll.update-commission', $settlement) }}" class="row g-2 align-items-end">
+                @csrf
+                @method('PUT')
+                <div class="col-12 col-md-4">
+                    <label class="form-label small fw-bold">Monto de la Comisión (COP)</label>
+                    <input type="text" inputmode="numeric" name="commission_amount" class="form-control currency-input"
+                           value="{{ $settlement->commission_amount }}" required>
+                </div>
+                <div class="col-12 col-md-4">
+                    <button type="submit" class="btn btn-info text-white w-100">
+                        <i class="bi bi-save me-1"></i>Guardar Comisión
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
-
-    {{-- Upgrade Commissions --}}
-    <div class="card mb-3">
-        <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-arrow-up-right-circle me-2 text-warning"></i>Comisiones por Agrandamientos</span>
-            <span class="badge bg-warning text-dark">{{ $upgradeEntries->count() }} {{ $upgradeEntries->count() === 1 ? 'entrada' : 'entradas' }} — ${{ number_format($settlement->upgrade_commissions, 0, ',', '.') }}</span>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-sm table-hover align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th class="ps-3">Fecha</th>
-                        <th>Cliente</th>
-                        <th>Paquete</th>
-                        <th>Diferencia</th>
-                        <th>Comisión</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($upgradeEntries as $entry)
-                        <tr>
-                            <td class="ps-3">{{ $entry->created_at->format('d/m/Y') }}</td>
-                            <td>
-                                @if($entry->contractedTreatment)
-                                    <a href="{{ route('admin.contracted-treatment.show', $entry->contracted_treatment_id) }}" class="text-decoration-none">
-                                        {{ $entry->contractedTreatment->user->name ?? 'N/A' }}
-                                    </a>
-                                @else
-                                    <span class="text-muted">N/A</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($entry->contractedTreatment?->treatment)
-                                    <a href="{{ route('admin.contracted-treatment.show', $entry->contracted_treatment_id) }}" class="text-decoration-none">
-                                        {{ $entry->contractedTreatment->treatment->name ?? '-' }}
-                                    </a>
-                                @else
-                                    <span class="text-muted">-</span>
-                                @endif
-                            </td>
-                            <td>${{ number_format($entry->price_difference, 0, ',', '.') }}</td>
-                            <td class="fw-semibold">${{ number_format($entry->commission_amount, 0, ',', '.') }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="text-center py-3 text-muted">Sin comisiones por agrandamientos este mes.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    {{-- Repurchase Commissions --}}
-    <div class="card mb-3">
-        <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-arrow-repeat me-2 text-primary"></i>Comisiones por Recompras</span>
-            <span class="badge bg-primary">{{ $repurchaseEntries->count() }} {{ $repurchaseEntries->count() === 1 ? 'entrada' : 'entradas' }} — ${{ number_format($settlement->repurchase_commissions, 0, ',', '.') }}</span>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-sm table-hover align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th class="ps-3">Fecha</th>
-                        <th>Cliente</th>
-                        <th>Paquete Contratado</th>
-                        <th>Total Tratamiento</th>
-                        <th>Comisión</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($repurchaseEntries as $entry)
-                        <tr>
-                            <td class="ps-3">{{ $entry->created_at->format('d/m/Y') }}</td>
-                            <td>
-                                @if($entry->contractedTreatment)
-                                    <a href="{{ route('admin.contracted-treatment.show', $entry->contracted_treatment_id) }}" class="text-decoration-none">
-                                        {{ $entry->contractedTreatment->user->name ?? 'N/A' }}
-                                    </a>
-                                @else
-                                    <span class="text-muted">N/A</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($entry->contractedTreatment?->treatment)
-                                    <a href="{{ route('admin.contracted-treatment.show', $entry->contracted_treatment_id) }}" class="text-decoration-none">
-                                        {{ $entry->contractedTreatment->treatment->name ?? '-' }}
-                                    </a>
-                                @else
-                                    <span class="text-muted">-</span>
-                                @endif
-                            </td>
-                            <td>${{ number_format($entry->treatment_total, 0, ',', '.') }}</td>
-                            <td class="fw-semibold">${{ number_format($entry->commission_amount, 0, ',', '.') }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="text-center py-3 text-muted">Sin comisiones por recompras este mes.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-
     @endif
+
+    {{-- Sales Registradas --}}
+    <div class="card mb-3">
+        <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-cart-check me-2 text-success"></i>Ventas Registradas del Mes</span>
+            <span class="badge bg-success">{{ $salesCount }} {{ $salesCount === 1 ? 'venta' : 'ventas' }} — Total: ${{ number_format($salesTotal, 0, ',', '.') }}</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-3">Fecha</th>
+                        <th>Cliente</th>
+                        <th>Tipo de Venta</th>
+                        <th>Monto del Primer Pago</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($sales as $sale)
+                        <tr>
+                            <td class="ps-3">{{ $sale->created_at->format('d/m/Y H:i') }}</td>
+                            <td>{{ $sale->patient->name ?? 'N/A' }}</td>
+                            <td>
+                                @if($sale->type === 'referral')
+                                    <span class="badge bg-info">Referido</span>
+                                @elseif($sale->type === 'upgrade')
+                                    <span class="badge bg-warning text-dark">Agrandamiento</span>
+                                @elseif($sale->type === 'repurchase')
+                                    <span class="badge bg-primary">Recompra</span>
+                                @else
+                                    <span class="badge bg-secondary">{{ $sale->type }}</span>
+                                @endif
+                            </td>
+                            <td class="fw-semibold">${{ number_format($sale->first_payment_amount, 0, ',', '.') }}</td>
+                            <td>
+                                <a href="{{ route('admin.contracted-treatment.show', $sale->contracted_treatment_id) }}" class="btn btn-sm btn-outline-info" title="Ver paquete del que proviene esta venta">
+                                    <i class="bi bi-box-arrow-up-right"></i> Ver Paquete
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="text-center py-3 text-muted">No se registraron ventas para este empleado en este mes.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     {{-- Manual Bonuses Section --}}
     <div class="card mb-3">
@@ -317,19 +252,6 @@
             @endif
         </div>
     </div>
-
-    {{-- Sales Commission (for ADMIN/SALES roles) --}}
-    @if($settlement->role_type !== 'EMPLOYEE' && $settlement->sales_commissions > 0)
-    <div class="card mb-3">
-        <div class="card-header fw-semibold">
-            <i class="bi bi-graph-up-arrow me-2 text-primary"></i>Comisión por Ventas
-        </div>
-        <div class="card-body">
-            <span class="fw-bold fs-5">${{ number_format($settlement->sales_commissions, 0, ',', '.') }}</span>
-            <span class="text-muted ms-2">Calculada sobre ventas del mes</span>
-        </div>
-    </div>
-    @endif
 
 </div>
 @endsection

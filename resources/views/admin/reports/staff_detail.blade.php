@@ -80,6 +80,28 @@
                                 <td>
                                     @if($appointment->review)
                                         <span class="text-muted fst-italic">"{{ Str::limit($appointment->review, 60) }}"</span>
+                                        @if(strlen($appointment->review) > 60)
+                                            <button type="button" class="btn btn-sm btn-link p-0 ms-1 text-info" data-bs-toggle="modal" data-bs-target="#reviewModal{{ $appointment->id }}" title="Ver comentario completo">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="reviewModal{{ $appointment->id }}" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header border-bottom-0 pb-0">
+                                                            <h5 class="modal-title text-dark fw-bold">Comentario del Paciente</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body text-dark pt-3 pb-4">
+                                                            <div class="p-3 bg-light rounded text-dark fst-italic">
+                                                                "{{ $appointment->review }}"
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif

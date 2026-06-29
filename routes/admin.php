@@ -208,6 +208,7 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
     // Reports (Admin)
     Route::middleware('permission:ver_reportes')->group(function () {
         Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/staff/{user}', [\App\Http\Controllers\Admin\ReportController::class, 'staffDetail'])->name('reports.staff-detail');
     });
 
     // Marketing Management

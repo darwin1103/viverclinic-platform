@@ -11,6 +11,7 @@ use App\Models\Appointment;
 use App\Models\User;
 use App\Models\Referral;
 use App\Models\Sale;
+use Carbon\Carbon;
 
 class ReportController extends Controller
 {
@@ -77,7 +78,9 @@ class ReportController extends Controller
                   ->whereDate('schedule', '>=', $from)
                   ->whereDate('schedule', '<=', $to);
                 if ($branchId) {
-                    $q->where('branch_id', $branchId);
+                    $q->whereHas('contractedTreatment', function ($sub) use ($branchId) {
+                        $sub->where('branch_id', $branchId);
+                    });
                 }
             }])
             ->withAvg(['assignedAppointments as avg_rating' => function ($q) use ($branchId, $from, $to) {
@@ -85,7 +88,9 @@ class ReportController extends Controller
                   ->whereDate('schedule', '>=', $from)
                   ->whereDate('schedule', '<=', $to);
                 if ($branchId) {
-                    $q->where('branch_id', $branchId);
+                    $q->whereHas('contractedTreatment', function ($sub) use ($branchId) {
+                        $sub->where('branch_id', $branchId);
+                    });
                 }
             }], 'review_score')
             ->get()
@@ -210,5 +215,31 @@ class ReportController extends Controller
             'revenueByMethod', 'maxMethodTotal',
             'shotsRecords'
         ));
+    }
+
+    public function staffDetail(Request $request, User $user)
+    {
+        // Parse dates to match the report timeframe
+        $from = $request->get('from') ? Carbon::parse($request->get('from'))->startOfDay() : now()->startOfMonth();
+        $to = $request->get('to') ? Carbon::parse($request->get('to'))->endOfDay() : now()->endOfDay();
+        
+        $branchId = $request->get('branch_id', session('selected_branch_id', ''));
+
+        $appointmentsQuery = \App\Models\Appointment::with(['contractedTreatment.user', 'contractedTreatment.treatment'])
+            ->where('staff_user_id', $user->id)
+            ->whereIn('status', ['Atendida', 'Completada'])
+            ->whereDate('schedule', '>=', $from)
+            ->whereDate('schedule', '<=', $to);
+
+        if ($branchId) {
+            $appointmentsQuery->whereHas('contractedTreatment', function ($sub) use ($branchId) {
+                $sub->where('branch_id', $branchId);
+            });
+        }
+
+        // Ordered by latest first, paginated
+        $appointments = $appointmentsQuery->orderBy('schedule', 'desc')->paginate(15);
+
+        return view('admin.reports.staff_detail', compact('user', 'appointments', 'from', 'to'));
     }
 }

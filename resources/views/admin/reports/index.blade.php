@@ -236,15 +236,15 @@
                             </thead>
                             <tbody>
                                 @forelse($staffPerformance as $staff)
-                                <tr>
-                                    <td class="ps-3">{{ $staff->name }}</td>
+                                <tr onclick="window.location='{{ route('admin.reports.staff-detail', ['user' => $staff->id, 'from' => request('from'), 'to' => request('to'), 'branch_id' => request('branch_id')]) }}'" style="cursor: pointer;" class="hover-shadow-sm transition-all">
+                                    <td class="ps-3 text-primary fw-medium">{{ $staff->name }}</td>
                                     <td class="text-center">
                                         <span class="badge bg-primary">{{ $staff->completed_count }}</span>
                                     </td>
                                     <td class="text-center">
                                         @if($staff->avg_rating)
                                             <span class="text-warning">
-                                                @for($i = 1; $i <= 5; $i++)
+                                                @for($i = 1; $i <= 3; $i++)
                                                     <i class="bi bi-star{{ $i <= round($staff->avg_rating) ? '-fill' : '' }}"></i>
                                                 @endfor
                                             </span>

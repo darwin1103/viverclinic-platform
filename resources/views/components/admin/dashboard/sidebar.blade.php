@@ -15,18 +15,22 @@
       <li class="mt-2 text-uppercase text-secondary small px-2">
         Operación
       </li>
+      @can('crear_citas')
       <li>
         <a href="{{ route('admin.appointments.index') }}" class="nav-link @if(Route::is('admin.appointments.*')) active @endif">
             <i class="bi bi-calendar-week me-2"></i>
             Agenda
         </a>
       </li>
+      @endcan
+      @can('ver_pacientes')
       <li>
         <a href="{{ route('admin.client.index') }}" class="nav-link @if(Route::is('admin.client.*')) active @endif">
             <i class="bi bi-people me-2"></i>
             Clientes
         </a>
       </li>
+      @endcan
       @role('SUPER_ADMIN|OWNER')
       <li>
         <a href="{{ route('admin.legacy-treatments.create') }}" class="nav-link @if(Route::is('admin.legacy-treatments.*')) active @endif">
@@ -36,12 +40,14 @@
       </li>
       @endrole
       @unlessrole('SALES')
+      @can('ver_inventario')
       <li>
         <a href="{{ route('admin.payments.index') }}" class="nav-link @if(Route::is('admin.payments.*')) active @endif">
             <i class="bi bi-cash-coin me-2"></i>
             Pagos
         </a>
       </li>
+      @endcan
       @role('SUPER_ADMIN|OWNER')
       <li>
         <a href="{{ route('admin.treatment.index') }}" class="nav-link @if(Route::is('admin.treatment.*')) active @endif">
@@ -50,12 +56,15 @@
         </a>
       </li>
       @endrole
+      @can('admin_dashboard_treatment_management')
       <li>
         <a href="{{ route('admin.contracted-treatment.index') }}" class="nav-link @if(Route::is('admin.contracted-treatment.*')) active @endif">
             <i class="bi bi-bag-heart me-2"></i>
             Paquetes contratados
         </a>
       </li>
+      @endcan
+      @can('ver_inventario')
       <li>
         <a href="{{ route('admin.products.index') }}" class="nav-link @if(Route::is('admin.products.*')) active @endif">
             <i class="bi bi-box me-2"></i>
@@ -68,6 +77,7 @@
             Venta de productos
         </a>
       </li>
+      @endcan
       @endunlessrole
       @role('SUPER_ADMIN|OWNER')
       <li class="mt-3 text-uppercase text-secondary small px-2">
@@ -116,12 +126,14 @@
         </a>
       </li>
       @endrole
+      @can('ver_inventario')
       <li>
         <a href="{{ route('admin.assets.index') }}" class="nav-link @if(Route::is('admin.assets.*')) active @endif">
             <i class="bi bi-box-seam me-2"></i>
             Activos
         </a>
       </li>
+      @endcan
       <li class="mt-3 text-uppercase text-secondary small px-2">
         Contenido
       </li>
@@ -148,27 +160,33 @@
       <li class="mt-3 text-uppercase text-secondary small px-2">
         Marketing
       </li>
+      @can('ver_promociones')
       <li>
         <a href="{{ route('admin.promotions.index') }}" class="nav-link @if(Route::is('admin.promotions.*')) active @endif">
             <i class="bi bi-megaphone me-2"></i>
             Promociones
         </a>
       </li>
+      @endcan
+      @can('ver_referidos')
       <li>
         <a href="{{ route('admin.referrals.index') }}" class="nav-link @if(Route::is('admin.referrals.*')) active @endif">
             <i class="bi bi-send-check me-2"></i>
             Referidos
         </a>
       </li>
+      @endcan
       <li class="mt-3 text-uppercase text-secondary small px-2">
         Finanzas
       </li>
+      @can('ver_contabilidad')
       <li>
         <a href="{{ route('admin.accounting.index') }}" class="nav-link @if(Route::is('admin.accounting.*')) active @endif">
             <i class="bi bi-journal-text me-2"></i>
             Contabilidad
         </a>
       </li>
+      @endcan
       @role('SUPER_ADMIN|OWNER')
       <li>
         <a href="{{ route('admin.payroll.index') }}" class="nav-link @if(Route::is('admin.payroll.*')) active @endif">
@@ -180,12 +198,14 @@
       <li class="mt-3 text-uppercase text-secondary small px-2">
         Reportes
       </li>
+      @can('ver_reportes')
       <li>
         <a href="{{ route('admin.reports.index') }}" class="nav-link @if(Route::is('admin.reports.*')) active @endif">
             <i class="bi bi-graph-up me-2"></i>
             Reportes
         </a>
       </li>
+      @endcan
       @endunlessrole
       @role('SUPER_ADMIN|OWNER')
       <li class="mt-3 text-uppercase text-secondary small px-2">

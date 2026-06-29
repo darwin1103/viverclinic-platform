@@ -30,7 +30,7 @@ class DashboardController extends Controller
     {
 
         $user = Auth::user();
-        if ($user->hasRole(['SUPER_ADMIN', 'OWNER', 'ADMIN']) || $user->hasPermissionTo('admin_dashboard')) {
+        if ($user->hasRole(['SUPER_ADMIN', 'OWNER', 'ADMIN']) || ($user->hasPermissionTo('admin_dashboard') && !$user->hasRole('EMPLOYEE'))) {
 
             // Resolve branch ID early for use in all queries
             $branchId = request('branch_id') ?: session('selected_branch_id');

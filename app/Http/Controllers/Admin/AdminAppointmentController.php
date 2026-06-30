@@ -231,11 +231,9 @@ class AdminAppointmentController extends Controller
      */
     public function getStaffList()
     {
-
-        $staff = User::whereHas('staffProfile')->select('id', 'name')->get();
+        $staff = User::whereHas('staffProfile')->select('id', 'name')->get()->makeVisible('id');
 
         return response()->json(['staff' => $staff]);
-
     }
 
     /**
@@ -260,15 +258,43 @@ class AdminAppointmentController extends Controller
             'attended' => 'required|boolean',
         ]);
 
+        if ($validated['attended']) {
+            $scheduleDate = Carbon::parse($appointment->schedule)->startOfDay();
+            $today = Carbon::today();
+
+            if ($scheduleDate->gt($today)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se puede marcar como atendida una cita futura.'
+                ], 422);
+            }
+
+            if ($scheduleDate->lt($today) && !$appointment->staff_user_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Para citas pasadas, debe asignar manualmente a la empleada antes de marcarla como atendida.'
+                ], 422);
+            }
+        }
+
         DB::beginTransaction();
         try {
             // Mark as attended
             $appointment->attended = $validated['attended'];
-            $appointment->status = 'Atendida';
+            $appointment->status = $validated['attended'] ? 'Atendida' : 'No asistida';
 
             // Assign staff member if not already assigned
             if (!$appointment->staff_user_id && $validated['attended']) {
                 $staffId = $this->assignStaffSequentially($appointment);
+
+                if (!$staffId) {
+                    DB::rollBack();
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No hay empleadas libres en este momento. Espere a que una empleada libere su cabina o asigne manualmente.'
+                    ], 422);
+                }
+
                 $appointment->staff_user_id = $staffId;
                 StaffProfile::where('user_id', $staffId)->update([
                     'last_appointment_assigned' => Carbon::now(),
@@ -325,6 +351,10 @@ class AdminAppointmentController extends Controller
             $q->where('day_of_week', $dayOfWeek)
               ->where('start_time', '<=', $time)
               ->where('end_time', '>=', $time);
+        })
+        ->whereDoesntHave('appointments', function ($q) {
+            $q->where('status', 'Atendida')
+              ->whereDate('schedule', Carbon::today());
         })
         ->orderBy('staff_profiles.last_appointment_assigned', 'asc') // 4. Ordena por la columna deseada de forma ascendente.
         ->first();
@@ -500,9 +530,29 @@ class AdminAppointmentController extends Controller
             'status' => 'required|string|in:Por confirmar,Confirmada,Agendado,Atendida,No asistida,Completada',
         ]);
 
+        $status = $validated['status'];
+
+        if ($status === 'Atendida' || $status === 'Completada') {
+            $scheduleDate = Carbon::parse($appointment->schedule)->startOfDay();
+            $today = Carbon::today();
+
+            if ($scheduleDate->gt($today)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se puede marcar como atendida o completada una cita futura.'
+                ], 422);
+            }
+
+            if ($scheduleDate->lt($today) && !$appointment->staff_user_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Para citas pasadas, debe asignar manualmente a la empleada antes de marcarla como atendida.'
+                ], 422);
+            }
+        }
+
         DB::beginTransaction();
         try {
-            $status = $validated['status'];
             $appointment->status = $status;
 
             if ($status === 'Atendida' || $status === 'Completada') {
@@ -511,6 +561,15 @@ class AdminAppointmentController extends Controller
                 // Assign staff member if not already assigned
                 if (!$appointment->staff_user_id) {
                     $staffId = $this->assignStaffSequentially($appointment);
+
+                    if (!$staffId) {
+                        DB::rollBack();
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'No hay empleadas libres en este momento. Espere a que una empleada libere su cabina o asigne manualmente.'
+                        ], 422);
+                    }
+
                     $appointment->staff_user_id = $staffId;
                     StaffProfile::where('user_id', $staffId)->update([
                         'last_appointment_assigned' => Carbon::now(),
@@ -553,6 +612,105 @@ class AdminAppointmentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error al actualizar el estado de la cita: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get real-time status of staff members for the dashboard
+     */
+    public function getStaffStatus(Request $request)
+    {
+        $branchId = $request->input('branch_id');
+        $user = auth()->user();
+        
+        if (!$branchId && $user->hasRole('ADMIN')) {
+            $branchId = $user->adminsBranches()->first()?->id;
+        }
+
+        if (!$branchId && $user->hasRole('ADMIN')) {
+            return response()->json(['staff' => []]);
+        }
+
+        // Get all staff for this branch (or all branches if empty and user is not just ADMIN)
+        $staffMembers = User::whereHas('staffProfile', function($q) use ($branchId) {
+            if ($branchId) {
+                $q->where('branch_id', $branchId);
+            }
+        })->get();
+
+        $statusList = [];
+
+        foreach ($staffMembers as $staff) {
+            // Check if they have an active appointment right now (Atendida today)
+            $activeAppointment = Appointment::with(['contractedTreatment.user', 'contractedTreatment.treatment'])
+                ->where('staff_user_id', $staff->id)
+                ->where('status', 'Atendida')
+                ->whereDate('schedule', Carbon::today())
+                ->first();
+
+            if ($activeAppointment) {
+                $statusList[] = [
+                    'id' => $staff->id,
+                    'name' => $staff->name,
+                    'status' => 'Ocupada',
+                    'patient' => $activeAppointment->contractedTreatment->user->name,
+                    'treatment' => $activeAppointment->contractedTreatment->treatment->name,
+                    'entry_time' => $activeAppointment->updated_at->format('h:i a'),
+                ];
+            } else {
+                $statusList[] = [
+                    'id' => $staff->id,
+                    'name' => $staff->name,
+                    'status' => 'Libre',
+                    'patient' => null,
+                    'treatment' => null,
+                    'entry_time' => null,
+                ];
+            }
+        }
+
+        return response()->json(['staff' => $statusList]);
+    }
+
+    /**
+     * Manually reassign a staff member to an appointment
+     */
+    public function reassignStaff(Appointment $appointment, Request $request)
+    {
+        $validated = $request->validate([
+            'staff_id' => 'required|exists:users,id',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $staffId = $validated['staff_id'];
+            $appointment->staff_user_id = $staffId;
+            $appointment->save();
+
+            // Update last_appointment_assigned for round-robin consistency
+            StaffProfile::where('user_id', $staffId)->update([
+                'last_appointment_assigned' => Carbon::now(),
+            ]);
+
+            // Cascade to other same-day appointments
+            $others = $this->getSameDayAppointments($appointment);
+            foreach ($others as $other) {
+                $other->staff_user_id = $staffId;
+                $other->save();
+            }
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Cita reasignada exitosamente.',
+                'appointment' => $appointment->load(['staff', 'contractedTreatment.user'])
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al reasignar la cita: ' . $e->getMessage()
             ], 500);
         }
     }

@@ -81,9 +81,16 @@ const AdminCalendarModule = (function() {
         attachEventListeners();
         renderRangeLabel();
         loadAppointments();
+        loadStaffStatus();
 
         // Handle window resize
         window.addEventListener('resize', handleResize);
+        
+        // Refresh Staff Status Button
+        const btnRefreshStatus = document.getElementById('refresh-staff-status');
+        if (btnRefreshStatus) {
+            btnRefreshStatus.addEventListener('click', loadStaffStatus);
+        }
     }
 
     function attachEventListeners() {
@@ -197,6 +204,7 @@ const AdminCalendarModule = (function() {
             const data = await response.json();
             appointments = data.appointments || [];
             renderCalendar();
+            loadStaffStatus();
         } catch (error) {
             console.error('Error loading appointments:', error);
             showToast('Error al cargar las citas', 'danger');
@@ -204,6 +212,67 @@ const AdminCalendarModule = (function() {
             renderCalendar();
         } finally {
 
+        }
+    }
+
+    async function loadStaffStatus() {
+        const container = document.getElementById('staff-status-container');
+        if (!container || !window.apiEndpoints.getStaffStatus) return;
+
+        container.innerHTML = '<div class="col-12 text-center text-muted"><div class="spinner-border spinner-border-sm me-2" role="status"></div> Cargando estado...</div>';
+
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const branchId = window.selectedBranchID || '';
+
+            const response = await fetch(window.apiEndpoints.getStaffStatus, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({ branch_id: branchId })
+            });
+
+            if (!response.ok) throw new Error('Error fetch status');
+            const data = await response.json();
+            
+            if (!data.staff || data.staff.length === 0) {
+                container.innerHTML = '<div class="col-12 text-center text-muted small">No hay personal configurado para esta sede.</div>';
+                return;
+            }
+
+            let html = '';
+            data.staff.forEach(staff => {
+                if (staff.status === 'Ocupada') {
+                    html += `
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="p-2 border rounded" style="background: rgba(var(--bs-danger-rgb), 0.1); border-left: 4px solid var(--bs-danger) !important;">
+                                <div class="fw-bold text-truncate"><i class="fas fa-user-md me-1"></i> ${staff.name}</div>
+                                <div class="small text-danger fw-semibold mt-1"><i class="fas fa-door-closed me-1"></i> Ocupada</div>
+                                <div class="small text-muted mt-1">
+                                    <div class="text-truncate" title="${staff.patient}"><i class="fas fa-user-injured me-1"></i> ${staff.patient}</div>
+                                    <div><i class="fas fa-clock me-1"></i> Ingreso: ${staff.entry_time}</div>
+                                </div>
+                            </div>
+                        </div>`;
+                } else {
+                    html += `
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="p-2 border rounded" style="background: rgba(var(--bs-success-rgb), 0.1); border-left: 4px solid var(--bs-success) !important;">
+                                <div class="fw-bold text-truncate"><i class="fas fa-user-md me-1"></i> ${staff.name}</div>
+                                <div class="small text-success fw-semibold mt-1"><i class="fas fa-door-open me-1"></i> Libre</div>
+                            </div>
+                        </div>`;
+                }
+            });
+
+            container.innerHTML = html;
+
+        } catch (error) {
+            console.error(error);
+            container.innerHTML = '<div class="col-12 text-center text-danger small">Error cargando estado.</div>';
         }
     }
 

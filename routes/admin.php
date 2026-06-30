@@ -118,6 +118,15 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
             Route::put('/appointments/{appointment}', 'update')
                 ->name('appointments.update');
 
+            // Staff Status for live board
+            Route::post('/appointments/staff-status', 'getStaffStatus')
+                ->name('appointments.staff-status');
+
+            // Reassign Staff manually
+            Route::post('/appointments/{appointment}/reassign', 'reassignStaff')
+                ->middleware('role:SUPER_ADMIN|OWNER')
+                ->name('appointments.reassign-staff');
+
             // Update appointment (generic endpoint)
             Route::put('/appointments/{appointment}', 'assignStaffSequentially')
                 ->name('appointments.assign-staff');

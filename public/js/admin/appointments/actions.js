@@ -151,6 +151,18 @@ const AdminActionsModule = (function() {
                                     <span class="badge text-bg-${getStatusVariant(currentAppointment.status)}">${currentAppointment.status}</span>
                                 `}
                             </div>
+                            
+                            ${window.userCanReassignStaff ? `
+                            <div class="mt-2 pt-2 border-top border-secondary">
+                                <strong>Reasignar Empleada:</strong>
+                                <select id="selectReassignStaff" class="form-select form-select-sm d-inline-block w-auto ms-1 bg-dark text-white border-secondary" style="vertical-align: middle;">
+                                    <option value="">Cargando...</option>
+                                </select>
+                                <button type="button" id="btnReassignStaff" class="btn btn-sm btn-outline-warning ms-1" style="vertical-align: middle;">
+                                    <i class="bi bi-person-lines-fill me-1"></i>Reasignar
+                                </button>
+                            </div>
+                            ` : ''}
 
                             <!-- Sub Appointments (Paquetes) -->
                             <div class="mt-3">
@@ -204,6 +216,14 @@ const AdminActionsModule = (function() {
             const btnSaveStatus = document.getElementById('btnSaveStatus');
             if (btnSaveStatus) {
                 btnSaveStatus.addEventListener('click', handleSaveStatus);
+            }
+        }
+            
+        if (window.userCanReassignStaff) {
+            const btnReassignStaff = document.getElementById('btnReassignStaff');
+            if (btnReassignStaff) {
+                btnReassignStaff.addEventListener('click', handleReassignStaff);
+                loadStaffListForReassign();
             }
         }
 
@@ -268,6 +288,67 @@ const AdminActionsModule = (function() {
                 reloadCalendar();
             } else {
                 showToast(data.message || 'Error al actualizar el estado de la cita', 'danger');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Error de red al procesar la solicitud', 'danger');
+        }
+    }
+
+    async function loadStaffListForReassign() {
+        const select = document.getElementById('selectReassignStaff');
+        if (!select) return;
+
+        try {
+            const response = await fetch(window.apiEndpoints.getStaffList);
+            const data = await response.json();
+            
+            select.innerHTML = '<option value="">Seleccione empleada...</option>';
+            data.staff.forEach(s => {
+                select.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+            });
+        } catch (e) {
+            console.error(e);
+            select.innerHTML = '<option value="">Error cargando</option>';
+        }
+    }
+
+    async function handleReassignStaff() {
+        const select = document.getElementById('selectReassignStaff');
+        if (!select || !currentAppointment) return;
+
+        const staffId = select.value;
+        if (!staffId) {
+            showToast('Seleccione una empleada primero', 'warning');
+            return;
+        }
+
+        if (!confirm('¿Está seguro de reasignar esta cita a la empleada seleccionada? Esto también reasignará todas las citas del paciente para este día.')) {
+            return;
+        }
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const url = window.apiEndpoints.reassignStaff.replace(':id', currentAppointment.id);
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({ staff_id: staffId })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                showToast('Cita reasignada exitosamente');
+                closeModal();
+                reloadCalendar();
+            } else {
+                showToast(data.message || 'Error al reasignar', 'danger');
             }
         } catch (error) {
             console.error('Error:', error);

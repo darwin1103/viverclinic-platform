@@ -430,6 +430,10 @@ class ContractedTreatmentController extends Controller
 
     public function upgradeForm(ContractedTreatment $contractedTreatment)
     {
+        if (!auth()->user()->hasRole(['SUPER_ADMIN', 'OWNER', 'ADMIN'])) {
+            abort(403);
+        }
+
         $contractedTreatment->load(['user', 'branch', 'treatment', 'appointments']);
 
         if (!$contractedTreatment->canBeUpgraded()) {
@@ -476,6 +480,10 @@ class ContractedTreatmentController extends Controller
 
     public function processUpgrade(Request $request, ContractedTreatment $contractedTreatment)
     {
+        if (!auth()->user()->hasRole(['SUPER_ADMIN', 'OWNER', 'ADMIN'])) {
+            abort(403);
+        }
+
         $request->validate([
             'new_package_id' => 'required|exists:branch_treatment,id',
             'selected_zones' => 'nullable|array',

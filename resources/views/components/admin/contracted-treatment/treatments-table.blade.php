@@ -57,9 +57,11 @@
                                 @endif
                             </td>
                             <td class="text-center">
+                                @unlessrole('EMPLOYEE')
                                 <a href="{{ route('admin.schedule-appointment.index', ['contracted_treatment' => $contract->id]) }}" class="btn btn-sm btn-outline-success" title="Gestionar citas">
                                     <i class="bi bi-calendar-check"></i>
                                 </a>
+                                @endunlessrole
                                 <a href="{{ route('admin.contracted-treatment.show', $contract->id) }}" class="btn btn-sm btn-outline-primary" title="Ver Detalles">
                                     <i class="bi bi-eye-fill"></i>
                                 </a>

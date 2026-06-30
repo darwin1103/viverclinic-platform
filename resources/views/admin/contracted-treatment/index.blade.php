@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends(auth()->user()->hasRole('EMPLOYEE') ? 'layouts.employee' : 'layouts.admin')
 
 @section('content')
 <div class="container-fluid">

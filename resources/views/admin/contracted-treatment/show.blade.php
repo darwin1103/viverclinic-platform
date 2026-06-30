@@ -1,4 +1,4 @@
-@extends('layouts.admin') {{-- Asumiendo tu layout de admin --}}
+@extends(auth()->user()->hasRole('EMPLOYEE') ? 'layouts.employee' : 'layouts.admin')
 
 @section('content')
 <div class="container-fluid">
@@ -21,10 +21,12 @@
                                 Editar Tratamiento
                             </a>
                         @endhasanyrole
+                        @unlessrole('EMPLOYEE')
                         <a href="{{ route('admin.schedule-appointment.index', $contractedTreatment->id) }}" class="btn btn-info">
                             <i class="bi bi-calendar-check me-1"></i>
                             Ver Agenda
                         </a>
+                        @endunlessrole
                         <a href="{{ route('admin.contracted-treatment.index') }}" class="btn btn-primary">
                             <i class="bi bi-arrow-left-circle me-1"></i>
                             Volver al listado
@@ -433,6 +435,7 @@
                                                 </td>
                                                 <td class="text-end">
                                                     @if($order->status == 'Pago por verificar')
+                                                        @unlessrole('EMPLOYEE')
                                                         <div class="btn-group btn-group-sm">
                                                             {{-- Botón Aprobar --}}
                                                             <form action="{{ route('admin.contracted-treatment.approve-payment', $order->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de APROBAR este pago? Esto marcará las cuotas como pagadas.');">
@@ -470,6 +473,9 @@
                                                                 </form>
                                                             </div>
                                                         </div>
+                                                        @else
+                                                        <span class="text-white-50 small">Pendiente</span>
+                                                        @endunlessrole
                                                     @else
                                                         <span class="text-white-50 small">-</span>
                                                     @endif

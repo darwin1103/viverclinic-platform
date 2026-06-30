@@ -16,6 +16,14 @@
             Agenda
         </a>
       </li>
+      @can('admin_dashboard_treatment_management')
+      <li>
+        <a href="{{ route('admin.contracted-treatment.index') }}" class="nav-link @if(Route::is('admin.contracted-treatment.*')) active @endif">
+            <i class="bi bi-bag-heart me-2"></i>
+            Paquetes contratados
+        </a>
+      </li>
+      @endcan
       <li>
         <a href="{{ route('staff.trainings.index') }}" class="nav-link @if(Route::is('staff.trainings.*')) active @endif">
             <i class="bi bi-play-btn me-2"></i>

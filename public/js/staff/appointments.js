@@ -93,24 +93,61 @@ document.addEventListener('DOMContentLoaded', function () {
             // Actualizar el título del modal
             modalTitle.textContent = `Detalles de la Cita de: ${patientName}`;
 
-            // Generar HTML para las zonas (si existen)
-            const bigZonesHtml = (zones?.big?.length > 0) ? `
-                <div>
-                    <strong>Zonas grandes:</strong>
-                    <div class="d-flex flex-wrap gap-1 mt-1">
-                        ${zones.big.map(zone => `<span class="badge bg-secondary">${zone}</span>`).join('')}
-                    </div>
-                </div>
-            ` : '';
+            // Generar HTML para los sub-paquetes
+            function getStatusVariant(status) {
+                const map = {
+                    'Atendida': 'primary',
+                    'Completada': 'success',
+                    'Confirmada': 'success',
+                    'Por confirmar': 'warning',
+                    'Agendada': 'info',
+                    'Cancelada': 'danger',
+                    'No asistida': 'danger',
+                    'Pendiente': 'secondary'
+                };
+                return map[status] || 'secondary';
+            }
 
-            const miniZonesHtml = (zones?.mini?.length > 0) ? `
-                <div>
-                    <strong>Mini zonas:</strong>
-                    <div class="d-flex flex-wrap gap-1 mt-1">
-                        ${zones.mini.map(zone => `<span class="badge bg-light text-dark">${zone}</span>`).join('')}
+            const reviewValues = {
+                1: '😡 Muy Malo',
+                2: '🙁 Malo',
+                3: '😐 Regular',
+                4: '🙂 Bueno',
+                5: '🤩 Excelente'
+            };
+
+            const subAppointmentsHtml = `
+                <div class="mt-3">
+                    <strong>Paquetes Incluidos:</strong>
+                    ${(details.sub_appointments || []).map(sub => `
+                    <div class="mt-2 p-3 border border-secondary rounded position-relative" style="background: rgba(0,0,0,0.1);">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong class="text-primary">${sub.treatment}</strong>
+                            <span class="badge text-bg-${getStatusVariant(sub.status)}">${sub.status === 'Atendida' ? 'Atención' : sub.status}</span>
+                        </div>
+                        <div class="small">
+                            <div class="mb-1"><strong class="text-secondary">Sesión:</strong> #${sub.session_number}</div>
+                            
+                            ${(sub.zones?.big?.length > 0) ? `
+                                <div class="mb-1">
+                                    <strong class="text-secondary">Zonas grandes:</strong>
+                                    ${sub.zones.big.join(', ')}
+                                </div>
+                            ` : ''}
+
+                            ${(sub.zones?.mini?.length > 0) ? `
+                                <div class="mb-1">
+                                    <strong class="text-secondary">Mini zonas:</strong>
+                                    ${sub.zones.mini.join(', ')}
+                                </div>
+                            ` : ''}
+                            
+                            ${(!['Pendiente', 'Agendado', 'Por confirmar'].includes(sub.status) || sub.review_score) ? `<div class="mb-1"><strong class="text-secondary">Calificación:</strong> ${sub.review_score ? (reviewValues[sub.review_score] + (sub.review ? (' - ' + sub.review) : '')) : 'N/A'}</div>` : ''}
+                        </div>
                     </div>
+                    `).join('')}
                 </div>
-            ` : '';
+            `;
 
             let markAsCompletedForm = '';
 
@@ -165,13 +202,11 @@ document.addEventListener('DOMContentLoaded', function () {
                             <div class="card-body">
                                 <h6 class="text-secondary small text-uppercase mb-3">Detalles de la Cita</h6>
                                 <div class="vstack gap-2">
-                                    <div><strong>Tratamiento:</strong> ${details.treatment}</div>
-                                    <div><strong>Sesión:</strong> #${details.session_number}</div>
+                                    <div><strong>Tratamiento General:</strong> ${details.treatment}</div>
                                     <div><strong>Fecha:</strong> ${details.date}</div>
                                     <div><strong>Hora:</strong> ${details.time}</div>
-                                    <div><strong>Estado:</strong> <span class="badge ${details.status === 'Atendida' ? 'text-bg-primary' : 'text-bg-info'}">${details.status === 'Atendida' ? 'Atención' : details.status}</span></div>
-                                    ${bigZonesHtml}
-                                    ${miniZonesHtml}
+                                    <div><strong>Estado Global:</strong> <span class="badge ${details.status === 'Atendida' ? 'text-bg-primary' : 'text-bg-info'}">${details.status === 'Atendida' ? 'Atención' : details.status}</span></div>
+                                    ${subAppointmentsHtml}
                                     ${shotsHtml}
                                     ${markAsCompletedForm}
                                 </div>

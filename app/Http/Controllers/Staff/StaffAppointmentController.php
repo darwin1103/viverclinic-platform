@@ -60,6 +60,13 @@ class StaffAppointmentController extends Controller
         // Paginate
         $appointments = $query->paginate(15)->appends(['tab' => $tab, 'search' => $request->search, 'treatment_id' => $request->treatment_id]);
 
+        // Agrupar citas de un mismo paciente en el mismo día (unificación)
+        $grouped = $appointments->getCollection()->groupBy(function ($app) {
+            return \Carbon\Carbon::parse($app->schedule)->format('Y-m-d') . '_' . $app->contractedTreatment->user_id;
+        });
+        
+        $appointments->setCollection($grouped);
+
         // Get all treatments for the filter dropdown
         $treatments = Treatment::orderBy('name')->get();
 
@@ -100,6 +107,19 @@ class StaffAppointmentController extends Controller
         }
 
         $appointment->update($updateData);
+
+        // Group completion cascade: apply to other appointments of the same patient on the same day
+        $others = Appointment::where('staff_user_id', $user->id)
+            ->where('id', '!=', $appointment->id)
+            ->whereDate('schedule', \Carbon\Carbon::parse($appointment->schedule)->toDateString())
+            ->whereHas('contractedTreatment', function ($q) use ($appointment) {
+                $q->where('user_id', $appointment->contractedTreatment->user_id);
+            })
+            ->get();
+            
+        foreach ($others as $other) {
+            $other->update(['status' => 'Completada']);
+        }
 
         return redirect()->back()->with('success', 'Cita completada exitosamente');
     }

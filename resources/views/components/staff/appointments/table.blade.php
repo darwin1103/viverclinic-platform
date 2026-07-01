@@ -14,30 +14,47 @@
             </tr>
         </thead>
         <tbody>
-            @forelse ($appointments as $appointment)
+            @forelse ($appointments as $group)
                 @php
-                $shots = ($appointment->contractedTreatment?->treatment?->needs_report_shots) ? intval($appointment->uses_of_hair_removal_shots) : '';
-                $markAsCompletedUrl = ($appointment->status == 'Atendida') ? route('staff.appointment.mark-as-completed', ['appointment' => $appointment->id]) : '';
+                $primaryApp = $group->first();
+                $treatmentsList = implode(' + ', $group->map(fn($a) => $a->contractedTreatment?->treatment?->name ?? 'N/A')->toArray());
+                $shots = ($primaryApp->contractedTreatment?->treatment?->needs_report_shots) ? intval($primaryApp->uses_of_hair_removal_shots) : '';
+                $markAsCompletedUrl = ($primaryApp->status == 'Atendida') ? route('staff.appointment.mark-as-completed', ['appointment' => $primaryApp->id]) : '';
                 
                 // Resaltar la cita si está "Atendida"
-                $rowClass = ($appointment->status == 'Atendida') ? 'table-highlight-primary' : '';
+                $rowClass = ($primaryApp->status == 'Atendida') ? 'table-highlight-primary' : '';
+
+                $subAppointments = $group->map(function ($app) {
+                    return [
+                        'id' => $app->id,
+                        'contracted_treatment_id' => $app->contracted_treatment_id,
+                        'treatment' => $app->contractedTreatment?->treatment?->name ?? 'N/A',
+                        'zones' => $app->contractedTreatment?->selected_zones,
+                        'session_number' => $app->session_number,
+                        'status' => $app->status,
+                        'attended' => $app->attended,
+                        'review' => $app->review,
+                        'review_score' => $app->review_score,
+                        'shots' => ($app->contractedTreatment?->treatment?->needs_report_shots && $app->uses_of_hair_removal_shots) ? $app->uses_of_hair_removal_shots : null,
+                    ];
+                })->toArray();
                 @endphp
                 <tr class="{{ $rowClass }}">
-                    <td>{{ $appointment->contractedTreatment?->treatment?->name ?? 'N/A' }}</td>
-                    <td>{{ $appointment->contractedTreatment?->user?->name ?? 'N/A' }}</td>
-                    <td><span class="badge bg-primary rounded-pill">{{ $appointment->session_number }}</span></td>
-                    <td>{{ \Carbon\Carbon::parse($appointment->schedule)->isoFormat('dddd, D \d\e MMMM, YYYY') }}</td>
-                    <td>{{ \Carbon\Carbon::parse($appointment->schedule)->isoFormat('hh:mm a') }}</td>
+                    <td>{{ $treatmentsList }}</td>
+                    <td>{{ $primaryApp->contractedTreatment?->user?->name ?? 'N/A' }}</td>
+                    <td><span class="badge bg-primary rounded-pill">{{ $primaryApp->session_number }}</span></td>
+                    <td>{{ \Carbon\Carbon::parse($primaryApp->schedule)->isoFormat('dddd, D \d\e MMMM, YYYY') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($primaryApp->schedule)->isoFormat('hh:mm a') }}</td>
                     <td>
                         @php
                             $badgeClass = 'bg-secondary';
-                            $statusLabel = $appointment->status;
-                            if ($appointment->status == 'Atendida') {
+                            $statusLabel = $primaryApp->status;
+                            if ($primaryApp->status == 'Atendida') {
                                 $badgeClass = 'bg-primary text-white';
                                 $statusLabel = 'Atención';
-                            } elseif ($appointment->status == 'Completada') {
+                            } elseif ($primaryApp->status == 'Completada') {
                                 $badgeClass = 'bg-success';
-                            } elseif ($appointment->status == 'Agendada') {
+                            } elseif ($primaryApp->status == 'Agendada') {
                                 $badgeClass = 'bg-info';
                             }
                         @endphp
@@ -47,16 +64,17 @@
                         <button type="button" class="btn btn-sm btn-primary"
                             data-bs-toggle="modal"
                             data-bs-target="#appointmentActionModal"
-                            data-appointment-id="{{ $appointment->id }}"
-                            data-patient-name="{{ $appointment->contractedTreatment?->user?->name ?? 'N/A' }}"
+                            data-appointment-id="{{ $primaryApp->id }}"
+                            data-patient-name="{{ $primaryApp->contractedTreatment?->user?->name ?? 'N/A' }}"
                             data-appointment-details="{{ json_encode([
-                                'treatment' => $appointment->contractedTreatment?->treatment?->name ?? 'N/A',
-                                'session_number' => $appointment->session_number,
-                                'date' => \Carbon\Carbon::parse($appointment->schedule)->isoFormat('dddd, D \d\e MMMM, YYYY'),
-                                'time' => \Carbon\Carbon::parse($appointment->schedule)->isoFormat('hh:mm a'),
-                                'status' => $appointment->status
+                                'treatment' => $treatmentsList,
+                                'session_number' => $primaryApp->session_number,
+                                'date' => \Carbon\Carbon::parse($primaryApp->schedule)->isoFormat('dddd, D \d\e MMMM, YYYY'),
+                                'time' => \Carbon\Carbon::parse($primaryApp->schedule)->isoFormat('hh:mm a'),
+                                'status' => $primaryApp->status,
+                                'sub_appointments' => $subAppointments
                             ]) }}"
-                            data-zones='@json($appointment->contractedTreatment?->selected_zones ?? [])'
+                            data-zones='@json($primaryApp->contractedTreatment?->selected_zones ?? [])'
                             data-shots="{{$shots}}"
                             data-set-mark-as-completed-url="{{$markAsCompletedUrl}}"
                             >

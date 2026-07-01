@@ -43,5 +43,5 @@
 
 @push('scripts')
     {{-- Link to the specific JavaScript file for this view --}}
-    <script src="{{ asset('js/staff/appointments.js') }}"></script>
+    <script src="{{ asset('js/staff/appointments.js') }}?v={{ time() }}"></script>
 @endpush

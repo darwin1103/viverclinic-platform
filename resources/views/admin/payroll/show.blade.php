@@ -138,9 +138,13 @@
                             </td>
                             <td class="fw-semibold">${{ number_format($sale->first_payment_amount, 0, ',', '.') }}</td>
                             <td>
-                                <a href="{{ route('admin.contracted-treatment.show', $sale->contracted_treatment_id) }}" class="btn btn-sm btn-outline-info" title="Ver paquete del que proviene esta venta">
-                                    <i class="bi bi-box-arrow-up-right"></i> Ver Paquete
-                                </a>
+                                @if($sale->contracted_treatment_id)
+                                    <a href="{{ route('admin.contracted-treatment.show', $sale->contracted_treatment_id) }}" class="btn btn-sm btn-outline-info" title="Ver paquete del que proviene esta venta">
+                                        <i class="bi bi-box-arrow-up-right"></i> Ver Paquete
+                                    </a>
+                                @else
+                                    <span class="text-muted small">N/A</span>
+                                @endif
                             </td>
                         </tr>
                     @empty

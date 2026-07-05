@@ -678,48 +678,50 @@ class ContractedTreatmentController extends Controller
     public function changeStaff(Request $request, ContractedTreatment $contractedTreatment)
     {
         $request->validate([
-            'staff_user_id' => 'required|exists:users,id',
+            'staff_user_id' => 'nullable|exists:users,id',
             'sale_type' => 'required|in:upgrade,repurchase,referral'
         ]);
 
-        $newStaff = User::findOrFail($request->staff_user_id);
+        $newStaff = $request->staff_user_id ? \App\Models\User::findOrFail($request->staff_user_id) : null;
+        $newStaffId = $newStaff ? $newStaff->id : null;
+        $newStaffName = $newStaff ? $newStaff->name : 'Ninguna';
 
         if ($request->sale_type === 'upgrade') {
             $upgrade = $contractedTreatment->packageUpgrade;
             if ($upgrade) {
                 $oldStaff = $upgrade->staff;
-                $upgrade->update(['staff_user_id' => $newStaff->id]);
+                $upgrade->update(['staff_user_id' => $newStaffId]);
 
                 // Also update the Sale record so reports reflect the change
                 \App\Models\Sale::where('contracted_treatment_id', $contractedTreatment->id)
                     ->where('type', 'upgrade')
-                    ->update(['staff_user_id' => $newStaff->id]);
+                    ->update(['staff_user_id' => $newStaffId]);
                 
                 $contractedTreatment->notes()->create([
                     'user_id' => auth()->id(),
-                    'content' => 'Cambio de empleada en agrandamiento de paquete. Anterior: ' . ($oldStaff->name ?? 'Ninguna') . ' -> Nueva: ' . $newStaff->name
+                    'content' => 'Cambio de empleada en agrandamiento de paquete. Anterior: ' . ($oldStaff->name ?? 'Ninguna') . ' -> Nueva: ' . $newStaffName
                 ]);
             }
         } elseif ($request->sale_type === 'repurchase') {
             $repurchase = $contractedTreatment->repurchaseSale;
             if ($repurchase) {
                 $oldStaff = $repurchase->staff;
-                $repurchase->update(['staff_user_id' => $newStaff->id]);
+                $repurchase->update(['staff_user_id' => $newStaffId]);
                 
                 $contractedTreatment->notes()->create([
                     'user_id' => auth()->id(),
-                    'content' => 'Cambio de empleada en recompra de paquete. Anterior: ' . ($oldStaff->name ?? 'Ninguna') . ' -> Nueva: ' . $newStaff->name
+                    'content' => 'Cambio de empleada en recompra de paquete. Anterior: ' . ($oldStaff->name ?? 'Ninguna') . ' -> Nueva: ' . $newStaffName
                 ]);
             }
         } elseif ($request->sale_type === 'referral') {
             $referralSale = $contractedTreatment->referralSale;
             if ($referralSale) {
                 $oldStaff = $referralSale->staff;
-                $referralSale->update(['staff_user_id' => $newStaff->id]);
+                $referralSale->update(['staff_user_id' => $newStaffId]);
                 
                 $contractedTreatment->notes()->create([
                     'user_id' => auth()->id(),
-                    'content' => 'Cambio de empleada en venta por referido. Anterior: ' . ($oldStaff->name ?? 'Ninguna') . ' -> Nueva: ' . $newStaff->name
+                    'content' => 'Cambio de empleada en venta por referido. Anterior: ' . ($oldStaff->name ?? 'Ninguna') . ' -> Nueva: ' . $newStaffName
                 ]);
             }
         }

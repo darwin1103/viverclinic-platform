@@ -617,8 +617,8 @@
                     <p class="small text-muted mb-3">Este cambio generará una nota automática en el historial del paquete.</p>
                     <div class="mb-3">
                         <label class="form-label">Nueva Empleada</label>
-                        <select name="staff_user_id" class="form-select" required>
-                            <option value="">Selecciona una empleada...</option>
+                        <select name="staff_user_id" class="form-select">
+                            <option value="">Ninguna (Desvincular venta)</option>
                             @foreach($staffUsers as $staff)
                                 <option value="{{ $staff->id }}" {{ ($contractedTreatment->packageUpgrade->staff_user_id == $staff->id) ? 'selected' : '' }}>
                                     {{ $staff->name }}
@@ -654,8 +654,8 @@
                     <p class="small text-muted mb-3">Este cambio generará una nota automática en el historial del paquete.</p>
                     <div class="mb-3">
                         <label class="form-label">Nueva Empleada</label>
-                        <select name="staff_user_id" class="form-select" required>
-                            <option value="">Selecciona una empleada...</option>
+                        <select name="staff_user_id" class="form-select">
+                            <option value="">Ninguna (Desvincular venta)</option>
                             @foreach($staffUsers as $staff)
                                 <option value="{{ $staff->id }}" {{ ($contractedTreatment->repurchaseSale->staff_user_id == $staff->id) ? 'selected' : '' }}>
                                     {{ $staff->name }}
@@ -690,8 +690,8 @@
                     <p class="small text-muted mb-3">Este cambio generará una nota automática en el historial del paquete.</p>
                     <div class="mb-3">
                         <label class="form-label">Nueva Empleada</label>
-                        <select name="staff_user_id" class="form-select" required>
-                            <option value="">Selecciona una empleada...</option>
+                        <select name="staff_user_id" class="form-select">
+                            <option value="">Ninguna (Desvincular venta)</option>
                             @foreach($staffUsers as $staff)
                                 <option value="{{ $staff->id }}" {{ ($contractedTreatment->referralSale->staff_user_id == $staff->id) ? 'selected' : '' }}>
                                     {{ $staff->name }}

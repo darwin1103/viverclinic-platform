@@ -30,6 +30,12 @@ class RepurchaseService
             return;
         }
 
+        // 0. Prevent migrated treatments from triggering repurchases
+        if ($order->contractedTreatment && empty($order->contractedTreatment->contracted_packages)) {
+            Log::info('[RepurchaseService] EXIT #0.1: Treatment is a legacy migration');
+            return;
+        }
+
         // 1. Check if user has more than 1 contracted treatment (repurchase)
         $totalContracts = ContractedTreatment::where('user_id', $paidUser->id)->count();
         if ($totalContracts <= 1) {

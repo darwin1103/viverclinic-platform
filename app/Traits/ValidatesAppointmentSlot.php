@@ -13,7 +13,7 @@ trait ValidatesAppointmentSlot
      * The number of additional concurrent appointments allowed beyond staff capacity.
      * @var int
      */
-    private int $additionalCapacity = 4;
+    private int $additionalCapacity = 0;
 
     /**
      * Check if a specific time slot is available for a given date and branch.

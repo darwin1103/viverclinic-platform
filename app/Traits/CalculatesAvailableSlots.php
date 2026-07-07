@@ -23,7 +23,7 @@ trait CalculatesAvailableSlots
         Carbon $date,
         int $branchId,
         int $slotDurationInMinutes = 20,
-        int $additionalCapacity = 4
+        int $additionalCapacity = 0
     ): array {
         // 1. Get the Spanish name for the day of the week to match the database enum.
         $dayOfWeekName = $this->getDayOfWeekInSpanish($date);

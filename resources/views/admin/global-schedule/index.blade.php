@@ -45,35 +45,7 @@
             </x-admin-card>
         </div>
 
-        <!-- SECCIÓN LATERAL IZQUIERDA: EMPLEADOS -->
-        <div class="col-12 col-xl-4">
-            <!-- Empleados Habilitados -->
-            <x-admin-card title="Personal Habilitado">
-                <p class="text-secondary small mb-3">Activa o desactiva a los empleados. Los desactivados no recibirán asignaciones de citas.</p>
-                <div class="list-group">
-                    @forelse($employees as $emp)
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="fw-bold d-block">{{ $emp->name }}</span>
-                                <small class="text-secondary">{{ $emp->email }}</small>
-                            </div>
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="badge {{ $emp->is_enabled_for_appointments ? 'bg-success' : 'bg-danger' }}" id="status-badge-{{ $emp->id }}">
-                                    {{ $emp->is_enabled_for_appointments ? 'Habilitado' : 'Deshabilitado' }}
-                                </span>
-                                <div class="form-check form-switch m-0">
-                                    <input class="form-check-input employee-toggle" type="checkbox" role="switch" data-user-id="{{ $emp->id }}" {{ $emp->is_enabled_for_appointments ? 'checked' : '' }}>
-                                </div>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="text-secondary text-center py-2">No hay empleados registrados.</div>
-                    @endforelse
-                </div>
-            </x-admin-card>
-        </div>
-
-        <!-- SECCIÓN DERECHA: HORARIOS Y FESTIVOS -->
+        <!-- SECCIÓN IZQUIERDA: HORARIOS Y FESTIVOS -->
         <div class="col-12 col-xl-8">
             <x-admin-card title="Horarios de Disponibilidad (Lunes a Domingo)">
                 <p class="text-secondary small mb-3">Configura los rangos de horario en los que la clínica está disponible para agendar citas. La disponibilidad se dividirá en bloques de 20 minutos automáticamente.</p>
@@ -175,6 +147,34 @@
                     @endif
                 </x-admin-card>
             </div>
+        </div>
+
+        <!-- SECCIÓN DERECHA: EMPLEADOS -->
+        <div class="col-12 col-xl-4">
+            <!-- Empleados Habilitados -->
+            <x-admin-card title="Personal Habilitado">
+                <p class="text-secondary small mb-3">Activa o desactiva a los empleados. Los desactivados no recibirán asignaciones de citas.</p>
+                <div class="list-group">
+                    @forelse($employees as $emp)
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="fw-bold d-block">{{ $emp->name }}</span>
+                                <small class="text-secondary">{{ $emp->email }}</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge {{ $emp->is_enabled_for_appointments ? 'bg-success' : 'bg-danger' }}" id="status-badge-{{ $emp->id }}">
+                                    {{ $emp->is_enabled_for_appointments ? 'Habilitado' : 'Deshabilitado' }}
+                                </span>
+                                <div class="form-check form-switch m-0">
+                                    <input class="form-check-input employee-toggle" type="checkbox" role="switch" data-user-id="{{ $emp->id }}" {{ $emp->is_enabled_for_appointments ? 'checked' : '' }}>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-secondary text-center py-2">No hay empleados registrados.</div>
+                    @endforelse
+                </div>
+            </x-admin-card>
         </div>
 
     </div>

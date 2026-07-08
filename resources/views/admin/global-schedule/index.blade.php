@@ -29,34 +29,34 @@
                             @php 
                                 $dayBlocks = isset($schedules[$day]) ? $schedules[$day] : collect();
                             @endphp
-                            <div class="accordion-item bg-dark border-secondary mb-2 rounded">
+                            <div class="accordion-item mb-2 rounded">
                                 <h2 class="accordion-header" id="heading{{ $index }}">
-                                    <button class="accordion-button collapsed bg-dark text-white fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $index }}" aria-expanded="false" aria-controls="collapse{{ $index }}">
+                                    <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $index }}" aria-expanded="false" aria-controls="collapse{{ $index }}">
                                         <i class="bi bi-calendar-day me-2 text-primary"></i> {{ $day }}
                                         <span class="badge bg-secondary ms-auto">{{ $dayBlocks->count() }} bloques</span>
                                     </button>
                                 </h2>
                                 <div id="collapse{{ $index }}" class="accordion-collapse collapse" aria-labelledby="heading{{ $index }}" data-bs-parent="#accordionSchedules">
-                                    <div class="accordion-body bg-dark">
+                                    <div class="accordion-body">
                                         
                                         <div id="blocks-container-{{ $day }}">
                                             @foreach($dayBlocks as $bIndex => $block)
                                                 <div class="row g-2 align-items-end mb-2 block-row">
                                                     <div class="col-3">
-                                                        <label class="form-label text-white small">Inicio</label>
-                                                        <input type="time" class="form-control form-control-sm bg-dark text-white border-secondary" name="schedules[{{ $day }}][{{ $bIndex }}][start_time]" value="{{ \Carbon\Carbon::parse($block->start_time)->format('H:i') }}" required>
+                                                        <label class="form-label small">Inicio</label>
+                                                        <input type="time" class="form-control form-control-sm" name="schedules[{{ $day }}][{{ $bIndex }}][start_time]" value="{{ \Carbon\Carbon::parse($block->start_time)->format('H:i') }}" required>
                                                     </div>
                                                     <div class="col-3">
-                                                        <label class="form-label text-white small">Fin</label>
-                                                        <input type="time" class="form-control form-control-sm bg-dark text-white border-secondary" name="schedules[{{ $day }}][{{ $bIndex }}][end_time]" value="{{ \Carbon\Carbon::parse($block->end_time)->format('H:i') }}" required>
+                                                        <label class="form-label small">Fin</label>
+                                                        <input type="time" class="form-control form-control-sm" name="schedules[{{ $day }}][{{ $bIndex }}][end_time]" value="{{ \Carbon\Carbon::parse($block->end_time)->format('H:i') }}" required>
                                                     </div>
                                                     <div class="col-2">
-                                                        <label class="form-label text-white small" title="Cupos para pacientes">Regulares</label>
-                                                        <input type="number" min="0" class="form-control form-control-sm bg-dark text-white border-secondary" name="schedules[{{ $day }}][{{ $bIndex }}][regular_slots]" value="{{ $block->regular_slots }}" required>
+                                                        <label class="form-label small" title="Cupos para pacientes">Regulares</label>
+                                                        <input type="number" min="0" class="form-control form-control-sm" name="schedules[{{ $day }}][{{ $bIndex }}][regular_slots]" value="{{ $block->regular_slots }}" required>
                                                     </div>
                                                     <div class="col-2">
-                                                        <label class="form-label text-white small" title="Sobrecupo Ventas">Ventas</label>
-                                                        <input type="number" min="0" class="form-control form-control-sm bg-dark text-white border-secondary" name="schedules[{{ $day }}][{{ $bIndex }}][sales_slots]" value="{{ $block->sales_slots }}" required>
+                                                        <label class="form-label small" title="Sobrecupo Ventas">Ventas</label>
+                                                        <input type="number" min="0" class="form-control form-control-sm" name="schedules[{{ $day }}][{{ $bIndex }}][sales_slots]" value="{{ $block->sales_slots }}" required>
                                                     </div>
                                                     <div class="col-2 text-end">
                                                         <button type="button" class="btn btn-sm btn-outline-danger remove-block-btn w-100"><i class="bi bi-trash"></i></button>
@@ -91,9 +91,9 @@
                 <p class="text-secondary small mb-3">Activa o desactiva a los empleados. Los desactivados no recibirán asignaciones de citas.</p>
                 <div class="list-group">
                     @forelse($employees as $emp)
-                        <div class="list-group-item bg-dark border-secondary d-flex justify-content-between align-items-center">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
-                                <span class="text-white fw-bold d-block">{{ $emp->name }}</span>
+                                <span class="fw-bold d-block">{{ $emp->name }}</span>
                                 <small class="text-secondary">{{ $emp->email }}</small>
                             </div>
                             <div class="form-check form-switch">
@@ -114,12 +114,12 @@
                     <form action="{{ route('admin.holidays.store') }}" method="POST" class="row g-2 align-items-end mb-4">
                         @csrf
                         <div class="col-12">
-                            <label class="form-label text-white small">Fecha</label>
-                            <input type="date" class="form-control form-control-sm bg-dark text-white border-secondary" name="date" required>
+                            <label class="form-label small">Fecha</label>
+                            <input type="date" class="form-control form-control-sm" name="date" required>
                         </div>
                         <div class="col-12">
-                            <label class="form-label text-white small">Motivo</label>
-                            <input type="text" class="form-control form-control-sm bg-dark text-white border-secondary" name="name" placeholder="Ej: Navidad" required>
+                            <label class="form-label small">Motivo</label>
+                            <input type="text" class="form-control form-control-sm" name="name" placeholder="Ej: Navidad" required>
                         </div>
                         <div class="col-12 mt-3">
                             <button type="submit" class="btn btn-sm btn-outline-primary w-100">
@@ -133,12 +133,12 @@
                     @else
                         <ul class="list-group list-group-flush">
                             @foreach($holidays as $holiday)
-                                <li class="list-group-item bg-dark border-secondary d-flex justify-content-between align-items-center px-0">
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                                     <div>
                                         <span class="badge {{ $holiday->date->isPast() ? 'bg-secondary' : 'bg-danger' }} mb-1">
                                             {{ $holiday->date->isoFormat('DD MMM YYYY') }}
                                         </span>
-                                        <small class="d-block text-white">{{ $holiday->name }}</small>
+                                        <small class="d-block">{{ $holiday->name }}</small>
                                     </div>
                                     <form action="{{ route('admin.holidays.destroy', $holiday) }}" method="POST" onsubmit="return confirm('¿Eliminar este festivo?');">
                                         @csrf @method('DELETE')
@@ -168,20 +168,20 @@ document.addEventListener('DOMContentLoaded', function() {
             const html = `
                 <div class="row g-2 align-items-end mb-2 block-row">
                     <div class="col-3">
-                        <label class="form-label text-white small">Inicio</label>
-                        <input type="time" class="form-control form-control-sm bg-dark text-white border-secondary" name="schedules[${day}][${index}][start_time]" required>
+                        <label class="form-label small">Inicio</label>
+                        <input type="time" class="form-control form-control-sm" name="schedules[${day}][${index}][start_time]" required>
                     </div>
                     <div class="col-3">
-                        <label class="form-label text-white small">Fin</label>
-                        <input type="time" class="form-control form-control-sm bg-dark text-white border-secondary" name="schedules[${day}][${index}][end_time]" required>
+                        <label class="form-label small">Fin</label>
+                        <input type="time" class="form-control form-control-sm" name="schedules[${day}][${index}][end_time]" required>
                     </div>
                     <div class="col-2">
-                        <label class="form-label text-white small">Regulares</label>
-                        <input type="number" min="0" class="form-control form-control-sm bg-dark text-white border-secondary" name="schedules[${day}][${index}][regular_slots]" value="0" required>
+                        <label class="form-label small">Regulares</label>
+                        <input type="number" min="0" class="form-control form-control-sm" name="schedules[${day}][${index}][regular_slots]" value="0" required>
                     </div>
                     <div class="col-2">
-                        <label class="form-label text-white small">Ventas</label>
-                        <input type="number" min="0" class="form-control form-control-sm bg-dark text-white border-secondary" name="schedules[${day}][${index}][sales_slots]" value="0" required>
+                        <label class="form-label small">Ventas</label>
+                        <input type="number" min="0" class="form-control form-control-sm" name="schedules[${day}][${index}][sales_slots]" value="0" required>
                     </div>
                     <div class="col-2 text-end">
                         <button type="button" class="btn btn-sm btn-outline-danger remove-block-btn w-100"><i class="bi bi-trash"></i></button>

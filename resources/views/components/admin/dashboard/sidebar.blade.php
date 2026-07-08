@@ -217,6 +217,12 @@
             Configuración
         </a>
       </li>
+      <li>
+        <a href="{{ route('admin.global-schedule.index') }}" class="nav-link @if(Route::is('admin.global-schedule.*')) active @endif">
+            <i class="bi bi-calendar3 me-2"></i>
+            Agenda Global
+        </a>
+      </li>
       @endrole
     </ul>
     <div class="mt-3">

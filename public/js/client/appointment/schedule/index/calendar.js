@@ -262,11 +262,22 @@ const CalendarModule = (function() {
             return;
         }
 
-        slots.forEach(time => {
+        slots.forEach(slotObj => {
+            const time = typeof slotObj === 'string' ? slotObj : slotObj.time;
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'btn btn-outline-light slot-btn';
-            btn.textContent = time;
+            btn.className = 'btn btn-outline-light slot-btn d-flex justify-content-between align-items-center text-start px-3';
+            
+            let slotInfoHTML = '';
+            if (typeof slotObj === 'object' && slotObj.regular !== undefined) {
+                // Determine if we are in admin side to show extra slots data
+                const isAdmin = window.location.pathname.includes('/admin/');
+                if (isAdmin) {
+                    slotInfoHTML = `<small class="text-secondary ms-2" style="font-size: 0.7rem;">R:${slotObj.regular} V:${slotObj.sales}</small>`;
+                }
+            }
+
+            btn.innerHTML = `<span>${time}</span> ${slotInfoHTML}`;
 
             if (selectedSlot === time) {
                 btn.classList.remove('btn-outline-light');

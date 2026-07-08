@@ -3,7 +3,7 @@
 namespace App\Traits;
 
 use App\Models\Appointment;
-use App\Models\Branch;
+use App\Models\GlobalSchedule;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Collection;
@@ -16,36 +16,35 @@ trait CalculatesAvailableSlots
      * @param Carbon $date The date to check for availability.
      * @param int $branchId The ID of the branch.
      * @param int $slotDurationInMinutes The duration of each appointment slot.
-     * @param int $additionalCapacity An extra number of concurrent appointments allowed.
+     * @param bool $includeSalesSlots Whether to include extra sales slots.
      * @return array
      */
     public function calculateAvailableSlots(
         Carbon $date,
         int $branchId,
         int $slotDurationInMinutes = 20,
-        int $additionalCapacity = 0
+        bool $includeSalesSlots = false
     ): array {
         // 1. Get the Spanish name for the day of the week to match the database enum.
         $dayOfWeekName = $this->getDayOfWeekInSpanish($date);
 
-        // 2. Fetch all staff for the branch with their work schedules for that specific day.
-        // Eager loading is used for performance.
-        $branch = Branch::with(['staff.workSchedules' => function ($query) use ($dayOfWeekName) {
-            $query->where('day_of_week', $dayOfWeekName);
-        }])->find($branchId);
+        // 2. Fetch global schedules for that day and branch.
+        $globalSchedules = GlobalSchedule::where('branch_id', $branchId)
+            ->where('day_of_week', $dayOfWeekName)
+            ->get();
 
-        if (!$branch) {
-            return []; // Or throw an exception
+        if ($globalSchedules->isEmpty()) {
+            return []; // No schedules defined for this day
         }
 
         // 3. Get all appointments already booked for that day at the branch.
         $bookedAppointments = $this->getBookedAppointments($date, $branchId);
 
         // 4. Generate all potential slots and calculate the capacity for each one.
-        $slotsCapacity = $this->calculateTotalCapacityPerSlot($branch->staff, $slotDurationInMinutes);
+        $slotsCapacity = $this->calculateTotalCapacityPerSlot($globalSchedules, $slotDurationInMinutes, $includeSalesSlots);
 
-        // 5. Filter the slots based on bookings and additional capacity.
-        return $this->filterAvailableSlots($slotsCapacity, $bookedAppointments, $additionalCapacity, $date);
+        // 5. Filter the slots based on bookings.
+        return $this->filterAvailableSlots($slotsCapacity, $bookedAppointments, $date);
     }
 
     /**
@@ -53,7 +52,6 @@ trait CalculatesAvailableSlots
      */
     private function getDayOfWeekInSpanish(Carbon $date): string
     {
-        // Carbon's dayOfWeekIso returns 1 for Monday, 7 for Sunday.
         return match ($date->dayOfWeekIso) {
             1 => 'Lunes',
             2 => 'Martes',
@@ -80,28 +78,45 @@ trait CalculatesAvailableSlots
     }
 
     /**
-     * Generates all time slots based on staff work schedules and calculates how many staff members are available for each slot.
+     * Generates all time slots based on global schedules.
+     * Capacity is calculated directly from regular_slots (and sales_slots if included).
      */
-    private function calculateTotalCapacityPerSlot(Collection $staffCollection, int $slotDurationInMinutes): array
+    private function calculateTotalCapacityPerSlot(Collection $globalSchedules, int $slotDurationInMinutes, bool $includeSalesSlots): array
     {
         $slotsCapacity = [];
 
-        foreach ($staffCollection as $staff) {
-            foreach ($staff->workSchedules as $schedule) {
-                $period = CarbonPeriod::create(
-                    $schedule->start_time,
-                    "{$slotDurationInMinutes} minutes",
-                    // The period should not include the end_time itself as a start of a new slot.
-                    Carbon::parse($schedule->end_time)->subMinutes($slotDurationInMinutes)
-                );
+        foreach ($globalSchedules as $schedule) {
+            $period = CarbonPeriod::create(
+                $schedule->start_time,
+                "{$slotDurationInMinutes} minutes",
+                Carbon::parse($schedule->end_time)->subMinutes($slotDurationInMinutes)
+            );
 
-                foreach ($period as $slot) {
-                    $time = $slot->format('H:i');
-                    if (!isset($slotsCapacity[$time])) {
-                        $slotsCapacity[$time] = 0;
-                    }
-                    $slotsCapacity[$time]++; // Increment capacity for this slot
+            $totalCapacityForBlock = $schedule->regular_slots;
+            if ($includeSalesSlots) {
+                $totalCapacityForBlock += $schedule->sales_slots;
+            }
+
+            foreach ($period as $slot) {
+                $time = $slot->format('H:i');
+                if (!isset($slotsCapacity[$time])) {
+                    $slotsCapacity[$time] = [
+                        'regular' => 0,
+                        'sales' => 0,
+                        'total' => 0,
+                    ];
                 }
+                
+                $slotsCapacity[$time]['regular'] += $schedule->regular_slots;
+                $slotsCapacity[$time]['sales'] += $schedule->sales_slots;
+                $slotsCapacity[$time]['total'] += $totalCapacityForBlock;
+            }
+        }
+
+        // Remove slots with 0 total capacity
+        foreach ($slotsCapacity as $time => $capacity) {
+            if ($capacity['total'] <= 0) {
+                unset($slotsCapacity[$time]);
             }
         }
 
@@ -111,30 +126,33 @@ trait CalculatesAvailableSlots
     /**
      * Filters the total capacity array to get only the available slots.
      */
-    private function filterAvailableSlots(array $slotsCapacity, Collection $bookedAppointments, int $additionalCapacity, Carbon $date): array
+    private function filterAvailableSlots(array $slotsCapacity, Collection $bookedAppointments, Carbon $date): array
     {
         $availableSlots = [];
         
-        // Group appointments by user so that a patient with multiple appointments today only consumes 1 capacity slot
         $uniqueBookings = $bookedAppointments->unique('contractedTreatment.user_id');
         $bookedCounts = $uniqueBookings->map(function ($appointment) {
             return Carbon::parse($appointment->schedule)->format('H:i');
-        })->countBy(); // Counts occurrences of each time string, e.g., ['09:00' => 2]
+        })->countBy(); 
 
-        // Ensure slots are sorted chronologically
         ksort($slotsCapacity);
 
         foreach ($slotsCapacity as $time => $capacity) {
-            // Check if the slot is in the future
             if ($date->isToday() && Carbon::now()->gt(Carbon::parse($time))) {
-                continue; // Skip past slots on the current day
+                continue; 
             }
 
             $booked = $bookedCounts[$time] ?? 0;
 
-            // A slot is available if the number of staff + additional capacity is greater than the number of booked appointments.
-            if (($capacity + $additionalCapacity) > $booked) {
-                $availableSlots[] = Carbon::createFromFormat('H:i', $time)->isoFormat('hh:mm a');
+            if ($capacity['total'] > $booked) {
+                $available = $capacity['total'] - $booked;
+                $availableSlots[] = [
+                    'time' => Carbon::createFromFormat('H:i', $time)->isoFormat('hh:mm a'),
+                    'regular' => $capacity['regular'],
+                    'sales' => $capacity['sales'],
+                    'booked' => $booked,
+                    'available' => $available,
+                ];
             }
         }
 

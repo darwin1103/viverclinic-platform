@@ -335,23 +335,7 @@ class AdminAppointmentController extends Controller
         $staffMember = User::select('users.*') // 1. Selecciona solo las columnas de la tabla de usuarios para evitar conflictos.
         ->join('staff_profiles', 'users.id', '=', 'staff_profiles.user_id') // 2. Une la tabla de perfiles.
         ->where('staff_profiles.branch_id', $branchId) // 3. Filtra por branch_id directamente en la tabla unida.
-        ->whereHas('staffProfile.workSchedules', function ($q) use ($appointmentTime) {
-            $daysMap = [
-                0 => 'Domingo',
-                1 => 'Lunes',
-                2 => 'Martes',
-                3 => 'Miércoles',
-                4 => 'Jueves',
-                5 => 'Viernes',
-                6 => 'Sábado',
-            ];
-            $dayOfWeek = $daysMap[$appointmentTime->dayOfWeek];
-            $time = $appointmentTime->format('H:i:s');
-
-            $q->where('day_of_week', $dayOfWeek)
-              ->where('start_time', '<=', $time)
-              ->where('end_time', '>=', $time);
-        })
+        ->where('users.is_enabled_for_appointments', true)
         ->whereDoesntHave('appointments', function ($q) {
             $q->where('status', 'Atendida')
               ->whereDate('schedule', Carbon::today());
@@ -507,8 +491,8 @@ class AdminAppointmentController extends Controller
             $branchId = (int)$validated['branch_id'];
 
             // Call the method from our trait to get the available slots
-            // You can also pass custom values for slot duration and additional capacity if needed
-            $slots = $this->calculateAvailableSlots($date, $branchId);
+            $includeSalesSlots = auth()->check() && auth()->user()->hasAnyRole(['SUPER_ADMIN', 'OWNER', 'ADMIN', 'VENTAS']);
+            $slots = $this->calculateAvailableSlots($date, $branchId, 20, $includeSalesSlots);
 
             return response()->json(['slots' => $slots]);
 

@@ -209,6 +209,11 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
         Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 
+        // Global Schedule Management
+        Route::get('/agenda-settings', [\App\Http\Controllers\Admin\GlobalScheduleController::class, 'index'])->name('global-schedule.index');
+        Route::post('/agenda-settings', [\App\Http\Controllers\Admin\GlobalScheduleController::class, 'storeSchedule'])->name('global-schedule.store');
+        Route::patch('/agenda-settings/employee/{user}/toggle', [\App\Http\Controllers\Admin\GlobalScheduleController::class, 'toggleEmployeeStatus'])->name('global-schedule.employee.toggle');
+
         // Holidays management
         Route::post('/holidays', [HolidayController::class, 'store'])->name('holidays.store');
         Route::delete('/holidays/{holiday}', [HolidayController::class, 'destroy'])->name('holidays.destroy');

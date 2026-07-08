@@ -33,6 +33,7 @@ class User extends Authenticatable
         'referral_code',
         'is_legacy',
         'active',
+        'is_enabled_for_appointments',
     ];
 
     protected static function booted()
@@ -71,6 +72,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_legacy' => 'boolean',
             'active' => 'boolean',
+            'is_enabled_for_appointments' => 'boolean',
         ];
     }
 

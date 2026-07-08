@@ -70,7 +70,8 @@ class AdminScheduleAppointmentController extends Controller
         $time24h = Carbon::createFromFormat('h:i a', $validated['appointment_time'])->format('H:i');
 
         // 3. Realizar la validación de disponibilidad usando el Trait
-        $isAvailable = $this->isSlotAvailable($date, $time24h, $branchId);
+        $includeSalesSlots = auth()->check() && auth()->user()->hasAnyRole(['SUPER_ADMIN', 'OWNER', 'ADMIN', 'VENTAS']);
+        $isAvailable = $this->isSlotAvailable($date, $time24h, $branchId, $includeSalesSlots);
 
         if (!$isAvailable) {
             // Si no está disponible, redirigir al usuario de vuelta al formulario
@@ -132,7 +133,8 @@ class AdminScheduleAppointmentController extends Controller
         $time24h = Carbon::createFromFormat('h:i a', $validated['appointment_time'])->format('H:i');
 
         // 3. Realizar la validación de disponibilidad usando el Trait
-        $isAvailable = $this->isSlotAvailable($date, $time24h, $branchId);
+        $includeSalesSlots = auth()->check() && auth()->user()->hasAnyRole(['SUPER_ADMIN', 'OWNER', 'ADMIN', 'VENTAS']);
+        $isAvailable = $this->isSlotAvailable($date, $time24h, $branchId, $includeSalesSlots);
 
         if (!$isAvailable) {
             // Si no está disponible, redirigir al usuario de vuelta al formulario
@@ -313,8 +315,8 @@ class AdminScheduleAppointmentController extends Controller
             $branchId = (int)$validated['branch_id'];
 
             // Call the method from our trait to get the available slots
-            // You can also pass custom values for slot duration and additional capacity if needed
-            $slots = $this->calculateAvailableSlots($date, $branchId);
+            $includeSalesSlots = auth()->check() && auth()->user()->hasAnyRole(['SUPER_ADMIN', 'OWNER', 'ADMIN', 'VENTAS']);
+            $slots = $this->calculateAvailableSlots($date, $branchId, 20, $includeSalesSlots);
 
             return response()->json(['slots' => $slots]);
 

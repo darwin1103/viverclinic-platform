@@ -26,14 +26,14 @@
                     @csrf
                     <div class="row g-3 align-items-end">
                         <div class="col-12 col-md-4">
-                            <label for="regular_slots" class="form-label fw-bold">Cupos Regulares</label>
+                            <label for="regular_slots" class="form-label fw-bold mb-0">Cupos Regulares</label>
+                            <div class="text-secondary small mb-2" style="font-size: 0.75rem;">Para pacientes en cada bloque de 20 min.</div>
                             <input type="number" min="0" class="form-control" id="regular_slots" name="regular_slots" value="{{ $regularSlots }}" required>
-                            <small class="text-secondary">Cupos disponibles para pacientes en cada bloque de 20 minutos.</small>
                         </div>
                         <div class="col-12 col-md-4">
-                            <label for="sales_slots" class="form-label fw-bold">Cupos de Ventas</label>
+                            <label for="sales_slots" class="form-label fw-bold mb-0">Cupos de Ventas</label>
+                            <div class="text-secondary small mb-2" style="font-size: 0.75rem;">Adicionales solo para administración/ventas.</div>
                             <input type="number" min="0" class="form-control" id="sales_slots" name="sales_slots" value="{{ $salesSlots }}" required>
-                            <small class="text-secondary">Cupos adicionales solo visibles para administradores y ventas.</small>
                         </div>
                         <div class="col-12 col-md-4">
                             <button type="submit" class="btn btn-primary w-100">

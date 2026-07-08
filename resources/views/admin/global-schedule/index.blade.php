@@ -45,7 +45,35 @@
             </x-admin-card>
         </div>
 
-        <!-- SECCIÓN 2: HORARIOS GLOBALES -->
+        <!-- SECCIÓN LATERAL IZQUIERDA: EMPLEADOS -->
+        <div class="col-12 col-xl-4">
+            <!-- Empleados Habilitados -->
+            <x-admin-card title="Personal Habilitado">
+                <p class="text-secondary small mb-3">Activa o desactiva a los empleados. Los desactivados no recibirán asignaciones de citas.</p>
+                <div class="list-group">
+                    @forelse($employees as $emp)
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="fw-bold d-block">{{ $emp->name }}</span>
+                                <small class="text-secondary">{{ $emp->email }}</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge {{ $emp->is_enabled_for_appointments ? 'bg-success' : 'bg-danger' }}" id="status-badge-{{ $emp->id }}">
+                                    {{ $emp->is_enabled_for_appointments ? 'Habilitado' : 'Deshabilitado' }}
+                                </span>
+                                <div class="form-check form-switch m-0">
+                                    <input class="form-check-input employee-toggle" type="checkbox" role="switch" data-user-id="{{ $emp->id }}" {{ $emp->is_enabled_for_appointments ? 'checked' : '' }}>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-secondary text-center py-2">No hay empleados registrados.</div>
+                    @endforelse
+                </div>
+            </x-admin-card>
+        </div>
+
+        <!-- SECCIÓN DERECHA: HORARIOS Y FESTIVOS -->
         <div class="col-12 col-xl-8">
             <x-admin-card title="Horarios de Disponibilidad (Lunes a Domingo)">
                 <p class="text-secondary small mb-3">Configura los rangos de horario en los que la clínica está disponible para agendar citas. La disponibilidad se dividirá en bloques de 20 minutos automáticamente.</p>
@@ -102,35 +130,6 @@
                     </div>
                 </form>
             </x-admin-card>
-        </div>
-
-        <!-- SECCIÓN LATERAL: EMPLEADOS Y FESTIVOS -->
-        <div class="col-12 col-xl-4">
-            
-            <!-- Empleados Habilitados -->
-            <x-admin-card title="Personal Habilitado">
-                <p class="text-secondary small mb-3">Activa o desactiva a los empleados. Los desactivados no recibirán asignaciones de citas.</p>
-                <div class="list-group">
-                    @forelse($employees as $emp)
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="fw-bold d-block">{{ $emp->name }}</span>
-                                <small class="text-secondary">{{ $emp->email }}</small>
-                            </div>
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="badge {{ $emp->is_enabled_for_appointments ? 'bg-success' : 'bg-danger' }}" id="status-badge-{{ $emp->id }}">
-                                    {{ $emp->is_enabled_for_appointments ? 'Habilitado' : 'Deshabilitado' }}
-                                </span>
-                                <div class="form-check form-switch m-0">
-                                    <input class="form-check-input employee-toggle" type="checkbox" role="switch" data-user-id="{{ $emp->id }}" {{ $emp->is_enabled_for_appointments ? 'checked' : '' }}>
-                                </div>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="text-secondary text-center py-2">No hay empleados registrados.</div>
-                    @endforelse
-                </div>
-            </x-admin-card>
 
             <!-- Festivos -->
             <div class="mt-4">
@@ -139,17 +138,17 @@
                     
                     <form action="{{ route('admin.holidays.store') }}" method="POST" class="row g-2 align-items-end mb-4">
                         @csrf
-                        <div class="col-12">
+                        <div class="col-12 col-md-5">
                             <label class="form-label small">Fecha</label>
                             <input type="date" class="form-control form-control-sm" name="date" required>
                         </div>
-                        <div class="col-12">
+                        <div class="col-12 col-md-5">
                             <label class="form-label small">Motivo</label>
                             <input type="text" class="form-control form-control-sm" name="name" placeholder="Ej: Navidad" required>
                         </div>
-                        <div class="col-12 mt-3">
-                            <button type="submit" class="btn btn-sm btn-outline-primary w-100">
-                                <i class="bi bi-plus-circle me-1"></i>Agregar Festivo
+                        <div class="col-12 col-md-2 text-end">
+                            <button type="submit" class="btn btn-sm btn-outline-primary w-100 h-100">
+                                <i class="bi bi-plus-circle"></i>
                             </button>
                         </div>
                     </form>
@@ -177,6 +176,7 @@
                 </x-admin-card>
             </div>
         </div>
+
     </div>
 </div>
 

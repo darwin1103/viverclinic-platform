@@ -159,7 +159,7 @@
                     @else
                         <ul class="list-group list-group-flush">
                             @foreach($holidays as $holiday)
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-3">
                                     <div>
                                         <span class="badge {{ $holiday->date->isPast() ? 'bg-secondary' : 'bg-danger' }} mb-1">
                                             {{ $holiday->date->isoFormat('DD MMM YYYY') }}

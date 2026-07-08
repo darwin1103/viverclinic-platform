@@ -212,6 +212,7 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
         // Global Schedule Management
         Route::get('/agenda-settings', [\App\Http\Controllers\Admin\GlobalScheduleController::class, 'index'])->name('global-schedule.index');
         Route::post('/agenda-settings', [\App\Http\Controllers\Admin\GlobalScheduleController::class, 'storeSchedule'])->name('global-schedule.store');
+        Route::post('/agenda-settings/slots', [\App\Http\Controllers\Admin\GlobalScheduleController::class, 'storeSlots'])->name('global-schedule.slots');
         Route::patch('/agenda-settings/employee/{user}/toggle', [\App\Http\Controllers\Admin\GlobalScheduleController::class, 'toggleEmployeeStatus'])->name('global-schedule.employee.toggle');
 
         // Holidays management

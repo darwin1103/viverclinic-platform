@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\GlobalSchedule;
 use App\Models\Holiday;
+use App\Models\Setting;
 use App\Models\User;
 use App\Models\Branch;
 
@@ -24,7 +25,11 @@ class GlobalScheduleController extends Controller
 
         $daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
-        return view('admin.global-schedule.index', compact('schedules', 'holidays', 'employees', 'daysOfWeek', 'branchId'));
+        // Slots globales desde settings
+        $regularSlots = Setting::get('regular_slots', '0');
+        $salesSlots = Setting::get('sales_slots', '0');
+
+        return view('admin.global-schedule.index', compact('schedules', 'holidays', 'employees', 'daysOfWeek', 'branchId', 'regularSlots', 'salesSlots'));
     }
 
     public function storeSchedule(Request $request)
@@ -48,15 +53,26 @@ class GlobalScheduleController extends Controller
                             'day_of_week' => $day,
                             'start_time' => $block['start_time'],
                             'end_time' => $block['end_time'],
-                            'regular_slots' => $block['regular_slots'] ?? 0,
-                            'sales_slots' => $block['sales_slots'] ?? 0,
                         ]);
                     }
                 }
             }
         }
 
-        return redirect()->back()->with('success', 'Agenda global actualizada correctamente.');
+        return redirect()->back()->with('success', 'Horarios actualizados correctamente.');
+    }
+
+    public function storeSlots(Request $request)
+    {
+        $request->validate([
+            'regular_slots' => 'required|integer|min:0',
+            'sales_slots' => 'required|integer|min:0',
+        ]);
+
+        Setting::updateOrCreate(['key' => 'regular_slots'], ['value' => $request->regular_slots]);
+        Setting::updateOrCreate(['key' => 'sales_slots'], ['value' => $request->sales_slots]);
+
+        return redirect()->back()->with('success', 'Cupos actualizados correctamente.');
     }
 
     public function toggleEmployeeStatus(Request $request, User $user)

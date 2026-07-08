@@ -5,7 +5,7 @@
     <div class="row mb-4">
         <div class="col-12">
             <h2 class="fw-bold">Configuración Global de Agenda</h2>
-            <p class="text-secondary">Administra los bloques de horarios, cupos disponibles y personal habilitado.</p>
+            <p class="text-secondary">Administra los cupos, bloques de horarios y personal habilitado.</p>
         </div>
     </div>
 
@@ -17,9 +17,38 @@
     @endif
 
     <div class="row g-4">
-        <!-- SECCIÓN 1: HORARIOS GLOBALES -->
+
+        <!-- SECCIÓN 1: CUPOS GLOBALES -->
+        <div class="col-12">
+            <x-admin-card title="Cupos por Bloque de 20 Minutos">
+                <p class="text-secondary small mb-3">Define cuántos cupos están disponibles en cada bloque de 20 minutos para toda la agenda. Los cupos regulares son visibles para todos los usuarios. Los cupos de ventas son adicionales, visibles solo para roles de administración y ventas.</p>
+                <form action="{{ route('admin.global-schedule.slots') }}" method="POST">
+                    @csrf
+                    <div class="row g-3 align-items-end">
+                        <div class="col-12 col-md-4">
+                            <label for="regular_slots" class="form-label fw-bold">Cupos Regulares</label>
+                            <input type="number" min="0" class="form-control" id="regular_slots" name="regular_slots" value="{{ $regularSlots }}" required>
+                            <small class="text-secondary">Cupos disponibles para pacientes en cada bloque de 20 minutos.</small>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="sales_slots" class="form-label fw-bold">Cupos de Ventas</label>
+                            <input type="number" min="0" class="form-control" id="sales_slots" name="sales_slots" value="{{ $salesSlots }}" required>
+                            <small class="text-secondary">Cupos adicionales solo visibles para administradores y ventas.</small>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-save me-2"></i>Guardar Cupos
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </x-admin-card>
+        </div>
+
+        <!-- SECCIÓN 2: HORARIOS GLOBALES -->
         <div class="col-12 col-xl-8">
-            <x-admin-card title="Horarios por Bloques (Lunes a Domingo)">
+            <x-admin-card title="Horarios de Disponibilidad (Lunes a Domingo)">
+                <p class="text-secondary small mb-3">Configura los rangos de horario en los que la clínica está disponible para agendar citas. La disponibilidad se dividirá en bloques de 20 minutos automáticamente.</p>
                 <form action="{{ route('admin.global-schedule.store') }}" method="POST">
                     @csrf
                     <input type="hidden" name="branch_id" value="{{ $branchId }}">
@@ -42,21 +71,13 @@
                                         <div id="blocks-container-{{ $day }}">
                                             @foreach($dayBlocks as $bIndex => $block)
                                                 <div class="row g-2 align-items-end mb-2 block-row">
-                                                    <div class="col-3">
+                                                    <div class="col-5">
                                                         <label class="form-label small">Inicio</label>
                                                         <input type="time" class="form-control form-control-sm" name="schedules[{{ $day }}][{{ $bIndex }}][start_time]" value="{{ \Carbon\Carbon::parse($block->start_time)->format('H:i') }}" required>
                                                     </div>
-                                                    <div class="col-3">
+                                                    <div class="col-5">
                                                         <label class="form-label small">Fin</label>
                                                         <input type="time" class="form-control form-control-sm" name="schedules[{{ $day }}][{{ $bIndex }}][end_time]" value="{{ \Carbon\Carbon::parse($block->end_time)->format('H:i') }}" required>
-                                                    </div>
-                                                    <div class="col-2">
-                                                        <label class="form-label small" title="Cupos para pacientes">Regulares</label>
-                                                        <input type="number" min="0" class="form-control form-control-sm" name="schedules[{{ $day }}][{{ $bIndex }}][regular_slots]" value="{{ $block->regular_slots }}" required>
-                                                    </div>
-                                                    <div class="col-2">
-                                                        <label class="form-label small" title="Sobrecupo Ventas">Ventas</label>
-                                                        <input type="number" min="0" class="form-control form-control-sm" name="schedules[{{ $day }}][{{ $bIndex }}][sales_slots]" value="{{ $block->sales_slots }}" required>
                                                     </div>
                                                     <div class="col-2 text-end">
                                                         <button type="button" class="btn btn-sm btn-outline-danger remove-block-btn w-100"><i class="bi bi-trash"></i></button>
@@ -167,21 +188,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const html = `
                 <div class="row g-2 align-items-end mb-2 block-row">
-                    <div class="col-3">
+                    <div class="col-5">
                         <label class="form-label small">Inicio</label>
                         <input type="time" class="form-control form-control-sm" name="schedules[${day}][${index}][start_time]" required>
                     </div>
-                    <div class="col-3">
+                    <div class="col-5">
                         <label class="form-label small">Fin</label>
                         <input type="time" class="form-control form-control-sm" name="schedules[${day}][${index}][end_time]" required>
-                    </div>
-                    <div class="col-2">
-                        <label class="form-label small">Regulares</label>
-                        <input type="number" min="0" class="form-control form-control-sm" name="schedules[${day}][${index}][regular_slots]" value="0" required>
-                    </div>
-                    <div class="col-2">
-                        <label class="form-label small">Ventas</label>
-                        <input type="number" min="0" class="form-control form-control-sm" name="schedules[${day}][${index}][sales_slots]" value="0" required>
                     </div>
                     <div class="col-2 text-end">
                         <button type="button" class="btn btn-sm btn-outline-danger remove-block-btn w-100"><i class="bi bi-trash"></i></button>

@@ -15,8 +15,6 @@ class GlobalSchedule extends Model
         'day_of_week',
         'start_time',
         'end_time',
-        'regular_slots',
-        'sales_slots',
     ];
 
     public function branch()

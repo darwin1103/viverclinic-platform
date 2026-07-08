@@ -117,8 +117,13 @@
                                 <span class="fw-bold d-block">{{ $emp->name }}</span>
                                 <small class="text-secondary">{{ $emp->email }}</small>
                             </div>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input employee-toggle" type="checkbox" role="switch" data-user-id="{{ $emp->id }}" {{ $emp->is_enabled_for_appointments ? 'checked' : '' }}>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge {{ $emp->is_enabled_for_appointments ? 'bg-success' : 'bg-danger' }}" id="status-badge-{{ $emp->id }}">
+                                    {{ $emp->is_enabled_for_appointments ? 'Habilitado' : 'Deshabilitado' }}
+                                </span>
+                                <div class="form-check form-switch m-0">
+                                    <input class="form-check-input employee-toggle" type="checkbox" role="switch" data-user-id="{{ $emp->id }}" {{ $emp->is_enabled_for_appointments ? 'checked' : '' }}>
+                                </div>
                             </div>
                         </div>
                     @empty
@@ -231,6 +236,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 if(!data.success) {
                     alert('Error actualizando estado');
                     this.checked = !this.checked;
+                } else {
+                    const badge = document.getElementById('status-badge-' + userId);
+                    if (badge) {
+                        if (isEnabled) {
+                            badge.className = 'badge bg-success';
+                            badge.textContent = 'Habilitado';
+                        } else {
+                            badge.className = 'badge bg-danger';
+                            badge.textContent = 'Deshabilitado';
+                        }
+                    }
                 }
             })
             .catch(error => {

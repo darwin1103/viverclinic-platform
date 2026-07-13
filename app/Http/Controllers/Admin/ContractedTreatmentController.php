@@ -441,7 +441,7 @@ class ContractedTreatmentController extends Controller
                 ->with('error', 'El tratamiento no cumple con las condiciones para un agrandamiento de paquete (requiere primera cita atendida con empleada asignada y no tener upgrades previos).');
         }
 
-        $currentPackage = !empty($contractedTreatment->contracted_packages) ? $contractedTreatment->contracted_packages[0] : null;
+        $currentPackage = collect($contractedTreatment->contracted_packages)->firstWhere('quantity', '>', 0);
         if (!$currentPackage) {
             return redirect()->route('admin.contracted-treatment.show', $contractedTreatment->id)
                 ->with('error', 'No se encontró información del paquete original contratado.');
@@ -504,7 +504,7 @@ class ContractedTreatmentController extends Controller
             return back()->withErrors(['new_package_id' => 'El paquete seleccionado no pertenece al mismo tratamiento o sucursal.'])->withInput();
         }
 
-        $currentPackage = !empty($contractedTreatment->contracted_packages) ? $contractedTreatment->contracted_packages[0] : null;
+        $currentPackage = collect($contractedTreatment->contracted_packages)->firstWhere('quantity', '>', 0);
         if (!$currentPackage) {
             return back()->withErrors(['error' => 'No se encontró el paquete original contratado.'])->withInput();
         }

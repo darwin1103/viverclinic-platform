@@ -491,7 +491,7 @@ class AdminAppointmentController extends Controller
             $branchId = (int)$validated['branch_id'];
 
             // Call the method from our trait to get the available slots
-            $includeSalesSlots = auth()->check() && auth()->user()->hasAnyRole(['SUPER_ADMIN', 'OWNER', 'ADMIN', 'VENTAS']);
+            $includeSalesSlots = auth()->check() && auth()->user()->hasAnyRole(['SUPER_ADMIN', 'OWNER', 'ADMIN', 'SALES']);
             $slots = $this->calculateAvailableSlots($date, $branchId, 20, $includeSalesSlots);
 
             return response()->json(['slots' => $slots]);

@@ -124,6 +124,11 @@
                                 </div>
                             </div>
                             <small class="text-muted mt-2 d-block"><i class="bi bi-info-circle me-1"></i>Este agrandamiento no cuenta con registro detallado de paquete anterior/nuevo.</small>
+                            @hasanyrole('SUPER_ADMIN|OWNER')
+                                <button type="button" class="btn btn-sm btn-success mt-2" data-bs-toggle="modal" data-bs-target="#migrateLegacyUpgradeModal">
+                                    <i class="bi bi-clipboard-plus me-1"></i>Completar Información
+                                </button>
+                            @endhasanyrole
                         </div>
                     @endif
 
@@ -830,6 +835,96 @@
     });
 </script>
 @endif
+
+@if(!$contractedTreatment->packageUpgrade && $contractedTreatment->upgradeSale)
+<!-- Modal Migrar Agrandamiento Antiguo (Legacy) -->
+<div class="modal fade" id="migrateLegacyUpgradeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Completar Información de Agrandamiento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('admin.contracted-treatment.upgrade.migrate-legacy', $contractedTreatment->id) }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">Selecciona el paquete anterior y el nuevo para construir el historial detallado del agrandamiento. Se recalcularán los montos asociados.</p>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Paquete Anterior</label>
+                        <select name="old_package_id" class="form-select" id="legacyOldPackageSelect" required>
+                            <option value="">-- Seleccionar paquete anterior --</option>
+                            @foreach($availableBranchPackages as $pkg)
+                                <option value="{{ $pkg->id }}" data-price="{{ $pkg->price }}">
+                                    {{ $pkg->name }} (${{ number_format($pkg->price, 2) }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nuevo Paquete (Al que se cambió)</label>
+                        <select name="new_package_id" class="form-select" id="legacyNewPackageSelect" required>
+                            <option value="">-- Seleccionar paquete nuevo --</option>
+                            @foreach($availableBranchPackages as $pkg)
+                                <option value="{{ $pkg->id }}" data-price="{{ $pkg->price }}">
+                                    {{ $pkg->name }} (${{ number_format($pkg->price, 2) }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    
+                    @php
+                        $legacyUpgradeOrder = $contractedTreatment->orders->first(function($o) {
+                            return str_contains($o->payment_description ?? '', 'Agrandamiento');
+                        });
+                        $legacyPriceDiff = $legacyUpgradeOrder ? $legacyUpgradeOrder->total : $contractedTreatment->upgradeSale->first_payment_amount;
+                    @endphp
+
+                    <div class="alert alert-info bg-info bg-opacity-10 border-info py-2 d-none" id="legacyCorrectionPreview">
+                        <i class="bi bi-calculator me-1"></i>
+                        <strong>Nueva diferencia calculada:</strong> <span id="legacyNewDiffPreview">$0.00</span>
+                        <br>
+                        <small class="text-muted">Diferencia actual pagada: ${{ number_format($legacyPriceDiff, 2) }}</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Completar Agrandamiento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    function calculateLegacyPreview() {
+        const oldSelect = document.getElementById('legacyOldPackageSelect');
+        const newSelect = document.getElementById('legacyNewPackageSelect');
+        const preview = document.getElementById('legacyCorrectionPreview');
+        const diffSpan = document.getElementById('legacyNewDiffPreview');
+
+        if (oldSelect?.value && newSelect?.value) {
+            const oldPrice = parseFloat(oldSelect.options[oldSelect.selectedIndex].dataset.price);
+            const newPrice = parseFloat(newSelect.options[newSelect.selectedIndex].dataset.price);
+            const diff = newPrice - oldPrice;
+            
+            if(diff >= 0) {
+                diffSpan.textContent = '$' + diff.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                preview.classList.remove('d-none');
+            } else {
+                diffSpan.textContent = 'Error: Paquete nuevo es más barato';
+                preview.classList.remove('d-none');
+            }
+        } else {
+            preview?.classList.add('d-none');
+        }
+    }
+
+    document.getElementById('legacyOldPackageSelect')?.addEventListener('change', calculateLegacyPreview);
+    document.getElementById('legacyNewPackageSelect')?.addEventListener('change', calculateLegacyPreview);
+</script>
+@endif
+
 
 @foreach($contractedTreatment->orders as $order)
     @if(in_array($order->payment_method, ['Efectivo', 'Transferencia']))

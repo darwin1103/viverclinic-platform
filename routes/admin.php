@@ -46,6 +46,7 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
         Route::put('/contracted-treatment/{contracted_treatment}/change-staff', [ContractedTreatmentController::class, 'changeStaff'])->name('contracted-treatment.change-staff');
         Route::post('/package-upgrade/{packageUpgrade}/correct', [ContractedTreatmentController::class, 'correctUpgradePackage'])->name('contracted-treatment.upgrade.correct');
         Route::post('/treatment-order/{order}/update-amount', [ContractedTreatmentController::class, 'updateOrderAmount'])->name('contracted-treatment.update-order-amount');
+        Route::post('/contracted-treatment/{contracted_treatment}/migrate-legacy-upgrade', [ContractedTreatmentController::class, 'migrateLegacyUpgrade'])->name('contracted-treatment.upgrade.migrate-legacy');
     });
 
     Route::middleware('permission:admin_dashboard_role_management')->group(function () {

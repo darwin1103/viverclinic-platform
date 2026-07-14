@@ -85,11 +85,20 @@ class ContractedTreatmentController extends Controller
     public function show(ContractedTreatment $contractedTreatment)
     {
 
-        $contractedTreatment->load(['user', 'branch', 'treatment', 'installments', 'orders', 'notes.user']);
+        $contractedTreatment->load(['user', 'branch', 'treatment', 'installments', 'orders', 'notes.user', 'packageUpgrade']);
 
         $staffUsers = User::role(['EMPLOYEE'])->get();
 
-        return view('admin.contracted-treatment.show', compact('contractedTreatment', 'staffUsers'));
+        // Available packages for upgrade correction modal
+        $availableBranchPackages = collect();
+        if ($contractedTreatment->packageUpgrade) {
+            $availableBranchPackages = BranchTreatment::where('treatment_id', $contractedTreatment->treatment_id)
+                ->where('branch_id', $contractedTreatment->branch_id)
+                ->orderBy('price', 'asc')
+                ->get();
+        }
+
+        return view('admin.contracted-treatment.show', compact('contractedTreatment', 'staffUsers', 'availableBranchPackages'));
 
     }
 
@@ -727,5 +736,162 @@ class ContractedTreatmentController extends Controller
         }
 
         return redirect()->back()->with('success', 'Empleada actualizada correctamente.');
+    }
+
+    /**
+     * Correct the old package data in an existing upgrade.
+     */
+    public function correctUpgradePackage(Request $request, PackageUpgrade $packageUpgrade)
+    {
+        if (!auth()->user()->hasRole(['SUPER_ADMIN', 'OWNER'])) {
+            abort(403);
+        }
+
+        $request->validate([
+            'correct_package_id' => 'required|exists:branch_treatment,id',
+        ]);
+
+        $correctOldPackage = BranchTreatment::findOrFail($request->correct_package_id);
+        $contractedTreatment = $packageUpgrade->contractedTreatment;
+
+        // Verify package belongs to the same treatment and branch
+        if ($correctOldPackage->treatment_id !== $contractedTreatment->treatment_id || $correctOldPackage->branch_id !== $contractedTreatment->branch_id) {
+            return back()->with('error', 'El paquete seleccionado no pertenece al mismo tratamiento o sucursal.');
+        }
+
+        $oldPackageName = $packageUpgrade->old_package_data['name'] ?? 'N/A';
+        $oldPriceDifference = (float) $packageUpgrade->price_difference;
+        $newPriceDifference = (float) $packageUpgrade->new_package_data['price'] - $correctOldPackage->price;
+        $delta = $newPriceDifference - $oldPriceDifference;
+
+        DB::beginTransaction();
+        try {
+            // 1. Update PackageUpgrade
+            $packageUpgrade->update([
+                'old_package_data' => [
+                    'id' => $correctOldPackage->id,
+                    'name' => $correctOldPackage->name,
+                    'quantity' => 1,
+                    'price_at_purchase' => $correctOldPackage->price,
+                ],
+                'price_difference' => $newPriceDifference,
+            ]);
+
+            // 2. Update TreatmentOrder associated with the upgrade
+            $upgradeOrder = $contractedTreatment->orders()
+                ->where('payment_description', 'like', 'Agrandamiento de paquete%')
+                ->first();
+
+            if ($upgradeOrder) {
+                $upgradeOrder->update([
+                    'total' => $newPriceDifference,
+                    'payment_description' => 'Agrandamiento de paquete: ' . $correctOldPackage->name . ' -> ' . ($packageUpgrade->new_package_data['name'] ?? 'N/A'),
+                ]);
+
+                // 3. Update AccountingRecord
+                \App\Models\AccountingRecord::where('reference_id', $upgradeOrder->id)
+                    ->where('reference_type', TreatmentOrder::class)
+                    ->update(['amount' => $newPriceDifference]);
+            }
+
+            // 4. Update ContractedTreatment total_price
+            $contractedTreatment->update([
+                'total_price' => $contractedTreatment->total_price + $delta,
+            ]);
+
+            // 5. Update Sale (upgrade type)
+            \App\Models\Sale::where('contracted_treatment_id', $contractedTreatment->id)
+                ->where('type', 'upgrade')
+                ->update(['first_payment_amount' => $newPriceDifference]);
+
+            // 6. Audit note
+            $contractedTreatment->notes()->create([
+                'user_id' => auth()->id(),
+                'content' => "Corrección de agrandamiento por " . auth()->user()->name . ":\n" .
+                             "- Paquete anterior corregido de: " . $oldPackageName . " -> " . $correctOldPackage->name . "\n" .
+                             "- Diferencia corregida de: $" . number_format($oldPriceDifference, 2) . " -> $" . number_format($newPriceDifference, 2),
+            ]);
+
+            DB::commit();
+            return back()->with('success', 'Agrandamiento corregido exitosamente. Se actualizaron todos los registros relacionados.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Error al corregir el agrandamiento: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Update the amount of a treatment order (cash or transfer only).
+     */
+    public function updateOrderAmount(Request $request, TreatmentOrder $order)
+    {
+        if (!auth()->user()->hasRole(['SUPER_ADMIN', 'OWNER'])) {
+            abort(403);
+        }
+
+        $request->validate([
+            'new_amount' => 'required|numeric|min:0',
+            'reason' => 'required|string|max:500',
+        ]);
+
+        // Only allow editing cash or transfer payments
+        if (!in_array($order->payment_method, ['Efectivo', 'Transferencia'])) {
+            return back()->with('error', 'Solo se pueden editar pagos por Efectivo o Transferencia.');
+        }
+
+        $oldAmount = (float) $order->total;
+        $newAmount = (float) $request->new_amount;
+        $delta = $newAmount - $oldAmount;
+
+        $contractedTreatment = $order->contractedTreatment;
+
+        DB::beginTransaction();
+        try {
+            // 1. Update order total
+            $order->update(['total' => $newAmount]);
+
+            // 2. Update ContractedTreatment total_price
+            if ($contractedTreatment) {
+                $contractedTreatment->update([
+                    'total_price' => $contractedTreatment->total_price + $delta,
+                ]);
+            }
+
+            // 3. Update AccountingRecord
+            \App\Models\AccountingRecord::where('reference_id', $order->id)
+                ->where('reference_type', TreatmentOrder::class)
+                ->update(['amount' => $newAmount]);
+
+            // 4. Update PackageUpgrade and Sale if this is an upgrade order
+            if ($contractedTreatment && str_contains($order->payment_description ?? '', 'Agrandamiento')) {
+                $packageUpgrade = $contractedTreatment->packageUpgrade;
+                if ($packageUpgrade) {
+                    $packageUpgrade->update(['price_difference' => $newAmount]);
+                }
+
+                \App\Models\Sale::where('contracted_treatment_id', $contractedTreatment->id)
+                    ->where('type', 'upgrade')
+                    ->update(['first_payment_amount' => $newAmount]);
+            }
+
+            // 5. Audit note
+            if ($contractedTreatment) {
+                $contractedTreatment->notes()->create([
+                    'user_id' => auth()->id(),
+                    'content' => "Monto de pago editado por " . auth()->user()->name . ":\n" .
+                                 "- Monto anterior: $" . number_format($oldAmount, 2) . "\n" .
+                                 "- Nuevo monto: $" . number_format($newAmount, 2) . "\n" .
+                                 "- Motivo: " . $request->reason,
+                ]);
+            }
+
+            DB::commit();
+            return back()->with('success', 'Monto del pago actualizado correctamente.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Error al actualizar el monto: ' . $e->getMessage());
+        }
     }
 }

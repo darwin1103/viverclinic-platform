@@ -71,7 +71,13 @@
                             </h5>
                             <div class="row text-start fs-6">
                                 <div class="col-md-6 mb-2 mb-md-0 border-end">
-                                    <strong>Paquete Anterior:</strong> {{ $upgrade->old_package_data['name'] ?? 'N/A' }} (${{ number_format($upgrade->old_package_data['price_at_purchase'] ?? 0, 2) }})<br>
+                                    <strong>Paquete Anterior:</strong> {{ $upgrade->old_package_data['name'] ?? 'N/A' }} (${{ number_format($upgrade->old_package_data['price_at_purchase'] ?? 0, 2) }})
+                                    @hasanyrole('SUPER_ADMIN|OWNER')
+                                        <button type="button" class="btn btn-sm btn-link text-success p-0 ms-1" data-bs-toggle="modal" data-bs-target="#correctUpgradeModal" title="Corregir paquete anterior">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    @endhasanyrole
+                                    <br>
                                     <strong>Nuevo Paquete:</strong> {{ $upgrade->new_package_data['name'] ?? 'N/A' }} (${{ number_format($upgrade->new_package_data['price'] ?? 0, 2) }})<br>
                                     <strong>Diferencia Pagada:</strong> ${{ number_format($upgrade->price_difference, 2) }} COP
                                 </div>
@@ -421,7 +427,16 @@
                                                         </a>
                                                     @endif
                                                 </td>
-                                                <td class="fw-bold">${{ number_format($order->total, 2) }}</td>
+                                                <td class="fw-bold">
+                                                    ${{ number_format($order->total, 2) }}
+                                                    @hasanyrole('SUPER_ADMIN|OWNER')
+                                                        @if(in_array($order->payment_method, ['Efectivo', 'Transferencia']))
+                                                            <button type="button" class="btn btn-sm btn-link p-0 ms-1" data-bs-toggle="modal" data-bs-target="#editAmountModal-{{ $order->id }}" title="Editar monto">
+                                                                <i class="bi bi-pencil text-warning"></i>
+                                                            </button>
+                                                        @endif
+                                                    @endhasanyrole
+                                                </td>
                                                 <td>
                                                     @if($order->status == 'Pago completado')
                                                         <span class="badge bg-success"><i class="bi bi-check-lg"></i> Aprobado</span>
@@ -477,7 +492,17 @@
                                                         <span class="text-white-50 small">Pendiente</span>
                                                         @endunlessrole
                                                     @else
-                                                        <span class="text-white-50 small">-</span>
+                                                        @hasanyrole('SUPER_ADMIN|OWNER')
+                                                            @if(in_array($order->payment_method, ['Efectivo', 'Transferencia']))
+                                                                <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editAmountModal-{{ $order->id }}" title="Editar monto">
+                                                                    <i class="bi bi-pencil"></i>
+                                                                </button>
+                                                            @else
+                                                                <span class="text-white-50 small">-</span>
+                                                            @endif
+                                                        @else
+                                                            <span class="text-white-50 small">-</span>
+                                                        @endhasanyrole
                                                     @endif
                                                 </td>
                                             </tr>
@@ -709,4 +734,118 @@
     </div>
 </div>
 @endif
+@if($contractedTreatment->packageUpgrade)
+<!-- Modal Corregir Paquete Anterior del Agrandamiento -->
+<div class="modal fade" id="correctUpgradeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Corregir Paquete Anterior</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('admin.contracted-treatment.upgrade.correct', $contractedTreatment->packageUpgrade->id) }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">Selecciona el paquete anterior correcto. Se recalcularán automáticamente la diferencia, la orden de pago, el registro contable y la venta asociada.</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Paquete Anterior Actual (Incorrecto)</label>
+                        <input type="text" class="form-control" value="{{ $contractedTreatment->packageUpgrade->old_package_data['name'] ?? 'N/A' }} (${{ number_format($contractedTreatment->packageUpgrade->old_package_data['price_at_purchase'] ?? 0, 2) }})" disabled>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nuevo Paquete (Destino)</label>
+                        <input type="text" class="form-control" value="{{ $contractedTreatment->packageUpgrade->new_package_data['name'] ?? 'N/A' }} (${{ number_format($contractedTreatment->packageUpgrade->new_package_data['price'] ?? 0, 2) }})" disabled>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Paquete Anterior Correcto</label>
+                        <select name="correct_package_id" class="form-select" id="correctPackageSelect" required>
+                            <option value="">-- Seleccionar paquete correcto --</option>
+                            @foreach($availableBranchPackages as $pkg)
+                                <option value="{{ $pkg->id }}" data-price="{{ $pkg->price }}">
+                                    {{ $pkg->name }} (${{ number_format($pkg->price, 2) }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="alert alert-info bg-info bg-opacity-10 border-info py-2 d-none" id="correctionPreview">
+                        <i class="bi bi-calculator me-1"></i>
+                        <strong>Nueva diferencia calculada:</strong> <span id="newDiffPreview">$0.00</span>
+                        <br>
+                        <small class="text-muted">Diferencia actual: ${{ number_format($contractedTreatment->packageUpgrade->price_difference, 2) }}</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Corregir Agrandamiento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    document.getElementById('correctPackageSelect')?.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const preview = document.getElementById('correctionPreview');
+        const diffSpan = document.getElementById('newDiffPreview');
+        if (this.value) {
+            const oldPrice = parseFloat(selectedOption.dataset.price);
+            const newPrice = {{ $contractedTreatment->packageUpgrade->new_package_data['price'] ?? 0 }};
+            const diff = newPrice - oldPrice;
+            diffSpan.textContent = '$' + diff.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            preview.classList.remove('d-none');
+        } else {
+            preview.classList.add('d-none');
+        }
+    });
+</script>
+@endif
+
+@foreach($contractedTreatment->orders as $order)
+    @if(in_array($order->payment_method, ['Efectivo', 'Transferencia']))
+    <!-- Modal Editar Monto Orden #{{ $order->id }} -->
+    <div class="modal fade" id="editAmountModal-{{ $order->id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Monto del Pago</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('admin.contracted-treatment.update-order-amount', $order->id) }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <p class="small text-muted mb-3">Se actualizarán automáticamente el registro contable y los registros asociados.</p>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Descripción</label>
+                            <input type="text" class="form-control" value="{{ $order->payment_description }}" disabled>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Monto Actual</label>
+                            <input type="text" class="form-control" value="${{ number_format($order->total, 2) }}" disabled>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="new_amount_{{ $order->id }}" class="form-label fw-bold">Nuevo Monto</label>
+                            <input type="number" step="0.01" min="0" name="new_amount" id="new_amount_{{ $order->id }}" class="form-control" value="{{ $order->total }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="reason_{{ $order->id }}" class="form-label fw-bold">Motivo del Cambio</label>
+                            <textarea name="reason" id="reason_{{ $order->id }}" class="form-control" rows="2" placeholder="Ej: Corrección de monto por error de digitación..." required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Cambio</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endif
+@endforeach
 @endhasanyrole

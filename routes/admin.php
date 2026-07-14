@@ -44,6 +44,8 @@ Route::middleware(['auth', 'verified', 'permission:admin_dashboard'])->prefix('a
         Route::get('/contracted-treatment/{contracted_treatment}/upgrade', [ContractedTreatmentController::class, 'upgradeForm'])->name('contracted-treatment.upgrade');
         Route::post('/contracted-treatment/{contracted_treatment}/upgrade', [ContractedTreatmentController::class, 'processUpgrade'])->name('contracted-treatment.upgrade.process');
         Route::put('/contracted-treatment/{contracted_treatment}/change-staff', [ContractedTreatmentController::class, 'changeStaff'])->name('contracted-treatment.change-staff');
+        Route::post('/package-upgrade/{packageUpgrade}/correct', [ContractedTreatmentController::class, 'correctUpgradePackage'])->name('contracted-treatment.upgrade.correct');
+        Route::post('/treatment-order/{order}/update-amount', [ContractedTreatmentController::class, 'updateOrderAmount'])->name('contracted-treatment.update-order-amount');
     });
 
     Route::middleware('permission:admin_dashboard_role_management')->group(function () {

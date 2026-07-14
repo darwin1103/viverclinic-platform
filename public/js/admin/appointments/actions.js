@@ -565,7 +565,7 @@ const AdminActionsModule = (function() {
 
         try {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            const response = await fetch('appointments/available-slots', {
+            const response = await fetch('/admin/appointments/available-slots', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

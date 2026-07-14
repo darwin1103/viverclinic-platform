@@ -330,7 +330,8 @@ const CalendarModule = (function() {
         const formattedDate = formatDateISO(date);
         const branchId = document.getElementById('branchIdInput').value;
         // The URL for our API endpoint. It's better to get this from Blade if possible.
-        const apiUrl = '/appointments/available-slots';
+        const isAdmin = window.location.pathname.includes('/admin/');
+        const apiUrl = isAdmin ? '/admin/appointments/available-slots' : '/appointments/available-slots';
 
         // Get the CSRF token from the meta tag in the head
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');

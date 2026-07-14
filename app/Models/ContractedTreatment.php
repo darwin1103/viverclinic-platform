@@ -83,6 +83,11 @@ class ContractedTreatment extends Model
         return $this->hasOne(PackageUpgrade::class);
     }
 
+    public function upgradeSale(): HasOne
+    {
+        return $this->hasOne(Sale::class)->where('type', 'upgrade');
+    }
+
     public function sales(): HasMany
     {
         return $this->hasMany(Sale::class);
@@ -110,6 +115,11 @@ class ContractedTreatment extends Model
     public function canBeUpgraded(): bool
     {
         if ($this->packageUpgrade()->exists()) {
+            return false;
+        }
+
+        // Also check for upgrade sales (upgrades done before PackageUpgrade table existed)
+        if ($this->upgradeSale()->exists()) {
             return false;
         }
 

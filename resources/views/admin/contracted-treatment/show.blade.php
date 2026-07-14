@@ -97,6 +97,34 @@
                                 </div>
                             </div>
                         </div>
+                    @elseif($contractedTreatment->upgradeSale)
+                        @php
+                            $upgradeSaleInfo = $contractedTreatment->upgradeSale;
+                            $upgradeOrder = $contractedTreatment->orders->first(function($o) {
+                                return str_contains($o->payment_description ?? '', 'Agrandamiento');
+                            });
+                        @endphp
+                        <div class="alert alert-success border-success bg-success-subtle text-success-emphasis p-3 mb-4 rounded">
+                            <h5 class="alert-heading fw-bold mb-2">
+                                <i class="bi bi-check-circle-fill me-2"></i>Paquete Agrandado
+                            </h5>
+                            <div class="row text-start fs-6">
+                                <div class="col-md-6 mb-2 mb-md-0 border-end">
+                                    @if($upgradeOrder)
+                                        <strong>Descripción:</strong> {{ $upgradeOrder->payment_description }}<br>
+                                        <strong>Monto Pagado:</strong> ${{ number_format($upgradeOrder->total, 2) }} COP<br>
+                                        <strong>Método:</strong> {{ $upgradeOrder->payment_method }}
+                                    @else
+                                        <strong>Monto del Agrandamiento:</strong> ${{ number_format($upgradeSaleInfo->first_payment_amount, 2) }} COP
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Empleada que vendió:</strong> {{ $upgradeSaleInfo->staff->name ?? 'N/A' }}<br>
+                                    <strong>Fecha:</strong> {{ $upgradeSaleInfo->created_at->format('d/m/Y H:i') }}
+                                </div>
+                            </div>
+                            <small class="text-muted mt-2 d-block"><i class="bi bi-info-circle me-1"></i>Este agrandamiento no cuenta con registro detallado de paquete anterior/nuevo.</small>
+                        </div>
                     @endif
 
                     @if($contractedTreatment->repurchaseSale)

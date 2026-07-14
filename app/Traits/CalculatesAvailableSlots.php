@@ -83,6 +83,7 @@ trait CalculatesAvailableSlots
             ->whereHas('contractedTreatment', function ($query) use ($branchId) {
                 $query->where('branch_id', $branchId);
             })
+            ->whereNotIn('status', ['Cancelada', 'Cancelado', 'No asistida', 'No asistió'])
             ->whereDate('schedule', $date)
             ->get();
     }

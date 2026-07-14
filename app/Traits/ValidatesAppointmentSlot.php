@@ -83,6 +83,7 @@ trait ValidatesAppointmentSlot
         return Appointment::whereHas('contractedTreatment', function ($query) use ($branchId) {
                 $query->where('branch_id', $branchId);
             })
+            ->whereNotIn('status', ['Cancelada', 'Cancelado', 'No asistida', 'No asistió'])
             ->where('schedule', $scheduleDateTime)
             ->count();
     }

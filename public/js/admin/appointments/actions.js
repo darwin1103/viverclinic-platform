@@ -587,12 +587,21 @@ const AdminActionsModule = (function() {
                 return;
             }
 
-            slots.forEach(time => {
+            slots.forEach(slotObj => {
+                const timeStr = typeof slotObj === 'string' ? slotObj : slotObj.time;
+                const available = typeof slotObj === 'object' && slotObj.available !== undefined ? slotObj.available : '';
+                
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = 'btn btn-outline-light slot-btn';
-                btn.textContent = time;
-                btn.addEventListener('click', () => selectRescheduleTime(time));
+                btn.className = 'btn btn-outline-light slot-btn d-flex justify-content-between align-items-center text-start px-3';
+                
+                let slotInfoHTML = '';
+                if (available !== '') {
+                    slotInfoHTML = `<small class="text-secondary ms-2" style="font-size: 0.7rem;">Libres: ${available}</small>`;
+                }
+                
+                btn.innerHTML = `<span>${timeStr}</span> ${slotInfoHTML}`;
+                btn.addEventListener('click', () => selectRescheduleTime(timeStr));
                 elements.rescheduleSlotsContainer.appendChild(btn);
             });
         } catch (error) {

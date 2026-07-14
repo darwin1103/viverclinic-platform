@@ -269,11 +269,13 @@ const CalendarModule = (function() {
             btn.className = 'btn btn-outline-light slot-btn d-flex justify-content-between align-items-center text-start px-3';
             
             let slotInfoHTML = '';
-            if (typeof slotObj === 'object' && slotObj.available !== undefined) {
-                // Determine if we are in admin side to show extra slots data
+            const available = typeof slotObj === 'object' && slotObj.available !== undefined ? slotObj.available : '';
+            if (available !== '') {
                 const isAdmin = window.location.pathname.includes('/admin/');
-                if (isAdmin) {
-                    slotInfoHTML = `<small class="text-secondary ms-2" style="font-size: 0.7rem;">Libres: ${slotObj.available}</small>`;
+                if (isAdmin && slotObj.available_regular !== undefined && slotObj.available_sales !== undefined) {
+                    slotInfoHTML = `<small class="text-secondary ms-2" style="font-size: 0.7rem;">R: ${slotObj.available_regular} V: ${slotObj.available_sales}</small>`;
+                } else {
+                    slotInfoHTML = `<small class="text-secondary ms-2" style="font-size: 0.7rem;">Libres: ${available}</small>`;
                 }
             }
 

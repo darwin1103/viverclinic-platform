@@ -597,7 +597,12 @@ const AdminActionsModule = (function() {
                 
                 let slotInfoHTML = '';
                 if (available !== '') {
-                    slotInfoHTML = `<small class="text-secondary ms-2" style="font-size: 0.7rem;">Libres: ${available}</small>`;
+                    const isAdmin = window.location.pathname.includes('/admin/');
+                    if (isAdmin && slotObj.available_regular !== undefined && slotObj.available_sales !== undefined) {
+                        slotInfoHTML = `<small class="text-secondary ms-2" style="font-size: 0.7rem;">R: ${slotObj.available_regular} V: ${slotObj.available_sales}</small>`;
+                    } else {
+                        slotInfoHTML = `<small class="text-secondary ms-2" style="font-size: 0.7rem;">Libres: ${available}</small>`;
+                    }
                 }
                 
                 btn.innerHTML = `<span>${timeStr}</span> ${slotInfoHTML}`;

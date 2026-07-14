@@ -135,10 +135,15 @@ trait CalculatesAvailableSlots
             $booked = $bookedCounts[$time] ?? 0;
 
             if ($totalCapacity > $booked) {
+                $availableRegular = max(0, $regularSlots - $booked);
+                $availableSales = $includeSalesSlots ? max(0, $salesSlots - max(0, $booked - $regularSlots)) : 0;
+
                 $availableSlots[] = [
                     'time' => Carbon::createFromFormat('H:i', $time)->isoFormat('hh:mm a'),
                     'regular' => $regularSlots,
                     'sales' => $salesSlots,
+                    'available_regular' => $availableRegular,
+                    'available_sales' => $availableSales,
                     'booked' => $booked,
                     'available' => $totalCapacity - $booked,
                 ];

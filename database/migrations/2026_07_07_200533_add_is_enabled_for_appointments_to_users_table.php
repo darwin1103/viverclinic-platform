@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_enabled_for_appointments')->default(true)->after('is_active');
+            $table->boolean('is_enabled_for_appointments')->default(true);
         });
     }
 

@@ -46,7 +46,7 @@
         </div>
 
         <!-- SECCIÓN IZQUIERDA: HORARIOS Y FESTIVOS -->
-        <div class="col-12 col-xl-8">
+        <div class="col-12 col-xl-6">
             <x-admin-card title="Horarios de Disponibilidad (Lunes a Domingo)">
                 <p class="text-secondary small mb-3">Configura los rangos de horario en los que la clínica está disponible para agendar citas. La disponibilidad se dividirá en bloques de 20 minutos automáticamente.</p>
                 <form action="{{ route('admin.global-schedule.store') }}" method="POST">
@@ -150,7 +150,7 @@
         </div>
 
         <!-- SECCIÓN DERECHA: EMPLEADOS -->
-        <div class="col-12 col-xl-4">
+        <div class="col-12 col-xl-6">
             <!-- Empleados Habilitados -->
             <x-admin-card title="Personal Habilitado">
                 <p class="text-secondary small mb-3">Activa o desactiva a los empleados. Los desactivados no recibirán asignaciones de citas.</p>

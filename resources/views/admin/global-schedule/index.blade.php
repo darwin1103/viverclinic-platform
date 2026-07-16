@@ -222,20 +222,30 @@ document.addEventListener('DOMContentLoaded', function() {
         toggle.addEventListener('change', function() {
             const userId = this.getAttribute('data-user-id');
             const isEnabled = this.checked ? 1 : 0;
+            const checkbox = this;
+            
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             
             fetch(`/admin/agenda-settings/employee/${userId}/toggle`, {
-                method: 'PATCH',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: JSON.stringify({ is_enabled: isEnabled })
+                body: JSON.stringify({ _method: 'PATCH', is_enabled: isEnabled })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status);
+                }
+                return response.json();
+            })
             .then(data => {
                 if(!data.success) {
                     alert('Error actualizando estado');
-                    this.checked = !this.checked;
+                    checkbox.checked = !checkbox.checked;
                 } else {
                     const badge = document.getElementById('status-badge-' + userId);
                     if (badge) {
@@ -250,8 +260,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                this.checked = !this.checked;
+                console.error('Error toggling employee:', error);
+                checkbox.checked = !checkbox.checked;
             });
         });
     });
